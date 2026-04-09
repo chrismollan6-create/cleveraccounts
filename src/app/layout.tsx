@@ -1,30 +1,7 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
-
-const inter = localFont({
-  src: [
-    {
-      path: "../fonts/inter-latin.woff2",
-      style: "normal",
-    },
-  ],
-  variable: "--font-inter",
-  display: "swap",
-  fallback: [
-    "ui-sans-serif",
-    "system-ui",
-    "-apple-system",
-    "BlinkMacSystemFont",
-    "Segoe UI",
-    "Roboto",
-    "Helvetica Neue",
-    "Arial",
-    "sans-serif",
-  ],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -73,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className="h-full">
       <body className="min-h-full flex flex-col font-sans antialiased">
         <Header />
         <main className="flex-1">{children}</main>
