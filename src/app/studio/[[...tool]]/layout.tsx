@@ -1,16 +1,11 @@
-export const metadata = {
-  title: "Clever Accounts CMS",
-  description: "Content management for cleveraccounts.com",
-};
-
 export default function StudioLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0 }}>{children}</body>
-    </html>
+    <div style={{ height: "100vh", width: "100vw", position: "fixed", top: 0, left: 0, zIndex: 9999 }}>
+      {children}
+    </div>
   );
 }
