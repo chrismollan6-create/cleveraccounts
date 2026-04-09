@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Star, ArrowRight, Quote } from "lucide-react";
 import { TESTIMONIALS } from "@/lib/constants";
+import { getTestimonials } from "@/sanity/queries";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Customer Reviews & Testimonials",
@@ -61,7 +64,15 @@ const allReviews = [
   },
 ];
 
-export default function ReviewsPage() {
+export default async function ReviewsPage() {
+  // Try CMS testimonials, fall back to hardcoded
+  let reviews = allReviews;
+  try {
+    const cmsReviews = await getTestimonials();
+    if (cmsReviews && cmsReviews.length > 0) {
+      reviews = cmsReviews;
+    }
+  } catch (e) { /* use fallback */ }
   return (
     <>
       {/* Hero */}
@@ -89,7 +100,7 @@ export default function ReviewsPage() {
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allReviews.map((review, i) => (
+            {reviews.map((review, i) => (
               <div
                 key={i}
                 className="bg-white border border-border rounded-2xl p-6 card-hover relative"

@@ -6,6 +6,7 @@ import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/Goo
 import UTMCapture from "@/components/seo/UTMCapture";
 import CookieConsent from "@/components/ui/CookieConsent";
 import ChatButton from "@/components/ui/ChatButton";
+import PromoBanner from "@/components/layout/PromoBanner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -100,6 +101,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans antialiased">
         <GoogleTagManagerBody />
         <UTMCapture />
+        <PromoBanner />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
