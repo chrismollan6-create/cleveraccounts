@@ -2,23 +2,23 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Orange brand palette */
-  --color-primary: #F97316;
-  --color-primary-dark: #EA580C;
-  --color-primary-light: #FDBA74;
-  --color-primary-50: #FFF7ED;
-  /* Teal blue - from CA logo */
-  --color-secondary: #1A7A9B;
-  --color-secondary-dark: #136280;
-  --color-secondary-light: #3BA7C4;
-  /* Accent - purple for variety */
+  /* Teal blue as primary — professional, trustworthy */
+  --color-primary: #1A7A9B;
+  --color-primary-dark: #136280;
+  --color-primary-light: #3BA7C4;
+  --color-primary-50: #F0F9FF;
+  /* Orange as CTA/accent — pops against teal */
+  --color-secondary: #F97316;
+  --color-secondary-dark: #EA580C;
+  --color-secondary-light: #FDBA74;
+  /* Purple for extra variety */
   --color-accent: #8B5CF6;
   --color-accent-dark: #7C3AED;
   --color-accent-light: #C4B5FD;
   /* Functional */
   --color-success: #10B981;
-  --color-surface: #FFF7ED;
-  --color-surface-alt: #FEF3C7;
+  --color-surface: #F0F9FF;
+  --color-surface-alt: #E0F2FE;
   --color-dark: #0F172A;
   --color-text: #1E293B;
   --color-text-light: #64748B;
@@ -41,17 +41,18 @@ body {
    ═══════════════════════════════════════ */
 
 .gradient-hero {
-  background: linear-gradient(135deg, #0F172A 0%, #1A7A9B 50%, #F97316 100%);
+  background: linear-gradient(135deg, #0F172A 0%, #0E3A4D 40%, #1A7A9B 100%);
 }
 
 .gradient-hero-warm {
-  background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 30%, #FED7AA 100%);
+  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 30%, #BAE6FD 100%);
 }
 
 .gradient-hero-subtle {
-  background: linear-gradient(135deg, #FFF7ED 0%, #F8FAFC 100%);
+  background: linear-gradient(135deg, #F0F9FF 0%, #F8FAFC 100%);
 }
 
+/* Orange CTA gradient — these buttons POP against teal */
 .gradient-cta {
   background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
 }
@@ -60,12 +61,16 @@ body {
   background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
 }
 
+.gradient-teal {
+  background: linear-gradient(135deg, #1A7A9B 0%, #136280 100%);
+}
+
 .gradient-vibrant {
-  background: linear-gradient(135deg, #F97316 0%, #1A7A9B 100%);
+  background: linear-gradient(135deg, #1A7A9B 0%, #F97316 100%);
 }
 
 .gradient-warm-section {
-  background: linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 100%);
+  background: linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%);
 }
 
 /* ═══════════════════════════════════════
@@ -243,7 +248,7 @@ body {
 
 .card-hover:hover {
   transform: translateY(-6px);
-  box-shadow: 0 25px 50px -12px rgba(249, 115, 22, 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.07);
+  box-shadow: 0 25px 50px -12px rgba(26, 122, 155, 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.07);
 }
 
 .card-glow {
@@ -252,7 +257,7 @@ body {
 
 .card-glow:hover {
   transform: translateY(-6px);
-  box-shadow: 0 0 30px rgba(249, 115, 22, 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 30px rgba(26, 122, 155, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.1);
 }
 
 /* ═══════════════════════════════════════
@@ -275,17 +280,18 @@ body {
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #1E293B, #0F172A);
+  background: linear-gradient(135deg, #1A7A9B, #136280);
   color: white;
   font-weight: 600;
   padding: 0.875rem 2rem;
   border-radius: 0.75rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(26, 122, 155, 0.2);
 }
 
 .btn-secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 8px 25px rgba(26, 122, 155, 0.3);
 }
 
 /* ═══════════════════════════════════════
@@ -296,6 +302,10 @@ body {
   box-shadow: 0 0 60px rgba(249, 115, 22, 0.15);
 }
 
+.teal-glow {
+  box-shadow: 0 0 60px rgba(26, 122, 155, 0.15);
+}
+
 .text-gradient {
   background: linear-gradient(135deg, #F97316, #EA580C);
   -webkit-background-clip: text;
@@ -303,8 +313,15 @@ body {
   background-clip: text;
 }
 
+.text-gradient-teal {
+  background: linear-gradient(135deg, #1A7A9B, #136280);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .text-gradient-vibrant {
-  background: linear-gradient(135deg, #F97316, #1A7A9B);
+  background: linear-gradient(135deg, #1A7A9B, #F97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -319,7 +336,7 @@ body {
 
 /* Dotted pattern background */
 .pattern-dots {
-  background-image: radial-gradient(circle, #F97316 1px, transparent 1px);
+  background-image: radial-gradient(circle, #1A7A9B 1px, transparent 1px);
   background-size: 24px 24px;
   opacity: 0.05;
 }
@@ -334,5 +351,5 @@ body {
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: #F97316; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #EA580C; }
+::-webkit-scrollbar-thumb { background: #1A7A9B; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #136280; }
