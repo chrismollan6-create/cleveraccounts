@@ -13,25 +13,52 @@ export default defineConfig({
     structureTool({
       structure: (S) =>
         S.list()
-          .title("Content")
+          .title("Clever Accounts CMS")
           .items([
+            // Site settings
             S.listItem()
-              .title("Home Page")
+              .title("🏠 Home Page")
               .child(S.document().schemaType("homePage").documentId("homePage")),
-            S.divider(),
             S.listItem()
-              .title("Blog Posts")
+              .title("📢 Promo Banner")
+              .child(S.documentTypeList("promoBanner").title("Promotion Banners")),
+
+            S.divider(),
+
+            // Content
+            S.listItem()
+              .title("📝 Blog Posts")
               .child(S.documentTypeList("blogPost").title("Blog Posts")),
-            S.divider(),
             S.listItem()
-              .title("Services")
+              .title("📖 Case Studies")
+              .child(S.documentTypeList("caseStudy").title("Case Studies")),
+
+            S.divider(),
+
+            // Services & Pricing
+            S.listItem()
+              .title("💼 Service Pages")
               .child(S.documentTypeList("servicePage").title("Service Pages")),
             S.listItem()
-              .title("Testimonials")
+              .title("💰 Pricing Plans")
+              .child(S.documentTypeList("pricingPlan").title("Pricing Plans")),
+
+            S.divider(),
+
+            // Social proof
+            S.listItem()
+              .title("⭐ Testimonials")
               .child(S.documentTypeList("testimonial").title("Testimonials")),
             S.listItem()
-              .title("Team Members")
+              .title("👥 Team Members")
               .child(S.documentTypeList("teamMember").title("Team Members")),
+
+            S.divider(),
+
+            // Support
+            S.listItem()
+              .title("❓ FAQs")
+              .child(S.documentTypeList("faq").title("Frequently Asked Questions")),
           ]),
     }),
     visionTool(),
