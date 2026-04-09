@@ -39,14 +39,9 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-18">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-10 h-10 rounded-xl gradient-cta flex items-center justify-center text-white font-bold text-lg">
-              CA
-            </div>
-            <div>
-              <span className="text-xl font-bold text-dark">Clever</span>
-              <span className="text-xl font-bold text-primary"> Accounts</span>
-            </div>
+          <Link href="/" className="shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo.svg" alt="Clever Accounts" className="h-10 md:h-12 w-auto" />
           </Link>
 
           {/* Desktop nav */}

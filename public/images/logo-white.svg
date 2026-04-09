@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" fill="none">
+  <!-- C letter - orange gradient -->
+  <path d="M55 10C28 10 6 32 6 60s22 50 49 50c15 0 28-6 37-17l-1-1C82 102 70 108 55 108 30 108 10 87 10 60S30 12 55 12c15 0 28 7 37 18l1-1C84 17 70 10 55 10z" fill="url(#orangeGradW)"/>
+  <!-- A letter - lighter teal for dark bg -->
+  <path d="M80 32c0-12 10-22 22-22h4c12 0 22 10 22 22v78h-8V70H88v40h-8V32zm8 30h32V32c0-8-6-14-14-14h-4c-8 0-14 6-14 14v30z" fill="#3BA7C4"/>
+  <!-- Text: CLEVER -->
+  <text x="160" y="52" font-family="Inter, Arial, sans-serif" font-weight="900" font-size="48" fill="#FFFFFF">CLEVER</text>
+  <!-- Text: ACCOUNTS -->
+  <text x="160" y="100" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="42" fill="#94A3B8">ACCOUNTS</text>
+  <defs>
+    <linearGradient id="orangeGradW" x1="6" y1="10" x2="6" y2="110">
+      <stop offset="0%" stop-color="#F7A030"/>
+      <stop offset="100%" stop-color="#EF6C20"/>
+    </linearGradient>
+  </defs>
+</svg>

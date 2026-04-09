@@ -39,14 +39,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand column */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl gradient-cta flex items-center justify-center text-white font-bold text-lg">
-                CA
-              </div>
-              <div>
-                <span className="text-xl font-bold text-white">Clever</span>
-                <span className="text-xl font-bold text-primary-light"> Accounts</span>
-              </div>
+            <Link href="/" className="inline-block mb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/logo-white.svg" alt="Clever Accounts" className="h-10 w-auto" />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
               For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support.
