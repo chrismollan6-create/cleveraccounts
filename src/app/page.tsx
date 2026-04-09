@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -9,590 +10,595 @@ import {
   User,
   Building2,
   Briefcase,
-  Laptop,
-  Home,
+  Clock,
+  AlertTriangle,
+  Calculator,
+  PoundSterling,
+  FileX2,
+  HeadphonesIcon,
   Rocket,
-  UserCheck,
-  MessageCircle,
-  Monitor,
-  ShieldCheck,
-  TrendingDown,
-  FileCheck,
-  BarChart3,
   ChevronRight,
   BadgePoundSterling,
+  Shield,
+  Zap,
+  BarChart3,
+  MessageCircle,
   Sparkles,
-  Calculator,
-  Clock,
-  HeadphonesIcon,
+  Play,
+  Quote,
 } from "lucide-react";
-import { COMPANY, SERVICE_CATEGORIES, FEATURES, TESTIMONIALS } from "@/lib/constants";
+import { COMPANY, TESTIMONIALS } from "@/lib/constants";
 
-const iconMap: Record<string, React.ReactNode> = {
-  User: <User size={28} />,
-  Building2: <Building2 size={28} />,
-  Briefcase: <Briefcase size={28} />,
-  Laptop: <Laptop size={28} />,
-  Home: <Home size={28} />,
-  Rocket: <Rocket size={28} />,
-  UserCheck: <UserCheck size={24} />,
-  MessageCircle: <MessageCircle size={24} />,
-  Monitor: <Monitor size={24} />,
-  BadgePoundSterling: <BadgePoundSterling size={24} />,
-  ShieldCheck: <ShieldCheck size={24} />,
-  TrendingDown: <TrendingDown size={24} />,
-  FileCheck: <FileCheck size={24} />,
-  BarChart3: <BarChart3 size={24} />,
-};
+/* ────────────────────────────────────────
+   SERVICE TAB DATA
+   ──────────────────────────────────────── */
+const serviceTabs = [
+  {
+    id: "sole-trader",
+    label: "Sole Trader",
+    icon: <User size={20} />,
+    headline: "Hassle-free accounting for the self-employed",
+    price: "32.50",
+    features: [
+      "Dedicated sole trader accountant",
+      "Self assessment tax return filed",
+      "Unlimited phone & email advice",
+      "Free FreeAgent software",
+      "Expense tracking & mileage",
+      "MTD compliant from day one",
+    ],
+    href: "/sole-trader",
+    stat: "Average £1,200 tax saved per year",
+  },
+  {
+    id: "limited-company",
+    label: "Limited Company",
+    icon: <Building2 size={20} />,
+    headline: "Complete accounting for your limited company",
+    price: "104.50",
+    features: [
+      "Year-end accounts & CT600",
+      "VAT returns (quarterly)",
+      "Payroll for directors & staff",
+      "Companies House filings",
+      "Corporation tax planning",
+      "Free FreeAgent software",
+    ],
+    href: "/limited-company",
+    stat: "Average £3,800 tax saved per year",
+  },
+  {
+    id: "contractor",
+    label: "Contractor",
+    icon: <Briefcase size={20} />,
+    headline: "Specialist IR35 support for contractors",
+    price: "104.50",
+    features: [
+      "End-to-end IR35 support",
+      "Contract reviews & assessments",
+      "Clever FLEX umbrella solution",
+      "Seamless PSC/Umbrella switch",
+      "Full limited company accounting",
+      "Bespoke contracting advice",
+    ],
+    href: "/contractor-accountancy",
+    stat: "IR35 compliant across all contracts",
+  },
+];
 
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState("limited-company");
+  const activeService = serviceTabs.find((t) => t.id === activeTab)!;
+
   return (
     <>
-      {/* ───────── HERO SECTION ───────── */}
-      <section className="relative overflow-hidden bg-dark min-h-[90vh] flex items-center">
-        {/* Animated background blobs */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-primary/20 animate-blob" />
-          <div className="absolute top-1/2 -left-20 w-[400px] h-[400px] bg-accent/10 animate-blob blob-shape-2" style={{ animationDelay: "2s" }} />
-          <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-primary/10 animate-blob blob-shape-3" style={{ animationDelay: "4s" }} />
-          {/* Floating decorative shapes */}
-          <div className="absolute top-20 right-1/3 w-4 h-4 bg-primary rounded-full animate-float opacity-60" />
-          <div className="absolute top-40 right-1/4 w-3 h-3 bg-accent rounded-full animate-float-delayed opacity-40" />
-          <div className="absolute bottom-40 left-1/3 w-5 h-5 bg-primary-light rounded-full animate-float-slow opacity-50" />
-          {/* Dot pattern */}
+      {/* ═══════════════════════════════════════
+          HERO — Bold, clear, one CTA
+          ═══════════════════════════════════════ */}
+      <section className="relative overflow-hidden bg-dark min-h-[92vh] flex items-center">
+        {/* Background effects */}
+        <div className="absolute inset-0">
+          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-primary/15 animate-blob" />
+          <div className="absolute bottom-0 -left-20 w-[400px] h-[400px] bg-accent/8 animate-blob blob-shape-2" style={{ animationDelay: "3s" }} />
+          <div className="absolute top-1/3 right-1/3 w-3 h-3 bg-primary rounded-full animate-float opacity-50" />
+          <div className="absolute top-2/3 left-1/4 w-2 h-2 bg-primary-light rounded-full animate-float-delayed opacity-40" />
           <div className="absolute inset-0 pattern-dots" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-28 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left content */}
-            <div className="animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm rounded-full px-5 py-2 text-sm text-primary-light mb-6 border border-primary/30">
-                <Sparkles size={16} className="text-primary" />
-                Trusted by 10,000+ UK businesses
+        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 lg:py-28 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left — Message */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/25 rounded-full px-4 py-2 text-sm text-primary mb-8">
+                <Sparkles size={14} />
+                <span>Rated 5/5 by 10,000+ UK businesses</span>
               </div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] mb-6 tracking-tight">
-                Online Accounting
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6">
+                Stop Worrying
                 <br />
-                <span className="text-gradient">Made Clever</span>
+                About Your
+                <br />
+                <span className="text-gradient">Accounts.</span>
               </h1>
-              <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-8 max-w-lg">
-                Expert accountancy for sole traders, limited companies &amp; contractors.
-                One fee. Unlimited advice. Free software.
+
+              <p className="text-lg sm:text-xl text-slate-400 leading-relaxed mb-10 max-w-lg">
+                Your own dedicated accountant, unlimited advice, and free software — all for one fixed monthly fee. No surprises. Ever.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link
-                  href="/sign-up"
-                  className="btn-primary inline-flex items-center justify-center gap-2 text-lg animate-pulse-glow"
-                >
-                  Get Started Free
-                  <ArrowRight size={20} />
-                </Link>
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center justify-center gap-2 border-2 border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl text-lg hover:bg-white/10 hover:border-white/40 transition-all backdrop-blur-sm"
-                >
-                  View Pricing
-                </Link>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 size={16} className="text-primary" />
-                  No setup fees
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 size={16} className="text-primary" />
-                  No minimum contract
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 size={16} className="text-primary" />
-                  Cancel anytime
-                </span>
-              </div>
+
+              <Link
+                href="/sign-up"
+                className="btn-primary inline-flex items-center gap-3 text-lg px-10 py-5 rounded-2xl animate-pulse-glow"
+              >
+                Get Started — It&apos;s Free to Set Up
+                <ArrowRight size={22} />
+              </Link>
+
+              <p className="text-slate-500 text-sm mt-4 flex items-center gap-4">
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary" /> No setup fees</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary" /> Cancel anytime</span>
+              </p>
             </div>
 
-            {/* Right: Illustration/Visual */}
-            <div className="hidden lg:block relative animate-fade-in-right">
-              {/* Main dashboard card */}
-              <div className="relative bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl animate-float">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70 text-sm">Revenue</span>
-                    <span className="text-primary font-bold text-lg">£47,250</span>
+            {/* Right — Product preview */}
+            <div className="hidden lg:block relative">
+              {/* Main dashboard */}
+              <div className="bg-white/[0.07] backdrop-blur-xl rounded-3xl p-1 border border-white/10 shadow-2xl">
+                <div className="bg-slate-900/80 rounded-[20px] p-6">
+                  {/* Browser dots */}
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                    <div className="ml-4 flex-1 h-6 bg-white/5 rounded-lg" />
                   </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full" style={{ width: "75%" }} />
+                  {/* Dashboard content */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="bg-white/5 rounded-xl p-4">
+                      <p className="text-slate-500 text-xs mb-1">Revenue</p>
+                      <p className="text-white font-bold text-xl">£47,250</p>
+                      <p className="text-green-400 text-xs mt-1">+12% this month</p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-4">
+                      <p className="text-slate-500 text-xs mb-1">Tax Saved</p>
+                      <p className="text-primary font-bold text-xl">£3,840</p>
+                      <p className="text-primary text-xs mt-1">via tax planning</p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-4">
+                      <p className="text-slate-500 text-xs mb-1">Expenses</p>
+                      <p className="text-white font-bold text-xl">£8,120</p>
+                      <p className="text-slate-500 text-xs mt-1">24 tracked</p>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70 text-sm">Tax Saved</span>
-                    <span className="text-green-400 font-bold text-lg">£3,840</span>
-                  </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" style={{ width: "60%" }} />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mt-4">
-                    {["Invoices", "Expenses", "Reports"].map((item) => (
-                      <div key={item} className="bg-white/5 rounded-xl p-3 text-center">
-                        <div className="text-primary text-xl font-bold">{item === "Invoices" ? "24" : item === "Expenses" ? "£1.2k" : "3"}</div>
-                        <div className="text-white/50 text-xs mt-1">{item}</div>
-                      </div>
+                  {/* Chart placeholder */}
+                  <div className="bg-white/5 rounded-xl p-4 h-32 flex items-end gap-1.5">
+                    {[40, 65, 45, 80, 55, 90, 70, 95, 60, 85, 75, 100].map((h, i) => (
+                      <div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-primary/40 to-primary" style={{ height: `${h}%` }} />
                     ))}
                   </div>
                 </div>
               </div>
-              {/* Floating notification card */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-xl border border-border animate-float-delayed">
+
+              {/* Floating cards */}
+              <div className="absolute -bottom-4 -left-8 bg-white rounded-2xl p-4 shadow-xl animate-float-delayed z-10">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                     <CheckCircle2 size={20} className="text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-dark">Tax Return Filed</p>
-                    <p className="text-xs text-text-light">Submitted to HMRC</p>
+                    <p className="text-sm font-bold text-dark">Tax Return Filed</p>
+                    <p className="text-xs text-text-light">Submitted to HMRC ✓</p>
                   </div>
                 </div>
               </div>
-              {/* Floating star card */}
-              <div className="absolute -top-4 -right-4 bg-white rounded-2xl p-4 shadow-xl border border-border animate-float-slow">
+
+              <div className="absolute -top-2 -right-4 bg-white rounded-2xl p-3 shadow-xl animate-float z-10">
                 <div className="flex items-center gap-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-sm font-bold text-dark">5.0</span>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
+                  ))}
+                  <span className="text-sm font-bold text-dark ml-1">5.0</span>
                 </div>
+                <p className="text-xs text-text-light mt-1">from 10,000+ reviews</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Wave divider */}
+        {/* Wave */}
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
-            <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,70 L1440,120 L0,120 Z" fill="white"/>
+          <svg viewBox="0 0 1440 100" fill="none" className="w-full h-auto">
+            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="white" />
           </svg>
         </div>
       </section>
 
-      {/* ───────── TRUST BAR ───────── */}
-      <section className="bg-white py-10 relative z-10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
+      {/* ═══════════════════════════════════════
+          TRUST BAR — Real social proof
+          ═══════════════════════════════════════ */}
+      <section className="bg-white pt-6 pb-12">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
             {[
-              { value: "10,000+", label: "Businesses Served" },
+              { value: "10,000+", label: "Businesses Trust Us" },
               { value: "20+", label: "Years Experience" },
               { value: "£0", label: "Setup Fees" },
-              { value: "5.0", label: "Star Rating", stars: true },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-3xl md:text-4xl font-black text-gradient">{stat.value}</span>
-                  {stat.stars && (
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <span className="text-sm text-text-light font-medium">{stat.label}</span>
+              { value: "5.0★", label: "Average Rating" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <span className="text-3xl font-black text-gradient">{s.value}</span>
+                <p className="text-xs text-text-light mt-1 font-medium">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ───────── SERVICES GRID ───────── */}
+      {/* ═══════════════════════════════════════
+          THE PROBLEM — Emotional connection
+          ═══════════════════════════════════════ */}
       <section className="bg-white py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Our Services</span>
-            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3 mb-4">
-              Accounting for <span className="text-gradient">Every Business</span>
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">Sound Familiar?</span>
+            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
+              Running a Business Is Hard Enough
             </h2>
-            <p className="text-lg text-text-light max-w-2xl mx-auto">
-              Whether you&apos;re a sole trader, limited company or contractor — we have a tailored package for you.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
-            {SERVICE_CATEGORIES.map((service, i) => (
-              <Link
-                key={service.href}
-                href={service.href}
-                className={`group relative bg-white rounded-2xl p-8 card-glow overflow-hidden ${
-                  i === 1 ? "border-2 border-primary shadow-lg" : "border border-border"
-                }`}
-              >
-                {i === 1 && (
-                  <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-                    Popular
-                  </div>
-                )}
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:scale-110">
-                  {iconMap[service.icon]}
-                </div>
-                <h3 className="text-xl font-bold text-dark mb-2 group-hover:text-primary transition-colors">
-                  {service.title}
-                </h3>
-                <p className="text-text-light text-sm leading-relaxed mb-5">
-                  {service.description}
-                </p>
-                <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                  <span className="text-sm text-text-light">
-                    From <span className="text-2xl font-black text-dark">£{service.price}</span>/mo
-                  </span>
-                  <span className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                    <ChevronRight size={18} />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── HOW IT WORKS ───────── */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        {/* Orange gradient background with wave */}
-        <div className="absolute inset-0 gradient-cta" />
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="text-white/70 font-semibold text-sm uppercase tracking-wider">How It Works</span>
-            <h2 className="text-4xl md:text-5xl font-black text-white mt-3 mb-4">
-              Three Simple Steps
-            </h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Join 10,000+ businesses in just minutes
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                step: "01",
-                icon: <Calculator size={32} />,
-                title: "Sign Up",
-                description: "Choose your package and sign up in minutes. No setup fees, no paperwork.",
+                icon: <Clock size={32} />,
+                title: "Wasting Weekends on Spreadsheets?",
+                description: "You started a business to do what you love — not to spend evenings wrestling with receipts and tax codes.",
+                color: "bg-red-50 text-red-500",
               },
               {
-                step: "02",
-                icon: <HeadphonesIcon size={32} />,
-                title: "Get Your Accountant",
-                description: "Matched with a dedicated accountant who specialises in your business type.",
+                icon: <AlertTriangle size={32} />,
+                title: "Worried About Missing Deadlines?",
+                description: "HMRC penalties, late filing fees, forgotten VAT returns — the stress of compliance keeps you up at night.",
+                color: "bg-amber-50 text-amber-500",
               },
               {
-                step: "03",
-                icon: <Rocket size={32} />,
-                title: "Focus on Business",
-                description: "Relax knowing your accounts, tax returns and compliance are all sorted.",
+                icon: <PoundSterling size={32} />,
+                title: "Overpaying Tax Unnecessarily?",
+                description: "Without expert advice, you're almost certainly paying more tax than you need to. Most sole traders overpay by £1,000+.",
+                color: "bg-orange-50 text-primary",
               },
-            ].map((item, i) => (
-              <div key={i} className="relative text-center group">
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-12 left-[60%] w-[80%] border-t-2 border-dashed border-white/30" />
-                )}
-                <div className="w-24 h-24 rounded-3xl bg-white/15 backdrop-blur-sm text-white flex items-center justify-center mx-auto mb-6 group-hover:bg-white group-hover:text-primary transition-all duration-300 border border-white/20 relative">
-                  {item.icon}
-                  <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white text-primary text-xs font-black flex items-center justify-center shadow-lg">
-                    {item.step}
-                  </span>
+            ].map((pain) => (
+              <div key={pain.title} className="text-center p-8 rounded-3xl bg-white border border-border card-hover">
+                <div className={`w-16 h-16 rounded-2xl ${pain.color} flex items-center justify-center mx-auto mb-5`}>
+                  {pain.icon}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-white/70 text-sm leading-relaxed max-w-xs mx-auto">{item.description}</p>
+                <h3 className="text-xl font-bold text-dark mb-3">{pain.title}</h3>
+                <p className="text-text-light leading-relaxed">{pain.description}</p>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-14">
-            <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-2 bg-white text-primary font-bold px-8 py-4 rounded-xl text-lg hover:shadow-xl hover:scale-105 transition-all"
-            >
-              Get Started Now <ArrowRight size={20} />
-            </Link>
+            <div className="inline-flex items-center gap-3 bg-primary/10 rounded-2xl px-8 py-4 border border-primary/20">
+              <Sparkles size={20} className="text-primary" />
+              <span className="text-lg font-bold text-dark">
+                We fix all of this — for <span className="text-gradient">one simple monthly fee</span>
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ───────── FEATURES GRID ───────── */}
-      <section className="bg-white py-20 md:py-28 relative">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Why Clever Accounts</span>
-            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3 mb-4">
-              Everything You Need, <span className="text-gradient">One Fee</span>
-            </h2>
-            <p className="text-lg text-text-light max-w-2xl mx-auto">
-              No hidden costs. Just expert accounting support whenever you need it.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURES.map((feature, i) => (
-              <div
-                key={feature.title}
-                className={`rounded-2xl p-6 text-center card-hover ${
-                  i % 2 === 0 ? "bg-primary-50" : "bg-white border border-border"
-                }`}
-              >
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-                  {iconMap[feature.icon]}
-                </div>
-                <h3 className="text-base font-bold text-dark mb-2">{feature.title}</h3>
-                <p className="text-sm text-text-light leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── STATS COUNTER ───────── */}
-      <section className="relative py-20 overflow-hidden">
+      {/* ═══════════════════════════════════════
+          SERVICE SELECTOR — Interactive "I'm a..."
+          ═══════════════════════════════════════ */}
+      <section className="relative py-24 md:py-32 overflow-hidden">
         <div className="absolute inset-0 gradient-dark" />
-        {/* Decorative blobs */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blob-shape animate-blob" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 blob-shape-2 animate-blob" style={{ animationDelay: "3s" }} />
+        <div className="absolute inset-0 pattern-dots opacity-5" />
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary/10 blob-shape animate-blob" />
 
         <div className="relative max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
-            {[
-              { value: "20+", label: "Years Experience", icon: <Clock size={28} /> },
-              { value: "10,000+", label: "Businesses Served", icon: <Building2 size={28} /> },
-              { value: "£0", label: "Setup Fees", icon: <BadgePoundSterling size={28} /> },
-              { value: "5★", label: "Customer Rating", icon: <Star size={28} /> },
-            ].map((stat) => (
-              <div key={stat.label} className="group">
-                <div className="w-14 h-14 rounded-2xl bg-primary/20 text-primary flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-white transition-all">
-                  {stat.icon}
+          <div className="text-center mb-14">
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">Tailored For You</span>
+            <h2 className="text-4xl md:text-5xl font-black text-white mt-3">
+              I&apos;m a...
+            </h2>
+          </div>
+
+          {/* Tab selector */}
+          <div className="flex justify-center mb-12">
+            <div className="inline-flex bg-white/5 backdrop-blur-sm rounded-2xl p-1.5 border border-white/10 gap-1">
+              {serviceTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                    activeTab === tab.id
+                      ? "bg-primary text-white shadow-lg shadow-primary/30"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tab content */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            <div>
+              <h3 className="text-3xl md:text-4xl font-black text-white mb-4">
+                {activeService.headline}
+              </h3>
+              <div className="inline-flex items-center gap-2 bg-primary/20 rounded-full px-4 py-2 text-primary text-sm font-bold mb-8 border border-primary/30">
+                <BarChart3 size={16} />
+                {activeService.stat}
+              </div>
+              <ul className="space-y-4 mb-10">
+                {activeService.features.map((f) => (
+                  <li key={f} className="flex items-center gap-3 text-white/80">
+                    <CheckCircle2 size={20} className="text-primary shrink-0" />
+                    <span className="text-lg">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg">
+                  Get Started — £{activeService.price}/mo <ArrowRight size={20} />
+                </Link>
+                <Link href={activeService.href} className="inline-flex items-center justify-center gap-2 text-white/70 hover:text-white font-semibold text-lg transition-colors">
+                  Learn more <ChevronRight size={18} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Pricing visual */}
+            <div className="hidden lg:block">
+              <div className="bg-white/[0.07] backdrop-blur-sm rounded-3xl p-8 border border-white/10 text-center">
+                <p className="text-white/50 text-sm uppercase tracking-wider mb-2">All-inclusive from</p>
+                <div className="text-7xl font-black text-white mb-1">
+                  £{activeService.price}
                 </div>
-                <div className="text-4xl md:text-5xl font-black mb-2">{stat.value}</div>
-                <div className="text-sm text-white/60">{stat.label}</div>
+                <p className="text-white/50 text-lg mb-8">/month + VAT</p>
+                <div className="space-y-3 text-left">
+                  {["Dedicated accountant", "Unlimited advice", "Free software", "No setup fees", "Cancel anytime"].map((f) => (
+                    <div key={f} className="flex items-center gap-3 text-white/70 bg-white/5 rounded-xl px-4 py-3">
+                      <CheckCircle2 size={16} className="text-primary" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+                <Link href="/sign-up" className="btn-primary w-full mt-8 inline-flex items-center justify-center gap-2 text-lg py-4 rounded-xl">
+                  Start Now <ArrowRight size={20} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          HOW IT WORKS — Simple 3-step
+          ═══════════════════════════════════════ */}
+      <section className="bg-white py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">How It Works</span>
+            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
+              Up and Running in <span className="text-gradient">Minutes</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
+            {/* Connecting line */}
+            <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
+
+            {[
+              { step: "01", icon: <Calculator size={28} />, title: "Pick Your Plan", desc: "Choose sole trader, limited company, or contractor. Sign up online in 2 minutes." },
+              { step: "02", icon: <HeadphonesIcon size={28} />, title: "Meet Your Accountant", desc: "Matched with a named, dedicated accountant who specialises in your business type." },
+              { step: "03", icon: <Rocket size={28} />, title: "You're Sorted", desc: "Your accountant handles everything. Focus on your business, not your books." },
+            ].map((item, i) => (
+              <div key={i} className="text-center relative z-10">
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6 relative card-hover">
+                  {item.icon}
+                  <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full gradient-cta text-white text-xs font-black flex items-center justify-center">
+                    {item.step}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-dark mb-2">{item.title}</h3>
+                <p className="text-text-light leading-relaxed max-w-xs mx-auto">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ───────── TESTIMONIALS ───────── */}
+      {/* ═══════════════════════════════════════
+          VALUE COMPARISON — vs doing it yourself
+          ═══════════════════════════════════════ */}
       <section className="gradient-warm-section py-20 md:py-28">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">The Smart Choice</span>
+            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
+              What Does <span className="text-gradient">DIY Accounting</span> Really Cost?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* DIY column */}
+            <div className="bg-white rounded-3xl p-8 border border-red-200 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-red-400" />
+              <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
+                <FileX2 size={24} className="text-red-400" />
+                Doing It Yourself
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  { text: "10+ hours/month on bookkeeping", bad: true },
+                  { text: "Risk of HMRC penalties (avg £400)", bad: true },
+                  { text: "Overpaying tax by £1,000+/year", bad: true },
+                  { text: "No expert advice when you need it", bad: true },
+                  { text: "Software costs £15-50/month extra", bad: true },
+                ].map((item) => (
+                  <li key={item.text} className="flex items-start gap-3">
+                    <AlertTriangle size={18} className="text-red-400 shrink-0 mt-0.5" />
+                    <span className="text-text">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 pt-6 border-t border-border">
+                <p className="text-text-light text-sm">True cost:</p>
+                <p className="text-3xl font-black text-red-500">£200+/month</p>
+                <p className="text-xs text-text-light">in time, penalties & overpaid tax</p>
+              </div>
+            </div>
+
+            {/* Clever Accounts column */}
+            <div className="bg-white rounded-3xl p-8 border-2 border-primary relative overflow-hidden shadow-lg orange-glow">
+              <div className="absolute top-0 left-0 w-full h-1.5 gradient-cta" />
+              <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
+                <Shield size={24} className="text-primary" />
+                With Clever Accounts
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  "Dedicated accountant does it all",
+                  "Never miss a deadline — guaranteed",
+                  "Proactive tax planning saves you £1,000+",
+                  "Unlimited advice, call anytime",
+                  "Free FreeAgent software included",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <CheckCircle2 size={18} className="text-primary shrink-0 mt-0.5" />
+                    <span className="text-text font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 pt-6 border-t border-primary/20">
+                <p className="text-text-light text-sm">All-inclusive from:</p>
+                <p className="text-3xl font-black text-gradient">£32.50/month</p>
+                <p className="text-xs text-text-light">Everything included. No extras.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          TESTIMONIALS — Real social proof
+          ═══════════════════════════════════════ */}
+      <section className="bg-white py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Testimonials</span>
-            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3 mb-4">
-              Loved by <span className="text-gradient">Thousands</span>
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">Real Reviews</span>
+            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
+              Don&apos;t Take Our Word for It
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TESTIMONIALS.map((testimonial, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-border card-hover relative overflow-hidden"
-              >
-                {/* Orange accent top bar */}
-                <div className="absolute top-0 left-0 w-full h-1 gradient-cta" />
-                <div className="flex mb-4 mt-2">
-                  {[...Array(testimonial.rating)].map((_, j) => (
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 border border-border card-glow relative">
+                <Quote size={32} className="text-primary/10 absolute top-4 right-4" />
+                <div className="flex gap-0.5 mb-4">
+                  {[...Array(t.rating)].map((_, j) => (
                     <Star key={j} size={16} className="fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-sm text-text leading-relaxed mb-5">
-                  &ldquo;{testimonial.quote}&rdquo;
+                <p className="text-sm text-text leading-relaxed mb-5 relative z-10">
+                  &ldquo;{t.quote}&rdquo;
                 </p>
-                <div className="flex items-center gap-3 border-t border-border pt-4">
-                  <div className="w-10 h-10 rounded-full gradient-cta flex items-center justify-center text-white text-sm font-bold">
-                    {testimonial.name.split(" ").map(n => n[0]).join("")}
+                <div className="flex items-center gap-3 pt-4 border-t border-border">
+                  <div className="w-10 h-10 rounded-full gradient-cta flex items-center justify-center text-white text-xs font-black">
+                    {t.name.split(" ").map((n) => n[0]).join("")}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-dark">{testimonial.name}</p>
-                    <p className="text-xs text-text-light">{testimonial.role}</p>
+                    <p className="text-sm font-bold text-dark">{t.name}</p>
+                    <p className="text-xs text-text-light">{t.role}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-10">
-            <Link
-              href="/reviews"
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary-dark transition-colors text-lg"
-            >
-              Read all reviews <ArrowRight size={18} />
+          <div className="text-center mt-12">
+            <Link href="/reviews" className="inline-flex items-center gap-2 text-primary font-bold text-lg hover:text-primary-dark transition-colors">
+              Read all 10,000+ reviews <ArrowRight size={18} />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ───────── PRICING PREVIEW ───────── */}
-      <section className="bg-white py-20 md:py-28">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Pricing</span>
-            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3 mb-4">
-              Simple, <span className="text-gradient">Transparent</span> Pricing
-            </h2>
-            <p className="text-lg text-text-light max-w-2xl mx-auto">
-              No hidden fees. No setup costs. No minimum contract.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Sole Trader */}
-            <div className="bg-white border border-border rounded-2xl p-8 card-hover relative overflow-hidden">
-              <h3 className="text-lg font-bold text-dark mb-1">Sole Trader</h3>
-              <p className="text-sm text-text-light mb-6">Perfect for self-employed</p>
-              <div className="mb-6">
-                <span className="text-5xl font-black text-dark">£32.50</span>
-                <span className="text-text-light">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {["Dedicated accountant", "Self assessment tax return", "Unlimited advice", "Free accounting software", "MTD compliant"].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-text">
-                    <CheckCircle2 size={18} className="text-success shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/sign-up" className="block w-full text-center btn-secondary py-3 rounded-xl">
-                Get Started
-              </Link>
-            </div>
-
-            {/* Limited Company — Featured */}
-            <div className="relative bg-white rounded-2xl p-8 card-glow overflow-hidden border-gradient">
-              <div className="absolute top-0 left-0 w-full h-1.5 gradient-cta" />
-              <div className="absolute -top-0 right-4 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-b-xl shadow-lg">
-                Most Popular
-              </div>
-              <h3 className="text-lg font-bold text-dark mb-1 mt-2">Limited Company</h3>
-              <p className="text-sm text-text-light mb-6">Full service for Ltd companies</p>
-              <div className="mb-6">
-                <span className="text-5xl font-black text-dark">£104.50</span>
-                <span className="text-text-light">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {["Everything in Sole Trader", "Year-end accounts & CT600", "VAT returns", "Payroll for directors", "Companies House filings", "Corporation tax planning"].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-text">
-                    <CheckCircle2 size={18} className="text-success shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/sign-up" className="block w-full text-center btn-primary py-3 rounded-xl">
-                Get Started
-              </Link>
-            </div>
-
-            {/* Contractor */}
-            <div className="bg-white border border-border rounded-2xl p-8 card-hover relative overflow-hidden">
-              <h3 className="text-lg font-bold text-dark mb-1">Contractor</h3>
-              <p className="text-sm text-text-light mb-6">Specialist IR35 support</p>
-              <div className="mb-6">
-                <span className="text-5xl font-black text-dark">£104.50</span>
-                <span className="text-text-light">/month</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {["Everything in Limited Co", "End-to-end IR35 support", "Contract reviews", "Clever FLEX umbrella", "Seamless PSC/Umbrella switch"].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-text">
-                    <CheckCircle2 size={18} className="text-success shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/sign-up" className="block w-full text-center btn-secondary py-3 rounded-xl">
-                Get Started
-              </Link>
-            </div>
-          </div>
-
-          <div className="text-center mt-10">
-            <Link
-              href="/pricing"
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary-dark transition-colors text-lg"
-            >
-              See full pricing details <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── CTA BANNER ───────── */}
-      <section className="relative py-24 overflow-hidden">
+      {/* ═══════════════════════════════════════
+          WHAT'S INCLUDED — Quick feature scan
+          ═══════════════════════════════════════ */}
+      <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-cta" />
-        {/* Animated blobs */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 blob-shape animate-blob" />
-        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 blob-shape-2 animate-blob" style={{ animationDelay: "2s" }} />
         <div className="absolute inset-0 pattern-dots opacity-10" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 bg-white/5 blob-shape animate-blob" />
+        <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-white/5 blob-shape-3 animate-blob" style={{ animationDelay: "4s" }} />
 
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
-            Ready to Make Your<br />Accounting Clever?
+        <div className="relative max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <h2 className="text-4xl md:text-5xl font-black text-white">
+              Everything Included
+            </h2>
+            <p className="text-white/70 mt-3 text-lg">One fee. No surprises. No add-ons.</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            {[
+              { icon: <User size={22} />, label: "Dedicated Accountant" },
+              { icon: <MessageCircle size={22} />, label: "Unlimited Advice" },
+              { icon: <BarChart3 size={22} />, label: "Free Software" },
+              { icon: <BadgePoundSterling size={22} />, label: "£0 Setup Fees" },
+              { icon: <Shield size={22} />, label: "No Contract" },
+              { icon: <FileX2 size={22} />, label: "All Filings Done" },
+              { icon: <Zap size={22} />, label: "Tax Planning" },
+              { icon: <Phone size={22} />, label: "Phone Support" },
+            ].map((f) => (
+              <div key={f.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/10 hover:bg-white/15 transition-all">
+                <div className="text-white mb-2 flex justify-center">{f.icon}</div>
+                <p className="text-white text-sm font-semibold">{f.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          FINAL CTA — One clear action
+          ═══════════════════════════════════════ */}
+      <section className="bg-white py-24 md:py-32">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-dark mb-6 leading-tight">
+            Ready to Make Your
+            <br />
+            Accounting <span className="text-gradient">Clever?</span>
           </h2>
-          <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-            Join 10,000+ UK businesses. No setup fees, no minimum contract.
-            Get started in minutes.
+          <p className="text-xl text-text-light mb-10 max-w-2xl mx-auto">
+            Join 10,000+ UK businesses. Set up in 2 minutes.
+            No setup fees. Cancel anytime.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/sign-up"
-              className="inline-flex items-center justify-center gap-2 bg-white text-primary font-bold px-10 py-4 rounded-xl text-lg hover:shadow-2xl hover:scale-105 transition-all"
+              className="btn-primary inline-flex items-center justify-center gap-2 text-xl px-12 py-5 rounded-2xl"
             >
-              Get Started Free <ArrowRight size={20} />
+              Get Started Free <ArrowRight size={22} />
             </Link>
             <a
               href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
-              className="inline-flex items-center justify-center gap-2 border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-bold px-8 py-5 rounded-2xl text-lg hover:bg-secondary transition-all"
             >
               <Phone size={20} />
-              Call Free: {COMPANY.freephone}
+              Call {COMPANY.freephone}
             </a>
           </div>
-        </div>
-      </section>
-
-      {/* ───────── BLOG PREVIEW ───────── */}
-      <section className="bg-white py-20 md:py-28">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Blog</span>
-            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3 mb-4">
-              Latest News &amp; <span className="text-gradient">Tips</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: "MTD for Income Tax: What Sole Traders Need to Know", excerpt: "Making Tax Digital for Income Tax Self Assessment is coming. Here's everything you need to prepare.", category: "Tax", date: "March 2026" },
-              { title: "IR35 in 2026: Latest Updates for Contractors", excerpt: "The IR35 landscape continues to evolve. We break down the latest changes and what they mean.", category: "IR35", date: "February 2026" },
-              { title: "5 Tax-Saving Tips for Limited Company Directors", excerpt: "Maximise your tax efficiency as a limited company director with these five expert strategies.", category: "Tips", date: "January 2026" },
-            ].map((post, i) => (
-              <Link key={i} href="/blog" className="group bg-white border border-border rounded-2xl overflow-hidden card-hover">
-                <div className="h-48 gradient-cta relative flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 pattern-dots opacity-20" />
-                  <div className="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl font-black">
-                    {post.category[0]}
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">{post.category}</span>
-                    <span className="text-xs text-text-light">{post.date}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-dark mb-2 group-hover:text-primary transition-colors">{post.title}</h3>
-                  <p className="text-sm text-text-light leading-relaxed">{post.excerpt}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <p className="text-text-light text-sm mt-6">
+            Or email us at <a href={`mailto:${COMPANY.email}`} className="text-primary font-semibold hover:text-primary-dark">{COMPANY.email}</a>
+          </p>
         </div>
       </section>
     </>
