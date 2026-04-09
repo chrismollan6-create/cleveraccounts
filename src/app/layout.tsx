@@ -4,6 +4,8 @@ import Footer from "@/components/layout/Footer";
 import { OrganizationJsonLd } from "@/components/seo/StructuredData";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/GoogleTagManager";
 import UTMCapture from "@/components/seo/UTMCapture";
+import CookieConsent from "@/components/ui/CookieConsent";
+import ChatButton from "@/components/ui/ChatButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -101,6 +103,8 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <ChatButton />
+        <CookieConsent />
       </body>
     </html>
   );
