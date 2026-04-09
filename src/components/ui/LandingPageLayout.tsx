@@ -25,13 +25,13 @@ function LandingPageLayout({
   return (
     <div className="min-h-screen bg-white">
       {/* Minimal top bar — logo + phone only, NO navigation */}
-      <div className="bg-dark text-white py-3">
+      <div className="bg-white border-b border-border py-4">
         <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-white.jpg" alt="Clever Accounts" className="h-8 w-auto rounded" />
-          <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-semibold hover:text-primary-light transition-colors">
-            <Phone size={16} />
-            {COMPANY.freephone}
+          <img src="/images/logo.png" alt="Clever Accounts" className="h-10 w-auto" />
+          <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm font-bold text-dark hover:text-primary transition-colors">
+            <Phone size={16} className="text-secondary" />
+            Call Free: {COMPANY.freephone}
           </a>
         </div>
       </div>
