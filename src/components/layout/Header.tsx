@@ -41,7 +41,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo.svg" alt="Clever Accounts" className="h-10 md:h-12 w-auto" />
+            <img src="/images/logo.png" alt="Clever Accounts" className="h-9 md:h-11 w-auto" />
           </Link>
 
           {/* Desktop nav */}
