@@ -77,14 +77,14 @@ export default function BeforeAfter() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* BEFORE card — active when slider is LEFT (low position) */}
+            {/* BEFORE card (left) — fades OUT as slider goes right */}
             <div
               className="rounded-3xl p-8 border-2 transition-all duration-500"
               style={{
-                opacity: position < 80 ? 1 : 0.4,
-                transform: `scale(${position < 50 ? 1 : 0.95 + ((100 - position) / 100) * 0.05})`,
-                borderColor: position < 50 ? "#FCA5A5" : "#E5E7EB",
-                background: position < 50 ? "#FFF5F5" : "#FAFAFA",
+                opacity: 0.4 + ((100 - position) / 100) * 0.6,
+                transform: `scale(${0.95 + ((100 - position) / 100) * 0.05})`,
+                borderColor: position <= 50 ? "#FCA5A5" : "#E5E7EB",
+                background: position <= 50 ? "#FFF5F5" : "#FAFAFA",
               }}
             >
               <div className="flex items-center gap-3 mb-6">
@@ -101,9 +101,7 @@ export default function BeforeAfter() {
                   <div
                     key={i}
                     className="flex items-center gap-3 text-sm transition-all duration-300"
-                    style={{
-                      opacity: position <= 100 - (i * 16) ? 1 : 0.3,
-                    }}
+                    style={{ opacity: position <= (100 - i * 16) ? 1 : 0.2 }}
                   >
                     <span className="text-red-400 shrink-0">{item.icon}</span>
                     <span className="text-text">{item.text}</span>
@@ -115,12 +113,12 @@ export default function BeforeAfter() {
               </div>
             </div>
 
-            {/* AFTER card — active when slider is RIGHT (high position) */}
+            {/* AFTER card (right) — fades IN as slider goes right */}
             <div
               className="rounded-3xl p-8 border-2 transition-all duration-500"
               style={{
-                opacity: position > 20 ? 1 : 0.4,
-                transform: `scale(${position >= 50 ? 1 : 0.95 + (position / 100) * 0.05})`,
+                opacity: 0.4 + (position / 100) * 0.6,
+                transform: `scale(${0.95 + (position / 100) * 0.05})`,
                 borderColor: position >= 50 ? "#86EFAC" : "#E5E7EB",
                 background: position >= 50 ? "#F0FDF4" : "#FAFAFA",
               }}
@@ -139,9 +137,7 @@ export default function BeforeAfter() {
                   <div
                     key={i}
                     className="flex items-center gap-3 text-sm transition-all duration-300"
-                    style={{
-                      opacity: position >= (i + 1) * 16 ? 1 : 0.3,
-                    }}
+                    style={{ opacity: position >= ((i + 1) * 16) ? 1 : 0.2 }}
                   >
                     <span className="text-green-500 shrink-0">{item.icon}</span>
                     <span className="text-text font-medium">{item.text}</span>
