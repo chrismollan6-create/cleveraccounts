@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { COMPANY, TESTIMONIALS } from "@/lib/constants";
 import TaxCalculator from "@/components/ui/TaxCalculator";
+import BeforeAfter from "@/components/ui/BeforeAfter";
+import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA
@@ -493,6 +495,11 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════
+          BEFORE / AFTER — Interactive slider
+          ═══════════════════════════════════════ */}
+      <BeforeAfter />
+
+      {/* ═══════════════════════════════════════
           VALUE COMPARISON — vs doing it yourself
           ═══════════════════════════════════════ */}
       <section className="gradient-warm-section py-20 md:py-28">
@@ -721,6 +728,11 @@ export default function HomePage() {
           </p>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          STICKY FLOATING CTA
+          ═══════════════════════════════════════ */}
+      <StickyFloatingCTA />
     </>
   );
 }
