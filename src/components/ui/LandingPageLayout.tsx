@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight, Phone, Star, Shield, Clock, Sparkles } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
@@ -22,6 +23,26 @@ function LandingPageLayout({
   urgencyText: string;
   children?: React.ReactNode;
 }) {
+  // Hide the main site header and footer on landing pages
+  useEffect(() => {
+    const header = document.querySelector("header");
+    const footer = document.querySelector("footer");
+    const nav = header?.closest("header")?.parentElement?.querySelector(".bg-dark");
+    if (header) header.style.display = "none";
+    if (footer) footer.style.display = "none";
+    if (nav) (nav as HTMLElement).style.display = "none";
+    // Also hide the top announcement bar
+    const topBar = document.querySelector("body > div.bg-dark");
+    if (topBar) (topBar as HTMLElement).style.display = "none";
+
+    return () => {
+      if (header) header.style.display = "";
+      if (footer) footer.style.display = "";
+      if (nav) (nav as HTMLElement).style.display = "";
+      if (topBar) (topBar as HTMLElement).style.display = "";
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Minimal top bar — logo + phone only, NO navigation */}
