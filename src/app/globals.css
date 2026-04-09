@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #0D9488;
+  --color-primary-dark: #0F766E;
+  --color-primary-light: #5EEAD4;
+  --color-secondary: #6366F1;
+  --color-secondary-dark: #4F46E5;
+  --color-accent: #F59E0B;
+  --color-accent-dark: #D97706;
+  --color-success: #10B981;
+  --color-surface: #F8FAFC;
+  --color-dark: #0F172A;
+  --color-text: #334155;
+  --color-text-light: #64748B;
+  --color-border: #E2E8F0;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/* Gradient backgrounds */
+.gradient-hero {
+  background: linear-gradient(135deg, #0F766E 0%, #0D9488 30%, #6366F1 100%);
+}
+
+.gradient-hero-subtle {
+  background: linear-gradient(135deg, #F0FDFA 0%, #EEF2FF 100%);
+}
+
+.gradient-cta {
+  background: linear-gradient(135deg, #0D9488 0%, #6366F1 100%);
+}
+
+/* Animated counter */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Smooth card hover */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Hide scrollbar for testimonial carousel */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
