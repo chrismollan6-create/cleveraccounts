@@ -39,9 +39,9 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-18">
           {/* Logo */}
-          <Link href="/" className="shrink-0">
+          <Link href="/" className="shrink-0 flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo.png" alt="Clever Accounts" className="h-9 md:h-11 w-auto" />
+            <img src="/images/logo.png" alt="Clever Accounts" className="h-10 md:h-12 w-auto rounded-lg" />
           </Link>
 
           {/* Desktop nav */}

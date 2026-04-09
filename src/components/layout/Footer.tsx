@@ -41,11 +41,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/logo-icon.png" alt="Clever Accounts" className="h-12 w-auto" />
-              <div className="mt-2">
-                <span className="text-xl font-bold text-white">Clever</span>
-                <span className="text-xl font-bold text-primary"> Accounts</span>
-              </div>
+              <img src="/images/logo-white.jpg" alt="Clever Accounts" className="h-12 w-auto rounded-lg" />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
               For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support.
