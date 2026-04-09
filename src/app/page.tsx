@@ -28,6 +28,7 @@ import {
   Quote,
 } from "lucide-react";
 import { COMPANY, TESTIMONIALS } from "@/lib/constants";
+import TaxCalculator from "@/components/ui/TaxCalculator";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA
@@ -372,6 +373,11 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          TAX SAVINGS CALCULATOR
+          ═══════════════════════════════════════ */}
+      <TaxCalculator />
 
       {/* ═══════════════════════════════════════
           HOW IT WORKS — Simple 3-step
