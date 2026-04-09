@@ -140,58 +140,54 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Right — Product preview */}
+            {/* Right — People-first visual */}
             <div className="hidden lg:block relative">
-              {/* Main dashboard */}
-              <div className="bg-white/[0.07] backdrop-blur-xl rounded-3xl p-1 border border-white/10 shadow-2xl">
-                <div className="bg-slate-900/80 rounded-[20px] p-6">
-                  {/* Browser dots */}
-                  <div className="flex items-center gap-2 mb-5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                    <div className="ml-4 flex-1 h-6 bg-white/5 rounded-lg" />
-                  </div>
-                  {/* Dashboard content */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-white/5 rounded-xl p-4">
-                      <p className="text-slate-500 text-xs mb-1">Revenue</p>
-                      <p className="text-white font-bold text-xl">£47,250</p>
-                      <p className="text-green-400 text-xs mt-1">+12% this month</p>
+              {/* Accountant team card */}
+              <div className="bg-white/[0.07] backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+                <p className="text-white/50 text-sm uppercase tracking-wider mb-6">Your Dedicated Team</p>
+                {/* Accountant profiles */}
+                <div className="space-y-4">
+                  {[
+                    { name: "Sarah Johnson", role: "Your Dedicated Accountant", speciality: "Sole Trader Specialist", initials: "SJ", color: "from-primary to-orange-400" },
+                    { name: "Michael Chen", role: "Tax Planning Expert", speciality: "Limited Company & IR35", initials: "MC", color: "from-accent to-purple-400" },
+                    { name: "Emma Williams", role: "Payroll & VAT Manager", speciality: "Contractor Specialist", initials: "EW", color: "from-emerald-500 to-teal-400" },
+                  ].map((person, i) => (
+                    <div key={i} className="flex items-center gap-4 bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-all">
+                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${person.color} flex items-center justify-center text-white font-bold text-lg shrink-0`}>
+                        {person.initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold">{person.name}</p>
+                        <p className="text-primary text-sm">{person.role}</p>
+                        <p className="text-white/40 text-xs">{person.speciality}</p>
+                      </div>
+                      <div className="shrink-0">
+                        <Phone size={16} className="text-primary" />
+                      </div>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-4">
-                      <p className="text-slate-500 text-xs mb-1">Tax Saved</p>
-                      <p className="text-primary font-bold text-xl">£3,840</p>
-                      <p className="text-primary text-xs mt-1">via tax planning</p>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-4">
-                      <p className="text-slate-500 text-xs mb-1">Expenses</p>
-                      <p className="text-white font-bold text-xl">£8,120</p>
-                      <p className="text-slate-500 text-xs mt-1">24 tracked</p>
-                    </div>
-                  </div>
-                  {/* Chart placeholder */}
-                  <div className="bg-white/5 rounded-xl p-4 h-32 flex items-end gap-1.5">
-                    {[40, 65, 45, 80, 55, 90, 70, 95, 60, 85, 75, 100].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-primary/40 to-primary" style={{ height: `${h}%` }} />
-                    ))}
-                  </div>
+                  ))}
+                </div>
+                <div className="mt-5 pt-5 border-t border-white/10 text-center">
+                  <p className="text-white/40 text-xs">Unlimited calls &amp; emails included</p>
+                  <p className="text-white text-sm font-semibold mt-1">Always just a phone call away</p>
                 </div>
               </div>
 
-              {/* Floating cards */}
+              {/* Floating "online now" card */}
               <div className="absolute -bottom-4 -left-8 bg-white rounded-2xl p-4 shadow-xl animate-float-delayed z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                    <CheckCircle2 size={20} className="text-green-600" />
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white font-bold text-sm">SJ</div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-dark">Tax Return Filed</p>
-                    <p className="text-xs text-text-light">Submitted to HMRC ✓</p>
+                    <p className="text-sm font-bold text-dark">Sarah is available</p>
+                    <p className="text-xs text-text-light">Your accountant is online</p>
                   </div>
                 </div>
               </div>
 
+              {/* Floating star card */}
               <div className="absolute -top-2 -right-4 bg-white rounded-2xl p-3 shadow-xl animate-float z-10">
                 <div className="flex items-center gap-2">
                   {[...Array(5)].map((_, i) => (
@@ -414,6 +410,83 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════
+          MEET YOUR ACCOUNTANT — Human/service focus
+          ═══════════════════════════════════════ */}
+      <section className="gradient-warm-section py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">Real People, Real Support</span>
+            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
+              Meet Your <span className="text-gradient">Dedicated Accountant</span>
+            </h2>
+            <p className="text-lg text-text-light mt-4 max-w-2xl mx-auto">
+              You&apos;re not a ticket number. You get a named accountant who knows your business personally.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                name: "Sarah Johnson",
+                role: "Sole Trader Specialist",
+                experience: "12 years experience",
+                initials: "SJ",
+                gradient: "from-primary to-orange-400",
+                quote: "I love helping sole traders keep more of what they earn. It's personal for me — I started as a sole trader myself.",
+                specialities: ["Self Assessment", "MTD", "Expense Planning"],
+              },
+              {
+                name: "Michael Chen",
+                role: "Limited Company Expert",
+                experience: "15 years experience",
+                initials: "MC",
+                gradient: "from-accent to-purple-400",
+                quote: "My job is to make sure your limited company is as tax-efficient as possible. I'm proactive — I don't wait for you to ask.",
+                specialities: ["Corporation Tax", "VAT", "Payroll"],
+              },
+              {
+                name: "Emma Williams",
+                role: "Contractor & IR35 Specialist",
+                experience: "10 years experience",
+                initials: "EW",
+                gradient: "from-emerald-500 to-teal-400",
+                quote: "Contractors face unique challenges. I review every contract, manage your IR35 status, and make Clever FLEX seamless.",
+                specialities: ["IR35", "Contract Reviews", "Clever FLEX"],
+              },
+            ].map((person) => (
+              <div key={person.name} className="bg-white rounded-3xl p-8 border border-border card-glow text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
+                <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${person.gradient} flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 relative`}>
+                  {person.initials}
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white" />
+                </div>
+                <h3 className="text-xl font-bold text-dark">{person.name}</h3>
+                <p className="text-primary font-semibold text-sm">{person.role}</p>
+                <p className="text-text-light text-xs mb-4">{person.experience}</p>
+                <p className="text-text text-sm italic leading-relaxed mb-5">
+                  &ldquo;{person.quote}&rdquo;
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {person.specialities.map((s) => (
+                    <span key={s} className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">{s}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-text-light mb-4">
+              Plus a full support team behind them — payroll managers, tax planners, and admin support.
+            </p>
+            <Link href="/about-us" className="inline-flex items-center gap-2 text-primary font-bold text-lg hover:text-primary-dark transition-colors">
+              Meet the full team <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
           VALUE COMPARISON — vs doing it yourself
           ═══════════════════════════════════════ */}
       <section className="gradient-warm-section py-20 md:py-28">
@@ -486,40 +559,81 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════
-          TESTIMONIALS — Real social proof
+          CLIENT SPOTLIGHT — Featured story
           ═══════════════════════════════════════ */}
       <section className="bg-white py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-primary font-bold text-sm uppercase tracking-wider">Real Reviews</span>
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">Real People, Real Results</span>
             <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
               Don&apos;t Take Our Word for It
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 border border-border card-glow relative">
-                <Quote size={32} className="text-primary/10 absolute top-4 right-4" />
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(t.rating)].map((_, j) => (
-                    <Star key={j} size={16} className="fill-amber-400 text-amber-400" />
+          {/* Featured client story */}
+          <div className="bg-primary-50 rounded-3xl p-8 md:p-12 mb-12 max-w-5xl mx-auto relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blob-shape" />
+            <div className="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              <div className="md:col-span-3 text-center">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white text-3xl font-black mx-auto mb-3">
+                  SM
+                </div>
+                <h3 className="text-lg font-bold text-dark">Sarah Mitchell</h3>
+                <p className="text-primary text-sm font-semibold">Sole Trader</p>
+                <p className="text-text-light text-xs">Freelance Copywriter</p>
+                <div className="flex justify-center gap-0.5 mt-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-sm text-text leading-relaxed mb-5 relative z-10">
-                  &ldquo;{t.quote}&rdquo;
+              </div>
+              <div className="md:col-span-9">
+                <Quote size={36} className="text-primary/20 mb-3" />
+                <p className="text-lg text-dark leading-relaxed mb-4">
+                  &ldquo;Before Clever Accounts, I was spending every Sunday doing my books. Now my accountant Sarah handles everything. She even spotted £1,400 in expenses I didn&apos;t know I could claim. <strong className="text-primary">The service paid for itself three times over in the first year.</strong>&rdquo;
                 </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <div className="w-10 h-10 rounded-full gradient-cta flex items-center justify-center text-white text-xs font-black">
-                    {t.name.split(" ").map((n) => n[0]).join("")}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-dark">{t.name}</p>
-                    <p className="text-xs text-text-light">{t.role}</p>
-                  </div>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <span className="flex items-center gap-2 bg-white rounded-full px-4 py-2 font-semibold">
+                    <CheckCircle2 size={16} className="text-primary" /> £1,400 extra tax savings
+                  </span>
+                  <span className="flex items-center gap-2 bg-white rounded-full px-4 py-2 font-semibold">
+                    <Clock size={16} className="text-primary" /> 10+ hours/month saved
+                  </span>
+                  <span className="flex items-center gap-2 bg-white rounded-full px-4 py-2 font-semibold">
+                    <Shield size={16} className="text-primary" /> Zero missed deadlines
+                  </span>
                 </div>
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Review cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TESTIMONIALS.map((t, i) => {
+              const gradients = ["from-primary to-orange-400", "from-accent to-purple-400", "from-emerald-500 to-teal-400", "from-blue-500 to-indigo-400"];
+              return (
+                <div key={i} className="bg-white rounded-2xl p-6 border border-border card-glow relative">
+                  <Quote size={32} className="text-primary/10 absolute top-4 right-4" />
+                  <div className="flex gap-0.5 mb-4">
+                    {[...Array(t.rating)].map((_, j) => (
+                      <Star key={j} size={16} className="fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-text leading-relaxed mb-5 relative z-10">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border">
+                    <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${gradients[i % 4]} flex items-center justify-center text-white text-xs font-black`}>
+                      {t.name.split(" ").map((n) => n[0]).join("")}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-dark">{t.name}</p>
+                      <p className="text-xs text-text-light">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <div className="text-center mt-12">
