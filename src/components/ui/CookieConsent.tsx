@@ -19,17 +19,44 @@ export default function CookieConsent() {
   function acceptAll() {
     localStorage.setItem("ca_cookie_consent", "all");
     setVisible(false);
-    // Enable GTM tracking
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
-    if (typeof window !== "undefined" && w.dataLayer) {
-      w.dataLayer.push({ event: "cookie_consent_granted", consent_type: "all" });
+    if (typeof w !== "undefined") {
+      // Consent Mode v2 — grant all signals
+      if (typeof w.gtag === "function") {
+        w.gtag("consent", "update", {
+          ad_storage: "granted",
+          ad_user_data: "granted",
+          ad_personalization: "granted",
+          analytics_storage: "granted",
+        });
+      }
+      // Also push to dataLayer for GTM tags
+      if (w.dataLayer) {
+        w.dataLayer.push({ event: "cookie_consent_granted", consent_type: "all" });
+      }
     }
   }
 
   function acceptEssential() {
     localStorage.setItem("ca_cookie_consent", "essential");
     setVisible(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    if (typeof w !== "undefined") {
+      // Consent Mode v2 — deny ad signals, keep analytics
+      if (typeof w.gtag === "function") {
+        w.gtag("consent", "update", {
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+          analytics_storage: "granted",
+        });
+      }
+      if (w.dataLayer) {
+        w.dataLayer.push({ event: "cookie_consent_essential", consent_type: "essential" });
+      }
+    }
   }
 
   if (!visible) return null;

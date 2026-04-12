@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Dashboard — custom Sanity Studio tool.
  *

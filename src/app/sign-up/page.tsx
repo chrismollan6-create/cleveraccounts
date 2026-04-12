@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
-import { trackEvent, getStoredUTMParams, getReferralCode } from "@/components/seo/GoogleTagManager";
+import { trackEvent, getStoredUTMParams, getReferralCode, getGclid, trackEnhancedConversion, getConversionValue } from "@/components/seo/GoogleTagManager";
 
 interface FormData {
   firstName: string;
@@ -54,10 +54,18 @@ export default function SignUpPage() {
 
       const referralCode = getReferralCode() || "";
 
+      // Include GCLID from localStorage for offline conversion import
+      const gclid = getGclid();
+
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, ...utms, referralCode }),
+        body: JSON.stringify({
+          ...formData,
+          ...utms,
+          referralCode,
+          ...(gclid ? { gclid } : {}),
+        }),
       });
 
       const data = await res.json();
@@ -69,8 +77,20 @@ export default function SignUpPage() {
         return;
       }
 
+      // Fire enhanced conversion with value-based LTV
+      // This tells Google Ads the real annual value of this lead type,
+      // enabling Smart Bidding to prioritise higher-value business types.
+      await trackEnhancedConversion({
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        businessType: formData.businessType,
+      });
+
       trackEvent("signup_lead_created", {
         business_type: formData.businessType,
+        conversion_value: getConversionValue(formData.businessType),
         ...utms,
       });
 
