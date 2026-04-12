@@ -29,6 +29,7 @@ const footerLinks = {
     { label: "VAT Returns", href: "/vat-returns" },
     { label: "Payroll Services", href: "/payroll-services" },
     { label: "Tax Returns", href: "/tax-returns" },
+    { label: "Partner Services", href: "/partners" },
   ],
 };
 

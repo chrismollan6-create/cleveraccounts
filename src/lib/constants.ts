@@ -56,6 +56,7 @@ export const NAV_LINKS = [
           { label: "Take Home Calculator", href: "/take-home-calculator" },
           { label: "Integrations", href: "/integrations" },
           { label: "Switch Accountant", href: "/our-services/accountant-switch" },
+          { label: "Partner Services", href: "/partners" },
         ],
       },
     ],
@@ -73,7 +74,7 @@ export const SERVICE_CATEGORIES = [
     description: "Straightforward, hassle-free online accounting designed exclusively for sole traders.",
     href: "/sole-trader",
     icon: "User",
-    price: "32.50",
+    price: "42.50",
   },
   {
     title: "Limited Company",
@@ -94,14 +95,14 @@ export const SERVICE_CATEGORIES = [
     description: "Comprehensive accounting for property investors and landlords. Peace of mind included.",
     href: "/landlord-accounting",
     icon: "Home",
-    price: "32.50",
+    price: "42.50",
   },
   {
     title: "Startup",
     description: "Get your new business off to the best start with expert accounting from day one.",
     href: "/accounting-for-startups",
     icon: "Rocket",
-    price: "32.50",
+    price: "42.50",
   },
 ];
 
