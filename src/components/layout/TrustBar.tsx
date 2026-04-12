@@ -51,11 +51,17 @@ export default function TrustBar() {
           <div className="hidden sm:block w-px h-4 bg-border" />
 
           {/* FreeAgent Platinum Partner */}
-          <div className="flex items-center gap-1.5">
+          <a
+            href="https://www.freeagent.com/find-an-accountant/clever-accounts-limited/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+            aria-label="FreeAgent Platinum Partner"
+          >
             <span className="inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[9px] font-black" style={{ background: "#E6007E" }}>F</span>
             <span className="text-xs font-semibold text-dark">FreeAgent</span>
             <span className="text-xs bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">Platinum Partner</span>
-          </div>
+          </a>
 
           <div className="hidden sm:block w-px h-4 bg-border" />
 
