@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Star, ArrowRight, Quote } from "lucide-react";
+import { Star, ArrowRight, Quote, Users, Award, TrendingUp } from "lucide-react";
 import { TESTIMONIALS } from "@/lib/constants";
 import { getTestimonials } from "@/sanity/queries";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Customer Reviews & Testimonials",
+  title: "Customer Reviews & Testimonials — 5 Stars | Clever Accounts",
   description:
-    "Read reviews from 10,000+ businesses who trust Clever Accounts for their online accounting. See why we're rated 5 stars.",
+    "Read reviews from 10,000+ businesses who trust Clever Accounts for their accounting. Rated 5 stars — see why sole traders, contractors and limited companies love us.",
 };
 
 const allReviews = [
@@ -64,62 +64,128 @@ const allReviews = [
   },
 ];
 
+// Assign a subtle accent colour per card for variety
+const cardAccents = [
+  "bg-primary/8",
+  "bg-secondary/8",
+  "bg-green-500/8",
+  "bg-purple-500/8",
+  "bg-blue-500/8",
+  "bg-amber-500/8",
+];
+
+const avatarColours = [
+  "from-primary to-primary/70",
+  "from-secondary to-orange-400",
+  "from-green-500 to-emerald-400",
+  "from-purple-500 to-violet-400",
+  "from-blue-500 to-sky-400",
+  "from-amber-500 to-yellow-400",
+];
+
 export default async function ReviewsPage() {
-  // Try CMS testimonials, fall back to hardcoded
   let reviews = allReviews;
   try {
     const cmsReviews = await getTestimonials();
-    if (cmsReviews && cmsReviews.length > 0) {
-      reviews = cmsReviews;
-    }
-  } catch (e) { /* use fallback */ }
+    if (cmsReviews && cmsReviews.length > 0) reviews = cmsReviews;
+  } catch (_e) { /* use fallback */ }
+
   return (
     <>
-      {/* Hero */}
-      <section className="gradient-hero-subtle py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4">
-            Customer Reviews
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-dark py-20 md:py-28">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-3xl animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">Verified Reviews</p>
+          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+            Don't Take<br />
+            <span className="text-gradient">Our Word For It</span>
           </h1>
-          <p className="text-lg text-text-light max-w-2xl mx-auto mb-8">
-            Don&apos;t just take our word for it — hear from the businesses we support every day.
+          <p className="text-lg text-white/70 max-w-xl mx-auto mb-10">
+            Thousands of sole traders, contractors, and limited companies trust Clever Accounts. Here's what they say.
           </p>
-          <div className="inline-flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-sm border border-border">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={20} className="fill-amber-400 text-amber-400" />
-              ))}
+
+          {/* Stars display */}
+          <div className="inline-flex flex-col sm:flex-row items-center gap-6 bg-white/[0.08] border border-white/15 backdrop-blur-sm rounded-2xl px-8 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={28} className="fill-secondary text-secondary" />
+                ))}
+              </div>
+              <span className="text-white font-black text-3xl">5.0</span>
             </div>
-            <span className="text-lg font-bold text-dark">5.0</span>
-            <span className="text-text-light">from 10,000+ businesses</span>
+            <div className="hidden sm:block w-px h-10 bg-white/20" />
+            <div className="text-left">
+              <div className="text-white font-bold">Rated 5 stars</div>
+              <div className="text-white/50 text-sm">by 10,000+ UK businesses</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+            <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
+          </svg>
+        </div>
+      </section>
+
+      {/* ── STATS BAR ────────────────────────────────────────── */}
+      <section className="bg-surface py-10 border-b border-border">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="grid grid-cols-3 gap-6 text-center">
+            {[
+              { icon: Star, value: "5.0 / 5", label: "Average rating", colour: "text-secondary" },
+              { icon: Users, value: "10,000+", label: "Businesses served", colour: "text-primary" },
+              { icon: Award, value: "20+ years", label: "Accounting expertise", colour: "text-primary" },
+            ].map(({ icon: Icon, value, label, colour }) => (
+              <div key={label}>
+                <Icon size={22} className={`${colour} mx-auto mb-2`} />
+                <div className={`text-2xl font-black ${colour}`}>{value}</div>
+                <div className="text-text-light text-xs mt-0.5">{label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Reviews Grid */}
-      <section className="bg-white py-16 md:py-24">
+      {/* ── REVIEWS GRID ─────────────────────────────────────── */}
+      <section className="bg-surface py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className="bg-white border border-border rounded-2xl p-6 card-hover relative"
+                className="bg-white border border-border rounded-2xl p-6 card-hover relative overflow-hidden flex flex-col"
               >
-                <Quote size={32} className="text-primary/10 absolute top-4 right-4" />
-                <div className="flex mb-3">
+                {/* Background quote mark */}
+                <Quote
+                  size={64}
+                  className="absolute -top-2 -right-2 text-border opacity-60"
+                />
+
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-4 relative">
                   {[...Array(review.rating)].map((_, j) => (
-                    <Star key={j} size={16} className="fill-amber-400 text-amber-400" />
+                    <Star key={j} size={15} className="fill-secondary text-secondary" />
                   ))}
                 </div>
-                <p className="text-sm text-text leading-relaxed mb-5">
+
+                {/* Quote */}
+                <p className="text-sm text-text leading-relaxed mb-6 flex-1 relative">
                   &ldquo;{review.quote}&rdquo;
                 </p>
+
+                {/* Author */}
                 <div className="flex items-center gap-3 border-t border-border pt-4">
-                  <div className="w-10 h-10 rounded-full gradient-cta flex items-center justify-center text-white text-sm font-bold">
-                    {review.name.split(" ").map(n => n[0]).join("")}
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarColours[i % avatarColours.length]} flex items-center justify-center text-white text-xs font-black shrink-0`}>
+                    {review.name.split(" ").map((n: string) => n[0]).join("")}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-dark">{review.name}</p>
+                    <p className="text-sm font-bold text-dark leading-tight">{review.name}</p>
                     <p className="text-xs text-text-light">{review.role}</p>
                   </div>
                 </div>
@@ -129,21 +195,30 @@ export default async function ReviewsPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="gradient-hero py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+      {/* ── CTA ──────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16 md:py-20">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
+          <div className="flex justify-center gap-1 mb-5">
+            {[...Array(5)].map((_, i) => <Star key={i} size={22} className="fill-white text-white" />)}
+          </div>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
             Join 10,000+ Happy Businesses
           </h2>
-          <p className="text-white/80 mb-8">
-            Experience the Clever Accounts difference for yourself.
+          <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
+            Experience the Clever Accounts difference. Dedicated accountant, free software, all-inclusive price.
           </p>
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-8 py-4 rounded-xl text-lg hover:bg-primary-light hover:text-primary-dark transition-all shadow-lg"
-          >
-            Get Started Today <ArrowRight size={20} />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
+              Get Started Today <ArrowRight size={20} />
+            </Link>
+            <Link href="/pricing" className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+              View Pricing
+            </Link>
+          </div>
         </div>
       </section>
     </>

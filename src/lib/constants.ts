@@ -33,22 +33,36 @@ export const NAV_LINKS = [
   {
     label: "Services",
     href: "/our-services",
-    children: [
-      { label: "Sole Trader", href: "/sole-trader" },
-      { label: "Limited Company", href: "/limited-company" },
-      { label: "Contractor", href: "/contractor-accountancy" },
-      { label: "Freelancer", href: "/freelancer-accountancy" },
-      { label: "Landlord", href: "/landlord-accounting" },
-      { label: "Startups", href: "/accounting-for-startups" },
-      { label: "IR35 Specialist", href: "/contractor-accountants/ir35" },
-      { label: "Accounting Software", href: "/our-services/accounting-software" },
-      { label: "Switch Accountant", href: "/our-services/accountant-switch" },
+    sections: [
+      {
+        heading: "Who We Help",
+        items: [
+          { label: "Sole Trader", href: "/sole-trader" },
+          { label: "Limited Company", href: "/limited-company" },
+          { label: "Contractor", href: "/contractor-accountancy" },
+          { label: "Landlord", href: "/landlord-accounting" },
+          { label: "Startups", href: "/accounting-for-startups" },
+          { label: "CIS / Construction", href: "/cis-accounting" },
+          { label: "Ecommerce", href: "/ecommerce-accounting" },
+        ],
+      },
+      {
+        heading: "Specialist Services",
+        items: [
+          { label: "IR35 Specialist", href: "/contractor-accountants/ir35" },
+          { label: "Self Assessment", href: "/self-assessment" },
+          { label: "VAT Returns", href: "/vat-returns" },
+          { label: "Making Tax Digital", href: "/making-tax-digital" },
+          { label: "Take Home Calculator", href: "/take-home-calculator" },
+          { label: "Integrations", href: "/integrations" },
+          { label: "Switch Accountant", href: "/our-services/accountant-switch" },
+        ],
+      },
     ],
   },
   { label: "Pricing", href: "/pricing" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "About", href: "/about-us" },
-  { label: "Reviews", href: "/reviews" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
@@ -74,13 +88,6 @@ export const SERVICE_CATEGORIES = [
     href: "/contractor-accountancy",
     icon: "Briefcase",
     price: "104.50",
-  },
-  {
-    title: "Freelancer",
-    description: "Tailored accounting support so you can focus on doing what you do best.",
-    href: "/freelancer-accountancy",
-    icon: "Laptop",
-    price: "32.50",
   },
   {
     title: "Landlord",

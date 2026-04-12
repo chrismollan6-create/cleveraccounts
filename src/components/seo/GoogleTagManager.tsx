@@ -88,6 +88,12 @@ export function captureUTMParams() {
     // Push to dataLayer for GTM
     trackEvent("utm_captured", utmData);
   }
+
+  // Capture referral code independently of UTM params — persists across navigation
+  const ref = params.get("ref");
+  if (ref) {
+    sessionStorage.setItem("ca_referral_code", ref);
+  }
 }
 
 // Get stored UTM params (for passing to forms/sign-up)
@@ -95,4 +101,10 @@ export function getStoredUTMParams(): Record<string, string> | null {
   if (typeof window === "undefined") return null;
   const stored = sessionStorage.getItem("ca_utm_params");
   return stored ? JSON.parse(stored) : null;
+}
+
+// Get stored referral code (for passing to sign-up lead creation)
+export function getReferralCode(): string | null {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem("ca_referral_code");
 }

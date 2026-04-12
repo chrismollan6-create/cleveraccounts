@@ -13,6 +13,11 @@ export interface ServicePageData {
     role: string;
     quote: string;
   };
+  // Optional enhanced sections
+  stats?: { value: string; label: string; colour: string }[];
+  serviceCategories?: { title: string; items: string[] }[];
+  lifestyleImage?: { src: string; alt: string; heading: string; body: string };
+  lifestyleImage2?: { src: string; alt: string; heading: string; body: string };
 }
 
 export const servicePages: Record<string, ServicePageData> = {
@@ -66,6 +71,62 @@ export const servicePages: Record<string, ServicePageData> = {
       role: "Sole Trader",
       quote: "I was terrified of Making Tax Digital but Clever Accounts made the transition completely painless. They set everything up and walked me through it.",
     },
+    stats: [
+      { value: "£1,200", label: "Average annual tax saving per client", colour: "from-primary to-blue-400" },
+      { value: "4,000+", label: "Sole traders & freelancers served", colour: "from-secondary to-emerald-400" },
+      { value: "20+", label: "Years of sole trader expertise", colour: "from-amber-500 to-yellow-400" },
+      { value: "100%", label: "Self assessment returns filed on time", colour: "from-purple-500 to-pink-400" },
+    ],
+    lifestyleImage: {
+      src: "/images/sole-trader-lifestyle.jpg",
+      alt: "Sole trader working from a café",
+      heading: "Work from anywhere. We've got the accounting covered.",
+      body: "Whether you're at your desk, on a job, or grabbing a coffee between clients — your dedicated accountant is handling the numbers in the background. Self assessment, tax planning, HMRC correspondence. All of it. So you can focus on what you actually do.",
+    },
+    lifestyleImage2: {
+      src: "/images/sole-trader-tradesperson.jpg",
+      alt: "Self-employed tradesperson",
+      heading: "We work for all kinds of sole traders.",
+      body: "Plumbers, electricians, builders, mechanics, consultants, designers — we've seen it all. Whatever your trade, your dedicated accountant understands how self-employed income works and makes sure you're claiming everything you're entitled to.",
+    },
+    serviceCategories: [
+      {
+        title: "Self Assessment",
+        items: [
+          "Annual tax return prepared & filed",
+          "Income & expense reconciliation",
+          "Tax calculation reviewed",
+          "Filed before 31 January",
+        ],
+      },
+      {
+        title: "Tax Planning",
+        items: [
+          "Year-round tax forecasting",
+          "Expense claim optimisation",
+          "National Insurance planning",
+          "MTD Income Tax preparation",
+        ],
+      },
+      {
+        title: "HMRC & Compliance",
+        items: [
+          "Registered agent with HMRC",
+          "All HMRC correspondence handled",
+          "CIS registration if applicable",
+          "VAT registration advice",
+        ],
+      },
+      {
+        title: "Software & Support",
+        items: [
+          "Dedicated accountant by name",
+          "Unlimited calls & emails",
+          "FreeAgent included free",
+          "Expense & mileage tracking",
+        ],
+      },
+    ],
   },
   "limited-company": {
     slug: "limited-company",
@@ -119,59 +180,197 @@ export const servicePages: Record<string, ServicePageData> = {
       role: "Limited Company Director",
       quote: "I used to dread tax season. Now everything is handled for me. The software is easy to use and my accountant is just a phone call away.",
     },
+    stats: [
+      { value: "3,000+", label: "Directors switched to us this year", colour: "from-primary to-blue-400" },
+      { value: "6", label: "Tax obligations covered in one fee", colour: "from-secondary to-emerald-400" },
+      { value: "£0", label: "Setup fees — ever", colour: "from-amber-500 to-yellow-400" },
+      { value: "20+", label: "Years of limited company expertise", colour: "from-purple-500 to-pink-400" },
+    ],
+    lifestyleImage: {
+      src: "/images/limited-company-director.jpg",
+      alt: "Limited company director at work",
+      heading: "Run your company. Leave the compliance to us.",
+      body: "Accounts, VAT, payroll, Companies House — a limited company has a lot of moving parts. We handle every single one, so you can spend your time growing the business rather than wrestling with HMRC deadlines.",
+    },
+    serviceCategories: [
+      {
+        title: "Annual Accounts & Corporation Tax",
+        items: [
+          "Statutory year-end accounts",
+          "CT600 corporation tax return",
+          "Filed with HMRC & Companies House",
+          "Deferred tax & accruals handled",
+        ],
+      },
+      {
+        title: "VAT",
+        items: [
+          "Quarterly VAT returns (MTD compliant)",
+          "VAT scheme selection advice",
+          "VAT registration managed",
+          "Input tax reclaim optimised",
+        ],
+      },
+      {
+        title: "Payroll & Director Pay",
+        items: [
+          "Monthly payroll processing",
+          "RTI submissions to HMRC",
+          "Optimal salary/dividend structure",
+          "Auto-enrolment pension managed",
+        ],
+      },
+      {
+        title: "Companies House",
+        items: [
+          "Confirmation statement filed",
+          "Director self assessment",
+          "Registered office service",
+          "Company secretarial support",
+        ],
+      },
+      {
+        title: "Tax Planning",
+        items: [
+          "Corporation tax minimisation",
+          "R&D tax relief assessment",
+          "Investment & growth planning",
+          "Year-round proactive advice",
+        ],
+      },
+      {
+        title: "Day-to-Day Support",
+        items: [
+          "Dedicated accountant by name",
+          "Unlimited calls & emails",
+          "Free FreeAgent software",
+          "Real-time financial dashboards",
+        ],
+      },
+    ],
   },
   "contractor-accountancy": {
     slug: "contractor-accountancy",
     title: "Contractor Accountants",
-    headline: "Specialist Accounting for Contractors",
+    headline: "Contractor Accounting With Full IR35 Support",
     description:
-      "Bespoke contractor accounting with end-to-end IR35 support, contract reviews, and our unique Clever FLEX solution for seamless PSC/umbrella switching. Built by contractors, for contractors.",
+      "Specialist contractor accounting with end-to-end IR35 support, contract reviews, and our unique Clever FLEX solution. We help contractors maximise take-home pay and stay fully compliant — whatever their contract status.",
     metaDescription:
-      "Specialist contractor accountant with IR35 support, contract reviews & Clever FLEX umbrella solution. From £104.50/month. No setup fees.",
+      "Specialist contractor accountant with IR35 support, contract reviews & Clever FLEX umbrella solution. Maximise your take-home pay. From £104.50/month. No setup fees.",
     price: "104.50",
     features: [
       "Dedicated contractor specialist accountant",
-      "End-to-end IR35 support",
-      "Contract reviews & assessments",
+      "End-to-end IR35 support & guidance",
+      "Contract reviews & written IR35 opinion",
       "Clever FLEX umbrella solution",
       "Seamless PSC/Umbrella switching",
-      "Year-end accounts & corporation tax",
-      "VAT returns",
-      "Payroll processing",
+      "Year-end accounts & CT600",
+      "VAT returns (quarterly, MTD compliant)",
+      "Director payroll & dividend planning",
       "Free FreeAgent accounting software",
       "Unlimited phone & email support",
-      "Inside/outside IR35 guidance",
-      "Bespoke contracting advice",
+      "Inside/outside IR35 working practice review",
+      "HMRC correspondence handled",
     ],
     benefits: [
       {
-        title: "IR35 Expertise",
-        description: "End-to-end IR35 support including contract reviews, status determinations, and compliance advice.",
+        title: "Specialist IR35 Expertise",
+        description: "IR35 is one of the most complex areas of contractor tax. Our team has guided thousands of contractors through assessments, contract reviews, and HMRC enquiries.",
       },
       {
-        title: "Clever FLEX",
-        description: "Our unique umbrella solution lets you switch seamlessly between PSC and umbrella as contracts change.",
+        title: "Clever FLEX — Unique to Us",
+        description: "Switch seamlessly between your PSC (outside IR35) and our umbrella (inside IR35) without changing accountant. No disruption, no hassle.",
       },
       {
-        title: "Contract Reviews",
-        description: "We review every contract to assess IR35 status and advise on the most tax-efficient working arrangement.",
+        title: "Written Contract Reviews",
+        description: "Before you sign, we review your contract for IR35 indicators and advise on working practices. You get a clear written opinion you can rely on.",
       },
       {
-        title: "All-In-One",
-        description: "Full limited company accounting plus specialist contractor services, all for one monthly fee.",
+        title: "Maximise Take-Home Pay",
+        description: "Operating outside IR35 through your own limited company can be worth thousands more per year. We help you protect that position.",
       },
     ],
     faqs: [
-      { q: "What is Clever FLEX?", a: "Clever FLEX is our unique umbrella solution for contractors. It allows you to switch seamlessly between working through your PSC (outside IR35) and our umbrella company (inside IR35) without changing accountant." },
-      { q: "Do you review my contracts for IR35?", a: "Yes. Contract reviews and IR35 assessments are included in your package. We'll review every contract and advise on your IR35 status." },
-      { q: "Can I switch between PSC and umbrella?", a: "Absolutely. With Clever FLEX, you can switch between PSC and umbrella working arrangements seamlessly as your contracts change. No additional fees." },
-      { q: "What's included in the fee?", a: "Everything: full limited company accounting, IR35 support, contract reviews, Clever FLEX, unlimited advice, and free accounting software." },
+      { q: "What is IR35 and does it apply to me?", a: "IR35 (the off-payroll working rules) determines whether a contractor working through a personal service company should be taxed as an employee. An inside IR35 determination significantly reduces your take-home pay. We assess your specific contracts and working practices and advise on how to protect your outside-IR35 status." },
+      { q: "What is Clever FLEX?", a: "Clever FLEX is our unique solution for contractors who have a mix of inside and outside IR35 engagements. It allows you to switch between your own limited company (PSC) and an umbrella arrangement seamlessly — so you're always in the right structure for each contract." },
+      { q: "Do you review contracts before I sign?", a: "Yes — written contract review is included. We review your contract for IR35 indicators, advise on wording changes that strengthen your outside position, and assess working practices. You receive a written IR35 opinion." },
+      { q: "How much more do I take home outside IR35?", a: "It varies by day rate, but operating outside IR35 through a PSC typically means 15–25% more take-home pay compared to inside IR35 through an umbrella. Use our IR35 calculator above to see the difference at your day rate." },
+      { q: "What if I'm already inside IR35?", a: "We'll advise on the most tax-efficient way to operate through an umbrella via Clever FLEX, and keep your PSC in good standing for future outside contracts." },
+      { q: "What's included in the monthly fee?", a: "Everything: specialist contractor accountant, year-end accounts, CT600, VAT returns, director payroll, Companies House filings, director self assessment, IR35 support, contract reviews, Clever FLEX, free FreeAgent software, and unlimited advice." },
     ],
     testimonial: {
       name: "James Cooper",
       role: "IT Contractor",
-      quote: "The IR35 support alone is worth every penny. They handle everything — contracts, assessments, and switching between umbrella and PSC seamlessly.",
+      quote: "The IR35 support alone is worth every penny. They reviewed my contract within 24 hours and I had a written opinion the same day. Completely invaluable.",
     },
+    stats: [
+      { value: "2,000+", label: "Contractors trust us with their IR35", colour: "from-primary to-blue-400" },
+      { value: "24hr", label: "Typical contract review turnaround", colour: "from-secondary to-emerald-400" },
+      { value: "£000s", label: "More take-home outside vs inside IR35", colour: "from-amber-500 to-yellow-400" },
+      { value: "20+", label: "Years of contractor tax expertise", colour: "from-purple-500 to-pink-400" },
+    ],
+    lifestyleImage: {
+      src: "/images/hero-accountant.jpg",
+      alt: "Contractor working with their accountant",
+      heading: "Your IR35 specialist is one call away.",
+      body: "New contract? Renewal coming up? Not sure about your status? Your dedicated contractor accountant reviews your situation, advises on working practices, and gives you a clear written IR35 opinion — fast. No waiting, no vague answers.",
+    },
+    serviceCategories: [
+      {
+        title: "IR35 Support",
+        items: [
+          "Written IR35 contract opinion",
+          "Working practice assessments",
+          "Contract wording recommendations",
+          "HMRC enquiry support",
+        ],
+      },
+      {
+        title: "Clever FLEX",
+        items: [
+          "Seamless PSC to umbrella switching",
+          "Umbrella payroll processing",
+          "Inside IR35 tax optimisation",
+          "No disruption between contracts",
+        ],
+      },
+      {
+        title: "PSC Accounting",
+        items: [
+          "Year-end accounts & CT600",
+          "Quarterly VAT returns (MTD)",
+          "Director payroll & RTI",
+          "Companies House filings",
+        ],
+      },
+      {
+        title: "Tax Planning",
+        items: [
+          "Optimal salary/dividend structure",
+          "Corporation tax minimisation",
+          "Expenses & allowances advice",
+          "Year-round proactive guidance",
+        ],
+      },
+      {
+        title: "Compliance",
+        items: [
+          "Director self assessment",
+          "HMRC correspondence handled",
+          "Auto-enrolment managed",
+          "Registered agent with HMRC",
+        ],
+      },
+      {
+        title: "Day-to-Day Support",
+        items: [
+          "Dedicated accountant by name",
+          "Unlimited calls & emails",
+          "Free FreeAgent software",
+          "Real-time financial dashboard",
+        ],
+      },
+    ],
   },
   "freelancer-accountancy": {
     slug: "freelancer-accountancy",
@@ -227,53 +426,126 @@ export const servicePages: Record<string, ServicePageData> = {
   "landlord-accounting": {
     slug: "landlord-accounting",
     title: "Landlord & Property Accountants",
-    headline: "Specialist Accounting for Landlords",
+    headline: "Property Accounting That Works as Hard as You Do",
     description:
-      "Comprehensive accounting for property investors and landlords. We handle your rental income, expenses, tax returns and compliance — giving you peace of mind and maximising your returns.",
+      "Whether you have one buy-to-let or a growing portfolio, we handle your rental income, expenses, self assessment, and all the complex property tax rules — so you keep more of what your properties earn.",
     metaDescription:
-      "Online accounting for landlords & property investors. Self assessment, rental income, expenses, tax planning. From £32.50/month. No setup fees.",
+      "Specialist landlord accounting for buy-to-let, HMO, and commercial property. Self assessment, Section 24, CGT, rental income. From £32.50/month. No setup fees.",
     price: "32.50",
     features: [
       "Dedicated property accountant",
-      "Self assessment tax return",
-      "Rental income tracking",
-      "Mortgage interest relief guidance",
-      "Capital gains tax advice",
-      "Expense tracking & management",
-      "Tax efficiency planning",
-      "Unlimited phone & email support",
+      "Self assessment tax return (all rental income)",
+      "Section 24 mortgage interest advice",
+      "Capital gains tax on property sales",
+      "Rental income & expense tracking",
+      "HMO & multi-property support",
+      "Ltd company incorporation advice",
+      "Furnished holiday lettings (FHL) guidance",
+      "Commercial property tax advice",
+      "Stamp duty & ATED guidance",
       "Free FreeAgent accounting software",
-      "MTD compliant",
+      "Unlimited phone & email support",
     ],
     benefits: [
       {
-        title: "Property Expertise",
-        description: "Accountants who understand property taxation, from mortgage interest relief to capital gains.",
+        title: "Specialist Property Tax Knowledge",
+        description: "Property taxation is increasingly complex — Section 24, CGT, ATED, FHL rules. We stay on top of every change so your portfolio stays tax-efficient.",
       },
       {
-        title: "Tax Planning",
-        description: "Proactive advice to minimise your tax liability and maximise returns on your property investments.",
+        title: "Section 24 Strategy",
+        description: "The mortgage interest restriction has pushed many landlords into higher tax brackets. We model the impact and advise on structures — including incorporation — to mitigate it.",
       },
       {
-        title: "Multi-Property Support",
-        description: "Whether you have one property or a portfolio, we track all income and expenses across your rentals.",
+        title: "Portfolio-Wide Support",
+        description: "One property or twenty — residential, HMO, commercial, or holiday let — we handle all your properties under one fixed monthly fee.",
       },
       {
-        title: "Compliance Sorted",
-        description: "We handle all your tax filings and keep you compliant with the latest property tax regulations.",
+        title: "Proactive Tax Planning",
+        description: "We don't just file your return — we advise year-round on acquisitions, disposals, and restructuring to minimise your overall tax burden.",
       },
     ],
     faqs: [
-      { q: "Do you handle multiple properties?", a: "Yes. Whether you have one buy-to-let or a large portfolio, we manage all your rental income, expenses and tax returns in one place." },
-      { q: "Can you advise on mortgage interest relief?", a: "Absolutely. We'll guide you through the mortgage interest tax relief rules and ensure you claim the correct amount on your returns." },
-      { q: "What about capital gains tax?", a: "We provide capital gains tax advice for property sales, including guidance on reliefs and how to minimise your CGT liability." },
-      { q: "Should I set up a limited company for my properties?", a: "This depends on your circumstances. Your dedicated accountant will advise on the most tax-efficient structure for your property portfolio." },
+      { q: "Do I need to declare all my rental income?", a: "Yes — all rental income must be declared on a self assessment tax return, even from a single property. You pay income tax on your rental profit (income minus allowable expenses). We handle your full self assessment as part of your monthly fee." },
+      { q: "What is Section 24 and how does it affect me?", a: "Section 24 restricts the amount of mortgage interest you can deduct from rental income. Instead of deducting the full cost, you now receive only a 20% tax credit. This has significantly increased the tax bills of higher-rate landlords. We model the full impact on your portfolio and explore all available mitigation strategies." },
+      { q: "Should I put my properties in a limited company?", a: "It depends on your circumstances — how many properties you hold, your income tax rate, your long-term intentions, and your financing. There are real tax advantages but also stamp duty and CGT implications on transfer. Your dedicated accountant will run a full analysis for your specific situation." },
+      { q: "Do you handle HMO and multi-unit properties?", a: "Yes. HMOs, blocks of flats, mixed portfolios — we're experienced with all property structures. We track income and expenses property by property and produce a consolidated view for your tax return." },
+      { q: "What expenses can I offset against rental income?", a: "Allowable expenses include: letting agent fees, repairs and maintenance (not improvements), buildings and contents insurance, landlord licence fees, ground rent and service charges, council tax and utilities (if you pay them), accountancy fees, and travel to properties. Mortgage interest is now restricted under Section 24." },
+      { q: "How does capital gains tax work when I sell a property?", a: "When you sell a rental property you may be liable for CGT and must report it to HMRC within 60 days of completion. We calculate your liability, advise on available reliefs (lettings relief, principal private residence relief where applicable), and file the 60-day report for you." },
+      { q: "Do you advise on furnished holiday lettings?", a: "Yes. FHL properties are taxed differently from standard buy-to-lets and can qualify for beneficial reliefs including capital allowances and business asset disposal relief. We assess whether your property qualifies and ensure you're claiming correctly." },
     ],
     testimonial: {
       name: "Mark Henderson",
-      role: "Property Landlord",
-      quote: "Managing multiple rental properties used to be a headache at tax time. Clever Accounts took all that stress away.",
+      role: "Residential Landlord — 6 properties",
+      quote: "Section 24 was costing me thousands more each year than I realised. Clever Accounts restructured how I hold my properties and the savings were significant. Wish I'd done it sooner.",
     },
+    stats: [
+      { value: "£000s", label: "Saved annually through proactive tax planning", colour: "from-primary to-blue-400" },
+      { value: "60 days", label: "CGT reporting deadline — we never miss it", colour: "from-secondary to-emerald-400" },
+      { value: "20+", label: "Years of property tax expertise", colour: "from-amber-500 to-yellow-400" },
+      { value: "All types", label: "BTL, HMO, commercial, holiday lets", colour: "from-purple-500 to-pink-400" },
+    ],
+    lifestyleImage: {
+      src: "/images/hero-accountant.jpg",
+      alt: "Property accountant discussing a landlord's portfolio",
+      heading: "Property tax is complex. We make it simple.",
+      body: "Section 24, CGT deadlines, ATED charges, FHL rules — the tax landscape for landlords keeps getting more complicated. Your dedicated property accountant stays on top of every change and makes sure your portfolio is always structured to minimise tax and maximise your returns.",
+    },
+    serviceCategories: [
+      {
+        title: "Self Assessment & Rental Income",
+        items: [
+          "Annual self assessment filed on time",
+          "All rental income calculated & reported",
+          "Income & expense reconciliation",
+          "Multiple properties in one return",
+        ],
+      },
+      {
+        title: "Section 24 & Mortgage Interest",
+        items: [
+          "Full Section 24 impact analysis",
+          "Tax credit calculation & optimisation",
+          "Incorporation feasibility advice",
+          "Year-round mortgage relief strategy",
+        ],
+      },
+      {
+        title: "Capital Gains Tax",
+        items: [
+          "CGT calculated on property sales",
+          "60-day CGT report filed with HMRC",
+          "Relief identification (PPR, lettings)",
+          "Disposal timing advice",
+        ],
+      },
+      {
+        title: "Portfolio Structuring",
+        items: [
+          "Ltd company incorporation advice",
+          "SPV structure guidance",
+          "Stamp duty implications assessed",
+          "Long-term portfolio tax planning",
+        ],
+      },
+      {
+        title: "Specialist Property Areas",
+        items: [
+          "HMO income & licensing costs",
+          "Furnished holiday lettings (FHL)",
+          "Commercial property taxation",
+          "ATED returns for high-value properties",
+        ],
+      },
+      {
+        title: "Ongoing Support",
+        items: [
+          "Dedicated property accountant",
+          "Unlimited calls & emails",
+          "Free FreeAgent software",
+          "MTD for Income Tax compliant",
+        ],
+      },
+    ],
   },
   "accounting-for-startups": {
     slug: "accounting-for-startups",
