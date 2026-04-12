@@ -96,7 +96,7 @@ export default function RequestCallback({
       onClick={() => setOpen(true)}
       className={
         floating
-          ? "fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-5 py-3.5 rounded-full shadow-2xl transition-all hover:scale-105 animate-pulse-glow"
+          ? "fixed bottom-24 right-6 z-40 flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-5 py-3.5 rounded-full shadow-2xl transition-all hover:scale-105"
           : inline
           ? "inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-sm"
           : "inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-sm"
