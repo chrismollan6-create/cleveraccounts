@@ -180,6 +180,7 @@ export default function SignUpPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     required
+                    inputMode="tel"
                     className="w-full px-4 py-3 border border-border rounded-xl text-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                   />
                 </div>

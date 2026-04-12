@@ -85,7 +85,7 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">Our Story</p>
-              <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
                 20 Years of Making<br />
                 <span className="text-gradient">Accounting Clever</span>
               </h1>

@@ -19,6 +19,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openMobileSection, setOpenMobileSection] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -184,51 +185,80 @@ export default function Header() {
           <nav className="p-4 space-y-1">
             {(NAV_LINKS as NavLink[]).map((link) => (
               <div key={link.label}>
-                <Link
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-4 py-3 text-base font-semibold text-dark hover:text-primary hover:bg-surface rounded-xl transition-colors"
-                >
-                  {link.label}
-                </Link>
-
-                {/* Sectioned mobile children */}
-                {link.sections && (
-                  <div className="pl-4 pb-2">
-                    {link.sections.map((section) => (
-                      <div key={section.heading} className="mb-3">
-                        <p className="text-xs font-bold uppercase tracking-widest text-text-light px-4 py-1.5">
-                          {section.heading}
-                        </p>
-                        {section.items.map((item) => (
+                {link.sections ? (
+                  /* Accordion toggle for items with sections */
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setOpenMobileSection(openMobileSection === link.label ? null : link.label)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-base font-semibold text-dark hover:text-primary hover:bg-surface rounded-xl transition-colors"
+                    >
+                      {link.label}
+                      <ChevronDown
+                        size={18}
+                        className={`transition-transform duration-200 ${openMobileSection === link.label ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {openMobileSection === link.label && (
+                      <div className="pl-4 pb-2">
+                        {link.sections.map((section) => (
+                          <div key={section.heading} className="mb-3">
+                            <p className="text-xs font-bold uppercase tracking-widest text-text-light px-4 py-1.5">
+                              {section.heading}
+                            </p>
+                            {section.items.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setMobileOpen(false)}
+                                className="block px-4 py-2 text-sm text-text-light hover:text-primary hover:bg-surface rounded-lg transition-colors"
+                              >
+                                {item.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : link.children ? (
+                  /* Accordion toggle for items with flat children */
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setOpenMobileSection(openMobileSection === link.label ? null : link.label)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-base font-semibold text-dark hover:text-primary hover:bg-surface rounded-xl transition-colors"
+                    >
+                      {link.label}
+                      <ChevronDown
+                        size={18}
+                        className={`transition-transform duration-200 ${openMobileSection === link.label ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {openMobileSection === link.label && (
+                      <div className="pl-4 space-y-1">
+                        {link.children.map((child) => (
                           <Link
-                            key={item.href}
-                            href={item.href}
+                            key={child.href}
+                            href={child.href}
                             onClick={() => setMobileOpen(false)}
-                            className="block px-4 py-2 text-sm text-text-light hover:text-primary hover:bg-surface rounded-lg transition-colors"
+                            className="block px-4 py-2.5 text-sm text-text-light hover:text-primary hover:bg-surface rounded-lg transition-colors"
                           >
-                            {item.label}
+                            {child.label}
                           </Link>
                         ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-
-                {/* Flat mobile children */}
-                {link.children && !link.sections && (
-                  <div className="pl-4 space-y-1">
-                    {link.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-text-light hover:text-primary hover:bg-surface rounded-lg transition-colors"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
-                  </div>
+                ) : (
+                  /* Plain link — no children */
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-4 py-3 text-base font-semibold text-dark hover:text-primary hover:bg-surface rounded-xl transition-colors"
+                  >
+                    {link.label}
+                  </Link>
                 )}
               </div>
             ))}

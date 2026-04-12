@@ -31,7 +31,7 @@ export default function ContactPage() {
             <Zap size={15} className="text-secondary" />
             We typically respond within 2 hours
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4">
             Get in Touch
           </h1>
           <p className="text-lg text-white/70 max-w-xl mx-auto">

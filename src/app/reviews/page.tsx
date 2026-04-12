@@ -101,7 +101,7 @@ export default async function ReviewsPage() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">Verified Reviews</p>
-          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
             Don't Take<br />
             <span className="text-gradient">Our Word For It</span>
           </h1>

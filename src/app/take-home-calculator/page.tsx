@@ -232,15 +232,18 @@ export default function TakeHomeCalculatorPage() {
                     className="w-full pl-8 pr-4 py-3.5 border border-border rounded-xl text-dark font-bold text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                   />
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={200000}
-                  step={1000}
-                  value={Math.min(income, 200000)}
-                  onChange={(e) => setIncome(Number(e.target.value))}
-                  className="w-full mt-3 accent-primary"
-                />
+                <div className="min-h-[44px] flex items-center">
+                  <input
+                    type="range"
+                    min={0}
+                    max={200000}
+                    step={1000}
+                    value={Math.min(income, 200000)}
+                    onChange={(e) => setIncome(Number(e.target.value))}
+                    className="w-full mt-3 accent-primary h-3 cursor-pointer"
+                    style={{ touchAction: "none" }}
+                  />
+                </div>
                 <div className="flex justify-between text-xs text-text-light mt-1">
                   <span>£0</span><span>£100k</span><span>£200k</span>
                 </div>
@@ -263,15 +266,18 @@ export default function TakeHomeCalculatorPage() {
                     className="w-full pl-8 pr-4 py-3.5 border border-border rounded-xl text-dark font-bold text-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                   />
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={Math.min(income, 50000)}
-                  step={500}
-                  value={Math.min(expenses, 50000)}
-                  onChange={(e) => setExpenses(Number(e.target.value))}
-                  className="w-full mt-3 accent-primary"
-                />
+                <div className="min-h-[44px] flex items-center">
+                  <input
+                    type="range"
+                    min={0}
+                    max={Math.min(income, 50000)}
+                    step={500}
+                    value={Math.min(expenses, 50000)}
+                    onChange={(e) => setExpenses(Number(e.target.value))}
+                    className="w-full mt-3 accent-primary h-3 cursor-pointer"
+                    style={{ touchAction: "none" }}
+                  />
+                </div>
                 <div className="flex justify-between text-xs text-text-light mt-1">
                   <span>£0</span><span>£25k</span><span>£50k+</span>
                 </div>

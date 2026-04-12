@@ -145,7 +145,7 @@ export default async function PricingPage() {
             <BadgeCheck size={16} className="text-green-400" />
             No setup fee · No minimum contract · Cancel anytime
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
             Simple,<br />
             <span className="text-gradient">Transparent Pricing</span>
           </h1>

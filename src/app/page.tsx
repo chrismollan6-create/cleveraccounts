@@ -117,7 +117,7 @@ export default function HomePage() {
                 <span>Rated 5/5 by 10,000+ UK businesses</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6">
                 Stop Worrying
                 <br />
                 About Your

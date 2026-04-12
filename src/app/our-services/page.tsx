@@ -116,7 +116,7 @@ export default function ServicesPage() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">What We Do</p>
-          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
             Accounting That Works<br />
             <span className="text-gradient">For Your Business</span>
           </h1>
