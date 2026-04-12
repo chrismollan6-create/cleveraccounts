@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
+import { getSiteSettings } from "@/sanity/queries";
 import TrustBar from "@/components/layout/TrustBar";
 import Footer from "@/components/layout/Footer";
 import { OrganizationJsonLd } from "@/components/seo/StructuredData";
@@ -89,11 +90,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch site settings from Sanity; falls back to constants in Header if null
+  const siteSettings = await getSiteSettings().catch(() => null);
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -104,7 +108,10 @@ export default function RootLayout({
         <GoogleTagManagerBody />
         <UTMCapture />
         <PromoBanner />
-        <Header />
+        <Header
+          phone={siteSettings?.phone}
+          freephone={siteSettings?.freephone}
+        />
         <TrustBar />
         <main className="flex-1">{children}</main>
         <Footer />

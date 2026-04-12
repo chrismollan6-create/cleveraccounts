@@ -101,3 +101,32 @@ export async function getFeaturedCaseStudy() {
     challenge, solution, results, quote, metrics
   }`);
 }
+
+// Site settings (singleton)
+export async function getSiteSettings() {
+  return client.fetch(`*[_type == "siteSettings"][0] {
+    phone, freephone, email, tagline, offices, stats, social
+  }`);
+}
+
+// Landing pages (CMS-driven /lp/* pages)
+export async function getLandingPage(slug: string) {
+  return client.fetch(
+    `*[_type == "landingPage" && slug.current == $slug][0] {
+      _id, title, slug, headline, subheadline, price, targetAudience,
+      urgencyText, features, whyUs, painPoints, howItWorks, testimonials,
+      faq, metaTitle, metaDescription, noIndex
+    }`,
+    { slug }
+  );
+}
+
+export async function getLandingPageSlugs(): Promise<string[]> {
+  return client.fetch(`*[_type == "landingPage"].slug.current`);
+}
+
+export async function getLandingPages() {
+  return client.fetch(`*[_type == "landingPage"] | order(_createdAt desc) {
+    _id, title, slug, headline, price, targetAudience, noIndex, _createdAt
+  }`);
+}

@@ -2,6 +2,7 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./src/sanity/schemas";
+import { dashboardPlugin } from "./src/studio/dashboardPlugin";
 
 export default defineConfig({
   name: "clever-accounts",
@@ -10,12 +11,20 @@ export default defineConfig({
   dataset: "production",
   basePath: "/studio",
   plugins: [
+    dashboardPlugin(),
     structureTool({
       structure: (S) =>
         S.list()
           .title("Clever Accounts CMS")
           .items([
-            // Site settings
+            // ── Global settings ──────────────────────────────────────────
+            S.listItem()
+              .title("⚙️ Site Settings")
+              .child(
+                S.document()
+                  .schemaType("siteSettings")
+                  .documentId("siteSettings")
+              ),
             S.listItem()
               .title("🏠 Home Page")
               .child(S.document().schemaType("homePage").documentId("homePage")),
@@ -25,7 +34,17 @@ export default defineConfig({
 
             S.divider(),
 
-            // Content
+            // ── Marketing & Pages ────────────────────────────────────────
+            S.listItem()
+              .title("🚀 Landing Pages (CMS)")
+              .child(S.documentTypeList("landingPage").title("Landing Pages")),
+            S.listItem()
+              .title("💼 Service Pages")
+              .child(S.documentTypeList("servicePage").title("Service Pages")),
+
+            S.divider(),
+
+            // ── Content ──────────────────────────────────────────────────
             S.listItem()
               .title("📝 Blog Posts")
               .child(S.documentTypeList("blogPost").title("Blog Posts")),
@@ -35,17 +54,14 @@ export default defineConfig({
 
             S.divider(),
 
-            // Services & Pricing
-            S.listItem()
-              .title("💼 Service Pages")
-              .child(S.documentTypeList("servicePage").title("Service Pages")),
+            // ── Pricing & Plans ──────────────────────────────────────────
             S.listItem()
               .title("💰 Pricing Plans")
               .child(S.documentTypeList("pricingPlan").title("Pricing Plans")),
 
             S.divider(),
 
-            // Social proof
+            // ── Social proof & Team ──────────────────────────────────────
             S.listItem()
               .title("⭐ Testimonials")
               .child(S.documentTypeList("testimonial").title("Testimonials")),
@@ -55,10 +71,12 @@ export default defineConfig({
 
             S.divider(),
 
-            // Support
+            // ── Support ──────────────────────────────────────────────────
             S.listItem()
               .title("❓ FAQs")
-              .child(S.documentTypeList("faq").title("Frequently Asked Questions")),
+              .child(
+                S.documentTypeList("faq").title("Frequently Asked Questions")
+              ),
           ]),
     }),
     visionTool(),

@@ -7,6 +7,8 @@ import faq from "./faq";
 import pricingPlan from "./pricingPlan";
 import promoBanner from "./promoBanner";
 import caseStudy from "./caseStudy";
+import siteSettings from "./siteSettings";
+import landingPage from "./landingPage";
 
 export const schemaTypes = [
   blogPost,
@@ -18,4 +20,6 @@ export const schemaTypes = [
   pricingPlan,
   promoBanner,
   caseStudy,
+  siteSettings,
+  landingPage,
 ];

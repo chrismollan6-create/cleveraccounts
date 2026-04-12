@@ -15,7 +15,13 @@ type NavLink = {
   sections?: NavSection[];
 };
 
-export default function Header() {
+export default function Header({
+  phone = COMPANY.phone,
+  freephone = COMPANY.freephone,
+}: {
+  phone?: string;
+  freephone?: string;
+} = {}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -43,9 +49,9 @@ export default function Header() {
       <div className="bg-dark text-white text-sm py-2 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <p>Online Accounting Services for Sole Traders, Limited Companies & Contractors</p>
-          <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 hover:text-primary-light transition-colors">
+          <a href={`tel:${freephone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 hover:text-primary-light transition-colors">
             <Phone size={14} />
-            Call Free: {COMPANY.freephone}
+            Call Free: {freephone}
           </a>
         </div>
       </div>
@@ -154,11 +160,11 @@ export default function Header() {
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}
+              href={`tel:${phone.replace(/\s/g, "")}`}
               className="flex items-center gap-1.5 text-sm font-medium text-text-light hover:text-primary transition-colors"
             >
               <Phone size={16} />
-              {COMPANY.phone}
+              {phone}
             </a>
             <Link
               href="/sign-up"
@@ -265,11 +271,11 @@ export default function Header() {
 
             <div className="pt-4 space-y-3 border-t border-border mt-4">
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${freephone.replace(/\s/g, "")}`}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 text-base font-medium text-primary border-2 border-primary rounded-xl"
               >
                 <Phone size={18} />
-                Call Free: {COMPANY.freephone}
+                Call Free: {freephone}
               </a>
               <Link
                 href="/sign-up"
