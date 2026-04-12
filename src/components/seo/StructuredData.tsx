@@ -29,7 +29,7 @@ export function OrganizationJsonLd() {
       },
     ],
     areaServed: { "@type": "Country", name: "United Kingdom" },
-    priceRange: "£32.50 - £104.50 per month",
+    priceRange: "£42.50 - £104.50 per month",
     sameAs: [
       COMPANY.social.facebook,
       COMPANY.social.twitter,
@@ -37,8 +37,8 @@ export function OrganizationJsonLd() {
     ],
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: "5.0",
-      reviewCount: "10000",
+      ratingValue: "4.7",
+      reviewCount: "746",
       bestRating: "5",
       worstRating: "1",
     },
@@ -53,7 +53,7 @@ export function OrganizationJsonLd() {
             name: "Sole Trader Accounting",
             description: "Complete accounting for sole traders including self assessment, unlimited advice, and free software.",
           },
-          price: "32.50",
+          price: "42.50",
           priceCurrency: "GBP",
           priceSpecification: { "@type": "UnitPriceSpecification", billingDuration: "P1M" },
         },

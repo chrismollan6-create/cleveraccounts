@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
+import TrustBar from "@/components/layout/TrustBar";
 import Footer from "@/components/layout/Footer";
 import { OrganizationJsonLd } from "@/components/seo/StructuredData";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/GoogleTagManager";
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | Clever Accounts",
   },
   description:
-    "Online accountancy services for sole traders, limited companies, contractors & freelancers. 20+ years experience, 10,000+ businesses served. From £32.50/month.",
+    "Online accountancy services for sole traders, limited companies, contractors & freelancers. 20+ years experience, 10,000+ businesses served. From £42.50/month.",
   keywords: [
     "online accountant",
     "online accounting",
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Clever Accounts | Expert Online Accounting Services UK",
     description:
-      "Online accountancy services for sole traders, limited companies, contractors & freelancers. From £32.50/month.",
+      "Online accountancy services for sole traders, limited companies, contractors & freelancers. From £42.50/month.",
     images: ["/images/og-image.png"],
   },
   robots: {
@@ -103,6 +104,7 @@ export default function RootLayout({
         <UTMCapture />
         <PromoBanner />
         <Header />
+        <TrustBar />
         <main className="flex-1">{children}</main>
         <Footer />
         <ChatButton />

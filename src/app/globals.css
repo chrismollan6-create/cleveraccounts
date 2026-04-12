@@ -345,6 +345,26 @@ body {
    SCROLLBAR & MISC
    ═══════════════════════════════════════ */
 
+/* ═══════════════════════════════════════
+   EMBEDSOCIAL GOOGLE REVIEWS WIDGET
+   ═══════════════════════════════════════ */
+
+.embedsocial-reviews-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Ensure widget respects page font */
+.embedsocial-reviews-wrapper * {
+  font-family: var(--font-sans) !important;
+}
+
+/* Remove any default widget margins that push outside container */
+.embedsocial-reviews-wrapper [class*="embedsocial"] {
+  max-width: 100% !important;
+  margin: 0 auto !important;
+}
+
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
