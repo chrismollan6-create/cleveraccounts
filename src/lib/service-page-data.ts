@@ -28,8 +28,8 @@ export const servicePages: Record<string, ServicePageData> = {
     description:
       "Straightforward, hassle-free online accounting designed exclusively for sole traders. MTD compliant software, dedicated accountant, unlimited advice — all for one fixed monthly fee.",
     metaDescription:
-      "Online accounting services for sole traders. Dedicated accountant, unlimited advice, MTD compliant software. From £32.50/month. No setup fees.",
-    price: "32.50",
+      "Online accounting services for sole traders. Dedicated accountant, unlimited advice, MTD compliant software. From £42.50/month. No setup fees.",
+    price: "42.50",
     features: [
       "Dedicated sole trader accountant",
       "Self assessment tax return preparation & filing",
@@ -63,7 +63,7 @@ export const servicePages: Record<string, ServicePageData> = {
     faqs: [
       { q: "What does a sole trader accountant do?", a: "Your dedicated accountant handles your self assessment tax return, provides unlimited advice, helps you claim expenses, and ensures you're tax-efficient. They also keep you compliant with HMRC requirements." },
       { q: "Do I need an accountant as a sole trader?", a: "While not legally required, an accountant saves you time, ensures accuracy, and typically saves you more in tax than their fees cost. Our clients save an average of £1,000+ per year through tax planning." },
-      { q: "What's included in the £32.50/month fee?", a: "Everything: dedicated accountant, self assessment tax return, unlimited advice, free accounting software, expense tracking, and MTD compliance. No hidden extras." },
+      { q: "What's included in the £42.50/month fee?", a: "Everything: dedicated accountant, self assessment tax return, unlimited advice, free accounting software, expense tracking, and MTD compliance. No hidden extras." },
       { q: "Is FreeAgent easy to use?", a: "Absolutely. FreeAgent is designed for non-accountants and is incredibly intuitive. Plus, your accountant will set everything up and walk you through it." },
     ],
     testimonial: {
@@ -379,8 +379,8 @@ export const servicePages: Record<string, ServicePageData> = {
     description:
       "Tailored accounting support for freelancers. Focus on your craft while we handle your finances — self assessment, expenses, invoicing and tax planning, all for one monthly fee.",
     metaDescription:
-      "Online accounting for freelancers. Dedicated accountant, self assessment, invoicing, expense tracking. From £32.50/month. No setup fees.",
-    price: "32.50",
+      "Online accounting for freelancers. Dedicated accountant, self assessment, invoicing, expense tracking. From £42.50/month. No setup fees.",
+    price: "42.50",
     features: [
       "Dedicated freelancer accountant",
       "Self assessment tax return",
@@ -430,8 +430,8 @@ export const servicePages: Record<string, ServicePageData> = {
     description:
       "Whether you have one buy-to-let or a growing portfolio, we handle your rental income, expenses, self assessment, and all the complex property tax rules — so you keep more of what your properties earn.",
     metaDescription:
-      "Specialist landlord accounting for buy-to-let, HMO, and commercial property. Self assessment, Section 24, CGT, rental income. From £32.50/month. No setup fees.",
-    price: "32.50",
+      "Specialist landlord accounting for buy-to-let, HMO, and commercial property. Self assessment, Section 24, CGT, rental income. From £42.50/month. No setup fees.",
+    price: "42.50",
     features: [
       "Dedicated property accountant",
       "Self assessment tax return (all rental income)",
@@ -554,8 +554,8 @@ export const servicePages: Record<string, ServicePageData> = {
     description:
       "Get your new business off to the best start. Expert accounting support from day one, with guidance on structure, tax planning, and compliance — all for one affordable monthly fee.",
     metaDescription:
-      "Online accounting for startups & new businesses. Expert guidance, company formation advice, tax planning. From £32.50/month. No setup fees.",
-    price: "32.50",
+      "Online accounting for startups & new businesses. Expert guidance, company formation advice, tax planning. From £42.50/month. No setup fees.",
+    price: "42.50",
     features: [
       "Dedicated startup accountant",
       "Business structure advice",
@@ -583,7 +583,7 @@ export const servicePages: Record<string, ServicePageData> = {
       },
       {
         title: "Affordable Pricing",
-        description: "Start from just £32.50/month with no setup fees. Professional accounting shouldn't break the bank for new businesses.",
+        description: "Start from just £42.50/month with no setup fees. Professional accounting shouldn't break the bank for new businesses.",
       },
     ],
     faqs: [

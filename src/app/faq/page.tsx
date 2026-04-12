@@ -23,7 +23,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
     { q: "What accounting software do you use?", a: "We include free FreeAgent accounting software with every package. It's cloud-based, intuitive, and lets you manage invoices, expenses and banking on any device." },
   ],
   "Pricing & Billing": [
-    { q: "How much does it cost?", a: "Sole Trader packages start from £32.50/month. Limited Company and Contractor packages start from £104.50/month. All prices are plus VAT." },
+    { q: "How much does it cost?", a: "Sole Trader packages start from £42.50/month. Limited Company and Contractor packages start from £104.50/month. All prices are plus VAT." },
     { q: "Are there any hidden fees?", a: "None whatsoever. The monthly fee covers everything. No surprise charges for phone calls, tax returns, or additional advice." },
     { q: "How do I pay?", a: "Monthly by Direct Debit. Simple, automatic, and hassle-free." },
     { q: "Can I change my plan?", a: "Yes. If your circumstances change, you can upgrade or switch plans at any time. Just speak to your accountant." },

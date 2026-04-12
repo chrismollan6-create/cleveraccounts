@@ -3,9 +3,9 @@ import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
 
 export const metadata: Metadata = {
-  title: "Freelancer Accountant — From £32.50/mo | Clever Accounts",
+  title: "Freelancer Accountant — From £42.50/mo | Clever Accounts",
   description:
-    "Expert accounting for freelancers from just £32.50/month. Self assessment, invoicing, expense tracking, and unlimited advice from a dedicated accountant. No setup fees. No contract.",
+    "Expert accounting for freelancers from just £42.50/month. Self assessment, invoicing, expense tracking, and unlimited advice from a dedicated accountant. No setup fees. No contract.",
   robots: { index: true, follow: true },
 };
 
@@ -117,9 +117,9 @@ const faq: FAQItem[] = [
 export default function FreelancerLP() {
   return (
     <LandingPageLayout
-      headline="Freelancer Accounting — From £32.50/month"
+      headline="Freelancer Accounting — From £42.50/month"
       subheadline="Your own dedicated accountant handles self assessment, expense tracking, and tax planning — so you can focus on the work you love, not the paperwork."
-      price="32.50"
+      price="42.50"
       targetAudience="For Freelancers & Self-Employed"
       urgencyText="Thousands of freelancers trust Clever Accounts"
       features={[

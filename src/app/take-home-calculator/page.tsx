@@ -502,7 +502,7 @@ export default function TakeHomeCalculatorPage() {
             Stop leaving money on the table.
           </h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-            A dedicated Clever Accounts accountant will build a personalised tax plan around your actual income, expenses, and goals. From £32.50/month.
+            A dedicated Clever Accounts accountant will build a personalised tax plan around your actual income, expenses, and goals. From £42.50/month.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">

@@ -448,7 +448,7 @@ export default function AccountingSoftwarePage() {
             FreeAgent Platinum Partner
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-            Software + Accountant.<br />All In. From £32.50/month.
+            Software + Accountant.<br />All In. From £42.50/month.
           </h2>
           <p className="text-white/85 text-lg mb-8 max-w-2xl mx-auto">
             FreeAgent included free. No setup fee. No minimum contract. A dedicated accountant who knows your business from day one.

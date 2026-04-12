@@ -22,7 +22,7 @@ export default defineType({
       name: "price",
       title: "Monthly Price",
       type: "string",
-      description: "e.g. '32.50' (just the number, no £ symbol)",
+      description: "e.g. '42.50' (just the number, no £ symbol)",
       validation: (Rule) => Rule.required(),
     }),
     defineField({

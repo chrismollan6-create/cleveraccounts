@@ -4,9 +4,9 @@ import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } f
 import { FileText, Calculator, ShieldCheck, MessageSquare, CheckCircle2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Sole Trader Accountant — From £32.50/mo | Clever Accounts",
+  title: "Sole Trader Accountant — From £42.50/mo | Clever Accounts",
   description:
-    "Expert sole trader accounting from just £32.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
+    "Expert sole trader accounting from just £42.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
   robots: { index: true, follow: true },
 };
 
@@ -177,9 +177,9 @@ const servicesGrid = (
 export default function SoleTraderLP() {
   return (
     <LandingPageLayout
-      headline="Sole Trader Accounting From £32.50/month"
+      headline="Sole Trader Accounting From £42.50/month"
       subheadline="Stop worrying about self assessment, expenses, and HMRC. Your own dedicated accountant handles everything — so you can focus on running your business."
-      price="32.50"
+      price="42.50"
       targetAudience="For Sole Traders & Self-Employed"
       urgencyText="Join 4,000+ sole traders who switched this year"
       features={[

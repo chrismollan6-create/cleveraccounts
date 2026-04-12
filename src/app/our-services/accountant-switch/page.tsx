@@ -276,7 +276,7 @@ export default function SwitchAccountantPage() {
               </div>
               <div className="mt-6 pt-6 border-t border-white/10">
                 <div className="text-white/50 text-xs mb-1">All-inclusive from</div>
-                <div className="text-white font-black text-2xl">£32.50<span className="text-white/50 text-base font-normal">/month</span></div>
+                <div className="text-white font-black text-2xl">£42.50<span className="text-white/50 text-base font-normal">/month</span></div>
                 <div className="text-white/40 text-xs mt-0.5">No setup fee · No minimum contract</div>
               </div>
             </div>

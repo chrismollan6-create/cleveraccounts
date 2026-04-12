@@ -34,7 +34,7 @@ export default defineType({
       name: "price",
       title: "Starting Price (per month)",
       type: "string",
-      description: "e.g. '32.50' or '104.50'",
+      description: "e.g. '42.50' or '104.50'",
     }),
     defineField({
       name: "features",

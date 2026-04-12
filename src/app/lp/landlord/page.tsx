@@ -3,9 +3,9 @@ import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
 
 export const metadata: Metadata = {
-  title: "Landlord Accountant — From £32.50/mo | Clever Accounts",
+  title: "Landlord Accountant — From £42.50/mo | Clever Accounts",
   description:
-    "Expert landlord accounting from just £32.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
+    "Expert landlord accounting from just £42.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
   robots: { index: true, follow: true },
 };
 
@@ -117,9 +117,9 @@ const faq: FAQItem[] = [
 export default function LandlordLP() {
   return (
     <LandingPageLayout
-      headline="Landlord Accounting — From £32.50/month"
+      headline="Landlord Accounting — From £42.50/month"
       subheadline="Specialist landlord accounting for buy-to-let and residential property. We handle rental income tax, self assessment, Section 24, and every expense claim — so your investment works harder."
-      price="32.50"
+      price="42.50"
       targetAudience="For Landlords & Property Investors"
       urgencyText="Join landlords across the UK who trust Clever Accounts"
       features={[

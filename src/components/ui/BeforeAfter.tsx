@@ -145,7 +145,7 @@ export default function BeforeAfter() {
                 ))}
               </div>
               <div className="mt-6 pt-4 border-t border-green-200">
-                <p className="text-green-600 font-bold text-sm">From just £32.50/month — everything included</p>
+                <p className="text-green-600 font-bold text-sm">From just £42.50/month — everything included</p>
               </div>
             </div>
           </div>

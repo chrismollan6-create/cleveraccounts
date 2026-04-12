@@ -38,7 +38,7 @@ const steps = [
     description:
       "Choose the plan that fits your business — Sole Trader, Limited Company, or Contractor. Our online sign-up takes just a few minutes. No paperwork, no lengthy forms, no setup fees.",
     points: [
-      "Fixed-fee transparent pricing from £32.50/month",
+      "Fixed-fee transparent pricing from £42.50/month",
       "No minimum contract — cancel anytime",
       "Immediate access to your online dashboard",
       "Free FreeAgent accounting software activated instantly",

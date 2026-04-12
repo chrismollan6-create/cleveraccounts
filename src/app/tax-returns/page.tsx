@@ -5,7 +5,7 @@ import { COMPANY } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Tax Return Service",
-  description: "Online self assessment tax return service. We prepare and file your tax return to HMRC on time. Dedicated accountant, unlimited advice. From £32.50/month.",
+  description: "Online self assessment tax return service. We prepare and file your tax return to HMRC on time. Dedicated accountant, unlimited advice. From £42.50/month.",
 };
 
 export default function TaxReturnsPage() {
@@ -50,7 +50,7 @@ export default function TaxReturnsPage() {
       <section className="gradient-hero py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Tax Returns Sorted</h2>
-          <p className="text-white/80 mb-8">Included in all packages from just £32.50/month.</p>
+          <p className="text-white/80 mb-8">Included in all packages from just £42.50/month.</p>
           <Link href="/sign-up" className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-8 py-4 rounded-xl text-lg hover:bg-primary-light hover:text-primary-dark transition-all shadow-lg">
             Get Started Today <ArrowRight size={20} />
           </Link>

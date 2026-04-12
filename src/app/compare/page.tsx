@@ -22,7 +22,7 @@ const rows = [
   { feature: "MTD compliant", clever: true, local: true, diy: false },
   { feature: "Proactive tax planning", clever: true, local: "Varies", diy: false },
   { feature: "Payroll included", clever: true, local: "Extra cost", diy: false },
-  { feature: "Average monthly cost", clever: "From £32.50", local: "£100-300+", diy: "£15-50 (software only)" },
+  { feature: "Average monthly cost", clever: "From £42.50", local: "£100-300+", diy: "£15-50 (software only)" },
 ];
 
 function Cell({ value }: { value: boolean | string }) {

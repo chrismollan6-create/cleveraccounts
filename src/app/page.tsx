@@ -41,7 +41,7 @@ const serviceTabs = [
     label: "Sole Trader",
     icon: <User size={20} />,
     headline: "Hassle-free accounting for the self-employed",
-    price: "32.50",
+    price: "42.50",
     features: [
       "Dedicated sole trader accountant",
       "Self assessment tax return filed",
@@ -563,7 +563,7 @@ export default function HomePage() {
               </ul>
               <div className="mt-8 pt-6 border-t border-primary/20">
                 <p className="text-text-light text-sm">All-inclusive from:</p>
-                <p className="text-3xl font-black text-gradient">£32.50/month</p>
+                <p className="text-3xl font-black text-gradient">£42.50/month</p>
                 <p className="text-xs text-text-light">Everything included. No extras.</p>
               </div>
             </div>

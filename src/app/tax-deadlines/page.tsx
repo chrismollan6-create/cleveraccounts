@@ -741,7 +741,7 @@ export default function TaxDeadlinesPage() {
             Every deadline above — Self Assessment, Corporation Tax, VAT, PAYE, Companies House, MTD — your dedicated {COMPANY.name} accountant tracks and manages them all. You focus on your business.
           </p>
           <p className="text-white/75 mb-10 max-w-xl mx-auto">
-            No deadline surprises. No HMRC penalties. No stress. From £32.50/month with no setup fees and no minimum contract.
+            No deadline surprises. No HMRC penalties. No stress. From £42.50/month with no setup fees and no minimum contract.
           </p>
 
           {/* What's included bullets */}

@@ -322,7 +322,7 @@ export default function SelfAssessmentPage() {
                   Starting from
                 </p>
                 <p className="text-3xl font-black text-white">
-                  £32.50
+                  £42.50
                   <span className="text-white/50 text-base font-normal">
                     /month
                   </span>
@@ -654,7 +654,7 @@ export default function SelfAssessmentPage() {
           </h2>
           <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
             Join thousands of sole traders, landlords, and individuals who let
-            Clever Accounts handle their self assessment. From just £32.50/month
+            Clever Accounts handle their self assessment. From just £42.50/month
             — no setup fees, no minimum contract.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -21,9 +21,9 @@ import { getPricingPlans, getFAQs } from "@/sanity/queries";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 
 export const metadata: Metadata = {
-  title: "Accounting Pricing & Plans — From £32.50/month | Clever Accounts",
+  title: "Accounting Pricing & Plans — From £42.50/month | Clever Accounts",
   description:
-    "Simple, transparent accounting pricing. Sole Trader from £32.50/month, Limited Company & Contractor from £104.50/month. No setup fees, no minimum contract, free FreeAgent included.",
+    "Simple, transparent accounting pricing. Sole Trader from £42.50/month, Limited Company & Contractor from £104.50/month. No setup fees, no minimum contract, free FreeAgent included.",
 };
 
 // Fallback data if CMS is empty
@@ -32,7 +32,7 @@ const fallbackPlans = [
     _id: "1",
     name: "Sole Trader",
     subtitle: "Self-employed & freelancers",
-    price: "32.50",
+    price: "42.50",
     popular: false,
     features: [
       "Dedicated accountant",

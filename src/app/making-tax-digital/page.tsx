@@ -673,7 +673,7 @@ export default function MakingTaxDigitalPage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-black text-dark mb-4">Ready to get MTD sorted?</h2>
           <p className="text-text-light mb-8 max-w-xl mx-auto">
-            Dedicated accountant, free FreeAgent software, full MTD compliance from day one. From £32.50/month.
+            Dedicated accountant, free FreeAgent software, full MTD compliance from day one. From £42.50/month.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-primary/90 transition-all shadow-lg">

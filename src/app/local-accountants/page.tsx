@@ -23,7 +23,7 @@ export default function LocalAccountantsPage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="space-y-6">
             {[
-              { feature: "Average monthly cost", us: "From £32.50", them: "£100-300+" },
+              { feature: "Average monthly cost", us: "From £42.50", them: "£100-300+" },
               { feature: "Dedicated named accountant", us: true, them: true },
               { feature: "Unlimited advice included", us: true, them: false },
               { feature: "Free accounting software", us: true, them: false },

@@ -12,11 +12,16 @@ import {
   CheckCircle2,
   Clock,
   Banknote,
+  Mail,
+  Send,
+  Loader2,
+  RotateCcw,
 } from "lucide-react";
 
 interface ReferralItem {
   id: string;
   referredName: string;
+  email?: string;
   businessType: string;
   referralDate: string | null;
   conversionDate: string | null;
@@ -42,6 +47,12 @@ const STATUS_STYLES: Record<string, string> = {
   Paid: "bg-green-50 text-green-700",
 };
 
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
 function ReferralPageContent() {
   const searchParams = useSearchParams();
   const ref = searchParams.get("ref");
@@ -51,6 +62,12 @@ function ReferralPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [emailForm, setEmailForm] = useState({ friendName: "", friendEmail: "" });
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailsSent, setEmailsSent] = useState<string[]>([]);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const [resentIds, setResentIds] = useState<Set<string>>(new Set());
 
   const shareLink = data
     ? `https://www.cleveraccounts.co.uk/sign-up?ref=${data.referralCode}`
@@ -79,6 +96,63 @@ function ReferralPageContent() {
     loadReferralData();
   }, [loadReferralData]);
 
+  async function handleSendEmail(e: React.FormEvent) {
+    e.preventDefault();
+    if (!data || !emailForm.friendEmail) return;
+    setEmailSending(true);
+    setEmailError(null);
+    try {
+      const res = await fetch("/api/referral/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referralCode: data.referralCode,
+          friendName: emailForm.friendName,
+          friendEmail: emailForm.friendEmail,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setEmailError(json.error || "Failed to send email. Please try again.");
+      } else {
+        setEmailsSent((prev) => [...prev, emailForm.friendEmail]);
+        setEmailForm({ friendName: "", friendEmail: "" });
+        // Refresh the referrals list so the new entry appears
+        await loadReferralData();
+      }
+    } catch {
+      setEmailError("A network error occurred. Please try again.");
+    } finally {
+      setEmailSending(false);
+    }
+  }
+
+  async function handleResend(referral: ReferralItem) {
+    if (!data || !referral.email) return;
+    setResendingId(referral.id);
+    try {
+      await fetch("/api/referral/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referralCode: data.referralCode,
+          friendName: referral.referredName,
+          friendEmail: referral.email,
+        }),
+      });
+      setResentIds((prev) => new Set([...prev, referral.id]));
+      setTimeout(() => {
+        setResentIds((prev) => {
+          const next = new Set(prev);
+          next.delete(referral.id);
+          return next;
+        });
+      }, 3000);
+    } finally {
+      setResendingId(null);
+    }
+  }
+
   function handleCopy() {
     if (!shareLink) return;
     navigator.clipboard.writeText(shareLink).then(() => {
@@ -87,9 +161,17 @@ function ReferralPageContent() {
     });
   }
 
-  const filteredReferrals = data?.referrals.filter(
-    (r) => activeFilter === "All" || r.status === activeFilter
-  ) ?? [];
+  const filteredReferrals =
+    data?.referrals.filter(
+      (r) => activeFilter === "All" || r.status === activeFilter
+    ) ?? [];
+
+  const counts = {
+    total: data?.referrals.length ?? 0,
+    converted: data?.referrals.filter((r) => r.status !== "Pending").length ?? 0,
+    due: data?.referrals.filter((r) => r.status === "Voucher Due").length ?? 0,
+    paid: data?.referrals.filter((r) => r.status === "Paid").length ?? 0,
+  };
 
   return (
     <>
@@ -134,7 +216,6 @@ function ReferralPageContent() {
           {/* Error / generic (no valid code) */}
           {!loading && (error || !ref) && (
             <div className="space-y-12">
-              {/* Voucher tiers */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
                   <div className="text-4xl font-black text-primary mb-2">£75</div>
@@ -150,7 +231,6 @@ function ReferralPageContent() {
               <div className="text-center text-sm text-text-light max-w-md mx-auto">
                 Vouchers are paid after 3 months, provided both you and your referral are still active clients.
               </div>
-              {/* How it works */}
               <HowItWorks />
               {error && ref && (
                 <div className="text-center text-sm text-red-500 mt-4">
@@ -164,106 +244,159 @@ function ReferralPageContent() {
           {!loading && data && (
             <div className="space-y-10">
 
-              {/* Share link card */}
-              <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 rounded-2xl p-6 md:p-8">
-                <h2 className="text-lg font-black text-dark mb-1">Your Referral Link</h2>
-                <p className="text-sm text-text-light mb-4">Share this link with anyone you think would benefit from Clever Accounts.</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-white border border-border rounded-xl px-4 py-3 text-sm text-text font-mono truncate select-all">
-                    {shareLink}
+              {/* Top row: share link + voucher tiers */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {/* Share link — takes more width */}
+                <div className="md:col-span-3 bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 rounded-2xl p-6">
+                  <h2 className="text-base font-black text-dark mb-1">Your Referral Link</h2>
+                  <p className="text-sm text-text-light mb-4">Share this with anyone you think would benefit from Clever Accounts.</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-white border border-border rounded-xl px-4 py-3 text-sm text-text font-mono truncate select-all">
+                      {shareLink}
+                    </div>
+                    <button
+                      onClick={handleCopy}
+                      className="inline-flex items-center gap-2 bg-primary text-white font-bold px-5 py-3 rounded-xl hover:bg-primary/90 transition-all shrink-0"
+                    >
+                      {copied ? <Check size={16} /> : <Copy size={16} />}
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
                   </div>
-                  <button
-                    onClick={handleCopy}
-                    className="inline-flex items-center gap-2 bg-primary text-white font-bold px-5 py-3 rounded-xl hover:bg-primary/90 transition-all shrink-0"
-                  >
-                    {copied ? <Check size={16} /> : <Copy size={16} />}
-                    {copied ? "Copied!" : "Copy"}
-                  </button>
                 </div>
-              </div>
 
-              {/* Voucher tiers */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-4 bg-primary/5 border border-primary/20 rounded-2xl p-5">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Banknote size={22} />
+                {/* Voucher tiers — stacked */}
+                <div className="md:col-span-2 flex flex-col gap-3">
+                  <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-2xl p-4 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <Banknote size={20} />
+                    </div>
+                    <div>
+                      <div className="text-xl font-black text-primary">£75</div>
+                      <div className="text-xs font-semibold text-dark">Sole Trader referral</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-black text-primary">£75</div>
-                    <div className="text-sm font-semibold text-dark">Sole Trader referral</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 bg-secondary/10 border border-secondary/30 rounded-2xl p-5">
-                  <div className="w-12 h-12 rounded-xl bg-secondary/20 text-secondary-dark flex items-center justify-center shrink-0">
-                    <Banknote size={22} />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-black text-secondary-dark">£250</div>
-                    <div className="text-sm font-semibold text-dark">Limited Company referral</div>
+                  <div className="flex items-center gap-3 bg-secondary/10 border border-secondary/30 rounded-2xl p-4 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-secondary/20 text-secondary-dark flex items-center justify-center shrink-0">
+                      <Banknote size={20} />
+                    </div>
+                    <div>
+                      <div className="text-xl font-black text-secondary-dark">£250</div>
+                      <div className="text-xs font-semibold text-dark">Limited Company referral</div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-text-light text-center -mt-4">
+              <p className="text-xs text-text-light text-center -mt-6">
                 Paid after 3 months, assuming both clients are still active.
               </p>
 
-              {/* How it works */}
-              <HowItWorks />
-
-              {/* Referrals table */}
-              <div>
-                <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-                  <h2 className="text-xl font-black text-dark">Your Referrals</h2>
+              {/* ── YOUR REFERRALS ─────────────────────────────── */}
+              <div className="bg-white border border-border rounded-2xl overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-border flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-black text-dark">Your Referrals</h2>
+                    {counts.total > 0 && (
+                      <span className="bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                        {counts.total}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-1.5 flex-wrap">
-                    {STATUS_FILTERS.map((f) => (
-                      <button
-                        key={f}
-                        onClick={() => setActiveFilter(f)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                          activeFilter === f
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white text-text-light border-border hover:border-primary hover:text-primary"
-                        }`}
-                      >
-                        {f}
-                      </button>
-                    ))}
+                    {STATUS_FILTERS.map((f) => {
+                      const count = f === "All"
+                        ? counts.total
+                        : data.referrals.filter((r) => r.status === f).length;
+                      return (
+                        <button
+                          key={f}
+                          onClick={() => setActiveFilter(f)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                            activeFilter === f
+                              ? "bg-primary text-white border-primary"
+                              : "bg-white text-text-light border-border hover:border-primary hover:text-primary"
+                          }`}
+                        >
+                          {f}{count > 0 && ` (${count})`}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
+                {/* Summary stats */}
+                {counts.total > 0 && (
+                  <div className="grid grid-cols-3 divide-x divide-border border-b border-border bg-surface">
+                    <div className="px-6 py-3 text-center">
+                      <div className="text-lg font-black text-dark">{counts.total}</div>
+                      <div className="text-xs text-text-light">Invited</div>
+                    </div>
+                    <div className="px-6 py-3 text-center">
+                      <div className="text-lg font-black text-indigo-600">{counts.converted}</div>
+                      <div className="text-xs text-text-light">Signed up</div>
+                    </div>
+                    <div className="px-6 py-3 text-center">
+                      <div className="text-lg font-black text-amber-600">{counts.due}</div>
+                      <div className="text-xs text-text-light">Voucher due</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Table or empty state */}
                 {filteredReferrals.length === 0 ? (
-                  <div className="text-center py-12 text-text-light text-sm border border-dashed border-border rounded-2xl">
+                  <div className="text-center py-14 text-text-light text-sm px-4">
                     {activeFilter === "All"
-                      ? "No referrals yet — share your link to get started!"
+                      ? "No referrals yet — share your link or send an invite below to get started!"
                       : `No referrals with status "${activeFilter}".`}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-2xl border border-border">
+                  <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-surface border-b border-border">
-                          <th className="text-left px-4 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Name</th>
-                          <th className="text-left px-4 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Type</th>
-                          <th className="text-left px-4 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Date Referred</th>
-                          <th className="text-left px-4 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Voucher</th>
-                          <th className="text-left px-4 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Due</th>
-                          <th className="text-left px-4 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Status</th>
+                          <th className="text-left px-5 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Name</th>
+                          <th className="text-left px-5 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Type</th>
+                          <th className="text-left px-5 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Invited</th>
+                          <th className="text-left px-5 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Voucher</th>
+                          <th className="text-left px-5 py-3 text-xs font-bold text-text-light uppercase tracking-wider">Status</th>
+                          <th className="px-5 py-3" />
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
                         {filteredReferrals.map((r) => (
                           <tr key={r.id} className="hover:bg-surface/50 transition-colors">
-                            <td className="px-4 py-3 font-semibold text-dark">{r.referredName}</td>
-                            <td className="px-4 py-3 text-text-light">{r.businessType || "—"}</td>
-                            <td className="px-4 py-3 text-text-light">{r.referralDate ?? "—"}</td>
-                            <td className="px-4 py-3 font-bold text-dark">
+                            <td className="px-5 py-4 font-semibold text-dark">{r.referredName}</td>
+                            <td className="px-5 py-4 text-text-light">{r.businessType || "—"}</td>
+                            <td className="px-5 py-4 text-text-light">{formatDate(r.referralDate)}</td>
+                            <td className="px-5 py-4 font-bold text-dark">
                               {r.voucherAmount != null ? `£${r.voucherAmount}` : "—"}
                             </td>
-                            <td className="px-4 py-3 text-text-light">{r.voucherDueDate ?? "—"}</td>
-                            <td className="px-4 py-3">
+                            <td className="px-5 py-4">
                               <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${STATUS_STYLES[r.status] ?? "bg-gray-100 text-gray-600"}`}>
                                 {r.status}
                               </span>
+                            </td>
+                            <td className="px-5 py-4 text-right">
+                              {r.status === "Pending" && r.email && (
+                                resentIds.has(r.id) ? (
+                                  <span className="inline-flex items-center gap-1 text-xs text-green-700 font-semibold">
+                                    <Check size={13} /> Sent
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => handleResend(r)}
+                                    disabled={resendingId === r.id}
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary border border-primary/30 px-3 py-1.5 rounded-lg hover:bg-primary/5 transition-all disabled:opacity-50"
+                                  >
+                                    {resendingId === r.id ? (
+                                      <Loader2 size={12} className="animate-spin" />
+                                    ) : (
+                                      <RotateCcw size={12} />
+                                    )}
+                                    Resend
+                                  </button>
+                                )
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -272,6 +405,75 @@ function ReferralPageContent() {
                   </div>
                 )}
               </div>
+
+              {/* ── EMAIL A FRIEND ──────────────────────────────── */}
+              <div className="bg-white border border-border rounded-2xl p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Mail size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-dark leading-tight">Email a Friend</h2>
+                    <p className="text-sm text-text-light">We&apos;ll send them a branded invite with your referral link.</p>
+                  </div>
+                </div>
+
+                {emailsSent.length > 0 && (
+                  <div className="mb-4 space-y-1.5">
+                    {emailsSent.map((email) => (
+                      <div key={email} className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-2">
+                        <Check size={15} className="shrink-0" />
+                        Invite sent to {email}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <form onSubmit={handleSendEmail} className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-semibold text-dark mb-1.5">Their First Name</label>
+                      <input
+                        type="text"
+                        value={emailForm.friendName}
+                        onChange={(e) => setEmailForm((prev) => ({ ...prev, friendName: e.target.value }))}
+                        placeholder="Jane"
+                        className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-dark mb-1.5">Their Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        value={emailForm.friendEmail}
+                        onChange={(e) => setEmailForm((prev) => ({ ...prev, friendEmail: e.target.value }))}
+                        placeholder="jane@example.com"
+                        className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
+                      />
+                    </div>
+                  </div>
+
+                  {emailError && (
+                    <p className="text-sm text-red-600">{emailError}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={emailSending}
+                    className="inline-flex items-center gap-2 bg-primary text-white font-bold px-6 py-3 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {emailSending ? (
+                      <><Loader2 size={16} className="animate-spin" /> Sending...</>
+                    ) : (
+                      <><Send size={16} /> Send Invite</>
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* ── HOW IT WORKS ────────────────────────────────── */}
+              <HowItWorks />
 
             </div>
           )}
@@ -291,7 +493,7 @@ function HowItWorks() {
     {
       icon: <Users size={20} />,
       title: "They sign up",
-      desc: "Your contact signs up using your link and becomes a Clever Accounts client.",
+      desc: "They sign up using your link and become a Clever Accounts client.",
     },
     {
       icon: <Clock size={20} />,
@@ -306,20 +508,20 @@ function HowItWorks() {
   ];
 
   return (
-    <div>
-      <h2 className="text-xl font-black text-dark text-center mb-6">How It Works</h2>
+    <div className="border-t border-border pt-10">
+      <h2 className="text-lg font-black text-dark text-center mb-6">How It Works</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {steps.map((step, i) => (
-          <div key={i} className="text-center">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
+          <div key={i} className="relative text-center">
+            <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
               {step.icon}
             </div>
             <div className="text-xs font-bold text-primary mb-1">Step {i + 1}</div>
             <div className="font-bold text-dark text-sm mb-1">{step.title}</div>
             <div className="text-xs text-text-light">{step.desc}</div>
             {i < steps.length - 1 && (
-              <div className="hidden md:flex justify-end absolute right-0 top-1/2 -translate-y-1/2">
-                <ArrowRight size={16} className="text-border" />
+              <div className="hidden md:block absolute top-5 -right-2 text-border">
+                <ArrowRight size={14} />
               </div>
             )}
           </div>

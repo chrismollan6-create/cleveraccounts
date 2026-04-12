@@ -324,7 +324,7 @@ export default function VATReturnsPage() {
                     VAT included in packages from
                   </p>
                   <p className="text-white font-black text-2xl">
-                    £32.50
+                    £42.50
                     <span className="text-white/50 text-sm font-normal">
                       /month
                     </span>
@@ -826,7 +826,7 @@ export default function VATReturnsPage() {
               Join thousands of UK businesses who trust {COMPANY.name} with
               their accounts. VAT registration, quarterly returns, MTD
               compliance — all handled from{" "}
-              <strong className="text-white">£32.50/month</strong>.
+              <strong className="text-white">£42.50/month</strong>.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

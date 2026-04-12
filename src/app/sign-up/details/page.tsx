@@ -361,17 +361,19 @@ function SectionCard({ icon, title, description, children }: {
   icon: React.ReactNode; title: string; description?: string; children: React.ReactNode;
 }) {
   return (
-    <div className="bg-gray-50 rounded-2xl p-5 md:p-6 space-y-4 border border-gray-100">
-      <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+    <div className="rounded-2xl border border-gray-200 bg-white shadow-md overflow-hidden">
+      {/* Header bar */}
+      <div className="flex items-center gap-3 px-5 py-4 bg-gray-100 border-b border-gray-200">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
           {icon}
         </div>
         <div>
-          <h3 className="font-semibold text-dark">{title}</h3>
+          <h3 className="font-semibold text-dark text-sm leading-tight">{title}</h3>
           {description && <p className="text-xs text-text-light mt-0.5">{description}</p>}
         </div>
       </div>
-      <div className="space-y-4">
+      {/* Content */}
+      <div className="p-5 md:p-6 space-y-4">
         {children}
       </div>
     </div>
@@ -929,26 +931,26 @@ function SignUpDetailsContent() {
                 STEP 1 — YOUR DETAILS
             ═══════════════════════════════════════════════════════════════ */}
             {step === 1 && (
-              <div className="space-y-5">
+              <div className="space-y-4">
 
                 {/* Contact info (read-only) */}
                 <SectionCard icon={<User size={18} />} title="Your Contact Information"
                   description="Pre-filled from when you registered — contact us to make changes.">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FieldWrapper label="First Name">
-                      <input type="text" value={formData.firstName} disabled className={inputCls + " !bg-gray-50 text-text-light"} />
-                    </FieldWrapper>
-                    <FieldWrapper label="Last Name">
-                      <input type="text" value={formData.lastName} disabled className={inputCls + " !bg-gray-50 text-text-light"} />
-                    </FieldWrapper>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FieldWrapper label="Email Address">
-                      <input type="email" value={formData.email} disabled className={inputCls + " !bg-gray-50 text-text-light"} />
-                    </FieldWrapper>
-                    <FieldWrapper label="Phone Number">
-                      <input type="tel" value={formData.phone} disabled className={inputCls + " !bg-gray-50 text-text-light"} />
-                    </FieldWrapper>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { label: "First Name", value: formData.firstName },
+                      { label: "Last Name", value: formData.lastName },
+                      { label: "Email Address", value: formData.email },
+                      { label: "Phone Number", value: formData.phone },
+                    ].map(({ label, value }) => (
+                      <div key={label}>
+                        <p className="text-xs font-medium text-text-light mb-1">{label}</p>
+                        <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
+                          <span className="text-sm text-dark flex-1 truncate">{value}</span>
+                          <ShieldCheck size={14} className="text-gray-300 shrink-0" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </SectionCard>
 
@@ -1059,9 +1061,11 @@ function SignUpDetailsContent() {
 
                   {/* Ltd-only: Director details */}
                   {isLtd && (
-                    <div className="space-y-4 border-t border-border pt-4">
-                      <p className="text-sm font-medium text-dark">Director Details</p>
-                      <p className="text-xs text-text-light -mt-2">The primary director responsible for this account. If there are multiple directors, we&apos;ll collect the others once you&apos;re onboarded.</p>
+                    <div className="space-y-4 bg-gray-50 rounded-xl border border-gray-200 p-4 mt-2">
+                      <div>
+                        <p className="text-sm font-semibold text-dark">Director Details</p>
+                        <p className="text-xs text-text-light mt-0.5">The primary director responsible for this account. If there are multiple directors, we&apos;ll collect the others once you&apos;re onboarded.</p>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FieldWrapper label="Director First Name" required error={err("directorFirstName")}>
                           <input type="text" value={formData.directorFirstName}
@@ -1607,7 +1611,7 @@ function SectorSearch({ value, onChange }: { value: string; onChange: (v: string
     <div>
       <div className="flex items-center gap-1.5 mb-1.5">
         <label className="block text-sm font-medium text-dark">
-          Business Sector <span className="text-red-500">*</span>
+          Business Sector <span className="text-text-light font-normal">(optional)</span>
         </label>
       </div>
       <p className="text-xs text-text-light mb-1.5">Start typing to search — e.g. &ldquo;IT&rdquo;, &ldquo;construction&rdquo;, &ldquo;health&rdquo;</p>
