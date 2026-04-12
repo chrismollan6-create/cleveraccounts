@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
+import RequestCallback from "@/components/ui/RequestCallback";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -205,6 +206,20 @@ export default function ContactPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Request Callback */}
+              <div className="bg-secondary/5 border border-secondary/20 rounded-2xl p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                    <Phone size={20} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-dark text-sm">Prefer a call?</div>
+                    <p className="text-text-light text-xs">We'll call you back within 2 hours.</p>
+                  </div>
+                </div>
+                <RequestCallback inline label="Request a Callback" />
               </div>
 
               {/* Quick link */}

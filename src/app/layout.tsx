@@ -7,6 +7,7 @@ import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/Goo
 import UTMCapture from "@/components/seo/UTMCapture";
 import CookieConsent from "@/components/ui/CookieConsent";
 import ChatButton from "@/components/ui/ChatButton";
+import RequestCallback from "@/components/ui/RequestCallback";
 import PromoBanner from "@/components/layout/PromoBanner";
 import "./globals.css";
 
@@ -108,6 +109,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <ChatButton />
+        <RequestCallback floating />
         <CookieConsent />
       </body>
     </html>
