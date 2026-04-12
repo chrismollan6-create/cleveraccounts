@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CheckCircle2, ArrowRight, Phone, Star, Shield, Sparkles,
   ChevronDown, Award, Users, TrendingUp, Headphones, Zap, Clock, AlertCircle,
@@ -117,7 +118,7 @@ function LandingPageLayout({
       <div className="bg-white border-b border-border py-4">
         <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo.png" alt="Clever Accounts" className="h-10 w-auto" />
+          <Image src="/images/logo.png" alt="Clever Accounts" width={140} height={40} className="h-10 w-auto" />
           <a
             href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
             className="flex items-center gap-2 text-sm font-bold text-dark hover:text-primary transition-colors"

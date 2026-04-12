@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, ChevronDown, Phone } from "lucide-react";
 import { NAV_LINKS, COMPANY } from "@/lib/constants";
 
@@ -54,8 +55,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" className="shrink-0 flex items-center gap-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo.png" alt="Clever Accounts" className="h-10 md:h-12 w-auto rounded-lg" />
+            <Image src="/images/logo.png" alt="Clever Accounts" width={160} height={48} className="h-10 md:h-12 w-auto rounded-lg" priority />
           </Link>
 
           {/* Desktop nav */}
