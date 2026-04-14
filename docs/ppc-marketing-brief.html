@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PPC & Marketing Integration Brief — Clever Accounts</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #1a1a2e;
+      background: #f5f7fa;
+    }
+
+    /* ── Page shell ── */
+    .page-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+      border-radius: 16px;
+      padding: 48px 48px 40px;
+      color: #fff;
+      margin-bottom: 40px;
+    }
+    .cover .logo-area {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 20px;
+    }
+    .cover h1 {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .cover .meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      opacity: 0.85;
+      font-size: 14px;
+    }
+    .cover .meta span::before { content: "— "; opacity: 0.6; }
+
+    /* ── Section cards ── */
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .section h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 20px 0 6px;
+    }
+    .section p {
+      color: #475569;
+      margin-bottom: 12px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+
+    /* ── Status badge ── */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+    .status.live { background: #dcfce7; color: #166534; }
+    .status.action { background: #fef3c7; color: #92400e; }
+    .status.dot::before { content: "●"; font-size: 8px; }
+
+    /* ── Value table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    thead tr { background: #1e3a5f; color: #fff; }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+    thead th:first-child { border-radius: 8px 0 0 0; }
+    thead th:last-child { border-radius: 0 8px 0 0; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody td { padding: 9px 14px; color: #334155; border-bottom: 1px solid #e2e8f0; }
+    tbody tr:last-child td { border-bottom: none; }
+    .value-high { font-weight: 700; color: #166534; }
+    .value-low { color: #475569; }
+
+    /* ── Actions ── */
+    .actions-section { background: #fff; border-radius: 12px; margin-bottom: 24px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04); }
+
+    .actions-header {
+      padding: 20px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .actions-header.gtm { background: #1a73e8; color: #fff; }
+    .actions-header.gads { background: #ea4335; color: #fff; }
+    .actions-header.sf { background: #00a1e0; color: #fff; }
+
+    .actions-header h2 { font-size: 18px; font-weight: 700; }
+    .priority-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .actions-body { padding: 28px 36px; }
+
+    .action-item {
+      border-left: 3px solid #e2e8f0;
+      padding: 0 0 24px 20px;
+      margin-bottom: 0;
+      position: relative;
+    }
+    .action-item:last-child { padding-bottom: 0; border-left-color: transparent; }
+    .action-item::before {
+      content: attr(data-num);
+      position: absolute;
+      left: -13px;
+      top: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .actions-header.gtm ~ .actions-body .action-item::before { background: #1a73e8; }
+    .actions-header.gads ~ .actions-body .action-item::before { background: #ea4335; }
+    .actions-header.sf ~ .actions-body .action-item::before { background: #00a1e0; }
+
+    .action-item h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .action-item p { font-size: 14px; color: #475569; margin-bottom: 8px; }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+
+    ol.steps { padding-left: 0; margin: 8px 0; list-style: none; counter-reset: steps; }
+    ol.steps li {
+      counter-increment: steps;
+      padding: 6px 0 6px 28px;
+      position: relative;
+      font-size: 14px;
+      color: #475569;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    ol.steps li:last-child { border-bottom: none; }
+    ol.steps li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      color: #3730a3;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .note-box {
+      background: #fefce8;
+      border: 1px solid #fde047;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #713f12;
+      margin-top: 12px;
+    }
+    .note-box strong { color: #78350f; }
+
+    /* ── Baseline / Timeline ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .metric-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .metric-card .label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .metric-card .target { font-size: 13px; font-weight: 700; color: #166534; }
+    .metric-card .current { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    .timeline-row {
+      display: flex;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+      align-items: flex-start;
+    }
+    .timeline-row:last-child { border-bottom: none; }
+    .timeline-week {
+      min-width: 80px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #2563eb;
+      padding-top: 2px;
+    }
+    .timeline-actions { font-size: 14px; color: #334155; }
+
+    /* ── Contacts ── */
+    .contacts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .contact-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .contact-card .role { font-size: 12px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .contact-card ul { list-style: none; padding: 0; }
+    .contact-card ul li { font-size: 13px; color: #475569; padding: 2px 0; }
+    .contact-card ul li::before { content: "→ "; color: #94a3b8; }
+
+    /* ── Summary ── */
+    .summary-items { display: grid; gap: 12px; margin-top: 16px; }
+    .summary-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .summary-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .summary-item:nth-child(1) .summary-rank { background: #f59e0b; }
+    .summary-item:nth-child(2) .summary-rank { background: #64748b; }
+    .summary-item:nth-child(3) .summary-rank { background: #cd7f32; }
+    .summary-item h4 { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+    .summary-item p { font-size: 13px; color: #475569; margin: 0; }
+
+    @media (max-width: 600px) {
+      .cover { padding: 28px 24px; }
+      .cover h1 { font-size: 24px; }
+      .section, .actions-body { padding: 20px 20px; }
+      .actions-header { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- Cover -->
+  <div class="cover">
+    <div class="logo-area">Clever Accounts</div>
+    <h1>PPC &amp; Marketing<br>Integration Brief</h1>
+    <div class="meta">
+      <span>For: Marketing Team &amp; PPC Manager</span>
+      <span>April 2026</span>
+      <span>Confidential</span>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">i</div>
+      <h2>Overview</h2>
+    </div>
+    <p>The Clever Accounts website has been upgraded with a full first-party data and Google Ads integration layer. The technical work is complete on the website side.</p>
+    <p>This brief explains what has been built, why it matters, and the actions required from the marketing team and PPC manager to activate it.</p>
+  </div>
+
+  <!-- What Has Been Built -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>What Has Been Built</h2>
+    </div>
+
+    <h3>Consent Mode v2</h3>
+    <p>Before any Google tag fires, the site now sets consent defaults to "denied" for advertising cookies. When a visitor accepts cookies via the banner, the site immediately signals "granted" to Google. For visitors who decline, Google models their conversions statistically — recovering an estimated 15–30% of conversions that would otherwise be invisible.</p>
+    <p><strong>Why it matters:</strong> This became a legal/contractual requirement for UK/EEA traffic in March 2024. Without it, Google is restricted from using your ad data and your Smart Bidding loses signal accuracy.</p>
+    <span class="status live dot">Live on site</span>
+
+    <h3 style="margin-top: 28px;">Value-Based Conversion Tracking</h3>
+    <p>When a visitor completes the sign-up form, the conversion event fires with the real annual contract value attached — not a flat £0 or arbitrary number.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Business Type</th>
+          <th>Annual Value Sent to Google</th>
+          <th>Monthly Fee</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Limited Company</td>
+          <td class="value-high">£1,254</td>
+          <td>£104.50 × 12</td>
+        </tr>
+        <tr>
+          <td>Contractor</td>
+          <td class="value-high">£1,254</td>
+          <td>£104.50 × 12</td>
+        </tr>
+        <tr>
+          <td>Startup</td>
+          <td class="value-high">£1,254</td>
+          <td>£104.50 × 12</td>
+        </tr>
+        <tr>
+          <td>Sole Trader</td>
+          <td class="value-low">£510</td>
+          <td>£42.50 × 12</td>
+        </tr>
+        <tr>
+          <td>Freelancer</td>
+          <td class="value-low">£510</td>
+          <td>£42.50 × 12</td>
+        </tr>
+        <tr>
+          <td>Landlord</td>
+          <td class="value-low">£510</td>
+          <td>£42.50 × 12</td>
+        </tr>
+        <tr>
+          <td>CIS / Construction</td>
+          <td class="value-low">£510</td>
+          <td>£42.50 × 12</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Google's Smart Bidding currently treats every lead equally. With conversion values, it learns to bid more aggressively for Limited Company and Contractor leads (worth 2.5× more) and more conservatively for Sole Trader leads. Over 4–6 weeks this significantly shifts the quality mix of leads towards higher-value business types.</p>
+    <span class="status action dot">Live on site — requires PPC action to activate</span>
+
+    <h3 style="margin-top: 28px;">Enhanced Conversions</h3>
+    <p>When a visitor signs up, their name, email and phone number are SHA-256 hashed (anonymised) and pushed into the Google Tag Manager data layer. Google uses these hashed values to match conversions back to Google accounts — including people using ad blockers, private browsing, or iOS devices that block standard pixel tracking.</p>
+
+    <p>The data layer event fired is <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">enhanced_conversion</code> and contains:</p>
+    <div class="code-block">enhanced_conversion_data.email        (SHA-256 hashed)
+enhanced_conversion_data.phone_number  (SHA-256 hashed)
+enhanced_conversion_data.first_name   (SHA-256 hashed)
+enhanced_conversion_data.last_name    (SHA-256 hashed)
+conversion_value                       (GBP, based on business type)
+conversion_currency                    ("GBP")
+business_type                          (plain text, e.g. "Limited Company")</div>
+
+    <p>Expected uplift: <strong>15–25% more measurable conversions</strong> without any change to campaigns.</p>
+    <span class="status action dot">Live on site — requires GTM action to activate</span>
+
+    <h3 style="margin-top: 28px;">GCLID Capture &amp; Persistence</h3>
+    <p>When a visitor arrives from a Google Ad, the GCLID (Google Click ID) is stored in <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">localStorage</code>. It persists across page navigations and tab switches. When the visitor signs up, the GCLID is passed to Salesforce with the lead record.</p>
+    <p>This is the foundation for <strong>offline conversion import</strong> — the most powerful signal you can send Google. When a lead in Salesforce is marked as a paying client, you will be able to send the GCLID + actual contract value back to Google Ads.</p>
+    <span class="status live dot">GCLID captured and passed to Salesforce</span>
+    <br>
+    <span class="status action dot" style="margin-top:6px;">Requires Salesforce + Google Ads action to complete the loop</span>
+
+    <h3 style="margin-top: 28px;">UTM Parameter Tracking</h3>
+    <p>UTM parameters (<code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">utm_source</code>, <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">utm_medium</code>, <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">utm_campaign</code>, <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">utm_term</code>, <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">utm_content</code>) are captured from the URL and passed to Salesforce with every lead. Every lead in Salesforce knows exactly which campaign, ad group and keyword generated it.</p>
+    <span class="status live dot">Live and operational</span>
+  </div>
+
+  <!-- GTM Actions -->
+  <div class="actions-section">
+    <div class="actions-header gtm">
+      <h2>Google Tag Manager (GTM) — Actions Required</h2>
+      <span class="priority-badge">Priority: High</span>
+    </div>
+    <div class="actions-body">
+
+      <div class="action-item" data-num="1">
+        <h3>Enable Enhanced Conversions tag</h3>
+        <p>In GTM, create a new Google Ads Conversion Tracking tag configured as follows:</p>
+        <div class="code-block">Tag type:                  Google Ads Conversion Tracking
+Conversion ID:             Your Google Ads conversion ID
+Conversion label:          Your conversion label
+Enable Enhanced Conv.:     ✓ Yes
+Enhanced Conv. method:     Data Layer
+Data layer variable:       enhanced_conversion_data
+Trigger:                   Custom Event → enhanced_conversion</div>
+        <p>This reads the hashed user data the website is already pushing and sends it to Google Ads.</p>
+      </div>
+
+      <div class="action-item" data-num="2">
+        <h3>Confirm GTM container ID is set</h3>
+        <p>Ensure the environment variable <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">NEXT_PUBLIC_GTM_ID</code> is set to your GTM container ID (format: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">GTM-XXXXXXX</code>) in Netlify.</p>
+        <ol class="steps">
+          <li>Log into Netlify Dashboard</li>
+          <li>Go to Site Settings → Environment Variables</li>
+          <li>Confirm or add <code style="background:#1e293b;color:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;">NEXT_PUBLIC_GTM_ID = GTM-XXXXXXX</code></li>
+        </ol>
+        <div class="note-box"><strong>Note:</strong> Without this variable, no GTM tags will fire on the live site.</div>
+      </div>
+
+      <div class="action-item" data-num="3">
+        <h3>Verify Consent Mode v2 in GTM</h3>
+        <p>In GTM, go to Admin → Consent Overview and confirm:</p>
+        <ol class="steps">
+          <li><code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">ad_storage</code> is marked as consent required</li>
+          <li><code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">ad_user_data</code> is marked as consent required</li>
+          <li><code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">analytics_storage</code> is NOT consent-gated (it is always granted)</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Google Ads Actions -->
+  <div class="actions-section">
+    <div class="actions-header gads">
+      <h2>Google Ads — Actions Required</h2>
+      <span class="priority-badge">Priority: High</span>
+    </div>
+    <div class="actions-body">
+
+      <div class="action-item" data-num="1">
+        <h3>Switch conversion tracking to use conversion values</h3>
+        <ol class="steps">
+          <li>Go to Tools → Conversions</li>
+          <li>Find your sign-up/lead conversion action</li>
+          <li>Edit → Change "Value" from fixed amount to <strong>"Use different values for each conversion"</strong></li>
+          <li>Set a default value of <strong>£510</strong> as a fallback</li>
+        </ol>
+        <p style="margin-top:10px;">This activates the value-based bidding data the website is now sending.</p>
+      </div>
+
+      <div class="action-item" data-num="2">
+        <h3>Enable Enhanced Conversions in Google Ads</h3>
+        <ol class="steps">
+          <li>Go to Tools → Conversions → Settings</li>
+          <li>Turn on <strong>Enhanced Conversions for web</strong></li>
+          <li>Select <strong>"Google Tag Manager"</strong> as the implementation method</li>
+        </ol>
+        <p style="margin-top:10px;">This pairs with the GTM tag created in the GTM action above.</p>
+      </div>
+
+      <div class="action-item" data-num="3">
+        <h3>Switch bidding strategy to value-based</h3>
+        <p>Once you have 30+ conversions with values recorded (allow 2–4 weeks of data collection):</p>
+        <ol class="steps">
+          <li>Switch campaign bidding from "Maximise Conversions / Target CPA" to <strong>"Maximise Conversion Value"</strong></li>
+          <li>Set a <strong>Target ROAS of 300–400%</strong> (spend £1 to get £3–£4 in annual contract value)</li>
+          <li>Allow the 4-week learning period — do not make major changes during this window</li>
+        </ol>
+      </div>
+
+      <div class="action-item" data-num="4">
+        <h3>Create Customer Match exclusion list</h3>
+        <p>Export all current active clients from Salesforce (email addresses) and upload to Google Ads:</p>
+        <ol class="steps">
+          <li>Go to Tools → Audience Manager → Customer Match</li>
+          <li>Upload → Email list (current active clients)</li>
+          <li>Apply to all campaigns as <strong>Exclusion</strong> (bid modifier –100%)</li>
+        </ol>
+        <p style="margin-top:10px;">This stops paying for clicks from existing clients.</p>
+      </div>
+
+      <div class="action-item" data-num="5">
+        <h3>Set up Offline Conversion Import <em>(medium-term)</em></h3>
+        <p>This is the most valuable long-term action. When a Salesforce lead becomes a paying client, the GCLID is already stored on the Lead record. The process to complete:</p>
+        <ol class="steps">
+          <li>In Google Ads, create a new conversion action: <strong>"Offline — Client Won"</strong> with conversion value = actual contract value</li>
+          <li>A Salesforce Flow sends the GCLID + contract value to Google Ads Conversion API when Lead status changes to "Won"</li>
+          <li>Smart Bidding then learns which ad clicks turned into real revenue — not just form fills</li>
+        </ol>
+        <div class="note-box"><strong>Developer note:</strong> The Apex endpoint and Google Ads Conversion API call for offline conversion import has not been built yet. This is the next recommended development task.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Salesforce Actions -->
+  <div class="actions-section">
+    <div class="actions-header sf">
+      <h2>Salesforce — Actions Required</h2>
+      <span class="priority-badge">Priority: Medium</span>
+    </div>
+    <div class="actions-body">
+
+      <div class="action-item" data-num="1">
+        <h3>Confirm GCLID field exists on Lead</h3>
+        <p>The website passes <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">gclid</code> to the <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">SignupLead</code> Apex endpoint. Confirm the Lead object has a field to store this (e.g. <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">GCLID__c</code>). If not, create a Text field and update the <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">SignupLeadRestService</code> class to map it.</p>
+      </div>
+
+      <div class="action-item" data-num="2">
+        <h3>Confirm UTM fields exist on Lead</h3>
+        <p>The website passes: <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">utm_source</code>, <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">utm_medium</code>, <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">utm_campaign</code>, <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">utm_term</code>, <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">utm_content</code>. Confirm these are mapped to Lead fields in Salesforce. These populate automatically on every web lead.</p>
+      </div>
+
+      <div class="action-item" data-num="3">
+        <h3>Plan offline conversion flow</h3>
+        <p>When a Lead is converted to a client (or a specific status is set), a Salesforce Flow should:</p>
+        <ol class="steps">
+          <li>Read the <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">GCLID__c</code> field from the Lead</li>
+          <li>Read the contract value (based on business type)</li>
+          <li>POST to <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:12px;">/api/offline-conversion</code> on the website (to be built), which calls the Google Ads Conversion API</li>
+        </ol>
+        <p style="margin-top:10px;">This is the piece that makes Google's Smart Bidding truly learn from revenue, not just leads.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Performance Baseline -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>Performance Baseline — Record Now</h2>
+    </div>
+    <p>Before the new setup takes full effect, record your current baselines so you can measure improvement over the next 12 weeks.</p>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="label">Conversion Volume (30 days)</div>
+        <div class="target">Target: +15–25%</div>
+        <div class="current">Enhanced Conversions uplift</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Conversion Rate</div>
+        <div class="target">Measure trend</div>
+        <div class="current">Record current % today</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Average CPA</div>
+        <div class="target">Target: –10–20%</div>
+        <div class="current">Record current CPA today</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Ltd Company % of leads</div>
+        <div class="target">Target: +10–15% shift</div>
+        <div class="current">Value-based bidding mix</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Contractor % of leads</div>
+        <div class="target">Target: +5–10% shift</div>
+        <div class="current">Value-based bidding mix</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Target ROAS</div>
+        <div class="target">Target: 300–400%</div>
+        <div class="current">Not yet set (n/a now)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>12-Week Implementation Timeline</h2>
+    </div>
+
+    <div class="timeline-row">
+      <div class="timeline-week">Now</div>
+      <div class="timeline-actions">Set <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:12px;">NEXT_PUBLIC_GTM_ID</code> in Netlify. Create Enhanced Conversions GTM tag. Enable Enhanced Conversions in Google Ads.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Week 1</div>
+      <div class="timeline-actions">Switch conversion value to "use different values". Upload Customer Match exclusion list.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Weeks 2–4</div>
+      <div class="timeline-actions">Collect conversion value data. Monitor GTM Preview to confirm <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:12px;">enhanced_conversion</code> events are firing correctly.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Weeks 4–6</div>
+      <div class="timeline-actions">Switch to <strong>Maximise Conversion Value + Target ROAS</strong> once 30+ conversions recorded.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Weeks 6–8</div>
+      <div class="timeline-actions">Build offline conversion import (developer work). Deploy Salesforce Flow for GCLID + won lead.</div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-week">Weeks 8–12</div>
+      <div class="timeline-actions">Monitor Smart Bidding learning period. Adjust Target ROAS based on actual lead quality mix.</div>
+    </div>
+  </div>
+
+  <!-- Contacts -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>Responsibility by Role</h2>
+    </div>
+    <div class="contacts-grid">
+      <div class="contact-card">
+        <div class="role">PPC Manager</div>
+        <ul>
+          <li>Conversion value settings</li>
+          <li>Bidding strategy switch</li>
+          <li>Customer Match list</li>
+          <li>Offline conversion action</li>
+        </ul>
+      </div>
+      <div class="contact-card">
+        <div class="role">GTM Manager</div>
+        <ul>
+          <li>Enhanced Conversions tag</li>
+          <li>Consent Mode v2 check</li>
+          <li>GTM container ID in Netlify</li>
+        </ul>
+      </div>
+      <div class="contact-card">
+        <div class="role">Salesforce Admin</div>
+        <ul>
+          <li>GCLID field on Lead</li>
+          <li>UTM field mapping</li>
+          <li>Offline conversion Flow</li>
+        </ul>
+      </div>
+      <div class="contact-card">
+        <div class="role">Developer</div>
+        <ul>
+          <li>Offline conversion API endpoint (future task)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Priority Summary</h2>
+    </div>
+    <p>The website is now sending Google significantly richer data than before. The three highest-impact activations — in priority order — are:</p>
+    <div class="summary-items">
+      <div class="summary-item">
+        <div class="summary-rank">1</div>
+        <div>
+          <h4>GTM Enhanced Conversions tag</h4>
+          <p>~30 minutes of GTM work. Expected outcome: <strong>15–25% more measurable conversions</strong> without any campaign changes.</p>
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-rank">2</div>
+        <div>
+          <h4>Switch Google Ads to use conversion values</h4>
+          <p>~30 minutes in Google Ads. Expected outcome: Smart Bidding begins shifting lead quality mix towards <strong>Limited Company and Contractor leads</strong> (worth 2.5× more).</p>
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-rank">3</div>
+        <div>
+          <h4>Offline conversion import</h4>
+          <p>Development + Salesforce work required. The most powerful long-term signal: Google learns from <strong>actual revenue closed</strong>, not just form fills.</p>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:20px;color:#64748b;font-size:13px;">Everything else — Consent Mode v2, GCLID capture, UTM tracking — is already live and working in the background.</p>
+  </div>
+
+</div>
+</body>
+</html>
