@@ -50,6 +50,9 @@ export const NAV_LINKS = [
         heading: "Specialist Services",
         items: [
           { label: "IR35 Specialist", href: "/contractor-accountants/ir35" },
+          { label: "IT Contractor Guide", href: "/it-contractor-accountant" },
+          { label: "Small Limited Company Guide", href: "/small-business-accountant" },
+          { label: "Switching Accountants Guide", href: "/switching-accountants" },
           { label: "Self Assessment", href: "/self-assessment" },
           { label: "VAT Returns", href: "/vat-returns" },
           { label: "Making Tax Digital", href: "/making-tax-digital" },

@@ -109,8 +109,8 @@ export default async function RootLayout({
         <UTMCapture />
         <PromoBanner />
         <Header
-          phone={siteSettings?.phone}
-          freephone={siteSettings?.freephone}
+          phone={siteSettings?.phone ?? undefined}
+          freephone={siteSettings?.freephone ?? undefined}
         />
         <TrustBar />
         <main className="flex-1">{children}</main>
