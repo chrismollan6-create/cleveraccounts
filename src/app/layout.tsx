@@ -101,10 +101,10 @@ export default async function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
-        <GoogleTagManagerHead />
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
+        <GoogleTagManagerHead />
         <GoogleTagManagerBody />
         <UTMCapture />
         <PromoBanner />
