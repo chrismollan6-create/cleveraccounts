@@ -17,7 +17,7 @@ const services = [
     icon: User,
     title: "Sole Trader",
     subtitle: "Self-employed & freelancers",
-    description: "Stop worrying about your accounts. Your dedicated accountant handles your self assessment, expenses and tax — so you can focus on the work you love.",
+    description: "Stop worrying about your accounts. Your dedicated accountant handles your self assessment, expenses and tax so you can focus on the work.",
     price: "42.50",
     href: "/sole-trader",
     colour: "bg-blue-500/10 text-blue-600 group-hover:bg-blue-500",
@@ -37,7 +37,7 @@ const services = [
     icon: Briefcase,
     title: "Contractor",
     subtitle: "PSC & umbrella contractors",
-    description: "IR35 keeping you up at night? Don't let it. Our specialist contractor accountants know exactly how to protect you — and our Clever FLEX solution means you can switch between PSC and umbrella seamlessly.",
+    description: "IR35 keeping you up at night? Don't let it. Our specialist contractor accountants know exactly how to protect you and our Clever FLEX solution means you can switch between PSC and umbrella seamlessly.",
     price: "104.50",
     href: "/contractor-accountancy",
     colour: "bg-purple-500/10 text-purple-600 group-hover:bg-purple-500",
@@ -47,7 +47,7 @@ const services = [
     icon: Home,
     title: "Landlord",
     subtitle: "Property investors & landlords",
-    description: "Rental income, allowable expenses, mortgage interest — property tax is complex. We make it simple, keeping you compliant and as tax-efficient as possible.",
+    description: "Rental income, allowable expenses, mortgage interest, capital gains — property tax has a lot of moving parts. We keep you compliant and as tax-efficient as the rules allow.",
     price: "42.50",
     href: "/landlord-accounting",
     colour: "bg-green-500/10 text-green-600 group-hover:bg-green-500",
@@ -57,7 +57,7 @@ const services = [
     icon: HardHat,
     title: "CIS / Construction",
     subtitle: "Contractors & subcontractors",
-    description: "CIS deductions, monthly returns, tax rebates — it's a lot to keep on top of. We handle everything, and make sure you're never paying more than you owe.",
+    description: "Keeping on top of CIS deductions, monthly returns and tax rebates is a lot. We handle everything, and make sure you're never paying more than you owe.",
     price: "42.50",
     href: "/cis-accounting",
     colour: "bg-amber-500/10 text-amber-600 group-hover:bg-amber-500",
@@ -67,7 +67,7 @@ const services = [
     icon: Rocket,
     title: "Startup",
     subtitle: "New businesses & entrepreneurs",
-    description: "Get your business off to the best start. From company formation to your first accounts, we're with you from day one — no jargon, just solid advice.",
+    description: "Get your business off to the best start. From company formation to your first accounts, we're with you from day one.",
     price: "104.50",
     href: "/accounting-for-startups",
     colour: "bg-secondary/10 text-secondary group-hover:bg-secondary",
@@ -77,7 +77,7 @@ const services = [
     icon: ShoppingCart,
     title: "Ecommerce",
     subtitle: "Online sellers & retailers",
-    description: "Selling on Amazon, Shopify or Etsy? We understand the complexities of ecommerce accounting — VAT, OSS/IOSS, marketplace fees and all.",
+    description: "Selling on Amazon, Shopify or Etsy? We understand the complexities of ecommerce accounting such as VAT, OSS/IOSS, marketplace fees and all.",
     price: "104.50",
     href: "/ecommerce-accounting",
     colour: "bg-pink-500/10 text-pink-600 group-hover:bg-pink-500",
@@ -88,19 +88,19 @@ const services = [
 const included = [
   { icon: HeadphonesIcon, label: "Dedicated accountant", desc: "Your own named accountant who knows your business" },
   { icon: Phone, label: "Unlimited advice", desc: "Call or email as often as you need, no extra charge" },
-  { icon: Monitor, label: "Free FreeAgent software", desc: "Award-winning software included with every package" },
-  { icon: BadgePoundSterling, label: "No setup fees", desc: "Get started immediately with zero upfront costs" },
+  { icon: Monitor, label: "Free FreeAgent software", desc: "Accounting software by FreeAgent — free with every package" },
+  { icon: BadgePoundSterling, label: "No setup fees", desc: "No upfront charges. Your first call with your accountant can be today" },
   { icon: Shield, label: "No minimum contract", desc: "Cancel anytime — stay because you want to" },
-  { icon: Zap, label: "Real-time dashboard", desc: "Track your finances on any device, anytime" },
-  { icon: FileCheck, label: "All filings & submissions", desc: "HMRC, Companies House, VAT — all handled for you" },
+  { icon: Zap, label: "Real-time dashboard", desc: "Phone or laptop — your numbers are always in sync" },
+  { icon: FileCheck, label: "All filings & submissions", desc: "HMRC, Companies House and VAT — all handled for you" },
   { icon: CheckCircle2, label: "Tax efficiency advice", desc: "Proactive planning so you keep more of what you earn" },
 ];
 
 const specialists = [
-  { title: "Accounting Software", desc: "Free FreeAgent — rated the UK's #1 accounting software for small businesses.", href: "/our-services/accounting-software", tag: "Platinum Partner" },
+  { title: "Accounting Software", desc: "FreeAgent is rated the UK's #1 accounting software for small businesses.", href: "/our-services/accounting-software", tag: "Platinum Partner" },
   { title: "Switch Accountant", desc: "Already have an accountant? Switching to us is painless. We handle the transfer and you don't lose a day.", href: "/our-services/accountant-switch", tag: "We Handle Everything" },
   { title: "IR35 Specialist", desc: "The most complex area of contractor tax. Our specialists know it inside out.", href: "/contractor-accountants/ir35", tag: "Contractors" },
-  { title: "Making Tax Digital", desc: "MTD is coming for everyone. We'll make sure you're ready — and compliant from day one.", href: "/making-tax-digital", tag: "From April 2026" },
+  { title: "Making Tax Digital", desc: "MTD is coming for everyone. We'll make sure you're ready and compliant from day one.", href: "/making-tax-digital", tag: "From April 2026" },
   { title: "Self Assessment", desc: "Stressed about your tax return? Hand it over. We'll file it accurately and on time.", href: "/self-assessment", tag: "Sole Traders" },
   { title: "VAT Returns", desc: "We prepare and submit your VAT returns, and keep you on the right scheme for your business.", href: "/vat-returns", tag: "All Packages" },
 ];
@@ -117,11 +117,11 @@ export default function ServicesPage() {
         <div className="relative max-w-7xl mx-auto px-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">What We Do</p>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-            Accounting That Works<br />
-            <span className="text-gradient">For Your Business</span>
+            Accounting Packages<br />
+            <span className="text-gradient">for Every Business</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            One fixed monthly fee. Your own dedicated accountant. Free software. No setup costs, no minimum contract — just straightforward, expert accounting.
+            One fixed monthly fee. Your own dedicated accountant. Free software. No setup costs, no minimum contract.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition-all shadow-lg">
@@ -151,7 +151,7 @@ export default function ServicesPage() {
       </section>
 
       {/* ── SERVICE CARDS ────────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-24">
+      <section className="bg-surface py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">Find Your Package</h2>
@@ -160,14 +160,21 @@ export default function ServicesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => {
               const Icon = service.icon;
+              const isFeatured = service.tag === "Most Popular";
               return (
                 <Link
                   key={service.href}
                   href={service.href}
-                  className="group relative bg-white border border-border rounded-2xl p-8 card-hover flex flex-col"
+                  className={`group relative bg-white rounded-2xl p-8 card-hover flex flex-col transition-all ${
+                    isFeatured
+                      ? "border-2 border-primary shadow-xl ring-4 ring-primary/10"
+                      : "border border-border shadow-sm hover:shadow-lg"
+                  }`}
                 >
                   {service.tag && (
-                    <span className="absolute top-5 right-5 text-xs font-bold bg-secondary/10 text-secondary px-2.5 py-1 rounded-full">
+                    <span className={`absolute top-5 right-5 text-xs font-bold px-2.5 py-1 rounded-full ${
+                      isFeatured ? "bg-primary text-white shadow-md" : "bg-secondary/10 text-secondary"
+                    }`}>
                       {service.tag}
                     </span>
                   )}
@@ -175,7 +182,7 @@ export default function ServicesPage() {
                     <Icon size={26} />
                   </div>
                   <div className="mb-1">
-                    <h2 className="text-xl font-black text-dark group-hover:text-primary transition-colors">{service.title}</h2>
+                    <h3 className="text-xl font-black text-dark group-hover:text-primary transition-colors">{service.title}</h3>
                     <p className="text-xs text-text-light font-medium mt-0.5">{service.subtitle}</p>
                   </div>
                   <p className="text-text-light text-sm leading-relaxed my-4 flex-1">{service.description}</p>
@@ -220,11 +227,11 @@ export default function ServicesPage() {
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">More From Us</p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">Specialist Services</h2>
-            <p className="text-text-light max-w-xl mx-auto">Beyond the core packages, we offer a range of specialist services to handle the complex stuff.</p>
+            <p className="text-text-light max-w-xl mx-auto">Beyond the core packages, we cover IR35, VAT, MTD, self assessment, switching and more.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {specialists.map((s) => (
-              <Link key={s.href} href={s.href} className="group bg-white border border-border rounded-2xl p-6 card-hover flex flex-col">
+              <Link key={s.href} href={s.href} className="group bg-white border border-border rounded-2xl p-6 card-hover flex flex-col shadow-sm hover:shadow-lg">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-base font-black text-dark group-hover:text-primary transition-colors">{s.title}</h3>
                   <span className="text-xs font-bold bg-primary/8 text-primary px-2 py-0.5 rounded-full shrink-0 ml-2">{s.tag}</span>
