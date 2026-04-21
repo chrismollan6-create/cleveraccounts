@@ -105,7 +105,8 @@ export async function getFeaturedCaseStudy() {
 // Site settings (singleton)
 export async function getSiteSettings() {
   return client.fetch(`*[_type == "siteSettings"][0] {
-    phone, freephone, email, tagline, offices, stats, social
+    phone, freephone, email, tagline, offices, stats, social,
+    promo { enabled, discountPercent, durationMonths, badgeText, appliesTo, endDate }
   }`);
 }
 

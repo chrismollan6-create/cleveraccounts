@@ -65,6 +65,58 @@ export default defineType({
         { name: "linkedin", title: "LinkedIn URL", type: "url" },
       ],
     }),
+    defineField({
+      name: "promo",
+      title: "Promotional Offer",
+      type: "object",
+      description: "Controls the discount badge shown on pricing cards. Toggle 'enabled' to show or hide site-wide.",
+      fields: [
+        {
+          name: "enabled",
+          title: "Enable promo badge",
+          type: "boolean",
+          initialValue: false,
+        },
+        {
+          name: "discountPercent",
+          title: "Discount percentage",
+          type: "number",
+          description: "e.g. 50 for 50% off",
+        },
+        {
+          name: "durationMonths",
+          title: "Duration (months)",
+          type: "number",
+          description: "e.g. 3 for first 3 months",
+        },
+        {
+          name: "badgeText",
+          title: "Badge label (optional override)",
+          type: "string",
+          description: "Leave blank to auto-generate from discount % and duration, e.g. '50% off for 3 months'",
+        },
+        {
+          name: "appliesTo",
+          title: "Applies to plans",
+          type: "array",
+          of: [{ type: "string" }],
+          options: {
+            list: [
+              { title: "Sole Trader", value: "Sole Trader" },
+              { title: "Limited Company", value: "Limited Company" },
+              { title: "Contractor", value: "Contractor" },
+            ],
+          },
+          description: "Which pricing plans show the badge",
+        },
+        {
+          name: "endDate",
+          title: "Offer end date (optional)",
+          type: "date",
+          description: "Displays a deadline on the badge if set",
+        },
+      ],
+    }),
   ],
   preview: {
     select: { title: "phone" },

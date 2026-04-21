@@ -15,9 +15,10 @@ import {
   Briefcase,
   Building2,
   ShieldCheck,
+  Tag,
 } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
-import { getPricingPlans, getFAQs } from "@/sanity/queries";
+import { getPricingPlans, getFAQs, getSiteSettings } from "@/sanity/queries";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 
 export const metadata: Metadata = {
@@ -112,9 +113,33 @@ const universalFeatures = [
 
 export const revalidate = 60;
 
+type Promo = {
+  enabled: boolean;
+  discountPercent?: number;
+  durationMonths?: number;
+  badgeText?: string;
+  appliesTo?: string[];
+  endDate?: string;
+} | null;
+
+function getPromoBadgeText(promo: Promo): string {
+  if (!promo?.enabled) return "";
+  if (promo.badgeText) return promo.badgeText;
+  const pct = promo.discountPercent ? `${promo.discountPercent}% off` : "";
+  const dur = promo.durationMonths ? ` for ${promo.durationMonths} months` : "";
+  return pct + dur;
+}
+
+function planHasPromo(planName: string, promo: Promo): boolean {
+  if (!promo?.enabled) return false;
+  if (!promo.appliesTo || promo.appliesTo.length === 0) return false;
+  return promo.appliesTo.includes(planName);
+}
+
 export default async function PricingPage() {
   let plans = fallbackPlans;
   let faqs = fallbackFaqs;
+  let promo: Promo = null;
 
   try {
     const cmsPlans = await getPricingPlans();
@@ -130,6 +155,11 @@ export default async function PricingPage() {
         answer: f.answer,
       }));
     }
+  } catch (_e) { /* use fallback */ }
+
+  try {
+    const settings = await getSiteSettings();
+    if (settings?.promo) promo = settings.promo;
   } catch (_e) { /* use fallback */ }
 
   return (
@@ -177,6 +207,9 @@ export default async function PricingPage() {
                 ? <Briefcase size={22} />
                 : <Building2 size={22} />;
 
+              const hasPromo = planHasPromo(plan.name, promo);
+              const promoBadge = hasPromo ? getPromoBadgeText(promo) : "";
+
               return (
                 <div
                   key={plan._id}
@@ -211,9 +244,22 @@ export default async function PricingPage() {
                       </span>
                       <span className={`text-base ml-1 ${plan.popular ? "text-white/50" : "text-text-light"}`}>/month</span>
                     </div>
-                    <p className={`text-xs mb-6 ${plan.popular ? "text-white/40" : "text-text-light/70"}`}>
+                    <p className={`text-xs ${hasPromo ? "mb-3" : "mb-6"} ${plan.popular ? "text-white/40" : "text-text-light/70"}`}>
                       + VAT where applicable
                     </p>
+
+                    {/* Promo badge */}
+                    {hasPromo && promoBadge && (
+                      <div className="inline-flex items-center gap-1.5 bg-secondary/15 border border-secondary/30 text-secondary-dark rounded-lg px-3 py-1.5 text-xs font-bold mb-6">
+                        <Tag size={12} className="shrink-0" />
+                        {promoBadge}
+                        {promo?.endDate && (
+                          <span className="font-normal opacity-75">
+                            · ends {new Date(promo.endDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     <Link
                       href={plan.ctaLink || "/sign-up"}
