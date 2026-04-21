@@ -3,8 +3,9 @@ import Link from "next/link";
 import {
   ArrowRight, ChevronRight, User, Building2, Briefcase, Home, Rocket,
   CheckCircle2, HardHat, ShoppingCart, Phone, Star, Zap, Shield, HeadphonesIcon,
-  BadgePoundSterling, Monitor, FileCheck,
+  BadgePoundSterling, Monitor, FileCheck, Tag,
 } from "lucide-react";
+import { getSiteSettings } from "@/sanity/queries";
 
 export const metadata: Metadata = {
   title: "Online Accounting Services UK — All Packages | Clever Accounts",
@@ -105,7 +106,20 @@ const specialists = [
   { title: "VAT Returns", desc: "We prepare and submit your VAT returns, and keep you on the right scheme for your business.", href: "/vat-returns", tag: "All Packages" },
 ];
 
-export default function ServicesPage() {
+export const revalidate = 60;
+
+export default async function ServicesPage() {
+  let promoBadges: Record<string, string> = {};
+  try {
+    const settings = await getSiteSettings();
+    const p = settings?.promo;
+    if (p?.enabled && p.appliesTo?.length) {
+      const text = (p.badgeText ||
+        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim()) || null;
+      if (text) for (const plan of p.appliesTo) promoBadges[plan] = text;
+    }
+  } catch { /* use empty */ }
+
   return (
     <>
       {/* ── HERO ────────────────────────────────────────────── */}
@@ -187,7 +201,15 @@ export default function ServicesPage() {
                   </div>
                   <p className="text-text-light text-sm leading-relaxed my-4 flex-1">{service.description}</p>
                   <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
-                    <span className="text-sm text-text-light">From <span className="text-xl font-black text-primary">£{service.price}</span><span className="text-xs">/mo</span></span>
+                    <div>
+                      <span className="text-sm text-text-light">From <span className="text-xl font-black text-primary">£{service.price}</span><span className="text-xs">/mo</span></span>
+                      {promoBadges[service.title] && (
+                        <div className="inline-flex items-center gap-1 bg-secondary/15 border border-secondary/30 text-secondary-dark rounded-md px-2 py-0.5 text-xs font-bold mt-1 ml-2">
+                          <Tag size={10} className="shrink-0" />
+                          {promoBadges[service.title]}
+                        </div>
+                      )}
+                    </div>
                     <span className="text-primary font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
                       Learn more <ChevronRight size={16} />
                     </span>

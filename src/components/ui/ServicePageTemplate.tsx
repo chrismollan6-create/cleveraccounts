@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   CheckCircle2, ArrowRight, Star, Phone, ChevronDown,
   Award, Users, TrendingUp, Headphones, Zap, Shield,
-  FileText, BarChart2, Building2, MessageSquare, Calculator,
+  FileText, BarChart2, Building2, MessageSquare, Calculator, Tag,
 } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
 import type { ServicePageData } from "@/lib/service-page-data";
@@ -33,7 +33,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-export default function ServicePageTemplate({ data, children }: { data: ServicePageData; children?: React.ReactNode }) {
+export default function ServicePageTemplate({ data, children, promoBadge }: { data: ServicePageData; children?: React.ReactNode; promoBadge?: string | null }) {
   const colCount = data.serviceCategories
     ? data.serviceCategories.length <= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
     : "";
@@ -68,6 +68,12 @@ export default function ServicePageTemplate({ data, children }: { data: ServiceP
               <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-xl">
                 {data.description}
               </p>
+              {promoBadge && (
+                <div className="inline-flex items-center gap-1.5 bg-secondary/20 border border-secondary/40 text-secondary rounded-lg px-3 py-1.5 text-xs font-bold mb-6">
+                  <Tag size={12} className="shrink-0" />
+                  {promoBadge}
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/sign-up"

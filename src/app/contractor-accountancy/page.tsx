@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
 import ContractorCalculator from "@/components/ui/ContractorCalculator";
 import { servicePages } from "@/lib/service-page-data";
+import { getSiteSettings } from "@/sanity/queries";
 
 const data = servicePages["contractor-accountancy"];
 
@@ -10,9 +11,21 @@ export const metadata: Metadata = {
   description: data.metaDescription,
 };
 
-export default function ContractorAccountancyPage() {
+export const revalidate = 60;
+
+export default async function ContractorAccountancyPage() {
+  let promoBadge: string | null = null;
+  try {
+    const settings = await getSiteSettings();
+    const p = settings?.promo;
+    if (p?.enabled && p.appliesTo?.includes("Contractor")) {
+      promoBadge = p.badgeText ||
+        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim() || null;
+    }
+  } catch { /* use null */ }
+
   return (
-    <ServicePageTemplate data={data}>
+    <ServicePageTemplate data={data} promoBadge={promoBadge}>
       <ContractorCalculator />
     </ServicePageTemplate>
   );

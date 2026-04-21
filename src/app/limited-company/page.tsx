@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
 import { servicePages } from "@/lib/service-page-data";
+import { getSiteSettings } from "@/sanity/queries";
 
 const data = servicePages["limited-company"];
 
@@ -9,6 +10,18 @@ export const metadata: Metadata = {
   description: data.metaDescription,
 };
 
-export default function LimitedCompanyPage() {
-  return <ServicePageTemplate data={data} />;
+export const revalidate = 60;
+
+export default async function LimitedCompanyPage() {
+  let promoBadge: string | null = null;
+  try {
+    const settings = await getSiteSettings();
+    const p = settings?.promo;
+    if (p?.enabled && p.appliesTo?.includes("Limited Company")) {
+      promoBadge = p.badgeText ||
+        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim() || null;
+    }
+  } catch { /* use null */ }
+
+  return <ServicePageTemplate data={data} promoBadge={promoBadge} />;
 }

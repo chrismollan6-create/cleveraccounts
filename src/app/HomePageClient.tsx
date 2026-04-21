@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Sparkles,
   Quote,
+  Tag,
 } from "lucide-react";
 import { COMPANY, TESTIMONIALS } from "@/lib/constants";
 import TaxCalculator from "@/components/ui/TaxCalculator";
@@ -91,9 +92,10 @@ const serviceTabs = [
 
 interface HomePageClientProps {
   faqs: { q: string; a: string }[];
+  promoBadges?: Record<string, string>;
 }
 
-export default function HomePageClient({ faqs }: HomePageClientProps) {
+export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClientProps) {
   const [activeTab, setActiveTab] = useState("limited-company");
   const activeService = serviceTabs.find((t) => t.id === activeTab)!;
 
@@ -346,6 +348,12 @@ export default function HomePageClient({ faqs }: HomePageClientProps) {
                   </li>
                 ))}
               </ul>
+              {promoBadges[activeService.label] && (
+                <div className="inline-flex items-center gap-1.5 bg-secondary/20 border border-secondary/40 text-secondary rounded-lg px-3 py-1.5 text-xs font-bold mb-4">
+                  <Tag size={12} className="shrink-0" />
+                  {promoBadges[activeService.label]}
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg">
                   Get Started — £{activeService.price}/mo <ArrowRight size={20} />
@@ -363,7 +371,13 @@ export default function HomePageClient({ faqs }: HomePageClientProps) {
                 <div className="text-7xl font-black text-white mb-1">
                   £{activeService.price}
                 </div>
-                <p className="text-white/50 text-lg mb-8">/month + VAT</p>
+                <p className="text-white/50 text-lg mb-4">/month + VAT</p>
+                {promoBadges[activeService.label] && (
+                  <div className="inline-flex items-center gap-1.5 bg-secondary/20 border border-secondary/40 text-secondary rounded-lg px-3 py-1.5 text-xs font-bold mb-4">
+                    <Tag size={12} className="shrink-0" />
+                    {promoBadges[activeService.label]}
+                  </div>
+                )}
                 <div className="space-y-3 text-left">
                   {["Dedicated accountant", "Unlimited advice", "Free software", "No setup fees", "Cancel anytime"].map((f) => (
                     <div key={f} className="flex items-center gap-3 text-white/70 bg-white/5 rounded-xl px-4 py-3">

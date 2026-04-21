@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getSiteSettings } from "@/sanity/queries";
 
 export const metadata: Metadata = {
   title: "Clever Accounts | Expert Online Accountants UK — From £42.50/month",
@@ -42,11 +43,22 @@ const HOME_FAQS = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  let promoBadges: Record<string, string> = {};
+  try {
+    const settings = await getSiteSettings();
+    const p = settings?.promo;
+    if (p?.enabled && p.appliesTo?.length) {
+      const text = (p.badgeText ||
+        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim()) || null;
+      if (text) for (const plan of p.appliesTo) promoBadges[plan] = text;
+    }
+  } catch { /* use empty */ }
+
   return (
     <>
       <FAQPageJsonLd faqs={HOME_FAQS} />
-      <HomePageClient faqs={HOME_FAQS} />
+      <HomePageClient faqs={HOME_FAQS} promoBadges={promoBadges} />
     </>
   );
 }
