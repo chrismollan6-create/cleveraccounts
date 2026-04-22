@@ -154,7 +154,7 @@ export function SEODashboard() {
   }, [client]);
 
   function openDocument(id: string, type: string) {
-    window.location.href = `/studio/structure/${type};${id}`;
+    window.location.href = `/studio/intent/edit/id=${id};type=${type}/`;
   }
 
   const filtered = rows
