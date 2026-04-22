@@ -161,21 +161,21 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
               </p>
 
               {/* Trust signals — visible above the fold on all devices */}
-              <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <div className="flex items-center gap-2">
+              <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <div className="flex items-center gap-2 whitespace-nowrap">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
+                      <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <span className="text-white/70 text-sm font-medium">4.7 on Trustpilot</span>
+                  <span className="text-white/70 text-sm font-medium">4.7 Trustpilot</span>
                 </div>
-                <div className="h-4 w-px bg-white/20 hidden sm:block" />
-                <span className="text-white/70 text-sm font-medium">10,000+ businesses</span>
-                <div className="h-4 w-px bg-white/20 hidden sm:block" />
-                <span className="text-white/70 text-sm font-medium">ICAEW Regulated</span>
-                <div className="h-4 w-px bg-white/20 hidden sm:block" />
-                <span className="text-white/70 text-sm font-medium">20+ years experience</span>
+                <div className="h-4 w-px bg-white/20" />
+                <span className="text-white/70 text-sm font-medium whitespace-nowrap">10,000+ businesses</span>
+                <div className="h-4 w-px bg-white/20" />
+                <span className="text-white/70 text-sm font-medium whitespace-nowrap">ICAEW Regulated</span>
+                <div className="h-4 w-px bg-white/20" />
+                <span className="text-white/70 text-sm font-medium whitespace-nowrap">20+ years</span>
               </div>
             </div>
 
@@ -243,30 +243,8 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
         {/* Wave */}
         <div className="absolute bottom-0 left-0 w-full">
           <svg viewBox="0 0 1440 100" fill="none" className="w-full h-auto">
-            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="white" />
+            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="#10b981" />
           </svg>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════
-          BUSINESS STATS — Credibility at a glance
-          (Ratings already shown in global TrustBar above)
-          ═══════════════════════════════════════ */}
-      <section className="bg-white pt-6 pb-12">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center">
-            {[
-              { value: "10,000+", label: "Businesses Trust Us" },
-              { value: "20+", label: "Years Experience" },
-              { value: "£0", label: "Setup Fees" },
-              { value: "ICAEW", label: "Regulated Firm" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <span className="text-2xl md:text-3xl font-black text-gradient-teal">{s.value}</span>
-                <p className="text-xs text-text-light mt-1 font-medium">{s.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -301,6 +279,27 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
                 Find out more <ArrowRight size={15} />
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          BUSINESS STATS — Credibility at a glance
+          ═══════════════════════════════════════ */}
+      <section className="bg-white pt-6 pb-12">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center">
+            {[
+              { value: "10,000+", label: "Businesses Trust Us" },
+              { value: "20+", label: "Years Experience" },
+              { value: "£0", label: "Setup Fees" },
+              { value: "ICAEW", label: "Regulated Firm" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <span className="text-2xl md:text-3xl font-black text-gradient-teal">{s.value}</span>
+                <p className="text-xs text-text-light mt-1 font-medium">{s.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
