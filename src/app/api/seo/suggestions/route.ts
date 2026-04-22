@@ -19,7 +19,11 @@ async function fetchPageText(url: string): Promise<string> {
   if (!res.ok) throw new Error(`Page fetch ${res.status}`);
   const html = await res.text();
 
-  const stripped = html
+  // Extract only the body content — ignore head (title, meta, JSON-LD etc)
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const bodyHtml = bodyMatch ? bodyMatch[1] : html;
+
+  const stripped = bodyHtml
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi, "")
