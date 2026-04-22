@@ -23,6 +23,7 @@ export interface SeoDocumentFields {
   metaDescription?: string;
   excerpt?: string;
   summary?: string;
+  heroSubheadline?: string;
   featuredImage?: { asset?: unknown; alt?: string };
   photo?: { asset?: unknown };
   body?: unknown[];
@@ -91,41 +92,45 @@ export function scoreDocument(doc: SeoDocumentFields): SeoScore {
   const image = doc.featuredImage ?? doc.photo;
   const hasImage = !!(image && (image as { asset?: unknown }).asset);
   const hasAlt = !!(doc.featuredImage?.alt?.trim());
+  const imageNotApplicable = doc._type === "homePage" || doc._type === "servicePage";
 
-  checks.push({
-    key: "image_present",
-    label: "Featured image",
-    status: hasImage ? "pass" : "warn",
-    message: hasImage ? "Present" : "No featured image set",
-    weight: 15,
-    earned: hasImage ? 15 : 0,
-  });
-  checks.push({
-    key: "image_alt",
-    label: "Image alt text",
-    status: !hasImage ? "fail" : hasAlt ? "pass" : "warn",
-    message: !hasImage
-      ? "No image to check"
-      : hasAlt
-      ? "Alt text present"
-      : "Missing alt text on featured image",
-    weight: 10,
-    earned: hasAlt ? 10 : 0,
-  });
+  if (!imageNotApplicable) {
+    checks.push({
+      key: "image_present",
+      label: "Featured image",
+      status: hasImage ? "pass" : "warn",
+      message: hasImage ? "Present" : "No featured image set",
+      weight: 15,
+      earned: hasImage ? 15 : 0,
+    });
+    checks.push({
+      key: "image_alt",
+      label: "Image alt text",
+      status: !hasImage ? "fail" : hasAlt ? "pass" : "warn",
+      message: !hasImage
+        ? "No image to check"
+        : hasAlt
+        ? "Alt text present"
+        : "Missing alt text on featured image",
+      weight: 10,
+      earned: hasAlt ? 10 : 0,
+    });
+  }
 
   // ── Slug ──────────────────────────────────────────────────────────────────
-  const hasSlug = !!doc.slug?.current?.trim();
+  const isHomePage = doc._type === "homePage";
+  const hasSlug = isHomePage || !!doc.slug?.current?.trim();
   checks.push({
     key: "slug",
     label: "URL slug",
     status: hasSlug ? "pass" : "fail",
-    message: hasSlug ? `/${doc.slug!.current}` : "No slug set",
+    message: isHomePage ? "/ (homepage root)" : hasSlug ? `/${doc.slug!.current}` : "No slug set",
     weight: 5,
     earned: hasSlug ? 5 : 0,
   });
 
   // ── Excerpt / summary ─────────────────────────────────────────────────────
-  const hasExcerpt = !!(doc.excerpt?.trim() ?? doc.summary?.trim());
+  const hasExcerpt = !!(doc.excerpt?.trim() || doc.summary?.trim() || doc.heroSubheadline?.trim());
   checks.push({
     key: "excerpt",
     label: "Excerpt / summary",
