@@ -17,6 +17,10 @@ import { Search, ExternalLink, AlertCircle, CheckCircle2, XCircle } from "lucide
 import { scoreDocument, gradeColor } from "./seoUtils";
 
 const GROQ_QUERY = `{
+  "homePages": *[_type == "homePage"] {
+    _id, _type, "title": "Home Page", "slug": {"current": ""}, metaTitle, metaDescription,
+    "excerpt": heroSubheadline
+  },
   "blogPosts": *[_type == "blogPost"] | order(publishedAt desc) {
     _id, _type, title, slug, metaTitle, metaDescription, excerpt,
     featuredImage { asset, alt }
@@ -46,6 +50,7 @@ interface PageRow {
 }
 
 const TYPE_LABELS: Record<string, string> = {
+  homePage: "Home",
   blogPost: "Blog",
   caseStudy: "Case Study",
   servicePage: "Service",
@@ -53,6 +58,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_TONES: Record<string, string> = {
+  homePage: "positive",
   blogPost: "primary",
   caseStudy: "caution",
   servicePage: "positive",
@@ -105,6 +111,7 @@ export function SEODashboard() {
       .fetch(GROQ_QUERY)
       .then((data) => {
         setRawCounts({
+          homePages: data.homePages?.length ?? 0,
           blogPosts: data.blogPosts?.length ?? 0,
           caseStudies: data.caseStudies?.length ?? 0,
           servicePages: data.servicePages?.length ?? 0,
@@ -131,6 +138,7 @@ export function SEODashboard() {
           }
         }
 
+        addRows(data.homePages, "title");
         addRows(data.blogPosts, "title");
         addRows(data.caseStudies, "clientName");
         addRows(data.servicePages, "title");

@@ -64,5 +64,20 @@ export default defineType({
       rows: 2,
       initialValue: "Join 10,000+ UK businesses. Set up in 2 minutes. No setup fees. Cancel anytime.",
     }),
+    defineField({
+      name: "metaTitle",
+      title: "SEO Title",
+      type: "string",
+      description: "Override the homepage title for search engines. Ideal: 30–60 characters.",
+      validation: (Rule) => Rule.max(60).warning("Aim for under 60 characters for best display in Google"),
+    }),
+    defineField({
+      name: "metaDescription",
+      title: "SEO Description",
+      type: "text",
+      rows: 2,
+      description: "Meta description shown in Google search results. Ideal: 120–160 characters.",
+      validation: (Rule) => Rule.max(160).warning("Over 160 characters may be truncated by Google"),
+    }),
   ],
 });

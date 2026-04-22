@@ -1,16 +1,27 @@
 import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
-import { getSiteSettings } from "@/sanity/queries";
+import { getSiteSettings, getHomePage } from "@/sanity/queries";
 
-export const metadata: Metadata = {
-  title: "Clever Accounts | Expert Online Accountants UK — From £42.50/month",
-  description:
-    "Your own dedicated UK accountant, unlimited advice, and free FreeAgent software for one fixed monthly fee. Sole traders, limited companies, contractors & freelancers. Rated 4.7 on Trustpilot — 10,000+ businesses served.",
-  alternates: {
-    canonical: "https://cleveraccounts.com/",
-  },
-};
+const DEFAULT_TITLE = "Clever Accounts | Expert Online Accountants UK — From £42.50/month";
+const DEFAULT_DESC =
+  "Your own dedicated UK accountant, unlimited advice, and free FreeAgent software for one fixed monthly fee. Sole traders, limited companies, contractors & freelancers. Rated 4.7 on Trustpilot — 10,000+ businesses served.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  let title = DEFAULT_TITLE;
+  let description = DEFAULT_DESC;
+  try {
+    const home = await getHomePage();
+    if (home?.metaTitle) title = home.metaTitle;
+    if (home?.metaDescription) description = home.metaDescription;
+  } catch { /* use defaults */ }
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "https://cleveraccounts.com/" },
+  };
+}
 
 const HOME_FAQS = [
   {

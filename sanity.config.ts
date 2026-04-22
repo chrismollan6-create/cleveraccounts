@@ -6,7 +6,7 @@ import { schemaTypes } from "./src/sanity/schemas";
 import { dashboardPlugin } from "./src/studio/dashboardPlugin";
 import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
 
-const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage"];
+const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage"];
 
 export default defineConfig({
   name: "clever-accounts",
