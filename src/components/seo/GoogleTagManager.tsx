@@ -1,7 +1,9 @@
 import Script from "next/script";
 
-// Replace GTM-XXXXXXX with your actual GTM container ID
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "";
+// When sGTM is live, set NEXT_PUBLIC_SGTM_HOST=metrics.cleveraccounts.com in Netlify env vars.
+// Leave unset to fall back to Google's servers (current behaviour).
+const SGTM_HOST = process.env.NEXT_PUBLIC_SGTM_HOST || "www.googletagmanager.com";
 
 // ─── Annual contract value by business type (used for value-based bidding) ───
 // This tells Google Ads what a conversion is actually worth so Smart Bidding
@@ -131,7 +133,7 @@ export function GoogleTagManagerHead() {
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
               new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              'https://${SGTM_HOST}/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
               })(window,document,'script','dataLayer','${GTM_ID}');
             `}
         </Script>
@@ -146,7 +148,7 @@ export function GoogleTagManagerBody() {
   return (
     <noscript>
       <iframe
-        src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+        src={`https://${SGTM_HOST}/ns.html?id=${GTM_ID}`}
         height="0"
         width="0"
         style={{ display: "none", visibility: "hidden" }}
