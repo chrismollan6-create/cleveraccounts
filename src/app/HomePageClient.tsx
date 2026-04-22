@@ -106,7 +106,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
       {/* ═══════════════════════════════════════
           HERO — Bold, clear, one CTA
           ═══════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-dark min-h-[75vh] flex items-center">
+      <section className="relative overflow-hidden bg-dark pb-24">
         {/* Background effects */}
         <div className="absolute inset-0">
           <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-primary/15 animate-blob" />
@@ -116,7 +116,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
           <div className="absolute inset-0 pattern-dots" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full">
+        <div className="relative max-w-7xl mx-auto px-4 pt-12 md:pt-16 pb-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Message */}
             <div>
@@ -213,7 +213,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
               </div>
 
               {/* Floating "online now" card */}
-              <div className="absolute -bottom-4 -left-8 bg-white rounded-2xl p-4 shadow-xl animate-float-delayed z-10">
+              <div className="absolute bottom-8 -left-8 bg-white rounded-2xl p-4 shadow-xl animate-float-delayed z-10">
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white font-bold text-sm">SJ</div>
