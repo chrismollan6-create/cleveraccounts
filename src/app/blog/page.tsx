@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Tag } from "lucide-react";
+import { getBlogPosts } from "@/lib/sanity";
 
 export const metadata: Metadata = {
   title: "Accounting & Tax Blog — Expert Insights | Clever Accounts",
@@ -87,11 +88,40 @@ const categoryGradients: Record<string, string> = {
   "VAT": "from-purple-500/20 to-purple-500/5",
 };
 
-const allCategories = ["All", ...Array.from(new Set(posts.map((p) => p.category)))];
+export const revalidate = 60;
 
-const [featured, ...rest] = posts;
+function normaliseCategory(raw: string | undefined): string {
+  const map: Record<string, string> = {
+    "tax": "Tax", "ir35": "IR35", "vat": "VAT",
+    "business-tips": "Business Tips", "payroll": "Payroll",
+    "news": "News", "guides": "Guides",
+  };
+  return map[raw ?? ""] ?? raw ?? "General";
+}
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  // Merge Sanity posts (new, at front) with hardcoded posts (fallback)
+  const sanitized = await getBlogPosts().catch(() => []);
+  const sanityPosts = sanitized.map((p) => ({
+    slug: p.slug.current,
+    title: p.title,
+    excerpt: p.excerpt ?? "",
+    category: normaliseCategory(p.category),
+    date: p.publishedAt
+      ? new Date(p.publishedAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" })
+      : "",
+    readTime: p.readTime ?? "5 min read",
+    featured: false,
+  }));
+
+  const merged = [
+    ...sanityPosts,
+    ...posts.filter((p) => !sanityPosts.find((s) => s.slug === p.slug)),
+  ];
+
+  const allCategories = ["All", ...Array.from(new Set(merged.map((p) => p.category)))];
+  const [featured, ...rest] = merged;
+
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}

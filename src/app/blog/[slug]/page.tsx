@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
+import { PortableText } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBlogPost, getBlogSlugs } from "@/lib/sanity";
 
-const posts: Record<string, { title: string; category: string; date: string; author: string; content: string[] }> = {
+// ── Hardcoded fallback posts ──────────────────────────────────────────────────
+const HARDCODED: Record<string, { title: string; category: string; date: string; author: string; content: string[] }> = {
   "mtd-income-tax-sole-traders": {
     title: "MTD for Income Tax: What Sole Traders Need to Know",
     category: "Tax",
@@ -91,20 +94,108 @@ const posts: Record<string, { title: string; category: string; date: string; aut
 };
 
 export async function generateStaticParams() {
-  return Object.keys(posts).map((slug) => ({ slug }));
+  const [hardcodedSlugs, sanitySlugs] = await Promise.all([
+    Promise.resolve(Object.keys(HARDCODED)),
+    getBlogSlugs().catch(() => [] as string[]),
+  ]);
+  const all = Array.from(new Set([...hardcodedSlugs, ...sanitySlugs]));
+  return all.map((slug) => ({ slug }));
 }
+
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts[slug];
+
+  const sanityPost = await getBlogPost(slug).catch(() => null);
+  if (sanityPost) {
+    const description = sanityPost.metaDescription || sanityPost.excerpt || "";
+    return {
+      title: sanityPost.metaTitle || sanityPost.title,
+      description,
+    };
+  }
+
+  const post = HARDCODED[slug];
   if (!post) return { title: "Blog Post" };
   return { title: post.title, description: post.content[0] };
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = posts[slug];
 
+  // Try Sanity first
+  const sanityPost = await getBlogPost(slug).catch(() => null);
+  if (sanityPost) {
+    const publishedIso = sanityPost.publishedAt
+      ? new Date(sanityPost.publishedAt).toISOString()
+      : new Date().toISOString();
+    const displayDate = sanityPost.publishedAt
+      ? new Date(sanityPost.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+      : "";
+
+    return (
+      <>
+        <BlogPostingJsonLd
+          title={sanityPost.title}
+          description={sanityPost.excerpt || ""}
+          publishedAt={publishedIso}
+          authorName="Clever Accounts"
+          url={`/blog/${slug}`}
+          imageUrl={sanityPost.featuredImage?.asset?.url}
+        />
+        <BreadcrumbJsonLd
+          items={[
+            { name: "Home", url: "/" },
+            { name: "Blog", url: "/blog" },
+            { name: sanityPost.title, url: `/blog/${slug}` },
+          ]}
+        />
+        <section className="gradient-hero-subtle py-16 md:py-20">
+          <div className="max-w-3xl mx-auto px-4">
+            <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary-dark mb-6">
+              <ArrowLeft size={16} /> Back to Blog
+            </Link>
+            {sanityPost.category && (
+              <span className="inline-block text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-4 capitalize">
+                {sanityPost.category.replace("-", " ")}
+              </span>
+            )}
+            <h1 className="text-3xl md:text-4xl font-bold text-dark mb-4">{sanityPost.title}</h1>
+            <div className="flex items-center gap-4 text-sm text-text-light">
+              {displayDate && <span className="flex items-center gap-1.5"><Calendar size={14} /> {displayDate}</span>}
+              <span className="flex items-center gap-1.5"><User size={14} /> Clever Accounts</span>
+            </div>
+          </div>
+        </section>
+
+        <article className="bg-white py-12 md:py-16">
+          <div className="max-w-3xl mx-auto px-4 prose prose-lg">
+            {sanityPost.body ? (
+              <PortableText value={sanityPost.body as Parameters<typeof PortableText>[0]["value"]} />
+            ) : sanityPost.excerpt ? (
+              <p className="text-text leading-relaxed">{sanityPost.excerpt}</p>
+            ) : (
+              <p className="text-text-light italic">No content yet.</p>
+            )}
+          </div>
+        </article>
+
+        <section className="bg-surface py-12">
+          <div className="max-w-3xl mx-auto px-4 text-center">
+            <h2 className="text-2xl font-bold text-dark mb-4">Need Accounting Help?</h2>
+            <p className="text-text-light mb-6">Our expert accountants are ready to support your business.</p>
+            <Link href="/sign-up" className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-colors">
+              Get Started <ArrowRight size={18} />
+            </Link>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // Fallback to hardcoded
+  const post = HARDCODED[slug];
   if (!post) {
     return (
       <section className="bg-white py-24 text-center">
