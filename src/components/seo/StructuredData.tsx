@@ -3,33 +3,42 @@ import { COMPANY } from "@/lib/constants";
 export function OrganizationJsonLd() {
   const data = {
     "@context": "https://schema.org",
-    "@type": "AccountingService",
+    "@type": ["AccountingService", "ProfessionalService", "LocalBusiness"],
     name: "Clever Accounts",
     alternateName: "Clever Accounts Ltd",
     url: "https://cleveraccounts.com",
-    logo: "https://cleveraccounts.com/images/logo.png",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://cleveraccounts.com/images/logo.png",
+      width: 200,
+      height: 60,
+    },
+    image: "https://cleveraccounts.com/images/logo.png",
     description:
-      "Expert online accountancy services for sole traders, limited companies, contractors and freelancers. Dedicated accountant, unlimited advice, free software.",
+      "Expert online accountancy services for sole traders, limited companies, contractors and freelancers across the UK. Dedicated accountant, unlimited advice, free FreeAgent software from £42.50/month.",
     telephone: COMPANY.freephone,
     email: COMPANY.email,
     foundingDate: "2006",
+    currenciesAccepted: "GBP",
+    paymentAccepted: "Credit Card, Direct Debit",
     numberOfEmployees: { "@type": "QuantitativeValue", minValue: 10, maxValue: 50 },
-    address: [
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Leeds",
+      addressRegion: "West Yorkshire",
+      postalCode: "LS1",
+      addressCountry: "GB",
+    },
+    areaServed: { "@type": "Country", name: "United Kingdom" },
+    priceRange: "££",
+    openingHoursSpecification: [
       {
-        "@type": "PostalAddress",
-        addressLocality: "Leeds",
-        addressRegion: "West Yorkshire",
-        addressCountry: "GB",
-      },
-      {
-        "@type": "PostalAddress",
-        addressLocality: "Watford",
-        addressRegion: "Hertfordshire",
-        addressCountry: "GB",
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:00",
+        closes: "17:30",
       },
     ],
-    areaServed: { "@type": "Country", name: "United Kingdom" },
-    priceRange: "£42.50 - £104.50 per month",
     sameAs: [
       COMPANY.social.facebook,
       COMPANY.social.twitter,
@@ -51,7 +60,7 @@ export function OrganizationJsonLd() {
           itemOffered: {
             "@type": "Service",
             name: "Sole Trader Accounting",
-            description: "Complete accounting for sole traders including self assessment, unlimited advice, and free software.",
+            description: "Complete accounting for sole traders including self assessment, unlimited advice, and free FreeAgent software.",
           },
           price: "42.50",
           priceCurrency: "GBP",
