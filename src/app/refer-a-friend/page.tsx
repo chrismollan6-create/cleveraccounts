@@ -74,7 +74,7 @@ function ReferralPageContent() {
   const [requestError, setRequestError] = useState<string | null>(null);
 
   const shareLink = data
-    ? `https://www.cleveraccounts.co.uk/sign-up?ref=${data.referralCode}`
+    ? `https://www.cleveraccounts.com/sign-up?ref=${data.referralCode}`
     : "";
 
   const loadReferralData = useCallback(async () => {
