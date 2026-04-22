@@ -7,6 +7,8 @@ import {
   CheckCircle2,
   Star,
   Phone,
+  Gift,
+  Users,
   User,
   Building2,
   Briefcase,
@@ -264,6 +266,41 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
                 <p className="text-xs text-text-light mt-1 font-medium">{s.label}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          REFERRAL BANNER — High visibility
+          ═══════════════════════════════════════ */}
+      <section className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 py-5">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                <Gift size={22} className="text-white" />
+              </div>
+              <div>
+                <p className="text-white font-black text-lg leading-tight">
+                  Refer a friend — earn up to <span className="underline decoration-white/60 decoration-2">£250</span>
+                </p>
+                <p className="text-emerald-100 text-sm mt-0.5">
+                  Know someone who needs an accountant? You both benefit.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="hidden md:flex items-center gap-2 text-emerald-100 text-sm">
+                <Users size={15} />
+                <span>Already referred by a client? <strong className="text-white">Join today.</strong></span>
+              </div>
+              <Link
+                href="/refer-a-friend"
+                className="inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-emerald-50 transition-colors whitespace-nowrap"
+              >
+                Find out more <ArrowRight size={15} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
