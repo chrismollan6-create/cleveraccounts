@@ -135,18 +135,46 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
                 Your own dedicated accountant, unlimited advice, and free software — all for one fixed monthly fee. No surprises. Ever.
               </p>
 
-              <Link
-                href="/sign-up"
-                className="btn-primary inline-flex items-center gap-3 text-lg px-10 py-5 rounded-2xl animate-pulse-glow"
-              >
-                Get Started — From £42.50/mo
-                <ArrowRight size={22} />
-              </Link>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <Link
+                  href="/sign-up"
+                  className="btn-primary inline-flex items-center gap-3 text-lg px-10 py-5 rounded-2xl animate-pulse-glow"
+                >
+                  Get Started — From £42.50/mo
+                  <ArrowRight size={22} />
+                </Link>
+                <a
+                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                  className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <Phone size={15} />
+                  {COMPANY.freephone}
+                </a>
+              </div>
 
               <p className="text-slate-500 text-sm mt-4 flex items-center gap-4">
                 <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> No setup fees</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> Cancel anytime</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> Free to set up</span>
               </p>
+
+              {/* Trust signals — visible above the fold on all devices */}
+              <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-white/70 text-sm font-medium">4.7 on Trustpilot</span>
+                </div>
+                <div className="h-4 w-px bg-white/20 hidden sm:block" />
+                <span className="text-white/70 text-sm font-medium">10,000+ businesses</span>
+                <div className="h-4 w-px bg-white/20 hidden sm:block" />
+                <span className="text-white/70 text-sm font-medium">ICAEW Regulated</span>
+                <div className="h-4 w-px bg-white/20 hidden sm:block" />
+                <span className="text-white/70 text-sm font-medium">20+ years experience</span>
+              </div>
             </div>
 
             {/* Right — People-first visual */}
