@@ -169,6 +169,37 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+const CALCULATOR_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Take Home Pay Calculator UK 2025/26",
+  description: "Free UK take-home pay calculator comparing sole trader vs limited company tax for 2025/26. Calculates income tax, National Insurance, corporation tax, and net take-home pay.",
+  url: "https://cleveraccounts.com/take-home-calculator",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Web",
+  browserRequirements: "Requires JavaScript",
+  isAccessibleForFree: true,
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "GBP",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Clever Accounts",
+    url: "https://cleveraccounts.com",
+  },
+  featureList: [
+    "Sole trader take-home pay calculation",
+    "Limited company take-home pay calculation",
+    "Side-by-side comparison",
+    "Income tax breakdown",
+    "National Insurance calculation",
+    "Corporation tax calculation",
+    "2025/26 tax year figures",
+  ],
+};
+
 export default function TakeHomeCalculatorPage() {
   const [income, setIncome] = useState(60000);
   const [expenses, setExpenses] = useState(5000);
@@ -180,6 +211,10 @@ export default function TakeHomeCalculatorPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(CALCULATOR_JSONLD) }}
+      />
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-dark py-20 md:py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
