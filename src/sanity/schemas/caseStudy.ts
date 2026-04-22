@@ -114,6 +114,21 @@ export default defineType({
       title: "Published Date",
       type: "datetime",
     }),
+    defineField({
+      name: "metaTitle",
+      title: "SEO Title",
+      type: "string",
+      description: "Override the page title for search engines. Ideal: 30–60 characters.",
+      validation: (Rule) => Rule.max(60).warning("Aim for under 60 characters for best display in Google"),
+    }),
+    defineField({
+      name: "metaDescription",
+      title: "SEO Description",
+      type: "text",
+      rows: 2,
+      description: "Meta description shown in Google search results. Ideal: 120–160 characters.",
+      validation: (Rule) => Rule.max(160).warning("Over 160 characters may be truncated by Google"),
+    }),
   ],
   preview: {
     select: { title: "clientName", subtitle: "headline", media: "photo" },

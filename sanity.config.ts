@@ -1,8 +1,12 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
+import { Search } from "lucide-react";
 import { schemaTypes } from "./src/sanity/schemas";
 import { dashboardPlugin } from "./src/studio/dashboardPlugin";
+import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
+
+const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage"];
 
 export default defineConfig({
   name: "clever-accounts",
@@ -12,7 +16,17 @@ export default defineConfig({
   basePath: "/studio",
   plugins: [
     dashboardPlugin(),
+    seoPlugin(),
     structureTool({
+      defaultDocumentNode: (S, { schemaType }) => {
+        if (SEO_TYPES.includes(schemaType)) {
+          return S.document().views([
+            S.view.form(),
+            S.view.component(SEODocumentView).title("SEO").icon(Search),
+          ]);
+        }
+        return S.document();
+      },
       structure: (S) =>
         S.list()
           .title("Clever Accounts CMS")

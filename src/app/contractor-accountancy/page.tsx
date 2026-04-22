@@ -3,6 +3,7 @@ import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
 import ContractorCalculator from "@/components/ui/ContractorCalculator";
 import { servicePages } from "@/lib/service-page-data";
 import { getSiteSettings } from "@/sanity/queries";
+import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 
 const data = servicePages["contractor-accountancy"];
 
@@ -25,8 +26,17 @@ export default async function ContractorAccountancyPage() {
   } catch { /* use null */ }
 
   return (
-    <ServicePageTemplate data={data} promoBadge={promoBadge}>
-      <ContractorCalculator />
-    </ServicePageTemplate>
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Services", url: "/our-services" },
+          { name: "Contractor Accountancy", url: "/contractor-accountancy" },
+        ]}
+      />
+      <ServicePageTemplate data={data} promoBadge={promoBadge}>
+        <ContractorCalculator />
+      </ServicePageTemplate>
+    </>
   );
 }

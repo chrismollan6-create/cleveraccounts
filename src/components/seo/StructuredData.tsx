@@ -113,6 +113,59 @@ export function FAQPageJsonLd({ faqs }: { faqs: { q: string; a: string }[] }) {
   );
 }
 
+interface BlogPostingProps {
+  title: string;
+  description: string;
+  publishedAt: string;
+  modifiedAt?: string;
+  authorName: string;
+  url: string;
+  imageUrl?: string;
+}
+
+export function BlogPostingJsonLd({
+  title,
+  description,
+  publishedAt,
+  modifiedAt,
+  authorName,
+  url,
+  imageUrl,
+}: BlogPostingProps) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    author: {
+      "@type": "Person",
+      name: authorName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Clever Accounts",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://cleveraccounts.com/images/logo.png",
+      },
+    },
+    datePublished: publishedAt,
+    dateModified: modifiedAt ?? publishedAt,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://cleveraccounts.com${url}`,
+    },
+    ...(imageUrl ? { image: imageUrl } : {}),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+
 export function BreadcrumbJsonLd({ items }: { items: { name: string; url: string }[] }) {
   const data = {
     "@context": "https://schema.org",

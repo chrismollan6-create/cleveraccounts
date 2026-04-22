@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
 import { servicePages } from "@/lib/service-page-data";
 import { getSiteSettings } from "@/sanity/queries";
+import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 
 const data = servicePages["limited-company"];
 
@@ -23,5 +24,16 @@ export default async function LimitedCompanyPage() {
     }
   } catch { /* use null */ }
 
-  return <ServicePageTemplate data={data} promoBadge={promoBadge} />;
+  return (
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Services", url: "/our-services" },
+          { name: "Limited Company Accounting", url: "/limited-company" },
+        ]}
+      />
+      <ServicePageTemplate data={data} promoBadge={promoBadge} />
+    </>
+  );
 }

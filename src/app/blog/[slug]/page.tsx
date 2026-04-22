@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
+import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 
 const posts: Record<string, { title: string; category: string; date: string; author: string; content: string[] }> = {
   "mtd-income-tax-sole-traders": {
@@ -113,8 +114,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     );
   }
 
+  const publishedIso = new Date(post.date).toISOString();
+
   return (
     <>
+      <BlogPostingJsonLd
+        title={post.title}
+        description={post.content[0]}
+        publishedAt={publishedIso}
+        authorName={post.author}
+        url={`/blog/${slug}`}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "/" },
+          { name: "Blog", url: "/blog" },
+          { name: post.title, url: `/blog/${slug}` },
+        ]}
+      />
       <section className="gradient-hero-subtle py-16 md:py-20">
         <div className="max-w-3xl mx-auto px-4">
           <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary-dark mb-6">
