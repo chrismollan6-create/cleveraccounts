@@ -92,6 +92,8 @@ export function SEODashboard() {
   const client = useClient({ apiVersion: "2024-01-01" });
   const [rows, setRows] = useState<PageRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [rawCounts, setRawCounts] = useState<Record<string, number> | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -102,6 +104,13 @@ export function SEODashboard() {
     client
       .fetch(GROQ_QUERY)
       .then((data) => {
+        setRawCounts({
+          blogPosts: data.blogPosts?.length ?? 0,
+          caseStudies: data.caseStudies?.length ?? 0,
+          servicePages: data.servicePages?.length ?? 0,
+          landingPages: data.landingPages?.length ?? 0,
+        });
+
         const all: PageRow[] = [];
 
         function addRows(docs: unknown[], titleKey: string) {
@@ -129,7 +138,10 @@ export function SEODashboard() {
 
         setRows(all);
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error("[SEO Dashboard]", err);
+        setFetchError(String(err?.message ?? err));
+      })
       .finally(() => setLoading(false));
   }, [client]);
 
@@ -173,6 +185,35 @@ export function SEODashboard() {
             Loading pages…
           </Text>
         </Flex>
+      ) : fetchError ? (
+        <Card tone="critical" padding={4} radius={2}>
+          <Heading size={1} style={{ marginBottom: 8 }}>Query error</Heading>
+          <Text size={1}>{fetchError}</Text>
+        </Card>
+      ) : rawCounts && Object.values(rawCounts).every((n) => n === 0) ? (
+        <Card padding={5} radius={2} shadow={1}>
+          <Heading size={2} style={{ marginBottom: 12 }}>No CMS content found</Heading>
+          <Text size={2} style={{ marginBottom: 16, display: "block" }}>
+            The SEO dashboard scores <strong>Sanity-managed</strong> pages. Your Sanity dataset currently has no documents of these types:
+          </Text>
+          <Stack space={2} style={{ marginBottom: 20 }}>
+            {Object.entries(rawCounts).map(([key, count]) => (
+              <Flex key={key} align="center" gap={2}>
+                <XCircle size={14} style={{ color: "#ef4444", flexShrink: 0 }} />
+                <Text size={1}>{key}: {count} documents</Text>
+              </Flex>
+            ))}
+          </Stack>
+          <Text size={1} muted style={{ display: "block", marginBottom: 8 }}>
+            <strong>Blog posts</strong> — the site currently uses hardcoded blog posts in Next.js. To track them here, migrate them to Sanity via Structure → Blog Posts → New.
+          </Text>
+          <Text size={1} muted style={{ display: "block", marginBottom: 8 }}>
+            <strong>Service pages</strong> — the site uses hardcoded service page data. Create matching documents in Structure → Service Pages to track SEO scores here.
+          </Text>
+          <Text size={1} muted style={{ display: "block" }}>
+            <strong>Landing pages</strong> — any CMS landing pages (Structure → Landing Pages) will appear automatically once created.
+          </Text>
+        </Card>
       ) : (
         <>
           {/* ── Summary stats ─────────────────────────────────── */}
