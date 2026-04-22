@@ -161,21 +161,21 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
               </p>
 
               {/* Trust signals — visible above the fold on all devices */}
-              <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center gap-x-5 gap-y-2">
-                <div className="flex items-center gap-2 whitespace-nowrap">
+              <div className="mt-8 pt-8 border-t border-white/10 flex flex-nowrap items-center gap-x-4">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
+                      <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <span className="text-white/70 text-sm font-medium">4.7 Trustpilot</span>
+                  <span className="text-white/70 text-xs font-medium">4.7</span>
                 </div>
-                <div className="h-4 w-px bg-white/20" />
-                <span className="text-white/70 text-sm font-medium whitespace-nowrap">10,000+ businesses</span>
-                <div className="h-4 w-px bg-white/20" />
-                <span className="text-white/70 text-sm font-medium whitespace-nowrap">ICAEW Regulated</span>
-                <div className="h-4 w-px bg-white/20" />
-                <span className="text-white/70 text-sm font-medium whitespace-nowrap">20+ years</span>
+                <div className="h-3.5 w-px bg-white/20 shrink-0" />
+                <span className="text-white/70 text-xs font-medium shrink-0">10,000+ businesses</span>
+                <div className="h-3.5 w-px bg-white/20 shrink-0" />
+                <span className="text-white/70 text-xs font-medium shrink-0">ICAEW Regulated</span>
+                <div className="h-3.5 w-px bg-white/20 shrink-0" />
+                <span className="text-white/70 text-xs font-medium shrink-0">20+ years</span>
               </div>
             </div>
 
@@ -243,7 +243,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
         {/* Wave */}
         <div className="absolute bottom-0 left-0 w-full">
           <svg viewBox="0 0 1440 100" fill="none" className="w-full h-auto">
-            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="#10b981" />
+            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="#059669" />
           </svg>
         </div>
       </section>
@@ -251,7 +251,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
       {/* ═══════════════════════════════════════
           REFERRAL BANNER — High visibility
           ═══════════════════════════════════════ */}
-      <section className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 py-5">
+      <section className="bg-emerald-600 py-5">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
