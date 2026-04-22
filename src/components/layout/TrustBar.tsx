@@ -31,7 +31,7 @@ export default function TrustBar() {
             {/* Trustpilot — plain text only, no branding */}
             <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
               <Stars rating={4.7} color="text-secondary" />
-              <span className="text-xs text-text-light">4.7 on Trustpilot · <span className="text-dark font-semibold">746 reviews</span></span>
+              <span className="text-xs text-text-light">Rated <span className="text-dark font-semibold">'Excellent'</span> on Trustpilot</span>
             </div>
 
             <div className="hidden sm:block w-px h-4 bg-border shrink-0" />

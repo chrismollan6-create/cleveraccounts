@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock, Tag } from "lucide-react";
 import { getBlogPosts } from "@/lib/sanity";
@@ -112,6 +113,7 @@ export default async function BlogPage() {
       : "",
     readTime: p.readTime ?? "5 min read",
     featured: false,
+    featuredImageUrl: p.featuredImage?.asset?.url ?? null,
   }));
 
   const merged = [
@@ -155,14 +157,24 @@ export default async function BlogPage() {
           <div className="mb-14">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-5">Featured Article</p>
             <Link href={`/blog/${featured.slug}`} className="group grid md:grid-cols-2 gap-0 bg-white border border-border rounded-3xl overflow-hidden shadow-sm card-hover">
-              {/* Image placeholder */}
-              <div className={`bg-gradient-to-br ${categoryGradients[featured.category] ?? "from-primary/10 to-secondary/10"} h-56 md:h-auto flex items-center justify-center relative`}>
-                <div className="text-center">
-                  <div className={`w-16 h-16 rounded-2xl ${categoryDots[featured.category] ?? "bg-primary"} flex items-center justify-center text-white text-2xl font-black mx-auto mb-3 shadow-lg`}>
-                    {featured.category[0]}
+              {/* Image */}
+              <div className={`relative h-56 md:h-auto overflow-hidden ${!(featured as { featuredImageUrl?: string | null }).featuredImageUrl ? `bg-gradient-to-br ${categoryGradients[featured.category] ?? "from-primary/10 to-secondary/10"} flex items-center justify-center` : ""}`}>
+                {(featured as { featuredImageUrl?: string | null }).featuredImageUrl ? (
+                  <Image
+                    src={(featured as { featuredImageUrl: string }).featuredImageUrl}
+                    alt={featured.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="text-center">
+                    <div className={`w-16 h-16 rounded-2xl ${categoryDots[featured.category] ?? "bg-primary"} flex items-center justify-center text-white text-2xl font-black mx-auto mb-3 shadow-lg`}>
+                      {featured.category[0]}
+                    </div>
+                    <span className="text-white/80 text-sm font-semibold">{featured.category}</span>
                   </div>
-                  <span className="text-white/80 text-sm font-semibold">{featured.category}</span>
-                </div>
+                )}
               </div>
               {/* Copy */}
               <div className="p-8 md:p-10 flex flex-col justify-center">

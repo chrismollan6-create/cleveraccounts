@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
-import { PortableText } from "@portabletext/react";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { getBlogPost, getBlogSlugs } from "@/lib/sanity";
 
@@ -93,6 +93,33 @@ const HARDCODED: Record<string, { title: string; category: string; date: string;
   },
 };
 
+const ptComponents: PortableTextComponents = {
+  block: {
+    h2: ({ children }) => <h2 className="text-2xl md:text-3xl font-bold text-dark mt-10 mb-4 leading-tight">{children}</h2>,
+    h3: ({ children }) => <h3 className="text-xl md:text-2xl font-bold text-dark mt-8 mb-3 leading-tight">{children}</h3>,
+    h4: ({ children }) => <h4 className="text-lg font-semibold text-dark mt-6 mb-2">{children}</h4>,
+    blockquote: ({ children }) => <blockquote className="border-l-4 border-primary pl-4 italic text-text-light my-6">{children}</blockquote>,
+    normal: ({ children }) => <p className="text-text leading-relaxed mb-4">{children}</p>,
+  },
+  marks: {
+    strong: ({ children }) => <strong className="font-semibold text-dark">{children}</strong>,
+    em: ({ children }) => <em>{children}</em>,
+    link: ({ value, children }) => (
+      <a href={value?.href} className="text-primary underline hover:text-primary-dark" target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    ),
+  },
+  list: {
+    bullet: ({ children }) => <ul className="list-disc list-outside pl-6 space-y-2 mb-4 text-text">{children}</ul>,
+    number: ({ children }) => <ol className="list-decimal list-outside pl-6 space-y-2 mb-4 text-text">{children}</ol>,
+  },
+  listItem: {
+    bullet: ({ children }) => <li className="leading-relaxed">{children}</li>,
+    number: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  },
+};
+
 export async function generateStaticParams() {
   const [hardcodedSlugs, sanitySlugs] = await Promise.all([
     Promise.resolve(Object.keys(HARDCODED)),
@@ -170,9 +197,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </section>
 
         <article className="bg-white py-12 md:py-16">
-          <div className="max-w-3xl mx-auto px-4 prose prose-lg">
+          <div className="max-w-3xl mx-auto px-4">
             {sanityPost.body ? (
-              <PortableText value={sanityPost.body as Parameters<typeof PortableText>[0]["value"]} />
+              <PortableText value={sanityPost.body as Parameters<typeof PortableText>[0]["value"]} components={ptComponents} />
             ) : sanityPost.excerpt ? (
               <p className="text-text leading-relaxed">{sanityPost.excerpt}</p>
             ) : (
