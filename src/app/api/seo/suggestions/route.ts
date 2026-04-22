@@ -14,18 +14,19 @@ function liveUrl(docType: string, slug: string): string | null {
 async function fetchPageText(url: string): Promise<string> {
   const res = await fetch(url, {
     headers: { "User-Agent": "CleverAccounts-SEO-Bot/1.0" },
-    signal: AbortSignal.timeout(8000),
+    signal: AbortSignal.timeout(10000),
   });
   if (!res.ok) throw new Error(`Page fetch ${res.status}`);
   const html = await res.text();
 
-  // Remove scripts, styles, nav, footer, SVGs
   const stripped = html
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header\b[^>]*>[\s\S]*?<\/header>/gi, "")
     .replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi, "")
     .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gi, "")
+    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, "")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
@@ -34,8 +35,7 @@ async function fetchPageText(url: string): Promise<string> {
     .replace(/\s{2,}/g, " ")
     .trim();
 
-  // Cap at 4000 chars to keep prompt size reasonable
-  return stripped.slice(0, 4000);
+  return stripped.slice(0, 8000);
 }
 
 export async function POST(request: NextRequest) {
@@ -90,7 +90,7 @@ Respond ONLY with valid JSON — no markdown, no code fences, no extra text:
 
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001" as string,
-      max_tokens: 512,
+      max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     });
 
