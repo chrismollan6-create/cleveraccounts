@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Star } from "lucide-react";
 
 function Stars({ rating, color }: { rating: number; color: string }) {
@@ -28,11 +29,16 @@ export default function TrustBar() {
         <div className="overflow-x-auto hide-scrollbar">
           <div className="flex items-center justify-start sm:justify-center gap-x-6 gap-y-2 min-w-max sm:min-w-0 sm:flex-wrap">
 
-            {/* Trustpilot — plain text only, no branding */}
-            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+            {/* Trustpilot */}
+            <Link
+              href="https://www.trustpilot.com/review/cleveraccounts.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 shrink-0 whitespace-nowrap hover:opacity-80 transition-opacity"
+            >
               <Stars rating={4.7} color="text-secondary" />
-              <span className="text-xs text-text-light">Rated <span className="text-dark font-semibold">'Excellent'</span> on Trustpilot</span>
-            </div>
+              <span className="text-xs text-text-light">Read our <span className="text-dark font-semibold">700+ Trustpilot Reviews</span></span>
+            </Link>
 
             <div className="hidden sm:block w-px h-4 bg-border shrink-0" />
 
