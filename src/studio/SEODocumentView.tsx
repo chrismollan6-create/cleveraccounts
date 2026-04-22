@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -11,29 +11,76 @@ import {
   Spinner,
   Heading,
 } from "@sanity/ui";
-import { CheckCircle2, AlertCircle, XCircle, Copy, Check, Wand2 } from "lucide-react";
+import { CheckCircle2, AlertCircle, XCircle, Copy, Check, RefreshCw } from "lucide-react";
 import { scoreDocument, gradeColor } from "./seoUtils";
 
-interface AiSuggestions {
+interface Finding {
+  priority: "high" | "medium" | "low";
+  issue: string;
+  fix: string;
+}
+
+interface AuditCategory {
+  name: string;
+  findings: Finding[];
+}
+
+interface AuditResult {
   suggestedTitle: string;
   suggestedDescription: string;
-  tips: string[];
+  categories: AuditCategory[];
+}
+
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function getCached(id: string): AuditResult | null {
+  try {
+    const raw = localStorage.getItem(`seo-audit-${id}`);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL_MS) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setCache(id: string, data: AuditResult) {
+  try {
+    localStorage.setItem(`seo-audit-${id}`, JSON.stringify({ ts: Date.now(), data }));
+  } catch {}
+}
+
+function priorityColor(p: string) {
+  if (p === "high") return "#ef4444";
+  if (p === "medium") return "#f59e0b";
+  return "#10b981";
+}
+
+function priorityLabel(p: string) {
+  return p.charAt(0).toUpperCase() + p.slice(1);
 }
 
 export function SEODocumentView({ document: docBundle }) {
   const doc = docBundle?.displayed ?? {};
   const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<AiSuggestions | null>(null);
+  const [audit, setAudit] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [checksOpen, setChecksOpen] = useState(false);
 
   const { total, checks, grade } = scoreDocument(doc);
   const color = gradeColor(grade);
 
-  async function fetchSuggestions() {
+  async function runAudit(force = false) {
+    if (!doc._id) return;
+    if (!force) {
+      const cached = getCached(doc._id);
+      if (cached) { setAudit(cached); return; }
+    }
     setLoading(true);
     setError(null);
-    setSuggestions(null);
+    setAudit(null);
     try {
       const res = await fetch("/api/seo/suggestions", {
         method: "POST",
@@ -49,16 +96,20 @@ export function SEODocumentView({ document: docBundle }) {
       });
       if (!res.ok) {
         let msg = `API error ${res.status}`;
-        try { const body = await res.json(); if (body?.error) msg = body.error; } catch {}
+        try { const b = await res.json(); if (b?.error) msg = b.error; } catch {}
         throw new Error(msg);
       }
-      setSuggestions(await res.json());
+      const data = await res.json();
+      setAudit(data);
+      setCache(doc._id, data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load AI suggestions.");
+      setError(err instanceof Error ? err.message : "Audit failed.");
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => { runAudit(); }, [doc._id]);
 
   function copyText(text: string, key: string) {
     navigator.clipboard.writeText(text).catch(() => {});
@@ -72,175 +123,174 @@ export function SEODocumentView({ document: docBundle }) {
     return <XCircle size={14} style={{ color: "#ef4444", flexShrink: 0 }} />;
   }
 
+  const issueCount = audit?.categories.reduce((n, c) => n + c.findings.filter(f => f.priority === "high").length, 0) ?? 0;
   const gradeLabel = grade === "good" ? "Good" : grade === "ok" ? "Needs work" : "Poor";
   const gradeTone = grade === "good" ? "positive" : grade === "ok" ? "caution" : "critical";
 
   return (
-    <Box padding={4} style={{ maxWidth: 580, overflowY: "auto" }}>
-      {/* ── Score card ───────────────────────────────────────── */}
-      <Card
-        padding={4}
-        radius={3}
-        shadow={1}
-        marginBottom={4}
-        style={{ borderLeft: `4px solid ${color}` }}
-      >
-        <Flex align="center" gap={4}>
-          <div
-            style={{
-              width: 68,
-              height: 68,
-              borderRadius: "50%",
-              background: color,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <Text size={3} weight="bold" style={{ color: "white" }}>
-              {total}
-            </Text>
+    <Box padding={4} style={{ maxWidth: 620, overflowY: "auto" }}>
+
+      {/* ── Score + refresh ──────────────────────────────────── */}
+      <Card padding={4} radius={3} shadow={1} marginBottom={3} style={{ borderLeft: `4px solid ${color}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: "50%", background: color,
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <Text size={3} weight="bold" style={{ color: "white" }}>{total}</Text>
+            </div>
+            <div>
+              <Heading size={2} style={{ marginBottom: 6 }}>Page Health</Heading>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <Badge tone={gradeTone}>{gradeLabel}</Badge>
+                {audit && issueCount > 0 && (
+                  <Badge tone="critical">{issueCount} high priority</Badge>
+                )}
+              </div>
+            </div>
           </div>
-          <Box>
-            <Heading size={2} style={{ marginBottom: 6 }}>
-              SEO Score
-            </Heading>
-            <Badge tone={gradeTone} style={{ fontSize: 12 }}>
-              {gradeLabel}
-            </Badge>
-          </Box>
-        </Flex>
-      </Card>
-
-      {/* ── Checks ───────────────────────────────────────────── */}
-      <Card padding={3} radius={3} shadow={1} marginBottom={4}>
-        <Text size={1} weight="semibold" style={{ marginBottom: 10, display: "block", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-          Checks
-        </Text>
-        <Stack space={2}>
-          {checks.map((check) => (
-            <Flex key={check.key} align="center" gap={2} paddingY={1}>
-              {statusIcon(check.status)}
-              <Box flex={1}>
-                <Text size={1} weight="semibold">
-                  {check.label}
-                </Text>
-                <Text size={1} muted>
-                  {check.message}
-                </Text>
-              </Box>
-              <Text size={0} muted style={{ flexShrink: 0 }}>
-                {check.earned}/{check.weight}pts
-              </Text>
-            </Flex>
-          ))}
-        </Stack>
-      </Card>
-
-      {/* ── AI Suggestions ───────────────────────────────────── */}
-      <Card padding={3} radius={3} shadow={1}>
-        <Flex align="center" justify="space-between" style={{ marginBottom: 14 }}>
-          <Heading size={1}>AI Suggestions</Heading>
           <Button
-            text={loading ? "Generating…" : "Generate suggestions"}
-            tone="primary"
-            onClick={fetchSuggestions}
-            disabled={loading}
-            icon={loading ? Spinner : Wand2}
+            text={loading ? "Analysing…" : "Refresh"}
+            mode="ghost"
             fontSize={1}
+            icon={loading ? Spinner : RefreshCw}
+            disabled={loading}
+            onClick={() => runAudit(true)}
           />
-        </Flex>
+        </div>
+      </Card>
 
-        {error && (
-          <Card tone="critical" padding={3} radius={2} style={{ marginBottom: 10 }}>
-            <Text size={1}>{error}</Text>
-          </Card>
-        )}
-
-        {!suggestions && !loading && !error && (
-          <Text size={1} muted>
-            Click &ldquo;Generate suggestions&rdquo; to get Claude AI recommendations for this page&apos;s meta title and description.
-          </Text>
-        )}
-
-        {suggestions && (
-          <Stack space={4}>
-            {/* Suggested title */}
-            <Box>
-              <Flex align="center" justify="space-between" style={{ marginBottom: 6 }}>
-                <Text size={1} weight="semibold">
-                  Suggested Meta Title
-                </Text>
-                <Button
-                  text={copied === "title" ? "Copied!" : "Copy"}
-                  mode="ghost"
-                  fontSize={0}
-                  icon={copied === "title" ? Check : Copy}
-                  onClick={() => copyText(suggestions.suggestedTitle, "title")}
-                  tone={copied === "title" ? "positive" : "default"}
-                />
-              </Flex>
-              <Card padding={3} radius={2} style={{ background: "var(--card-bg, #f9fafb)" }}>
-                <Text size={2}>{suggestions.suggestedTitle}</Text>
-                <Text
-                  size={0}
-                  muted
-                  style={{ marginTop: 4 }}
-                >
-                  {suggestions.suggestedTitle.length} chars
-                  {suggestions.suggestedTitle.length > 60 && " ⚠ over 60"}
-                  {suggestions.suggestedTitle.length < 30 && " ⚠ under 30"}
-                </Text>
-              </Card>
-            </Box>
-
-            {/* Suggested description */}
-            <Box>
-              <Flex align="center" justify="space-between" style={{ marginBottom: 6 }}>
-                <Text size={1} weight="semibold">
-                  Suggested Meta Description
-                </Text>
-                <Button
-                  text={copied === "desc" ? "Copied!" : "Copy"}
-                  mode="ghost"
-                  fontSize={0}
-                  icon={copied === "desc" ? Check : Copy}
-                  onClick={() => copyText(suggestions.suggestedDescription, "desc")}
-                  tone={copied === "desc" ? "positive" : "default"}
-                />
-              </Flex>
-              <Card padding={3} radius={2} style={{ background: "var(--card-bg, #f9fafb)" }}>
-                <Text size={2}>{suggestions.suggestedDescription}</Text>
-                <Text size={0} muted style={{ marginTop: 4 }}>
-                  {suggestions.suggestedDescription.length} chars
-                  {suggestions.suggestedDescription.length > 160 && " ⚠ over 160"}
-                  {suggestions.suggestedDescription.length < 120 && " ⚠ under 120"}
-                </Text>
-              </Card>
-            </Box>
-
-            {/* Tips */}
-            {suggestions.tips?.length > 0 && (
-              <Box>
-                <Text size={1} weight="semibold" style={{ marginBottom: 8, display: "block" }}>
-                  Improvement Tips
-                </Text>
-                <Stack space={2}>
-                  {suggestions.tips.map((tip, i) => (
-                    <Flex key={i} gap={2} align="flex-start">
-                      <Text size={1} style={{ color: "#3b82f6", flexShrink: 0 }}>
-                        •
-                      </Text>
-                      <Text size={1}>{tip}</Text>
-                    </Flex>
-                  ))}
-                </Stack>
-              </Box>
-            )}
+      {/* ── Static checks (collapsible) ──────────────────────── */}
+      <Card padding={3} radius={3} shadow={1} marginBottom={3}>
+        <button
+          onClick={() => setChecksOpen(!checksOpen)}
+          style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Text size={1} weight="semibold" style={{ opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Field Checks
+            </Text>
+            <Text size={0} muted>{checksOpen ? "▲ Hide" : "▼ Show"}</Text>
+          </div>
+        </button>
+        {checksOpen && (
+          <Stack space={2} style={{ marginTop: 12 }}>
+            {checks.map((check) => (
+              <div key={check.key} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                {statusIcon(check.status)}
+                <div style={{ flex: 1 }}>
+                  <Text size={1} weight="semibold">{check.label}</Text>
+                  <Text size={1} muted>{check.message}</Text>
+                </div>
+                <Text size={0} muted style={{ flexShrink: 0 }}>{check.earned}/{check.weight}pts</Text>
+              </div>
+            ))}
           </Stack>
         )}
       </Card>
+
+      {/* ── AI Audit ─────────────────────────────────────────── */}
+      {loading && (
+        <Card padding={5} radius={3} shadow={1}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <Spinner />
+            <Text size={1} muted>Fetching live page and running full audit…</Text>
+          </div>
+        </Card>
+      )}
+
+      {error && (
+        <Card tone="critical" padding={3} radius={3} shadow={1}>
+          <Text size={1}>{error}</Text>
+        </Card>
+      )}
+
+      {!audit && !loading && !error && (
+        <Card padding={4} radius={3} shadow={1} style={{ textAlign: "center" }}>
+          <Text size={1} muted>No audit run yet.</Text>
+        </Card>
+      )}
+
+      {audit && !loading && (
+        <Stack space={3}>
+          {/* Suggested meta title */}
+          <Card padding={3} radius={3} shadow={1}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <Text size={1} weight="semibold">Suggested Meta Title</Text>
+              <Button
+                text={copied === "title" ? "Copied!" : "Copy"}
+                mode="ghost" fontSize={0}
+                icon={copied === "title" ? Check : Copy}
+                onClick={() => copyText(audit.suggestedTitle, "title")}
+                tone={copied === "title" ? "positive" : "default"}
+              />
+            </div>
+            <Card padding={3} radius={2} style={{ background: "var(--card-bg, #f9fafb)" }}>
+              <Text size={2}>{audit.suggestedTitle}</Text>
+              <Text size={0} muted style={{ marginTop: 4 }}>
+                {audit.suggestedTitle.length} chars
+                {audit.suggestedTitle.length > 60 && " ⚠ over 60"}
+                {audit.suggestedTitle.length < 30 && " ⚠ under 30"}
+              </Text>
+            </Card>
+          </Card>
+
+          {/* Suggested meta description */}
+          <Card padding={3} radius={3} shadow={1}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <Text size={1} weight="semibold">Suggested Meta Description</Text>
+              <Button
+                text={copied === "desc" ? "Copied!" : "Copy"}
+                mode="ghost" fontSize={0}
+                icon={copied === "desc" ? Check : Copy}
+                onClick={() => copyText(audit.suggestedDescription, "desc")}
+                tone={copied === "desc" ? "positive" : "default"}
+              />
+            </div>
+            <Card padding={3} radius={2} style={{ background: "var(--card-bg, #f9fafb)" }}>
+              <Text size={2}>{audit.suggestedDescription}</Text>
+              <Text size={0} muted style={{ marginTop: 4 }}>
+                {audit.suggestedDescription.length} chars
+                {audit.suggestedDescription.length > 160 && " ⚠ over 160"}
+                {audit.suggestedDescription.length < 120 && " ⚠ under 120"}
+              </Text>
+            </Card>
+          </Card>
+
+          {/* Categorised findings */}
+          {audit.categories?.map((cat) => (
+            <Card key={cat.name} padding={3} radius={3} shadow={1}>
+              <Text size={1} weight="semibold" style={{
+                display: "block", marginBottom: 12,
+                textTransform: "uppercase", letterSpacing: "0.05em", opacity: 0.6,
+              }}>
+                {cat.name}
+              </Text>
+              <Stack space={3}>
+                {cat.findings?.map((f, i) => (
+                  <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                    <span style={{
+                      flexShrink: 0, fontSize: 10, fontWeight: 700,
+                      padding: "2px 7px", borderRadius: 4, marginTop: 2,
+                      background: priorityColor(f.priority) + "22",
+                      color: priorityColor(f.priority),
+                    }}>
+                      {priorityLabel(f.priority)}
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <Text size={1} weight="semibold" style={{ display: "block", marginBottom: 2 }}>
+                        {f.issue}
+                      </Text>
+                      <Text size={1} muted>{f.fix}</Text>
+                    </div>
+                  </div>
+                ))}
+              </Stack>
+            </Card>
+          ))}
+        </Stack>
+      )}
     </Box>
   );
 }

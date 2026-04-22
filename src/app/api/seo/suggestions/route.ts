@@ -19,11 +19,10 @@ async function fetchPageText(url: string): Promise<string> {
   if (!res.ok) throw new Error(`Page fetch ${res.status}`);
   const html = await res.text();
 
-  // Extract only the body content — ignore head (title, meta, JSON-LD etc)
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   const bodyHtml = bodyMatch ? bodyMatch[1] : html;
 
-  const stripped = bodyHtml
+  return bodyHtml
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi, "")
@@ -37,9 +36,8 @@ async function fetchPageText(url: string): Promise<string> {
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/\s{2,}/g, " ")
-    .trim();
-
-  return stripped.slice(0, 8000);
+    .trim()
+    .slice(0, 8000);
 }
 
 export async function POST(request: NextRequest) {
@@ -60,9 +58,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "title is required" }, { status: 400 });
     }
 
-    // Fetch live page content if URL can be resolved
     let pageContent = "";
-    const url = liveUrl(docType, slug ?? "");
+    const url = liveUrl(docType ?? "", slug ?? "");
     if (url) {
       try {
         pageContent = await fetchPageText(url);
@@ -71,37 +68,77 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const prompt = `You are an SEO specialist for Clever Accounts, a UK online accounting firm serving sole traders, limited companies, contractors, and freelancers.
+    const prompt = `You are a senior digital marketing consultant auditing a page for Clever Accounts — a UK online accounting firm serving sole traders, limited companies, contractors, and freelancers. Prices start from £42.50/month.
 
-Document type: ${docType ?? "page"}
-Current page title: ${title}
+PAGE DETAILS
+Type: ${docType ?? "page"}
+Title: ${title}
 Current meta title: ${metaTitle || "(not set)"}
 Current meta description: ${metaDescription || "(not set)"}
-Excerpt/summary: ${excerpt || "(not set)"}
-${pageContent ? `\nLive page content (stripped HTML):\n${pageContent}` : ""}
+Excerpt: ${excerpt || "(not set)"}
+Live URL: ${url ?? "(no public URL)"}
+${pageContent ? `\nLIVE PAGE CONTENT:\n${pageContent}` : ""}
 
-Already implemented (do NOT suggest these):
-- LocalBusiness, ProfessionalService, Organization, AccountingService schema markup
+ALREADY IMPLEMENTED — do not suggest these:
+- LocalBusiness, ProfessionalService, Organization, AccountingService JSON-LD
 - BreadcrumbList JSON-LD on all service and blog pages
 - BlogPosting JSON-LD on all blog posts
+- FAQPage JSON-LD on homepage
+- Product/Offer pricing JSON-LD on homepage
+- WebApplication JSON-LD on the calculator
 - Open Graph and Twitter Card images sitewide
-- FAQPage JSON-LD on the homepage
 
-Tasks:
-1. Write a meta title for this page. Requirements: 30–60 characters total, include the primary keyword naturally, end with "| Clever Accounts" if space allows (it counts toward the 60 chars).
-2. Write a meta description for this page. Requirements: exactly 120–160 characters, includes a specific benefit or number (e.g. "from £42.50/month", "20 years experience", "10,000+ businesses"), ends with a call to action.
-3. Provide exactly 2–3 specific, actionable improvement tips for this page's SEO. Base these on the actual page content above — be specific, not generic. Do not suggest anything from the "Already implemented" list above.
+YOUR TASK
+Perform a full page health audit across 5 areas. For each finding include the priority, a specific issue, and an exact actionable fix. Be specific to THIS page's content — no generic advice.
 
-Respond ONLY with valid JSON — no markdown, no code fences, no extra text:
+Respond ONLY with this exact JSON structure — no markdown, no code fences:
 {
-  "suggestedTitle": "string max 60 chars",
-  "suggestedDescription": "string 120-160 chars",
-  "tips": ["tip1", "tip2"]
-}`;
+  "suggestedTitle": "30-60 char meta title including primary keyword, ending with | Clever Accounts",
+  "suggestedDescription": "120-160 char meta description with a specific benefit or number, ending with a CTA",
+  "categories": [
+    {
+      "name": "Meta & Search Appearance",
+      "findings": [
+        { "priority": "high|medium|low", "issue": "specific problem", "fix": "exact action to take" }
+      ]
+    },
+    {
+      "name": "Content & Keywords",
+      "findings": [
+        { "priority": "high|medium|low", "issue": "specific problem", "fix": "exact action to take" }
+      ]
+    },
+    {
+      "name": "Technical SEO",
+      "findings": [
+        { "priority": "high|medium|low", "issue": "specific problem", "fix": "exact action to take" }
+      ]
+    },
+    {
+      "name": "PPC & Conversion",
+      "findings": [
+        { "priority": "high|medium|low", "issue": "specific problem", "fix": "exact action to take" }
+      ]
+    },
+    {
+      "name": "User Experience",
+      "findings": [
+        { "priority": "high|medium|low", "issue": "specific problem", "fix": "exact action to take" }
+      ]
+    }
+  ]
+}
+
+Rules:
+- 2-4 findings per category
+- If something is genuinely good, say so as a low priority "pass" finding — do not invent problems
+- PPC findings should cover ad relevance, Quality Score factors, above-the-fold value prop, CTA strength
+- UX findings should assess the page from a first-time visitor's perspective: trust signals, clarity, bounce risk, conversion barriers
+- Be brutally honest and specific`;
 
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001" as string,
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -114,12 +151,11 @@ Respond ONLY with valid JSON — no markdown, no code fences, no extra text:
       .trim();
 
     const json = JSON.parse(cleaned);
-
     return NextResponse.json(json);
   } catch (err) {
     console.error("[/api/seo/suggestions]", err);
     return NextResponse.json(
-      { error: "Failed to generate suggestions" },
+      { error: String(err instanceof Error ? err.message : err) },
       { status: 500 }
     );
   }
