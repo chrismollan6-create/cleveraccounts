@@ -324,47 +324,52 @@ export function SEODashboard() {
                     style={{ cursor: "pointer", borderLeft: `3px solid ${color}` }}
                     onClick={() => openDocument(row._id, row._type)}
                   >
-                    <Flex align="center" gap={3}>
-                      <Badge
-                        tone={TYPE_TONES[row._type] ?? "default"}
-                        style={{ flexShrink: 0, fontSize: 10 }}
-                      >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{
+                        flexShrink: 0,
+                        fontSize: 10,
+                        fontWeight: 600,
+                        padding: "2px 7px",
+                        borderRadius: 4,
+                        background: row._type === "homePage" ? "#d1fae5"
+                          : row._type === "blogPost" ? "#dbeafe"
+                          : row._type === "caseStudy" ? "#fef3c7"
+                          : row._type === "landingPage" ? "#f3f4f6"
+                          : "#d1fae5",
+                        color: row._type === "homePage" ? "#065f46"
+                          : row._type === "blogPost" ? "#1e40af"
+                          : row._type === "caseStudy" ? "#92400e"
+                          : row._type === "landingPage" ? "#374151"
+                          : "#065f46",
+                      }}>
                         {TYPE_LABELS[row._type] ?? row._type}
-                      </Badge>
-                      <Box flex={1} style={{ minWidth: 0 }}>
-                        <Text
-                          size={2}
-                          weight="semibold"
-                          style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                        >
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {row.displayTitle}
-                        </Text>
+                        </div>
                         {row.slug && (
-                          <Text size={0} muted>
-                            /{row.slug}
-                          </Text>
+                          <div style={{ fontSize: 11, color: "#9ca3af" }}>/{row.slug}</div>
                         )}
-                      </Box>
+                      </div>
                       <ScoreBar score={row.score} color={color} />
-                      <Flex align="center" gap={1} style={{ flexShrink: 0, minWidth: 80 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, minWidth: 80 }}>
                         {row.issueCount > 0 ? (
                           <>
                             <AlertCircle size={13} style={{ color: "#f59e0b" }} />
-                            <Text size={0} muted>
+                            <span style={{ fontSize: 12, color: "#6b7280" }}>
                               {row.issueCount} issue{row.issueCount !== 1 ? "s" : ""}
-                            </Text>
+                            </span>
                           </>
                         ) : (
                           <>
                             <CheckCircle2 size={13} style={{ color: "#10b981" }} />
-                            <Text size={0} muted>
-                              All good
-                            </Text>
+                            <span style={{ fontSize: 12, color: "#6b7280" }}>All good</span>
                           </>
                         )}
-                      </Flex>
+                      </div>
                       <ExternalLink size={14} style={{ color: "#9ca3af", flexShrink: 0 }} />
-                    </Flex>
+                    </div>
                   </Card>
                 );
               })
