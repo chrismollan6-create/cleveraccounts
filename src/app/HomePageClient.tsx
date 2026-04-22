@@ -106,7 +106,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
       {/* ═══════════════════════════════════════
           HERO — Bold, clear, one CTA
           ═══════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-dark min-h-[92vh] flex items-center">
+      <section className="relative overflow-hidden bg-dark min-h-[75vh] flex items-center">
         {/* Background effects */}
         <div className="absolute inset-0">
           <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-primary/15 animate-blob" />
@@ -116,7 +116,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
           <div className="absolute inset-0 pattern-dots" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 lg:py-28 w-full">
+        <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Message */}
             <div>
