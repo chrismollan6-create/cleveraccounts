@@ -46,10 +46,14 @@ export function SEODocumentView({ document: docBundle }) {
           excerpt: doc.excerpt ?? doc.summary ?? "",
         }),
       });
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+      if (!res.ok) {
+        let msg = `API error ${res.status}`;
+        try { const body = await res.json(); if (body?.error) msg = body.error; } catch {}
+        throw new Error(msg);
+      }
       setSuggestions(await res.json());
-    } catch {
-      setError("Could not load AI suggestions. Check ANTHROPIC_API_KEY is set in environment variables.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load AI suggestions.");
     } finally {
       setLoading(false);
     }
