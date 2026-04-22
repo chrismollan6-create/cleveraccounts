@@ -80,10 +80,17 @@ Current meta description: ${metaDescription || "(not set)"}
 Excerpt/summary: ${excerpt || "(not set)"}
 ${pageContent ? `\nLive page content (stripped HTML):\n${pageContent}` : ""}
 
+Already implemented (do NOT suggest these):
+- LocalBusiness, ProfessionalService, Organization, AccountingService schema markup
+- BreadcrumbList JSON-LD on all service and blog pages
+- BlogPosting JSON-LD on all blog posts
+- Open Graph and Twitter Card images sitewide
+- FAQPage JSON-LD on the homepage
+
 Tasks:
 1. Write a meta title for this page. Requirements: 30–60 characters total, include the primary keyword naturally, end with "| Clever Accounts" if space allows (it counts toward the 60 chars).
 2. Write a meta description for this page. Requirements: exactly 120–160 characters, includes a specific benefit or number (e.g. "from £42.50/month", "20 years experience", "10,000+ businesses"), ends with a call to action.
-3. Provide exactly 2–3 specific, actionable improvement tips for this page's SEO. Base these on the actual page content above — be specific, not generic.
+3. Provide exactly 2–3 specific, actionable improvement tips for this page's SEO. Base these on the actual page content above — be specific, not generic. Do not suggest anything from the "Already implemented" list above.
 
 Respond ONLY with valid JSON — no markdown, no code fences, no extra text:
 {
