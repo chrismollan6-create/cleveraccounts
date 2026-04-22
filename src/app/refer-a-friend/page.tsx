@@ -216,6 +216,24 @@ function ReferralPageContent() {
           {/* Error / generic (no valid code) */}
           {!loading && (error || !ref) && (
             <div className="space-y-12">
+
+              {/* Check your email prompt */}
+              <div className="max-w-lg mx-auto bg-primary/5 border border-primary/20 rounded-2xl p-8 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+                  <Mail size={26} />
+                </div>
+                <h2 className="text-xl font-black text-dark mb-2">Check your email</h2>
+                <p className="text-text-light text-sm leading-relaxed">
+                  Your personal referral link was sent to you by email when you joined Clever Accounts.
+                  Search for <span className="font-semibold text-dark">"refer a friend"</span> in your inbox to find it.
+                </p>
+                {error && ref && (
+                  <p className="mt-4 text-sm text-red-500">
+                    We couldn&apos;t find that referral code. Please check your email for your personal link.
+                  </p>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
                   <div className="text-4xl font-black text-primary mb-2">£75</div>
@@ -232,11 +250,6 @@ function ReferralPageContent() {
                 Vouchers are paid after 3 months, provided both you and your referral are still active clients.
               </div>
               <HowItWorks />
-              {error && ref && (
-                <div className="text-center text-sm text-red-500 mt-4">
-                  We couldn&apos;t find your referral link. Please check your email for your personal link.
-                </div>
-              )}
             </div>
           )}
 
