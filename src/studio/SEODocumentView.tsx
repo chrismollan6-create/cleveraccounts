@@ -43,7 +43,8 @@ export function SEODocumentView({ document: docBundle }) {
           title: doc.title ?? doc.clientName ?? doc.headline ?? doc.heroHeadline ?? "",
           metaTitle: doc.metaTitle ?? "",
           metaDescription: doc.metaDescription ?? "",
-          excerpt: doc.excerpt ?? doc.summary ?? "",
+          excerpt: doc.excerpt ?? doc.summary ?? doc.heroSubheadline ?? "",
+          slug: doc.slug?.current ?? "",
         }),
       });
       if (!res.ok) {
