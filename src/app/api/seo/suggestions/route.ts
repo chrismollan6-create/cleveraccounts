@@ -37,7 +37,7 @@ async function fetchPageText(url: string): Promise<string> {
     .replace(/&gt;/g, ">")
     .replace(/\s{2,}/g, " ")
     .trim()
-    .slice(0, 8000);
+    .slice(0, 5000);
 }
 
 export async function POST(request: NextRequest) {
@@ -134,11 +134,12 @@ Rules:
 - If something is genuinely good, say so as a low priority "pass" finding — do not invent problems
 - PPC findings should cover ad relevance, Quality Score factors, above-the-fold value prop, CTA strength
 - UX findings should assess the page from a first-time visitor's perspective: trust signals, clarity, bounce risk, conversion barriers
-- Be brutally honest and specific`;
+- Be brutally honest and specific
+- CRITICAL: Your entire response must be valid JSON. Escape all double quotes inside strings as \". Never use unescaped newlines inside string values. Do not copy raw text from the page content into your response.`;
 
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001" as string,
-      max_tokens: 2048,
+      max_tokens: 4096,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -150,7 +151,13 @@ Rules:
       .replace(/\n?```$/m, "")
       .trim();
 
-    const json = JSON.parse(cleaned);
+    let json;
+    try {
+      json = JSON.parse(cleaned);
+    } catch {
+      console.error("[/api/seo/suggestions] JSON truncated, raw length:", cleaned.length);
+      return NextResponse.json({ error: "Response was truncated — try again" }, { status: 500 });
+    }
     return NextResponse.json(json);
   } catch (err) {
     console.error("[/api/seo/suggestions]", err);
