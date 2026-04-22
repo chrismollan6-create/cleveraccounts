@@ -1,9 +1,10 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
-import { Box, Card, Text, Button, Spinner, Heading } from "@sanity/ui";
+import { Box, Button, Spinner, Heading } from "@sanity/ui";
 import {
   CheckCircle2, AlertCircle, XCircle, Copy, Check, RefreshCw,
   Search, FileText, Code2, TrendingUp, Monitor, ChevronDown, ChevronUp,
+  Download,
 } from "lucide-react";
 import { scoreDocument, gradeColor } from "./seoUtils";
 
@@ -18,20 +19,67 @@ interface AuditResult {
   suggestedDescription: string;
   categories: AuditCategory[];
 }
+interface CacheEntry {
+  ts: number;
+  data: AuditResult;
+  title: string;
+}
 
-const CACHE_TTL_MS = 60 * 60 * 1000;
-
-function getCached(id: string): AuditResult | null {
+// No TTL expiry — audits persist until manually refreshed
+function getCached(id: string): { data: AuditResult; ts: number; title: string } | null {
   try {
     const raw = localStorage.getItem(`seo-audit-${id}`);
     if (!raw) return null;
-    const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL_MS) return null;
-    return data;
+    return JSON.parse(raw);
   } catch { return null; }
 }
-function setCache(id: string, data: AuditResult) {
-  try { localStorage.setItem(`seo-audit-${id}`, JSON.stringify({ ts: Date.now(), data })); } catch {}
+function setCache(id: string, data: AuditResult, title: string) {
+  try {
+    localStorage.setItem(`seo-audit-${id}`, JSON.stringify({ ts: Date.now(), data, title }));
+  } catch {}
+}
+
+function formatAgo(ts: number): string {
+  const mins = Math.round((Date.now() - ts) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.round(hrs / 24)}d ago`;
+}
+
+function exportReport(title: string, audit: AuditResult, score: number): void {
+  const lines: string[] = [
+    `SEO HEALTH REPORT — ${title}`,
+    `Generated: ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`,
+    `Field Score: ${score}/100`,
+    "",
+    `SUGGESTED META TITLE (${audit.suggestedTitle.length} chars)`,
+    audit.suggestedTitle,
+    "",
+    `SUGGESTED META DESCRIPTION (${audit.suggestedDescription.length} chars)`,
+    audit.suggestedDescription,
+    "",
+  ];
+
+  for (const cat of audit.categories ?? []) {
+    lines.push(`${"─".repeat(60)}`);
+    lines.push(cat.name.toUpperCase());
+    lines.push("");
+    for (const f of cat.findings ?? []) {
+      lines.push(`[${f.priority.toUpperCase()}] ${f.issue}`);
+      lines.push(`→ Fix: ${f.fix}`);
+      lines.push("");
+    }
+  }
+
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `seo-report-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 const PRIORITY_CONFIG = {
@@ -160,29 +208,32 @@ export function SEODocumentView({ document: docBundle }) {
   const doc = docBundle?.displayed ?? {};
   const [loading, setLoading] = useState(false);
   const [audit, setAudit] = useState<AuditResult | null>(null);
+  const [auditTs, setAuditTs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [checksOpen, setChecksOpen] = useState(false);
 
   const { total, checks, grade } = scoreDocument(doc);
   const color = gradeColor(grade);
+  const docTitle = doc.title ?? doc.clientName ?? doc.headline ?? doc.heroHeadline ?? "Page";
 
   async function runAudit(force = false) {
     if (!doc._id) return;
     if (!force) {
       const cached = getCached(doc._id);
-      if (cached) { setAudit(cached); return; }
+      if (cached) { setAudit(cached.data); setAuditTs(cached.ts); return; }
     }
     setLoading(true);
     setError(null);
     setAudit(null);
+    setAuditTs(null);
     try {
       const res = await fetch("/api/seo/suggestions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           docType: doc._type ?? "page",
-          title: doc.title ?? doc.clientName ?? doc.headline ?? doc.heroHeadline ?? "",
+          title: docTitle,
           metaTitle: doc.metaTitle ?? "",
           metaDescription: doc.metaDescription ?? "",
           excerpt: doc.excerpt ?? doc.summary ?? doc.heroSubheadline ?? "",
@@ -195,8 +246,10 @@ export function SEODocumentView({ document: docBundle }) {
         throw new Error(msg);
       }
       const data = await res.json();
+      const now = Date.now();
       setAudit(data);
-      setCache(doc._id, data);
+      setAuditTs(now);
+      setCache(doc._id, data, docTitle);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Audit failed.");
     } finally {
@@ -227,18 +280,34 @@ export function SEODocumentView({ document: docBundle }) {
     <Box padding={4} style={{ maxWidth: 640, overflowY: "auto" }}>
 
       {/* ── Header bar ───────────────────────────────────────── */}
-      <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        marginBottom: 16,
-      }}>
-        <Heading size={2}>Page Health Report</Heading>
-        <Button
-          text={loading ? "Running audit…" : "Refresh audit"}
-          mode="ghost" fontSize={1}
-          icon={loading ? Spinner : RefreshCw}
-          disabled={loading}
-          onClick={() => runAudit(true)}
-        />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div>
+          <Heading size={2}>Page Health Report</Heading>
+          {auditTs && (
+            <p style={{ margin: "3px 0 0", fontSize: 11, color: "#9ca3af" }}>
+              Last audited {formatAgo(auditTs)} — results saved locally
+            </p>
+          )}
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {audit && (
+            <Button
+              text="Export"
+              mode="ghost"
+              fontSize={1}
+              icon={Download}
+              onClick={() => exportReport(docTitle, audit, total)}
+            />
+          )}
+          <Button
+            text={loading ? "Running…" : "Refresh"}
+            mode="ghost"
+            fontSize={1}
+            icon={loading ? Spinner : RefreshCw}
+            disabled={loading}
+            onClick={() => runAudit(true)}
+          />
+        </div>
       </div>
 
       {/* ── Score + summary ───────────────────────────────────── */}
@@ -467,7 +536,7 @@ export function SEODocumentView({ document: docBundle }) {
           </div>
 
           <p style={{ margin: 0, fontSize: 11, color: "#d1d5db", textAlign: "center" }}>
-            Audit cached for 1 hour · Click "Refresh audit" to re-run
+            Results saved locally in this browser · Click Refresh to re-run · Export saves a .txt file
           </p>
         </div>
       )}
