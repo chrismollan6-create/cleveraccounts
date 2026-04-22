@@ -40,7 +40,7 @@ export function SEODocumentView({ document: docBundle }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           docType: doc._type ?? "page",
-          title: doc.title ?? doc.clientName ?? doc.headline ?? "",
+          title: doc.title ?? doc.clientName ?? doc.headline ?? doc.heroHeadline ?? "",
           metaTitle: doc.metaTitle ?? "",
           metaDescription: doc.metaDescription ?? "",
           excerpt: doc.excerpt ?? doc.summary ?? "",
