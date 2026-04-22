@@ -100,6 +100,129 @@ export function OrganizationJsonLd() {
   );
 }
 
+export function PricingJsonLd() {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Clever Accounts Pricing Plans",
+    description: "Online accounting packages for sole traders, limited companies, and contractors across the UK.",
+    url: "https://cleveraccounts.com/#pricing",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        item: {
+          "@type": "Product",
+          name: "Sole Trader Accounting",
+          description: "Dedicated sole trader accountant, self assessment tax return, unlimited advice, free FreeAgent software, expense tracking, MTD compliant.",
+          url: "https://cleveraccounts.com/sole-trader",
+          brand: { "@type": "Brand", name: "Clever Accounts" },
+          offers: {
+            "@type": "Offer",
+            price: "42.50",
+            priceCurrency: "GBP",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: "42.50",
+              priceCurrency: "GBP",
+              billingDuration: "P1M",
+              unitText: "month",
+            },
+            availability: "https://schema.org/InStock",
+            url: "https://cleveraccounts.com/sole-trader",
+            seller: { "@type": "Organization", name: "Clever Accounts" },
+          },
+        },
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        item: {
+          "@type": "Product",
+          name: "Limited Company Accounting",
+          description: "Year-end accounts, corporation tax, VAT returns, payroll, Companies House filings, tax planning, free FreeAgent software.",
+          url: "https://cleveraccounts.com/limited-company",
+          brand: { "@type": "Brand", name: "Clever Accounts" },
+          offers: {
+            "@type": "Offer",
+            price: "104.50",
+            priceCurrency: "GBP",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: "104.50",
+              priceCurrency: "GBP",
+              billingDuration: "P1M",
+              unitText: "month",
+            },
+            availability: "https://schema.org/InStock",
+            url: "https://cleveraccounts.com/limited-company",
+            seller: { "@type": "Organization", name: "Clever Accounts" },
+          },
+        },
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        item: {
+          "@type": "Product",
+          name: "Contractor Accounting",
+          description: "End-to-end IR35 support, contract reviews, Clever FLEX umbrella solution, full limited company accounting, bespoke contracting advice.",
+          url: "https://cleveraccounts.com/contractor-accountancy",
+          brand: { "@type": "Brand", name: "Clever Accounts" },
+          offers: {
+            "@type": "Offer",
+            price: "104.50",
+            priceCurrency: "GBP",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: "104.50",
+              priceCurrency: "GBP",
+              billingDuration: "P1M",
+              unitText: "month",
+            },
+            availability: "https://schema.org/InStock",
+            url: "https://cleveraccounts.com/contractor-accountancy",
+            seller: { "@type": "Organization", name: "Clever Accounts" },
+          },
+        },
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        item: {
+          "@type": "Product",
+          name: "Landlord Accounting",
+          description: "Comprehensive accounting for property investors and landlords including self assessment, rental income, and tax efficiency advice.",
+          url: "https://cleveraccounts.com/landlord-accounting",
+          brand: { "@type": "Brand", name: "Clever Accounts" },
+          offers: {
+            "@type": "Offer",
+            price: "42.50",
+            priceCurrency: "GBP",
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              price: "42.50",
+              priceCurrency: "GBP",
+              billingDuration: "P1M",
+              unitText: "month",
+            },
+            availability: "https://schema.org/InStock",
+            url: "https://cleveraccounts.com/landlord-accounting",
+            seller: { "@type": "Organization", name: "Clever Accounts" },
+          },
+        },
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+
 export function FAQPageJsonLd({ faqs }: { faqs: { q: string; a: string }[] }) {
   const data = {
     "@context": "https://schema.org",

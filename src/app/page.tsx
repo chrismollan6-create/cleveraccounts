@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
-import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { FAQPageJsonLd, PricingJsonLd } from "@/components/seo/StructuredData";
 import { getSiteSettings, getHomePage } from "@/sanity/queries";
 
 const DEFAULT_TITLE = "Clever Accounts | Expert Online Accountants UK — From £42.50/month";
@@ -69,6 +69,7 @@ export default async function HomePage() {
   return (
     <>
       <FAQPageJsonLd faqs={HOME_FAQS} />
+      <PricingJsonLd />
       <HomePageClient faqs={HOME_FAQS} promoBadges={promoBadges} />
     </>
   );
