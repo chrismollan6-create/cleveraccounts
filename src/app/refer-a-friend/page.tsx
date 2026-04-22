@@ -68,6 +68,10 @@ function ReferralPageContent() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [resentIds, setResentIds] = useState<Set<string>>(new Set());
+  const [requestEmail, setRequestEmail] = useState("");
+  const [requestSending, setRequestSending] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
+  const [requestError, setRequestError] = useState<string | null>(null);
 
   const shareLink = data
     ? `https://www.cleveraccounts.co.uk/sign-up?ref=${data.referralCode}`
@@ -153,6 +157,30 @@ function ReferralPageContent() {
     }
   }
 
+  async function handleRequestLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!requestEmail) return;
+    setRequestSending(true);
+    setRequestError(null);
+    try {
+      const res = await fetch("/api/referral/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: requestEmail }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setRequestError(json.error || "We couldn't find an account with that email address.");
+      } else {
+        setRequestSent(true);
+      }
+    } catch {
+      setRequestError("A network error occurred. Please try again.");
+    } finally {
+      setRequestSending(false);
+    }
+  }
+
   function handleCopy() {
     if (!shareLink) return;
     navigator.clipboard.writeText(shareLink).then(() => {
@@ -215,40 +243,62 @@ function ReferralPageContent() {
 
           {/* Error / generic (no valid code) */}
           {!loading && (error || !ref) && (
-            <div className="space-y-12">
+            <div className="space-y-10 max-w-lg mx-auto">
 
-              {/* Check your email prompt */}
-              <div className="max-w-lg mx-auto bg-primary/5 border border-primary/20 rounded-2xl p-8 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-                  <Mail size={26} />
+              {/* Already a client — send my link */}
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Mail size={22} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-dark leading-tight">Already a client?</h2>
+                    <p className="text-sm text-text-light">Enter your email and we&apos;ll send your personal referral link.</p>
+                  </div>
                 </div>
-                <h2 className="text-xl font-black text-dark mb-2">Check your email</h2>
-                <p className="text-text-light text-sm leading-relaxed">
-                  Your personal referral link was sent to you by email when you joined Clever Accounts.
-                  Search for <span className="font-semibold text-dark">"refer a friend"</span> in your inbox to find it.
-                </p>
-                {error && ref && (
-                  <p className="mt-4 text-sm text-red-500">
-                    We couldn&apos;t find that referral code. Please check your email for your personal link.
-                  </p>
+
+                {requestSent ? (
+                  <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700 font-semibold">
+                    <Check size={16} className="shrink-0" />
+                    Referral link sent — check your inbox!
+                  </div>
+                ) : (
+                  <form onSubmit={handleRequestLink} className="flex gap-2">
+                    <input
+                      type="email"
+                      required
+                      value={requestEmail}
+                      onChange={(e) => setRequestEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="flex-1 px-4 py-3 border border-border rounded-xl text-sm text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
+                    />
+                    <button
+                      type="submit"
+                      disabled={requestSending}
+                      className="inline-flex items-center gap-2 bg-primary text-white font-bold px-5 py-3 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-60 shrink-0"
+                    >
+                      {requestSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                      Send
+                    </button>
+                  </form>
                 )}
+                {requestError && <p className="mt-3 text-sm text-red-500">{requestError}</p>}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
-                  <div className="text-4xl font-black text-primary mb-2">£75</div>
-                  <div className="font-bold text-dark mb-1">Sole Trader</div>
-                  <div className="text-sm text-text-light">Per successful referral</div>
-                </div>
-                <div className="bg-secondary/10 border border-secondary/30 rounded-2xl p-6 text-center">
-                  <div className="text-4xl font-black text-secondary-dark mb-2">£250</div>
-                  <div className="font-bold text-dark mb-1">Limited Company</div>
-                  <div className="text-sm text-text-light">Per successful referral</div>
-                </div>
+              {/* Not a client — sign up */}
+              <div className="bg-dark rounded-2xl p-8 text-center">
+                <h2 className="text-lg font-black text-white mb-2">Not a client yet?</h2>
+                <p className="text-white/70 text-sm mb-5">
+                  Join Clever Accounts and you&apos;ll get your own referral link — earn up to £250 for every friend you refer.
+                </p>
+                <a
+                  href="/sign-up"
+                  className="inline-flex items-center gap-2 bg-secondary text-white font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all"
+                >
+                  Sign Up Now <ArrowRight size={16} />
+                </a>
               </div>
-              <div className="text-center text-sm text-text-light max-w-md mx-auto">
-                Vouchers are paid after 3 months, provided both you and your referral are still active clients.
-              </div>
+
               <HowItWorks />
             </div>
           )}
