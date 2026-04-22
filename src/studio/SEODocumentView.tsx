@@ -1,17 +1,10 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
+import { Box, Card, Text, Button, Spinner, Heading } from "@sanity/ui";
 import {
-  Box,
-  Card,
-  Text,
-  Flex,
-  Stack,
-  Badge,
-  Button,
-  Spinner,
-  Heading,
-} from "@sanity/ui";
-import { CheckCircle2, AlertCircle, XCircle, Copy, Check, RefreshCw } from "lucide-react";
+  CheckCircle2, AlertCircle, XCircle, Copy, Check, RefreshCw,
+  Search, FileText, Code2, TrendingUp, Monitor, ChevronDown, ChevronUp,
+} from "lucide-react";
 import { scoreDocument, gradeColor } from "./seoUtils";
 
 interface Finding {
@@ -19,19 +12,14 @@ interface Finding {
   issue: string;
   fix: string;
 }
-
-interface AuditCategory {
-  name: string;
-  findings: Finding[];
-}
-
+interface AuditCategory { name: string; findings: Finding[] }
 interface AuditResult {
   suggestedTitle: string;
   suggestedDescription: string;
   categories: AuditCategory[];
 }
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL_MS = 60 * 60 * 1000;
 
 function getCached(id: string): AuditResult | null {
   try {
@@ -40,25 +28,132 @@ function getCached(id: string): AuditResult | null {
     const { ts, data } = JSON.parse(raw);
     if (Date.now() - ts > CACHE_TTL_MS) return null;
     return data;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
-
 function setCache(id: string, data: AuditResult) {
-  try {
-    localStorage.setItem(`seo-audit-${id}`, JSON.stringify({ ts: Date.now(), data }));
-  } catch {}
+  try { localStorage.setItem(`seo-audit-${id}`, JSON.stringify({ ts: Date.now(), data })); } catch {}
 }
 
-function priorityColor(p: string) {
-  if (p === "high") return "#ef4444";
-  if (p === "medium") return "#f59e0b";
-  return "#10b981";
+const PRIORITY_CONFIG = {
+  high:   { color: "#ef4444", bg: "#fef2f2", border: "#fecaca", label: "High" },
+  medium: { color: "#f59e0b", bg: "#fffbeb", border: "#fde68a", label: "Medium" },
+  low:    { color: "#10b981", bg: "#f0fdf4", border: "#bbf7d0", label: "Low" },
+};
+
+const CATEGORY_ICONS: Record<string, any> = {
+  "Meta & Search Appearance": Search,
+  "Content & Keywords": FileText,
+  "Technical SEO": Code2,
+  "PPC & Conversion": TrendingUp,
+  "User Experience": Monitor,
+};
+
+function PriorityBadge({ priority }: { priority: string }) {
+  const cfg = PRIORITY_CONFIG[priority] ?? PRIORITY_CONFIG.low;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
+      padding: "3px 9px", borderRadius: 20,
+      background: cfg.bg, color: cfg.color,
+      border: `1px solid ${cfg.border}`,
+      flexShrink: 0, whiteSpace: "nowrap",
+    }}>
+      {priority === "high" && <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />}
+      {cfg.label}
+    </span>
+  );
 }
 
-function priorityLabel(p: string) {
-  return p.charAt(0).toUpperCase() + p.slice(1);
+function FindingCard({ finding, index }: { finding: Finding; index: number }) {
+  const [open, setOpen] = useState(finding.priority === "high");
+  const cfg = PRIORITY_CONFIG[finding.priority] ?? PRIORITY_CONFIG.low;
+  return (
+    <div style={{
+      borderRadius: 8, border: `1px solid ${open ? cfg.border : "#e5e7eb"}`,
+      overflow: "hidden", transition: "border-color 0.15s",
+    }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%", background: open ? cfg.bg : "white",
+          border: "none", cursor: "pointer", padding: "10px 14px",
+          display: "flex", alignItems: "flex-start", gap: 10, textAlign: "left",
+          transition: "background 0.15s",
+        }}
+      >
+        <PriorityBadge priority={finding.priority} />
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "#111827", lineHeight: 1.4 }}>
+          {finding.issue}
+        </span>
+        <span style={{ color: "#9ca3af", flexShrink: 0, marginTop: 2 }}>
+          {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </span>
+      </button>
+      {open && (
+        <div style={{
+          padding: "0 14px 12px 14px", background: open ? cfg.bg : "white",
+          borderTop: `1px solid ${cfg.border}`,
+        }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-start", paddingTop: 10 }}>
+            <span style={{
+              fontSize: 10, fontWeight: 800, color: cfg.color, letterSpacing: "0.06em",
+              paddingTop: 2, flexShrink: 0, textTransform: "uppercase",
+            }}>→ Fix</span>
+            <p style={{ margin: 0, fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
+              {finding.fix}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategorySection({ category }: { category: AuditCategory }) {
+  const Icon = CATEGORY_ICONS[category.name] ?? FileText;
+  const highCount = category.findings.filter(f => f.priority === "high").length;
+  const medCount = category.findings.filter(f => f.priority === "medium").length;
+
+  return (
+    <div style={{ marginBottom: 4 }}>
+      {/* Category header */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "10px 0 8px 0", marginBottom: 8,
+        borderBottom: "2px solid #f3f4f6",
+      }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 6, background: "#f3f4f6",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <Icon size={14} style={{ color: "#6b7280" }} />
+        </div>
+        <span style={{ fontWeight: 700, fontSize: 13, color: "#111827", flex: 1 }}>
+          {category.name}
+        </span>
+        <div style={{ display: "flex", gap: 4 }}>
+          {highCount > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
+              background: "#fef2f2", color: "#ef4444", border: "1px solid #fecaca",
+            }}>{highCount} high</span>
+          )}
+          {medCount > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
+              background: "#fffbeb", color: "#f59e0b", border: "1px solid #fde68a",
+            }}>{medCount} med</span>
+          )}
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {category.findings.map((f, i) => (
+          <FindingCard key={i} finding={f} index={i} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export function SEODocumentView({ document: docBundle }) {
@@ -123,173 +218,258 @@ export function SEODocumentView({ document: docBundle }) {
     return <XCircle size={14} style={{ color: "#ef4444", flexShrink: 0 }} />;
   }
 
-  const issueCount = audit?.categories.reduce((n, c) => n + c.findings.filter(f => f.priority === "high").length, 0) ?? 0;
-  const gradeLabel = grade === "good" ? "Good" : grade === "ok" ? "Needs work" : "Poor";
-  const gradeTone = grade === "good" ? "positive" : grade === "ok" ? "caution" : "critical";
+  const totalHigh = audit?.categories.reduce((n, c) => n + c.findings.filter(f => f.priority === "high").length, 0) ?? 0;
+  const totalMed  = audit?.categories.reduce((n, c) => n + c.findings.filter(f => f.priority === "medium").length, 0) ?? 0;
+  const totalLow  = audit?.categories.reduce((n, c) => n + c.findings.filter(f => f.priority === "low").length, 0) ?? 0;
+  const gradeLabel = grade === "good" ? "Good" : grade === "ok" ? "Needs Work" : "Poor";
 
   return (
-    <Box padding={4} style={{ maxWidth: 620, overflowY: "auto" }}>
+    <Box padding={4} style={{ maxWidth: 640, overflowY: "auto" }}>
 
-      {/* ── Score + refresh ──────────────────────────────────── */}
-      <Card padding={4} radius={3} shadow={1} marginBottom={3} style={{ borderLeft: `4px solid ${color}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: "50%", background: color,
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <Text size={3} weight="bold" style={{ color: "white" }}>{total}</Text>
-            </div>
-            <div>
-              <Heading size={2} style={{ marginBottom: 6 }}>Page Health</Heading>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <Badge tone={gradeTone}>{gradeLabel}</Badge>
-                {audit && issueCount > 0 && (
-                  <Badge tone="critical">{issueCount} high priority</Badge>
-                )}
-              </div>
-            </div>
-          </div>
-          <Button
-            text={loading ? "Analysing…" : "Refresh"}
-            mode="ghost"
-            fontSize={1}
-            icon={loading ? Spinner : RefreshCw}
-            disabled={loading}
-            onClick={() => runAudit(true)}
-          />
+      {/* ── Header bar ───────────────────────────────────────── */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        marginBottom: 16,
+      }}>
+        <Heading size={2}>Page Health Report</Heading>
+        <Button
+          text={loading ? "Running audit…" : "Refresh audit"}
+          mode="ghost" fontSize={1}
+          icon={loading ? Spinner : RefreshCw}
+          disabled={loading}
+          onClick={() => runAudit(true)}
+        />
+      </div>
+
+      {/* ── Score + summary ───────────────────────────────────── */}
+      <div style={{
+        background: "linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)",
+        borderRadius: 12, padding: 20, marginBottom: 12,
+        display: "flex", alignItems: "center", gap: 20,
+      }}>
+        <div style={{
+          width: 72, height: 72, borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          border: `3px solid ${color}`,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 22, fontWeight: 900, color: "white", lineHeight: 1 }}>{total}</span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em", marginTop: 2 }}>/ 100</span>
         </div>
-      </Card>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 16, fontWeight: 800, color: "white" }}>{gradeLabel}</span>
+            <span style={{
+              fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
+              background: color + "33", color: color, border: `1px solid ${color}55`,
+            }}>Field Score</span>
+          </div>
+          {audit && (
+            <div style={{ display: "flex", gap: 10 }}>
+              {totalHigh > 0 && (
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#fca5a5" }}>{totalHigh}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 1 }}>High</div>
+                </div>
+              )}
+              {totalMed > 0 && (
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#fde68a" }}>{totalMed}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 1 }}>Medium</div>
+                </div>
+              )}
+              {totalLow > 0 && (
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#6ee7b7" }}>{totalLow}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 1 }}>Low / Pass</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
-      {/* ── Static checks (collapsible) ──────────────────────── */}
-      <Card padding={3} radius={3} shadow={1} marginBottom={3}>
+      {/* ── Field checks (collapsible) ────────────────────────── */}
+      <div style={{
+        background: "white", border: "1px solid #e5e7eb", borderRadius: 10,
+        marginBottom: 12, overflow: "hidden",
+      }}>
         <button
           onClick={() => setChecksOpen(!checksOpen)}
-          style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}
+          style={{
+            width: "100%", background: "none", border: "none", cursor: "pointer",
+            padding: "10px 14px", display: "flex", alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Text size={1} weight="semibold" style={{ opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Field Checks
-            </Text>
-            <Text size={0} muted>{checksOpen ? "▲ Hide" : "▼ Show"}</Text>
-          </div>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            Field Checks
+          </span>
+          <span style={{ color: "#9ca3af", display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 11, color: "#9ca3af" }}>{checksOpen ? "Hide" : "Show"}</span>
+            {checksOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </span>
         </button>
         {checksOpen && (
-          <Stack space={2} style={{ marginTop: 12 }}>
-            {checks.map((check) => (
-              <div key={check.key} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+          <div style={{ borderTop: "1px solid #f3f4f6" }}>
+            {checks.map((check, i) => (
+              <div key={check.key} style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "8px 14px",
+                borderTop: i === 0 ? "none" : "1px solid #f9fafb",
+              }}>
                 {statusIcon(check.status)}
                 <div style={{ flex: 1 }}>
-                  <Text size={1} weight="semibold">{check.label}</Text>
-                  <Text size={1} muted>{check.message}</Text>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>{check.label}</span>
+                  <span style={{ fontSize: 12, color: "#9ca3af", marginLeft: 6 }}>{check.message}</span>
                 </div>
-                <Text size={0} muted style={{ flexShrink: 0 }}>{check.earned}/{check.weight}pts</Text>
+                <span style={{ fontSize: 11, color: "#d1d5db", fontWeight: 600 }}>
+                  {check.earned}/{check.weight}
+                </span>
               </div>
             ))}
-          </Stack>
-        )}
-      </Card>
-
-      {/* ── AI Audit ─────────────────────────────────────────── */}
-      {loading && (
-        <Card padding={5} radius={3} shadow={1}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-            <Spinner />
-            <Text size={1} muted>Fetching live page and running full audit…</Text>
           </div>
-        </Card>
+        )}
+      </div>
+
+      {/* ── Loading ───────────────────────────────────────────── */}
+      {loading && (
+        <div style={{
+          background: "white", border: "1px solid #e5e7eb", borderRadius: 10,
+          padding: 32, display: "flex", flexDirection: "column",
+          alignItems: "center", gap: 12,
+        }}>
+          <Spinner />
+          <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>
+            Fetching live page and running full audit…
+          </p>
+        </div>
       )}
 
       {error && (
-        <Card tone="critical" padding={3} radius={3} shadow={1}>
-          <Text size={1}>{error}</Text>
-        </Card>
+        <div style={{
+          background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: 14,
+        }}>
+          <p style={{ margin: 0, fontSize: 13, color: "#ef4444" }}>{error}</p>
+        </div>
       )}
 
       {!audit && !loading && !error && (
-        <Card padding={4} radius={3} shadow={1} style={{ textAlign: "center" }}>
-          <Text size={1} muted>No audit run yet.</Text>
-        </Card>
+        <div style={{
+          background: "white", border: "1px solid #e5e7eb", borderRadius: 10,
+          padding: 32, textAlign: "center",
+        }}>
+          <p style={{ margin: 0, fontSize: 13, color: "#9ca3af" }}>No audit run yet.</p>
+        </div>
       )}
 
+      {/* ── Audit results ─────────────────────────────────────── */}
       {audit && !loading && (
-        <Stack space={3}>
-          {/* Suggested meta title */}
-          <Card padding={3} radius={3} shadow={1}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <Text size={1} weight="semibold">Suggested Meta Title</Text>
-              <Button
-                text={copied === "title" ? "Copied!" : "Copy"}
-                mode="ghost" fontSize={0}
-                icon={copied === "title" ? Check : Copy}
-                onClick={() => copyText(audit.suggestedTitle, "title")}
-                tone={copied === "title" ? "positive" : "default"}
-              />
-            </div>
-            <Card padding={3} radius={2} style={{ background: "var(--card-bg, #f9fafb)" }}>
-              <Text size={2}>{audit.suggestedTitle}</Text>
-              <Text size={0} muted style={{ marginTop: 4 }}>
-                {audit.suggestedTitle.length} chars
-                {audit.suggestedTitle.length > 60 && " ⚠ over 60"}
-                {audit.suggestedTitle.length < 30 && " ⚠ under 30"}
-              </Text>
-            </Card>
-          </Card>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
-          {/* Suggested meta description */}
-          <Card padding={3} radius={3} shadow={1}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <Text size={1} weight="semibold">Suggested Meta Description</Text>
-              <Button
-                text={copied === "desc" ? "Copied!" : "Copy"}
-                mode="ghost" fontSize={0}
-                icon={copied === "desc" ? Check : Copy}
-                onClick={() => copyText(audit.suggestedDescription, "desc")}
-                tone={copied === "desc" ? "positive" : "default"}
-              />
+          {/* Suggested meta */}
+          <div style={{
+            background: "white", border: "1px solid #e5e7eb", borderRadius: 10,
+            overflow: "hidden",
+          }}>
+            <div style={{
+              padding: "10px 14px", borderBottom: "1px solid #f3f4f6",
+              background: "#fafafa",
+            }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Suggested Copy
+              </span>
             </div>
-            <Card padding={3} radius={2} style={{ background: "var(--card-bg, #f9fafb)" }}>
-              <Text size={2}>{audit.suggestedDescription}</Text>
-              <Text size={0} muted style={{ marginTop: 4 }}>
-                {audit.suggestedDescription.length} chars
-                {audit.suggestedDescription.length > 160 && " ⚠ over 160"}
-                {audit.suggestedDescription.length < 120 && " ⚠ under 120"}
-              </Text>
-            </Card>
-          </Card>
 
-          {/* Categorised findings */}
-          {audit.categories?.map((cat) => (
-            <Card key={cat.name} padding={3} radius={3} shadow={1}>
-              <Text size={1} weight="semibold" style={{
-                display: "block", marginBottom: 12,
-                textTransform: "uppercase", letterSpacing: "0.05em", opacity: 0.6,
-              }}>
-                {cat.name}
-              </Text>
-              <Stack space={3}>
-                {cat.findings?.map((f, i) => (
-                  <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <span style={{
-                      flexShrink: 0, fontSize: 10, fontWeight: 700,
-                      padding: "2px 7px", borderRadius: 4, marginTop: 2,
-                      background: priorityColor(f.priority) + "22",
-                      color: priorityColor(f.priority),
-                    }}>
-                      {priorityLabel(f.priority)}
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <Text size={1} weight="semibold" style={{ display: "block", marginBottom: 2 }}>
-                        {f.issue}
-                      </Text>
-                      <Text size={1} muted>{f.fix}</Text>
-                    </div>
-                  </div>
-                ))}
-              </Stack>
-            </Card>
-          ))}
-        </Stack>
+            {/* Title */}
+            <div style={{ padding: 14, borderBottom: "1px solid #f9fafb" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>Meta Title</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    fontSize: 11, color: audit.suggestedTitle.length > 60 ? "#ef4444" : audit.suggestedTitle.length < 30 ? "#f59e0b" : "#10b981",
+                    fontWeight: 600,
+                  }}>
+                    {audit.suggestedTitle.length} chars
+                    {audit.suggestedTitle.length > 60 && " ⚠ over"}
+                    {audit.suggestedTitle.length < 30 && " ⚠ short"}
+                  </span>
+                  <button
+                    onClick={() => copyText(audit.suggestedTitle, "title")}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 4,
+                      fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6,
+                      background: copied === "title" ? "#f0fdf4" : "#f3f4f6",
+                      color: copied === "title" ? "#10b981" : "#6b7280",
+                      border: "none", cursor: "pointer",
+                    }}
+                  >
+                    {copied === "title" ? <Check size={11} /> : <Copy size={11} />}
+                    {copied === "title" ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: 14, color: "#111827", lineHeight: 1.5 }}>
+                {audit.suggestedTitle}
+              </p>
+            </div>
+
+            {/* Description */}
+            <div style={{ padding: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>Meta Description</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    fontSize: 11, color: audit.suggestedDescription.length > 160 ? "#ef4444" : audit.suggestedDescription.length < 120 ? "#f59e0b" : "#10b981",
+                    fontWeight: 600,
+                  }}>
+                    {audit.suggestedDescription.length} chars
+                    {audit.suggestedDescription.length > 160 && " ⚠ over"}
+                    {audit.suggestedDescription.length < 120 && " ⚠ short"}
+                  </span>
+                  <button
+                    onClick={() => copyText(audit.suggestedDescription, "desc")}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 4,
+                      fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6,
+                      background: copied === "desc" ? "#f0fdf4" : "#f3f4f6",
+                      color: copied === "desc" ? "#10b981" : "#6b7280",
+                      border: "none", cursor: "pointer",
+                    }}
+                  >
+                    {copied === "desc" ? <Check size={11} /> : <Copy size={11} />}
+                    {copied === "desc" ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: 14, color: "#111827", lineHeight: 1.5 }}>
+                {audit.suggestedDescription}
+              </p>
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div style={{
+            background: "white", border: "1px solid #e5e7eb", borderRadius: 10,
+            overflow: "hidden",
+          }}>
+            <div style={{ padding: "10px 14px", borderBottom: "1px solid #f3f4f6", background: "#fafafa" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                Findings
+              </span>
+            </div>
+            <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 20 }}>
+              {audit.categories?.map((cat) => (
+                <CategorySection key={cat.name} category={cat} />
+              ))}
+            </div>
+          </div>
+
+          <p style={{ margin: 0, fontSize: 11, color: "#d1d5db", textAlign: "center" }}>
+            Audit cached for 1 hour · Click "Refresh audit" to re-run
+          </p>
+        </div>
       )}
     </Box>
   );
