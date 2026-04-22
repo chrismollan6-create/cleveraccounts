@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
 export async function POST(request: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
@@ -12,6 +8,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
     const { docType, title, metaTitle, metaDescription, excerpt } =
@@ -45,7 +43,7 @@ Respond ONLY with valid JSON — no markdown, no code fences, no extra text:
 }`;
 
     const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-haiku-4-5-20251001" as string,
       max_tokens: 512,
       messages: [{ role: "user", content: prompt }],
     });
