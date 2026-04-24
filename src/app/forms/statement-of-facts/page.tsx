@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 
 function StatementOfFacts() {
   const searchParams = useSearchParams();
@@ -22,21 +23,25 @@ function StatementOfFacts() {
   }, [showForm]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <FormPageLayout
+      title="Please complete the statement of facts"
+      description="Before we can process your insurance request, we require you to complete the below statement of facts to confirm your eligibility for the contractor insurance offered."
+      note="If you need help with any of the questions, please do let us know."
+    >
       {showForm && (
         <iframe
           src={`https://cleveraccounts.tfaforms.net/330217?tfa_51=${tfa51}`}
           height={1000}
-          className="w-full max-w-full"
+          className="w-full"
           frameBorder={0}
         />
       )}
 
       {(showYes || showNo) && (
         <div className="bg-[#f5f0eb] rounded-2xl p-10">
-          <h1 className="text-4xl font-black text-primary text-center mb-6 leading-tight">
+          <h2 className="text-3xl font-black text-primary text-center mb-6 leading-tight">
             Many thanks for completing the insurance statement of facts
-          </h1>
+          </h2>
           {showYes && (
             <>
               <p className="text-gray-700 mb-4">
@@ -59,7 +64,7 @@ function StatementOfFacts() {
           )}
         </div>
       )}
-    </div>
+    </FormPageLayout>
   );
 }
 
