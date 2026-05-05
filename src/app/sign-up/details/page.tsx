@@ -6,6 +6,7 @@ import {
   CheckCircle2, ChevronLeft, ChevronRight, Loader2, AlertCircle,
   CreditCard, ClipboardList, User, Building2, MapPin, Info,
   ShieldCheck, Search, ChevronDown, HelpCircle, ArrowRight,
+  Check, Plus, Star,
 } from "lucide-react";
 import { trackEvent, captureUTMParams, getStoredUTMParams } from "@/components/seo/GoogleTagManager";
 
@@ -300,44 +301,109 @@ const inputCls = "w-full px-4 py-3.5 border border-gray-200 rounded-xl text-text
 const inputErrCls = inputCls + " !border-red-400 focus:!ring-red-100";
 const selectCls = inputCls;
 
+// ─── Inline validation helpers ─────────────────────────────────────────────────
+// These run on every keystroke / blur to give users instant positive feedback
+// when a field is valid (green tick), without flagging errors prematurely.
+
+const VALIDATORS: Record<string, (v: string) => boolean> = {
+  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  ukPostcode: (v) => /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i.test(v.trim()),
+  niNumber: (v) => /^[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\d{6}[A-D]$/i.test(v.trim()),
+  utr: (v) => /^\d{10}$/.test(v.trim()),
+  companyNumber: (v) => /^\d{8}$/.test(v.trim()) || /^[A-Z]{2}\d{6}$/i.test(v.trim()),
+  required: (v) => v.trim().length > 0,
+  longText: (v) => v.trim().length >= 10,
+  ukPhone: (v) => /^(\+?44|0)\s?\d(\s?\d){8,9}$/.test(v.replace(/\s/g, "")),
+};
+
+// Returns "valid" | "invalid" | "empty"
+function validateField(value: string, ...rules: (keyof typeof VALIDATORS)[]): "valid" | "invalid" | "empty" {
+  if (!value || !value.trim()) return "empty";
+  return rules.every((r) => VALIDATORS[r](value)) ? "valid" : "invalid";
+}
+
 // ─── Reusable field helpers ───────────────────────────────────────────────────
 
 function FieldWrapper({
-  label, required, hint, error, children, tip,
+  label, required, hint, error, children, tip, validState,
 }: {
   label: string; required?: boolean; hint?: string; error?: string;
   children: React.ReactNode; tip?: string;
+  validState?: "valid" | "invalid" | "empty";
 }) {
   const [showTip, setShowTip] = useState(false);
   return (
     <div>
-      <div className="flex items-center gap-1.5 mb-2">
-        <label className="block text-[13px] font-semibold text-dark tracking-tight">
-          {label}{required && <span className="text-red-500 ml-0.5">*</span>}
-        </label>
-        {tip && (
-          <div className="relative">
-            <button
-              type="button"
-              onMouseEnter={() => setShowTip(true)}
-              onMouseLeave={() => setShowTip(false)}
-              onClick={() => setShowTip((v) => !v)}
-              className="text-text-light hover:text-primary transition-colors"
-            >
-              <HelpCircle size={14} />
-            </button>
-            {showTip && (
-              <div className="absolute z-10 left-6 top-0 w-64 bg-dark text-white text-xs rounded-lg p-3 shadow-xl leading-relaxed">
-                {tip}
-              </div>
-            )}
-          </div>
+      <div className="flex items-center justify-between gap-1.5 mb-2">
+        <div className="flex items-center gap-1.5">
+          <label className="block text-[13px] font-semibold text-dark tracking-tight">
+            {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+          </label>
+          {tip && (
+            <div className="relative">
+              <button
+                type="button"
+                onMouseEnter={() => setShowTip(true)}
+                onMouseLeave={() => setShowTip(false)}
+                onClick={() => setShowTip((v) => !v)}
+                className="text-text-light hover:text-primary transition-colors"
+              >
+                <HelpCircle size={14} />
+              </button>
+              {showTip && (
+                <div className="absolute z-10 left-6 top-0 w-64 bg-dark text-white text-xs rounded-lg p-3 shadow-xl leading-relaxed">
+                  {tip}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {validState === "valid" && (
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-success">
+            <Check size={12} strokeWidth={3} /> Looks good
+          </span>
         )}
       </div>
       {children}
       {hint && !error && <p className="text-xs text-text-light mt-1.5">{hint}</p>}
       {error && <p className="text-xs text-red-500 mt-1.5 font-medium">{error}</p>}
     </div>
+  );
+}
+
+// Collapsible optional section — keeps the form light by hiding non-required content
+// behind a ghost-button. Auto-opens if any inner field already has data.
+function OptionalSection({
+  label, sublabel, icon, defaultOpen = false, children,
+}: {
+  label: string; sublabel?: string; icon?: React.ReactNode;
+  defaultOpen?: boolean; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  if (open) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[13px] font-semibold text-dark flex items-center gap-2">
+            {icon && <span className="text-primary">{icon}</span>}
+            {label}
+          </p>
+          <button type="button" onClick={() => setOpen(false)}
+            className="text-xs text-text-light hover:text-dark transition-colors">
+            Hide
+          </button>
+        </div>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <button type="button" onClick={() => setOpen(true)}
+      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/[0.02] transition-all text-sm font-semibold text-text-light hover:text-primary">
+      <Plus size={16} />
+      <span>{label}</span>
+      {sublabel && <span className="text-xs font-normal text-text-light/70">({sublabel})</span>}
+    </button>
   );
 }
 
@@ -511,12 +577,14 @@ function AddressFields({
     <div className="space-y-3">
       <AddressLookup fieldPrefix={prefix} onSelect={onLookup} />
       <div className="grid grid-cols-1 gap-3 pt-1">
-        <FieldWrapper label="Street / First line of address" required error={streetError}>
+        <FieldWrapper label="Street / First line of address" required error={streetError}
+          validState={validateField(streetVal, "required")}>
           <input type="text" value={streetVal} onChange={(e) => onStreet(e.target.value)}
             className={streetError ? inputErrCls : inputCls} placeholder="e.g. 12 High Street" />
         </FieldWrapper>
         <div className="grid grid-cols-2 gap-3">
-          <FieldWrapper label="Town / City" required error={cityError}>
+          <FieldWrapper label="Town / City" required error={cityError}
+            validState={validateField(cityVal, "required")}>
             <input type="text" value={cityVal} onChange={(e) => onCity(e.target.value)}
               className={cityError ? inputErrCls : inputCls} />
           </FieldWrapper>
@@ -524,7 +592,8 @@ function AddressFields({
             <input type="text" value={countyVal} onChange={(e) => onCounty(e.target.value)} className={inputCls} />
           </FieldWrapper>
         </div>
-        <FieldWrapper label="Postcode" required error={postcodeError}>
+        <FieldWrapper label="Postcode" required error={postcodeError}
+          validState={validateField(postcodeVal, "ukPostcode")}>
           <input type="text" value={postcodeVal} onChange={(e) => onPostcode(e.target.value)}
             className={`${postcodeError ? inputErrCls : inputCls} w-40`} />
         </FieldWrapper>
@@ -628,6 +697,9 @@ function ContactStrip({
     );
   }
 
+  const emailValid = !draft.email || VALIDATORS.email(draft.email);
+  const canSave = draft.firstName.trim() && draft.lastName.trim() && emailValid;
+
   return (
     <div className="bg-white border-2 border-primary/30 rounded-xl mb-6 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
@@ -653,7 +725,8 @@ function ContactStrip({
           <label className="block text-xs font-medium text-text-light mb-1">Email Address</label>
           <input type="email" value={draft.email}
             onChange={(e) => setDraft((d) => ({ ...d, email: e.target.value }))}
-            className={inputCls} />
+            className={!emailValid ? inputErrCls : inputCls} />
+          {!emailValid && <p className="text-xs text-red-500 mt-1">Please enter a valid email address</p>}
         </div>
         <div>
           <label className="block text-xs font-medium text-text-light mb-1">Phone Number</label>
@@ -665,7 +738,8 @@ function ContactStrip({
       <button
         type="button"
         onClick={save}
-        className="mt-4 w-full sm:w-auto bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
+        disabled={!canSave}
+        className="mt-4 w-full sm:w-auto bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
       >
         Save changes
       </button>
@@ -1008,30 +1082,94 @@ function SignUpDetailsContent() {
   // ─── Main form ─────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-10">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-8 md:py-12 pb-32">
+      <div className="max-w-7xl mx-auto px-4">
 
-        {/* Header — confident, onboarding-like */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
-          </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-dark tracking-tight leading-[1.1]">
-            {step === 1 && <>Welcome,<br className="md:hidden" /> <span className="text-primary">{formData.firstName}</span></>}
-            {step === 2 && "Verify your identity"}
-            {step === 3 && "Where should we reach you?"}
-            {step === 4 && "Secure your account"}
-            {step === 5 && <>Almost done — <span className="text-primary">review & confirm</span></>}
-          </h1>
-          <p className="text-text-light mt-3 text-base max-w-md mx-auto leading-relaxed">
-            {step === 1 && "A few quick things about your business so we can match you with the right accountant."}
-            {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. Takes about 60 seconds."}
-            {step === 3 && "These addresses are used for HMRC correspondence and your statutory filings."}
-            {step === 4 && "First month at 50% off. Secure your account with a small upfront payment."}
-            {step === 5 && "A quick check that everything looks right, then we'll get you onboarded."}
-          </p>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+
+          {/* Left column — sticky reassurance panel (desktop only) */}
+          <aside className="hidden lg:block lg:col-span-4">
+            <div className="lg:sticky lg:top-8 space-y-6">
+              {/* Step header */}
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
+                </div>
+                <h1 className="text-3xl xl:text-4xl font-black text-dark tracking-tight leading-[1.1]">
+                  {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
+                  {step === 2 && "Verify your identity"}
+                  {step === 3 && "Where should we reach you?"}
+                  {step === 4 && "Secure your account"}
+                  {step === 5 && <>Almost done — <span className="text-primary">review & confirm</span></>}
+                </h1>
+                <p className="text-text-light mt-3 text-base leading-relaxed">
+                  {step === 1 && "A few quick things about your business so we can match you with the right accountant."}
+                  {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. Takes about 60 seconds."}
+                  {step === 3 && "These addresses are used for HMRC correspondence and your statutory filings."}
+                  {step === 4 && "First month at 50% off. Secure your account with a small upfront payment."}
+                  {step === 5 && "A quick check that everything looks right, then we'll get you onboarded."}
+                </p>
+              </div>
+
+              {/* Trust badges */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-sm font-bold text-dark">4.7</span>
+                  <span className="text-xs text-text-light">on Trustpilot</span>
+                </div>
+                <div className="text-xs text-text-light leading-relaxed">
+                  <strong className="text-dark">10,000+</strong> UK businesses · <strong className="text-dark">ICAEW</strong> regulated · <strong className="text-dark">FCSA</strong> accredited
+                </div>
+                <div className="pt-3 border-t border-gray-100 space-y-1.5 text-xs">
+                  {["No setup fees", "Cancel anytime", "Free FreeAgent software", "Dedicated UK accountant"].map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-text">
+                      <Check size={12} className="text-success shrink-0" strokeWidth={3} />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Help — quiet supporting nudge */}
+              <div className="text-xs text-text-light text-center leading-relaxed">
+                Stuck on something?{" "}
+                <a href="/contact" className="text-primary font-semibold hover:underline">Chat to us</a>
+                {" or call "}
+                <a href={`tel:${(formData.phone || "08007569786").replace(/\s/g, "")}`} className="text-primary font-semibold hover:underline whitespace-nowrap">0800 756 9786</a>
+              </div>
+            </div>
+          </aside>
+
+          {/* Right column — form */}
+          <main className="lg:col-span-8">
+
+            {/* Mobile-only header (collapsed onto same column) */}
+            <div className="lg:hidden text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-dark tracking-tight leading-[1.1]">
+                {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
+                {step === 2 && "Verify your identity"}
+                {step === 3 && "Where should we reach you?"}
+                {step === 4 && "Secure your account"}
+                {step === 5 && <>Almost done — <span className="text-primary">review</span></>}
+              </h1>
+              <p className="text-text-light mt-2 text-sm max-w-md mx-auto leading-relaxed">
+                {step === 1 && "A few quick things about your business."}
+                {step === 2 && "HMRC requires us to verify who you are. Takes about 60 seconds."}
+                {step === 3 && "Used for HMRC correspondence and your statutory filings."}
+                {step === 4 && "First month at 50% off."}
+                {step === 5 && "Quick check that everything looks right."}
+              </p>
+            </div>
 
         {/* Card — lighter chrome, more breathing room */}
         <div className="bg-white rounded-3xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
@@ -1097,6 +1235,7 @@ function SignUpDetailsContent() {
                         : "Exactly as it appears on Companies House."
                       : "The name you trade under — or your own name if you don't have a separate business name."}
                     error={err("company")}
+                    validState={validateField(formData.company, "required")}
                   >
                     <input type="text" value={formData.company}
                       onChange={(e) => set("company", e.target.value)}
@@ -1108,7 +1247,8 @@ function SignUpDetailsContent() {
                     <FieldWrapper label="Companies House Number" required
                       hint="Your 8-digit company registration number from Companies House."
                       error={err("companyNumber")}
-                      tip="Find your company number at beta.companieshouse.gov.uk — it's an 8-digit number like 12345678.">
+                      tip="Find your company number at beta.companieshouse.gov.uk — it's an 8-digit number like 12345678."
+                      validState={validateField(formData.companyNumber, "companyNumber")}>
                       <input type="text" value={formData.companyNumber}
                         onChange={(e) => set("companyNumber", e.target.value)}
                         className={err("companyNumber") ? inputErrCls : inputCls}
@@ -1123,7 +1263,8 @@ function SignUpDetailsContent() {
 
                   <FieldWrapper label={`Briefly Describe ${isLtd ? "the Company" : "the Business"}`} required
                     hint="A short description helps us assign the right accountant and tailor our service to you."
-                    error={err("describeTheBusiness")}>
+                    error={err("describeTheBusiness")}
+                    validState={validateField(formData.describeTheBusiness, "longText")}>
                     <textarea rows={3} value={formData.describeTheBusiness}
                       onChange={(e) => set("describeTheBusiness", e.target.value)}
                       className={`${err("describeTheBusiness") ? inputErrCls : inputCls} resize-none`}
@@ -1131,43 +1272,50 @@ function SignUpDetailsContent() {
                   </FieldWrapper>
                 </SectionCard>
 
-                {/* Transferring accountant */}
-                <SectionCard icon={<ArrowRight size={18} />} title="Switching From Another Accountant?"
-                  description="Optional — if you're moving to us, we'll handle the handover for you.">
-                  <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    formData.transferringFromAccountant ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300 bg-white"
-                  }`}>
-                    <input type="checkbox" checked={formData.transferringFromAccountant}
-                      onChange={(e) => set("transferringFromAccountant", e.target.checked)} className="sr-only" />
-                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.transferringFromAccountant ? "bg-primary border-primary" : "border-gray-300 bg-white"}`}>
-                      {formData.transferringFromAccountant && <CheckCircle2 size={12} className="text-white" />}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-dark">Yes, I&apos;m transferring from another accountant</p>
-                      <p className="text-xs text-text-light mt-0.5">We&apos;ll contact them to obtain your records and arrange a smooth handover.</p>
-                    </div>
-                  </label>
+                {/* Transferring accountant — collapsed by default to keep step 1 light */}
+                <OptionalSection
+                  label="I'm switching from another accountant"
+                  sublabel="we'll handle the handover"
+                  icon={<ArrowRight size={14} />}
+                  defaultOpen={formData.transferringFromAccountant}
+                >
+                  <div className="space-y-4">
+                    <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      formData.transferringFromAccountant ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300 bg-white"
+                    }`}>
+                      <input type="checkbox" checked={formData.transferringFromAccountant}
+                        onChange={(e) => set("transferringFromAccountant", e.target.checked)} className="sr-only" />
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.transferringFromAccountant ? "bg-primary border-primary" : "border-gray-300 bg-white"}`}>
+                        {formData.transferringFromAccountant && <CheckCircle2 size={12} className="text-white" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-dark">Yes, transfer me from my current accountant</p>
+                        <p className="text-xs text-text-light mt-0.5">We&apos;ll contact them to obtain your records and arrange a smooth handover.</p>
+                      </div>
+                    </label>
 
-                  {formData.transferringFromAccountant && (
-                    <div className="space-y-4 pl-1">
-                      <FieldWrapper label="Previous Accountant — Name & Contact Details" required
-                        hint="Firm name, email address or phone number so we can contact them."
-                        error={err("priorAccountantDetails")}>
-                        <textarea rows={2} value={formData.priorAccountantDetails}
-                          onChange={(e) => set("priorAccountantDetails", e.target.value)}
-                          className={`${err("priorAccountantDetails") ? inputErrCls : inputCls} resize-none`}
-                          placeholder="e.g. Smith & Co Accountants — john@smithco.co.uk" />
-                      </FieldWrapper>
-                      <FieldWrapper label="Reason for Leaving (optional)"
-                        hint="Helps us understand any issues — completely optional.">
-                        <textarea rows={2} value={formData.whyLookingToChange}
-                          onChange={(e) => set("whyLookingToChange", e.target.value)}
-                          className={`${inputCls} resize-none`}
-                          placeholder="e.g. Looking for more proactive advice and better communication" />
-                      </FieldWrapper>
-                    </div>
-                  )}
-                </SectionCard>
+                    {formData.transferringFromAccountant && (
+                      <>
+                        <FieldWrapper label="Previous Accountant — Name & Contact Details" required
+                          hint="Firm name, email address or phone number so we can contact them."
+                          error={err("priorAccountantDetails")}
+                          validState={validateField(formData.priorAccountantDetails, "required")}>
+                          <textarea rows={2} value={formData.priorAccountantDetails}
+                            onChange={(e) => set("priorAccountantDetails", e.target.value)}
+                            className={`${err("priorAccountantDetails") ? inputErrCls : inputCls} resize-none`}
+                            placeholder="e.g. Smith & Co Accountants — john@smithco.co.uk" />
+                        </FieldWrapper>
+                        <FieldWrapper label="Reason for Leaving (optional)"
+                          hint="Helps us understand any issues — completely optional.">
+                          <textarea rows={2} value={formData.whyLookingToChange}
+                            onChange={(e) => set("whyLookingToChange", e.target.value)}
+                            className={`${inputCls} resize-none`}
+                            placeholder="e.g. Looking for more proactive advice and better communication" />
+                        </FieldWrapper>
+                      </>
+                    )}
+                  </div>
+                </OptionalSection>
 
                 <NextUpHint title="Next: Verify your identity" desc="Quick HMRC checks — DoB, nationality, and your NI/UTR if you have one." icon={<ShieldCheck size={14} />} />
               </div>
@@ -1179,25 +1327,27 @@ function SignUpDetailsContent() {
             {step === 2 && (
               <div className="space-y-5">
 
-                <InfoBox icon={<ShieldCheck size={16} />} colour="blue">
-                  <p className="font-semibold mb-1">Why we need this — and what we don&apos;t do with it</p>
-                  <p>HMRC requires us to verify your identity before we can act as your accountant. This information is held securely, encrypted at rest, and <strong>never shared with third parties</strong>.</p>
-                </InfoBox>
-
-                {/* Required identity */}
+                {/* Required identity — info banner now nested inside for tighter visual hierarchy */}
                 <SectionCard icon={<ShieldCheck size={18} />} title="HMRC Identity Check"
-                  description="Required — these confirm who you are with HMRC.">
+                  description="Required — these details confirm who you are with HMRC.">
+
+                  <InfoBox icon={<ShieldCheck size={16} />} colour="blue">
+                    <p className="font-semibold mb-0.5">Held securely, never shared</p>
+                    <p>This information is encrypted at rest and <strong>never shared with third parties</strong> outside of HMRC submissions.</p>
+                  </InfoBox>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FieldWrapper label="Date of Birth" required
                       hint="Used by HMRC to confirm your identity."
-                      error={err("dateOfBirth")}>
+                      error={err("dateOfBirth")}
+                      validState={validateField(formData.dateOfBirth, "required")}>
                       <input type="date" value={formData.dateOfBirth}
                         onChange={(e) => set("dateOfBirth", e.target.value)}
                         className={err("dateOfBirth") ? inputErrCls : inputCls} />
                     </FieldWrapper>
 
-                    <FieldWrapper label="Nationality" required error={err("nationality")}>
+                    <FieldWrapper label="Nationality" required error={err("nationality")}
+                      validState={validateField(formData.nationality, "required")}>
                       <div className="relative">
                         <select value={formData.nationality} onChange={(e) => set("nationality", e.target.value)}
                           className={`${err("nationality") ? inputErrCls : selectCls} appearance-none pr-10`}>
@@ -1209,21 +1359,23 @@ function SignUpDetailsContent() {
                     </FieldWrapper>
                   </div>
 
-                  {/* Ltd-only: Director details — sits inside identity card since it's about you */}
+                  {/* Ltd-only: Director details — flattened (was a nested card) */}
                   {isLtd && (
-                    <div className="space-y-3 bg-gray-50 rounded-xl border border-gray-200 p-4 mt-1">
+                    <div className="space-y-3 pt-4 mt-2 border-t border-gray-100">
                       <div>
-                        <p className="text-sm font-semibold text-dark">Director on Record</p>
+                        <p className="text-[13px] font-semibold text-dark">Director on Record</p>
                         <p className="text-xs text-text-light mt-0.5">If <strong>you&apos;re</strong> the primary director, enter your own name. Multiple directors? We&apos;ll collect the rest after onboarding.</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <FieldWrapper label="Director First Name" required error={err("directorFirstName")}>
+                        <FieldWrapper label="Director First Name" required error={err("directorFirstName")}
+                          validState={validateField(formData.directorFirstName, "required")}>
                           <input type="text" value={formData.directorFirstName}
                             onChange={(e) => set("directorFirstName", e.target.value)}
                             className={err("directorFirstName") ? inputErrCls : inputCls}
                             placeholder={formData.firstName || "First name"} />
                         </FieldWrapper>
-                        <FieldWrapper label="Director Last Name" required error={err("directorLastName")}>
+                        <FieldWrapper label="Director Last Name" required error={err("directorLastName")}
+                          validState={validateField(formData.directorLastName, "required")}>
                           <input type="text" value={formData.directorLastName}
                             onChange={(e) => set("directorLastName", e.target.value)}
                             className={err("directorLastName") ? inputErrCls : inputCls}
@@ -1234,27 +1386,35 @@ function SignUpDetailsContent() {
                   )}
                 </SectionCard>
 
-                {/* Optional identity */}
-                <SectionCard icon={<Info size={18} />} title="Tax References"
-                  description="Optional — speeds things up, but we can collect these later if you don't have them to hand.">
-
+                {/* Optional Tax References — collapsed by default to keep step 2 focused */}
+                <OptionalSection
+                  label="Add tax references now"
+                  sublabel="optional · saves time later"
+                  icon={<Info size={14} />}
+                  defaultOpen={!!(formData.personalUtr || formData.nationalInsuranceNumber)}
+                >
+                  <p className="text-xs text-text-light leading-relaxed -mt-1 mb-1">
+                    These speed things up but we can collect them later if you don&apos;t have them handy.
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FieldWrapper label="Personal UTR Number"
                       hint="10-digit number from HMRC. Skip if you don't have one yet."
-                      tip="Your Unique Taxpayer Reference (UTR) is a 10-digit number on any letter from HMRC or your self assessment return. Leave blank if you haven't registered for self assessment yet.">
+                      tip="Your Unique Taxpayer Reference (UTR) is a 10-digit number on any letter from HMRC or your self assessment return. Leave blank if you haven't registered for self assessment yet."
+                      validState={validateField(formData.personalUtr, "utr")}>
                       <input type="text" value={formData.personalUtr}
                         onChange={(e) => set("personalUtr", e.target.value)}
                         className={inputCls} placeholder="e.g. 1234567890" maxLength={10} />
                     </FieldWrapper>
                     <FieldWrapper label="National Insurance Number"
                       hint="Format QQ123456C — found on a payslip or P60."
-                      tip="Your NI number is in the format QQ123456C (2 letters, 6 digits, 1 letter). You'll find it on a payslip, P60, or any letter from HMRC or the Department for Work and Pensions.">
+                      tip="Your NI number is in the format QQ123456C (2 letters, 6 digits, 1 letter). You'll find it on a payslip, P60, or any letter from HMRC or the Department for Work and Pensions."
+                      validState={validateField(formData.nationalInsuranceNumber, "niNumber")}>
                       <input type="text" value={formData.nationalInsuranceNumber}
                         onChange={(e) => set("nationalInsuranceNumber", e.target.value.replace(/\s/g, "").toUpperCase())}
                         className={inputCls} placeholder="e.g. QQ123456C" maxLength={9} />
                     </FieldWrapper>
                   </div>
-                </SectionCard>
+                </OptionalSection>
 
                 <NextUpHint title="Next: Your addresses" desc={isLtd ? "Home address and your registered office choice." : "Home address and where your business operates from."} icon={<MapPin size={14} />} />
               </div>
@@ -1603,46 +1763,54 @@ function SignUpDetailsContent() {
               </div>
             )}
 
-            {/* ── Navigation ── */}
-            <div className="mt-8 pt-6 border-t border-border space-y-3">
-              {/* DEV ONLY: skip button — always visible for testing */}
+          </div>
+        </div>
+
+        <p className="text-center text-xs text-text-light mt-4 mb-2">
+          Your progress is saved automatically each time you continue.
+        </p>
+
+          </main>
+        </div>
+      </div>
+
+      {/* ── Sticky bottom CTA bar ── */}
+      {!(step === 4 && !isFirstMonthFree && !stripePaymentComplete) && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              {step > 1 ? (
+                <button type="button" onClick={handleBack}
+                  className="flex items-center gap-1.5 text-text-light hover:text-dark transition-colors text-sm font-semibold px-3 py-2.5 rounded-lg hover:bg-gray-100">
+                  <ChevronLeft size={18} /> Back
+                </button>
+              ) : <div />}
+              {/* DEV ONLY: skip button */}
               {step < 5 && (
-                <div className="flex justify-center">
-                  <button type="button" onClick={handleSkip}
-                    className="text-xs text-gray-400 hover:text-gray-600 border border-dashed border-gray-300 px-3 py-1.5 rounded-lg transition-colors">
-                    Skip (testing)
-                  </button>
-                </div>
+                <button type="button" onClick={handleSkip}
+                  className="hidden sm:inline-flex text-[11px] text-gray-400 hover:text-gray-600 border border-dashed border-gray-300 px-2.5 py-1 rounded-md transition-colors">
+                  Skip (dev)
+                </button>
               )}
+            </div>
 
-              {!(step === 4 && !isFirstMonthFree && !stripePaymentComplete) && (
-                <div className="flex items-center justify-between">
-                  {step > 1 ? (
-                    <button type="button" onClick={handleBack}
-                      className="flex items-center gap-1.5 text-text-light hover:text-dark transition-colors text-sm font-medium">
-                      <ChevronLeft size={18} /> Back
-                    </button>
-                  ) : <div />}
-
-                  {step < 5 && !(step === 4 && !isFirstMonthFree) && (
-                    <button type="button" onClick={handleNext} disabled={isSaving}
-                      className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-7 py-3 rounded-xl transition-colors disabled:opacity-70 shadow-sm">
-                      {isSaving
-                        ? <><Loader2 size={16} className="animate-spin" /> Saving…</>
-                        : <>Continue <ChevronRight size={18} /></>
-                      }
-                    </button>
-                  )}
-                </div>
+            <div className="flex items-center gap-3">
+              <p className="hidden md:block text-xs text-text-light">
+                Step {step} of 5
+              </p>
+              {step < 5 && !(step === 4 && !isFirstMonthFree) && (
+                <button type="button" onClick={handleNext} disabled={isSaving}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors disabled:opacity-70 shadow-md">
+                  {isSaving
+                    ? <><Loader2 size={16} className="animate-spin" /> Saving…</>
+                    : <>Continue <ChevronRight size={18} /></>
+                  }
+                </button>
               )}
             </div>
           </div>
         </div>
-
-        <p className="text-center text-xs text-text-light mt-4">
-          Your progress is saved automatically each time you continue.
-        </p>
-      </div>
+      )}
     </div>
   );
 }
