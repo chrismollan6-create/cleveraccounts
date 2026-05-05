@@ -298,6 +298,154 @@ export function BlogPostingJsonLd({
   );
 }
 
+interface ServiceJsonLdProps {
+  name: string;
+  description?: string;
+  price?: string;
+  priceCurrency?: string;
+  billingInterval?: string;
+  areaServed?: string;
+  serviceUrl?: string;
+}
+
+export function ServiceJsonLd({
+  name,
+  description,
+  price,
+  priceCurrency = "GBP",
+  billingInterval = "month",
+  areaServed = "United Kingdom",
+  serviceUrl,
+}: ServiceJsonLdProps) {
+  const billingDuration =
+    billingInterval === "year" ? "P1Y" : billingInterval === "one-off" ? undefined : "P1M";
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name,
+    ...(description ? { description } : {}),
+    provider: { "@type": "Organization", name: "Clever Accounts", url: "https://cleveraccounts.com" },
+    areaServed: { "@type": "Country", name: areaServed },
+    ...(serviceUrl ? { url: `https://cleveraccounts.com${serviceUrl}` } : {}),
+    ...(price
+      ? {
+          offers: {
+            "@type": "Offer",
+            price,
+            priceCurrency,
+            ...(billingDuration
+              ? {
+                  priceSpecification: {
+                    "@type": "UnitPriceSpecification",
+                    price,
+                    priceCurrency,
+                    billingDuration,
+                    unitText: billingInterval,
+                  },
+                }
+              : {}),
+            availability: "https://schema.org/InStock",
+            seller: { "@type": "Organization", name: "Clever Accounts" },
+          },
+        }
+      : {}),
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+}
+
+interface ReviewJsonLdProps {
+  author: string;
+  rating: number;
+  reviewBody: string;
+  datePublished?: string;
+  itemReviewed?: string;
+}
+
+export function ReviewJsonLd({ author, rating, reviewBody, datePublished, itemReviewed }: ReviewJsonLdProps) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    author: { "@type": "Person", name: author },
+    reviewRating: { "@type": "Rating", ratingValue: rating, bestRating: 5, worstRating: 1 },
+    reviewBody,
+    ...(datePublished ? { datePublished } : {}),
+    ...(itemReviewed
+      ? { itemReviewed: { "@type": "Service", name: itemReviewed } }
+      : { itemReviewed: { "@type": "Organization", name: "Clever Accounts" } }),
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+}
+
+interface HowToJsonLdProps {
+  name: string;
+  description?: string;
+  steps: { name?: string; text: string }[];
+}
+
+export function HowToJsonLd({ name, description, steps }: HowToJsonLdProps) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name,
+    ...(description ? { description } : {}),
+    step: steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      ...(s.name ? { name: s.name } : {}),
+      text: s.text,
+    })),
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+}
+
+interface LocalBusinessJsonLdProps {
+  name?: string;
+  telephone?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry?: string;
+}
+
+export function LocalBusinessJsonLd({
+  name,
+  telephone,
+  addressLocality,
+  addressRegion,
+  postalCode,
+  addressCountry = "GB",
+}: LocalBusinessJsonLdProps) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: name ?? "Clever Accounts",
+    ...(telephone ? { telephone } : {}),
+    address: {
+      "@type": "PostalAddress",
+      ...(addressLocality ? { addressLocality } : {}),
+      ...(addressRegion ? { addressRegion } : {}),
+      ...(postalCode ? { postalCode } : {}),
+      addressCountry,
+    },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+}
+
+export function RawJsonLd({ json }: { json: string }) {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return null;
+  }
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(parsed).replace(/<\/script>/gi, "<\\/script>") }}
+    />
+  );
+}
+
 export function BreadcrumbJsonLd({ items }: { items: { name: string; url: string }[] }) {
   const data = {
     "@context": "https://schema.org",

@@ -71,6 +71,11 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "pageSchemas",
+      title: "Structured data (schema.org)",
+      type: "pageSchemas",
+    }),
+    defineField({
       name: "metaTitle",
       title: "SEO Title",
       type: "string",

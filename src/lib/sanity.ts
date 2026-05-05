@@ -19,6 +19,7 @@ export interface SanityBlogPost {
   metaDescription?: string;
   featuredImage?: { asset: { url: string }; alt?: string };
   body?: unknown[];
+  pageSchemas?: unknown[];
 }
 
 export async function getBlogPosts(): Promise<SanityBlogPost[]> {
@@ -37,7 +38,8 @@ export async function getBlogPost(slug: string): Promise<SanityBlogPost | null> 
       _id, title, slug, excerpt, publishedAt, category, readTime,
       metaTitle, metaDescription,
       featuredImage { asset->{ url }, alt },
-      body
+      body,
+      pageSchemas
     }`,
     { slug }
   );

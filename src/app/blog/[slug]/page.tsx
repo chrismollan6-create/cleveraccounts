@@ -3,6 +3,14 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { SchemaRenderer, type PageSchemaItem } from "@/components/seo/SchemaRenderer";
+import {
+  HtmlEmbedBlock,
+  FaqBlockRenderer,
+  HowToBlockRenderer,
+  ReviewBlockRenderer,
+  CtaBlockRenderer,
+} from "@/components/blog/PortableTextBlocks";
 import { getBlogPost, getBlogSlugs } from "@/lib/sanity";
 
 // ── Hardcoded fallback posts ──────────────────────────────────────────────────
@@ -118,6 +126,35 @@ const ptComponents: PortableTextComponents = {
     bullet: ({ children }) => <li className="leading-relaxed">{children}</li>,
     number: ({ children }) => <li className="leading-relaxed">{children}</li>,
   },
+  types: {
+    htmlEmbed: ({ value }) => <HtmlEmbedBlock html={value?.html ?? ""} />,
+    faqBlock: ({ value }) => (
+      <FaqBlockRenderer heading={value?.heading} faqs={value?.faqs ?? []} />
+    ),
+    howToBlock: ({ value }) => (
+      <HowToBlockRenderer
+        name={value?.name ?? ""}
+        description={value?.description}
+        steps={value?.steps ?? []}
+      />
+    ),
+    reviewBlock: ({ value }) => (
+      <ReviewBlockRenderer
+        author={value?.author ?? ""}
+        rating={value?.rating ?? 5}
+        reviewBody={value?.reviewBody ?? ""}
+        itemReviewed={value?.itemReviewed}
+      />
+    ),
+    ctaBlock: ({ value }) => (
+      <CtaBlockRenderer
+        heading={value?.heading ?? ""}
+        subheading={value?.subheading}
+        buttonText={value?.buttonText}
+        buttonHref={value?.buttonHref}
+      />
+    ),
+  },
 };
 
 export async function generateStaticParams() {
@@ -177,6 +214,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             { name: "Blog", url: "/blog" },
             { name: sanityPost.title, url: `/blog/${slug}` },
           ]}
+        />
+        <SchemaRenderer
+          schemas={sanityPost.pageSchemas as PageSchemaItem[] | undefined}
+          fallbackUrl={`/blog/${slug}`}
         />
         <section className="gradient-hero-subtle py-16 md:py-20">
           <div className="max-w-3xl mx-auto px-4">

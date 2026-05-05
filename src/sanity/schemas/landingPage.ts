@@ -154,6 +154,13 @@ export default defineType({
       ],
     }),
 
+    // ── Structured data ───────────────────────────────────────────────────────
+    defineField({
+      name: "pageSchemas",
+      title: "Structured data (schema.org)",
+      type: "pageSchemas",
+    }),
+
     // ── SEO ───────────────────────────────────────────────────────────────────
     defineField({
       name: "metaTitle",

@@ -10,6 +10,26 @@ import caseStudy from "./caseStudy";
 import siteSettings from "./siteSettings";
 import landingPage from "./landingPage";
 
+import {
+  pageSchemas,
+  breadcrumbSchema,
+  faqPageSchema,
+  articleSchema,
+  serviceSchema,
+  reviewSchema,
+  howToSchema,
+  localBusinessSchema,
+  rawJsonLdSchema,
+} from "./objects/pageSchemas";
+
+import {
+  htmlEmbed,
+  faqBlock,
+  howToBlock,
+  reviewBlock,
+  ctaBlock,
+} from "./objects/bodyBlocks";
+
 export const schemaTypes = [
   blogPost,
   testimonial,
@@ -22,4 +42,20 @@ export const schemaTypes = [
   caseStudy,
   siteSettings,
   landingPage,
+  // structured-data objects
+  pageSchemas,
+  breadcrumbSchema,
+  faqPageSchema,
+  articleSchema,
+  serviceSchema,
+  reviewSchema,
+  howToSchema,
+  localBusinessSchema,
+  rawJsonLdSchema,
+  // body blocks
+  htmlEmbed,
+  faqBlock,
+  howToBlock,
+  reviewBlock,
+  ctaBlock,
 ];

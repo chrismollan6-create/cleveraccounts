@@ -101,7 +101,19 @@ export default defineType({
             { name: "caption", type: "string", title: "Caption" },
           ],
         },
+        { type: "htmlEmbed" },
+        { type: "faqBlock" },
+        { type: "howToBlock" },
+        { type: "reviewBlock" },
+        { type: "ctaBlock" },
       ],
+    }),
+    defineField({
+      name: "pageSchemas",
+      title: "Structured data (schema.org)",
+      type: "pageSchemas",
+      description:
+        "Add one or more JSON-LD schemas to this page. Inline FAQ/HowTo/Review blocks in the body already emit their own schema — only add page-level schemas here.",
     }),
     defineField({
       name: "metaTitle",

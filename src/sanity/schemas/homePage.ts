@@ -65,6 +65,11 @@ export default defineType({
       initialValue: "Join 10,000+ UK businesses. Set up in 2 minutes. No setup fees. Cancel anytime.",
     }),
     defineField({
+      name: "pageSchemas",
+      title: "Structured data (schema.org)",
+      type: "pageSchemas",
+    }),
+    defineField({
       name: "metaTitle",
       title: "SEO Title",
       type: "string",
