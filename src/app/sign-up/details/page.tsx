@@ -296,8 +296,8 @@ const NATIONALITIES = [
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const inputCls = "w-full px-4 py-3 border border-border rounded-xl text-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-white text-sm";
-const inputErrCls = inputCls + " !border-red-400 focus:ring-red-200";
+const inputCls = "w-full px-4 py-3.5 border border-gray-200 rounded-xl text-text placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary transition-all bg-white text-[15px] hover:border-gray-300";
+const inputErrCls = inputCls + " !border-red-400 focus:!ring-red-100";
 const selectCls = inputCls;
 
 // ─── Reusable field helpers ───────────────────────────────────────────────────
@@ -311,8 +311,8 @@ function FieldWrapper({
   const [showTip, setShowTip] = useState(false);
   return (
     <div>
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <label className="block text-sm font-medium text-dark">
+      <div className="flex items-center gap-1.5 mb-2">
+        <label className="block text-[13px] font-semibold text-dark tracking-tight">
           {label}{required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
         {tip && (
@@ -335,8 +335,8 @@ function FieldWrapper({
         )}
       </div>
       {children}
-      {hint && !error && <p className="text-xs text-text-light mt-1">{hint}</p>}
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {hint && !error && <p className="text-xs text-text-light mt-1.5">{hint}</p>}
+      {error && <p className="text-xs text-red-500 mt-1.5 font-medium">{error}</p>}
     </div>
   );
 }
@@ -345,14 +345,19 @@ function InfoBox({ icon, children, colour = "blue" }: {
   icon?: React.ReactNode; children: React.ReactNode; colour?: "blue" | "green" | "amber";
 }) {
   const colours = {
-    blue: "bg-blue-50 border-blue-200 text-blue-800",
-    green: "bg-green-50 border-green-200 text-green-800",
-    amber: "bg-amber-50 border-amber-200 text-amber-800",
+    blue: "bg-primary/[0.04] border-primary/20 text-primary-dark",
+    green: "bg-emerald-50/60 border-emerald-200/70 text-emerald-800",
+    amber: "bg-amber-50/60 border-amber-200/70 text-amber-800",
+  };
+  const iconColours = {
+    blue: "text-primary",
+    green: "text-emerald-600",
+    amber: "text-amber-600",
   };
   return (
-    <div className={`flex gap-3 p-4 rounded-xl border text-sm ${colours[colour]}`}>
-      {icon && <div className="shrink-0 mt-0.5">{icon}</div>}
-      <div>{children}</div>
+    <div className={`flex gap-3 p-4 rounded-xl border text-sm leading-relaxed ${colours[colour]}`}>
+      {icon && <div className={`shrink-0 mt-0.5 ${iconColours[colour]}`}>{icon}</div>}
+      <div className="flex-1 min-w-0">{children}</div>
     </div>
   );
 }
@@ -361,21 +366,18 @@ function SectionCard({ icon, title, description, children }: {
   icon: React.ReactNode; title: string; description?: string; children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white shadow-md overflow-hidden">
-      {/* Header bar */}
-      <div className="flex items-center gap-3 px-5 py-4 bg-gray-100 border-b border-gray-200">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+    <div className="rounded-2xl bg-white border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-shadow p-6 md:p-7 space-y-5">
+      {/* Flush header — no grey strip */}
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary shrink-0">
           {icon}
         </div>
-        <div>
-          <h3 className="font-semibold text-dark text-sm leading-tight">{title}</h3>
-          {description && <p className="text-xs text-text-light mt-0.5">{description}</p>}
+        <div className="flex-1 min-w-0 pt-0.5">
+          <h3 className="font-bold text-dark text-base leading-tight tracking-tight">{title}</h3>
+          {description && <p className="text-sm text-text-light mt-1 leading-relaxed">{description}</p>}
         </div>
       </div>
-      {/* Content */}
-      <div className="p-5 md:p-6 space-y-4">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
@@ -384,12 +386,12 @@ function SectionCard({ icon, title, description, children }: {
 // what's coming and that they're nearly done. Reduces "how long is this going to take" anxiety.
 function NextUpHint({ title, desc, icon }: { title: string; desc: string; icon: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-r from-primary/5 to-blue-50/40 border border-primary/15">
-      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50/80 border border-gray-200">
+      <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-text-light shrink-0">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-primary uppercase tracking-wider">Coming up</p>
+        <p className="text-[10px] font-semibold text-text-light uppercase tracking-wider">Coming up next</p>
         <p className="text-sm font-semibold text-dark truncate">{title}</p>
         <p className="text-xs text-text-light truncate">{desc}</p>
       </div>
@@ -574,22 +576,99 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-// Persistent header showing the user's contact info — saves space versus an inline section
-function ContactStrip({ firstName, lastName, email }: { firstName: string; lastName: string; email: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl mb-5">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-          {(firstName?.[0] || "") + (lastName?.[0] || "")}
+// Persistent contact info — collapsed view shows summary, expand to edit inline
+function ContactStrip({
+  firstName, lastName, email, phone,
+  onChange,
+}: {
+  firstName: string; lastName: string; email: string; phone: string;
+  onChange: (field: "firstName" | "lastName" | "email" | "phone", value: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ firstName, lastName, email, phone });
+
+  function startEdit() {
+    setDraft({ firstName, lastName, email, phone });
+    setEditing(true);
+  }
+
+  function save() {
+    onChange("firstName", draft.firstName.trim());
+    onChange("lastName", draft.lastName.trim());
+    onChange("email", draft.email.trim());
+    onChange("phone", draft.phone.trim());
+    setEditing(false);
+  }
+
+  function cancel() {
+    setDraft({ firstName, lastName, email, phone });
+    setEditing(false);
+  }
+
+  if (!editing) {
+    return (
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-gray-50/80 border border-gray-200 rounded-xl mb-6">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm">
+            {(firstName?.[0] || "") + (lastName?.[0] || "")}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-dark truncate">{firstName} {lastName}</p>
+            <p className="text-xs text-text-light truncate">{email} {phone && <span className="text-text-light/60">·</span>} {phone}</p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-dark truncate">{firstName} {lastName}</p>
-          <p className="text-xs text-text-light truncate">{email}</p>
+        <button
+          type="button"
+          onClick={startEdit}
+          className="text-xs text-primary hover:text-primary-dark font-semibold shrink-0 whitespace-nowrap px-3 py-1.5 rounded-lg hover:bg-primary/5 transition-colors"
+        >
+          Edit
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white border-2 border-primary/30 rounded-xl mb-6 p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm font-semibold text-dark">Edit your contact details</p>
+        <button type="button" onClick={cancel} className="text-xs text-text-light hover:text-dark">
+          Cancel
+        </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium text-text-light mb-1">First Name</label>
+          <input type="text" value={draft.firstName}
+            onChange={(e) => setDraft((d) => ({ ...d, firstName: e.target.value }))}
+            className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-text-light mb-1">Last Name</label>
+          <input type="text" value={draft.lastName}
+            onChange={(e) => setDraft((d) => ({ ...d, lastName: e.target.value }))}
+            className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-text-light mb-1">Email Address</label>
+          <input type="email" value={draft.email}
+            onChange={(e) => setDraft((d) => ({ ...d, email: e.target.value }))}
+            className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-text-light mb-1">Phone Number</label>
+          <input type="tel" value={draft.phone}
+            onChange={(e) => setDraft((d) => ({ ...d, phone: e.target.value }))}
+            className={inputCls} />
         </div>
       </div>
-      <a href="/contact" className="text-xs text-primary hover:underline font-medium shrink-0 whitespace-nowrap">
-        Need to change?
-      </a>
+      <button
+        type="button"
+        onClick={save}
+        className="mt-4 w-full sm:w-auto bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
+      >
+        Save changes
+      </button>
     </div>
   );
 }
@@ -932,32 +1011,31 @@ function SignUpDetailsContent() {
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-10">
       <div className="max-w-4xl mx-auto px-4">
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <p className="text-sm font-semibold text-primary">Step {step} of 5</p>
-            <span className="text-text-light/40">·</span>
-            <p className="text-xs text-text-light">~{STEPS[step - 1]?.time} to complete</p>
+        {/* Header — confident, onboarding-like */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-dark">
-            {step === 1 && `Welcome, ${formData.firstName}!`}
-            {step === 2 && "Verify Your Identity"}
-            {step === 3 && "Where Should We Reach You?"}
-            {step === 4 && "Secure Your Account"}
-            {step === 5 && "Almost Done — Review & Confirm"}
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-dark tracking-tight leading-[1.1]">
+            {step === 1 && <>Welcome,<br className="md:hidden" /> <span className="text-primary">{formData.firstName}</span></>}
+            {step === 2 && "Verify your identity"}
+            {step === 3 && "Where should we reach you?"}
+            {step === 4 && "Secure your account"}
+            {step === 5 && <>Almost done — <span className="text-primary">review & confirm</span></>}
           </h1>
-          <p className="text-text-light mt-2 text-sm max-w-md mx-auto">
-            {step === 1 && "Tell us a few quick things about your business so we can get you the right accountant."}
-            {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. This takes 60 seconds."}
-            {step === 3 && "We'll use these for HMRC correspondence and your statutory filings."}
-            {step === 4 && "First month at 50% off — secure your account with a small upfront payment."}
-            {step === 5 && "Quick check that everything's right, then we'll get you onboarded."}
+          <p className="text-text-light mt-3 text-base max-w-md mx-auto leading-relaxed">
+            {step === 1 && "A few quick things about your business so we can match you with the right accountant."}
+            {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. Takes about 60 seconds."}
+            {step === 3 && "These addresses are used for HMRC correspondence and your statutory filings."}
+            {step === 4 && "First month at 50% off. Secure your account with a small upfront payment."}
+            {step === 5 && "A quick check that everything looks right, then we'll get you onboarded."}
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-border overflow-hidden">
-          <div className="p-6 md:p-8">
+        {/* Card — lighter chrome, more breathing room */}
+        <div className="bg-white rounded-3xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+          <div className="p-6 md:p-10">
             <StepIndicator current={step} />
 
             {/* Validation error banner */}
@@ -975,30 +1053,39 @@ function SignUpDetailsContent() {
 
             {/* Persistent contact strip — visible on all editable steps */}
             {step < 4 && (
-              <ContactStrip firstName={formData.firstName} lastName={formData.lastName} email={formData.email} />
+              <ContactStrip
+                firstName={formData.firstName}
+                lastName={formData.lastName}
+                email={formData.email}
+                phone={formData.phone}
+                onChange={(field, value) => set(field, value)}
+              />
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
                 STEP 1 — ABOUT YOUR BUSINESS
             ═══════════════════════════════════════════════════════════════ */}
             {step === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
 
                 {/* Business / Company */}
                 <SectionCard icon={<Building2 size={18} />} title={isLtd ? "Your Company" : "Your Business"}
                   description={isLtd ? "The basics so we can set up your accounting." : "Quick details so we can match you with the right accountant."}>
 
                   {isLtd && (
-                    <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100 cursor-pointer"
-                      onClick={() => set("newCompany", !formData.newCompany)}>
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.newCompany ? "bg-primary border-primary" : "border-gray-300"}`}>
+                    <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      formData.newCompany ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300 bg-white"
+                    }`}>
+                      <input type="checkbox" checked={formData.newCompany}
+                        onChange={(e) => set("newCompany", e.target.checked)} className="sr-only" />
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.newCompany ? "bg-primary border-primary" : "border-gray-300 bg-white"}`}>
                         {formData.newCompany && <CheckCircle2 size={12} className="text-white" />}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-dark">I need to form a new limited company</p>
+                        <p className="text-sm font-semibold text-dark">I need to form a new limited company</p>
                         <p className="text-xs text-text-light mt-0.5">Tick this if you haven&apos;t registered your company yet — we&apos;ll handle the formation.</p>
                       </div>
-                    </div>
+                    </label>
                   )}
 
                   <FieldWrapper
@@ -1047,16 +1134,19 @@ function SignUpDetailsContent() {
                 {/* Transferring accountant */}
                 <SectionCard icon={<ArrowRight size={18} />} title="Switching From Another Accountant?"
                   description="Optional — if you're moving to us, we'll handle the handover for you.">
-                  <div className="flex items-start gap-3 p-4 bg-gray-100 rounded-xl cursor-pointer"
-                    onClick={() => set("transferringFromAccountant", !formData.transferringFromAccountant)}>
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.transferringFromAccountant ? "bg-primary border-primary" : "border-gray-300"}`}>
+                  <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    formData.transferringFromAccountant ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300 bg-white"
+                  }`}>
+                    <input type="checkbox" checked={formData.transferringFromAccountant}
+                      onChange={(e) => set("transferringFromAccountant", e.target.checked)} className="sr-only" />
+                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.transferringFromAccountant ? "bg-primary border-primary" : "border-gray-300 bg-white"}`}>
                       {formData.transferringFromAccountant && <CheckCircle2 size={12} className="text-white" />}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-dark">Yes, I&apos;m transferring from another accountant</p>
+                      <p className="text-sm font-semibold text-dark">Yes, I&apos;m transferring from another accountant</p>
                       <p className="text-xs text-text-light mt-0.5">We&apos;ll contact them to obtain your records and arrange a smooth handover.</p>
                     </div>
-                  </div>
+                  </label>
 
                   {formData.transferringFromAccountant && (
                     <div className="space-y-4 pl-1">
@@ -1087,7 +1177,7 @@ function SignUpDetailsContent() {
                 STEP 2 — IDENTITY (HMRC verification)
             ═══════════════════════════════════════════════════════════════ */}
             {step === 2 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
 
                 <InfoBox icon={<ShieldCheck size={16} />} colour="blue">
                   <p className="font-semibold mb-1">Why we need this — and what we don&apos;t do with it</p>
@@ -1174,7 +1264,7 @@ function SignUpDetailsContent() {
                 STEP 3 — ADDRESSES
             ═══════════════════════════════════════════════════════════════ */}
             {step === 3 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
 
                 {/* Home address — always required */}
                 <SectionCard icon={<MapPin size={18} />} title="Your Home Address"
