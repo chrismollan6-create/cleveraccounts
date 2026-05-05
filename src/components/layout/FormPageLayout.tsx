@@ -4,7 +4,7 @@ interface FormPageLayoutProps {
   title: string;
   description?: string;
   note?: string;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default function FormPageLayout({ title, description, note, children }: FormPageLayoutProps) {
