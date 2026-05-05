@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { Star, Trophy } from "lucide-react";
 
 function Stars({ rating, color }: { rating: number; color: string }) {
   const full = Math.floor(rating);
@@ -85,6 +85,15 @@ export default function TrustBar() {
               </svg>
               <span className="text-xs font-semibold text-dark">FCSA Accredited</span>
             </a>
+
+            <div className="hidden sm:block w-px h-4 bg-border shrink-0" />
+
+            {/* Contracting Awards Finalist */}
+            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+              <Trophy size={13} className="text-amber-500" />
+              <span className="text-xs font-semibold text-dark">Contracting Awards Finalist</span>
+              <span className="text-xs text-text-light">2023, 2024, 2025</span>
+            </div>
 
           </div>
         </div>

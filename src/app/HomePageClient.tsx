@@ -36,9 +36,15 @@ import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 
 /* ────────────────────────────────────────
-   SERVICE TAB DATA
+   SERVICE TAB DATA — fallback if CMS empty
    ──────────────────────────────────────── */
-const serviceTabs = [
+const ICON_MAP: Record<string, React.ReactNode> = {
+  user: <User size={20} />,
+  building: <Building2 size={20} />,
+  briefcase: <Briefcase size={20} />,
+};
+
+const FALLBACK_TABS = [
   {
     id: "sole-trader",
     label: "Sole Trader",
@@ -92,14 +98,49 @@ const serviceTabs = [
   },
 ];
 
+type CmsPricingPlan = {
+  _id?: string;
+  name?: string;
+  price?: string;
+  features?: string[];
+  ctaLink?: string;
+  homepageIcon?: string;
+  homepageHeadline?: string;
+  homepageStat?: string;
+  homepageLearnMore?: string;
+};
+
+function slugify(s: string) {
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function buildServiceTabs(plans: CmsPricingPlan[]) {
+  if (!plans || plans.length === 0) return FALLBACK_TABS;
+  return plans
+    .filter((p) => p?.name && p?.price)
+    .map((p, i) => ({
+      id: slugify(p.name!),
+      label: p.name!,
+      icon: ICON_MAP[p.homepageIcon || ""] ?? FALLBACK_TABS[i % FALLBACK_TABS.length].icon,
+      headline: p.homepageHeadline || `Tailored accounting for ${p.name!.toLowerCase()}s`,
+      price: p.price!,
+      features: p.features?.length ? p.features : FALLBACK_TABS[i % FALLBACK_TABS.length].features,
+      href: p.homepageLearnMore || p.ctaLink || "/sign-up",
+      stat: p.homepageStat || "All-inclusive monthly fee",
+    }));
+}
+
 interface HomePageClientProps {
   faqs: { q: string; a: string }[];
   promoBadges?: Record<string, string>;
+  pricingPlans?: CmsPricingPlan[];
 }
 
-export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClientProps) {
-  const [activeTab, setActiveTab] = useState("limited-company");
-  const activeService = serviceTabs.find((t) => t.id === activeTab)!;
+export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [] }: HomePageClientProps) {
+  const serviceTabs = buildServiceTabs(pricingPlans);
+  const defaultTab = serviceTabs.find((t) => t.id === "limited-company")?.id || serviceTabs[0]?.id;
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const activeService = serviceTabs.find((t) => t.id === activeTab) || serviceTabs[0];
 
   return (
     <>
@@ -251,7 +292,7 @@ export default function HomePageClient({ faqs, promoBadges = {} }: HomePageClien
       {/* ═══════════════════════════════════════
           REFERRAL BANNER — High visibility
           ═══════════════════════════════════════ */}
-      <section className="bg-emerald-600 py-5">
+      <section className="bg-emerald-600 pt-2 pb-5">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">

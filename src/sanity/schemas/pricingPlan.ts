@@ -64,6 +64,37 @@ export default defineType({
       type: "number",
       description: "Left to right: 1, 2, 3",
     }),
+    defineField({
+      name: "homepageIcon",
+      title: "Homepage Icon",
+      type: "string",
+      description: "Icon shown in the homepage 'I'm a...' tab",
+      options: {
+        list: [
+          { title: "User (Sole Trader)", value: "user" },
+          { title: "Building (Limited Company)", value: "building" },
+          { title: "Briefcase (Contractor)", value: "briefcase" },
+        ],
+      },
+    }),
+    defineField({
+      name: "homepageHeadline",
+      title: "Homepage Headline",
+      type: "string",
+      description: "Headline shown in the homepage 'I'm a...' panel, e.g. 'Complete accounting for your limited company'",
+    }),
+    defineField({
+      name: "homepageStat",
+      title: "Homepage Stat",
+      type: "string",
+      description: "Stat pill shown above features, e.g. 'Average £3,800 tax saved per year'",
+    }),
+    defineField({
+      name: "homepageLearnMore",
+      title: "Homepage 'Learn More' Link",
+      type: "string",
+      description: "Page the 'Learn more' link points to, e.g. '/limited-company'",
+    }),
   ],
   orderings: [
     { title: "Display Order", name: "orderAsc", by: [{ field: "order", direction: "asc" }] },

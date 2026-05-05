@@ -25,8 +25,10 @@ function calcOutsideIR35(dayRate: number, expenses: number) {
   const profit = Math.max(0, contractValue - expenses);
   const salary = 12570;
   const corpProfit = Math.max(0, profit - salary);
-  const corpTaxRate = corpProfit > 250000 ? 0.25 : corpProfit > 50000 ? 0.265 : 0.19;
-  const corpTax = corpProfit * corpTaxRate;
+  let corpTax: number;
+  if (corpProfit <= 50000) corpTax = corpProfit * 0.19;
+  else if (corpProfit >= 250000) corpTax = corpProfit * 0.25;
+  else corpTax = corpProfit * 0.25 - (250000 - corpProfit) * 0.015;
   const distributable = corpProfit - corpTax;
   const dividendAllowance = 500;
   const taxableDividend = Math.max(0, distributable - dividendAllowance);
@@ -94,7 +96,8 @@ export default function ContractorCalculator() {
 
   const outside = calcOutsideIR35(dayRate, expenses);
   const inside = calcInsideIR35(dayRate);
-  const saving = outside.takeHome - inside.takeHome;
+  const outsideTotalValue = outside.takeHome + expenses;
+  const saving = outsideTotalValue - inside.takeHome;
 
   return (
     <section className="bg-white py-20 md:py-28 relative overflow-hidden">
@@ -157,7 +160,9 @@ export default function ContractorCalculator() {
                   <span>£0</span>
                   <span>£15,000</span>
                 </div>
-                <p className="text-xs text-text-light mt-2">Applied to outside IR35 (PSC) only</p>
+                <p className="text-xs text-text-light mt-2">
+                  Costs your company pays for things you need (laptop, software, fees). Reduces corp tax — not money lost.
+                </p>
               </div>
 
               <button
@@ -202,6 +207,10 @@ export default function ContractorCalculator() {
                         <div className="mt-4 pt-4 border-t border-white/10 space-y-1.5 text-xs text-white/50">
                           <div className="flex justify-between"><span>Corp tax</span><span>{fmt(outside.corpTax)}</span></div>
                           <div className="flex justify-between"><span>Dividend tax</span><span>{fmt(outside.divTax)}</span></div>
+                          {expenses > 0 && (
+                            <div className="flex justify-between"><span>+ Business expenses paid</span><span>{fmt(expenses)}</span></div>
+                          )}
+                          <div className="flex justify-between font-semibold text-primary-light pt-1.5 border-t border-white/10"><span>Total value to you</span><span>{fmt(outside.takeHome + expenses)}</span></div>
                           <div className="flex justify-between font-semibold text-white/70"><span>Effective rate</span><span>{outside.effectiveRate.toFixed(1)}%</span></div>
                         </div>
                       </div>

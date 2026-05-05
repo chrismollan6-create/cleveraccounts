@@ -94,9 +94,9 @@ export default function IR35Page() {
                 <p className="text-white/50 text-sm uppercase tracking-wider mb-6">IR35 at a glance</p>
                 <div className="space-y-4">
                   {[
-                    { label: "Outside IR35 take-home (£500/day)", value: "~£75,000/yr", sub: "Via your own PSC", colour: "from-primary to-blue-400" },
-                    { label: "Inside IR35 take-home (£500/day)", value: "~£58,000/yr", sub: "Via umbrella company", colour: "from-red-500 to-orange-400" },
-                    { label: "Potential annual difference", value: "~£17,000", sub: "More in your pocket outside IR35", colour: "from-secondary to-yellow-400" },
+                    { label: "Outside IR35 take-home (£500/day)", value: "~£72,000/yr", sub: "Via your own PSC", colour: "from-primary to-blue-400" },
+                    { label: "Inside IR35 take-home (£500/day)", value: "~£65,500/yr", sub: "Via umbrella company", colour: "from-red-500 to-orange-400" },
+                    { label: "Potential annual difference", value: "~£6,500", sub: "More in your pocket outside IR35", colour: "from-secondary to-yellow-400" },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center gap-4 bg-white/5 rounded-2xl p-4 border border-white/5">
                       <div className={`w-2 h-12 rounded-full bg-gradient-to-b ${item.colour} shrink-0`} />
@@ -188,7 +188,7 @@ export default function IR35Page() {
               </ul>
               <div className="bg-white rounded-2xl p-4 border border-primary/20">
                 <p className="text-xs text-text-light mb-1">Estimated take-home at £500/day</p>
-                <p className="text-3xl font-black text-primary">~£75,000<span className="text-lg text-text-light font-normal">/yr</span></p>
+                <p className="text-3xl font-black text-primary">~£72,000<span className="text-lg text-text-light font-normal">/yr</span></p>
               </div>
             </div>
 
@@ -222,7 +222,7 @@ export default function IR35Page() {
               </ul>
               <div className="bg-white rounded-2xl p-4 border border-border">
                 <p className="text-xs text-text-light mb-1">Estimated take-home at £500/day</p>
-                <p className="text-3xl font-black text-dark">~£58,000<span className="text-lg text-text-light font-normal">/yr</span></p>
+                <p className="text-3xl font-black text-dark">~£65,500<span className="text-lg text-text-light font-normal">/yr</span></p>
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function IR35Page() {
                 </div>
                 <div className="flex-1">
                   <p className="text-white/80 text-sm">At £500/day, operating outside IR35 means approximately</p>
-                  <p className="text-3xl font-black text-white">£17,000 more per year in your pocket</p>
+                  <p className="text-3xl font-black text-white">£6,500 more per year in your pocket</p>
                   <p className="text-white/70 text-sm">That&apos;s why getting your IR35 status right matters so much.</p>
                 </div>
                 <Link href="/sign-up" className="inline-flex items-center gap-2 bg-white text-secondary font-bold px-6 py-3 rounded-xl whitespace-nowrap shrink-0">

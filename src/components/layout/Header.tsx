@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ChevronDown, Phone } from "lucide-react";
 import { NAV_LINKS, COMPANY } from "@/lib/constants";
+import RequestCallback from "@/components/ui/RequestCallback";
 
 type NavChild = { label: string; href: string };
 type NavSection = { heading: string; items: NavChild[] };
@@ -159,13 +160,10 @@ export default function Header({
 
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-3">
-            <a
-              href={`tel:${phone.replace(/\s/g, "")}`}
-              className="flex items-center gap-1.5 text-sm font-medium text-text-light hover:text-primary transition-colors"
-            >
-              <Phone size={16} />
-              {phone}
-            </a>
+            <RequestCallback
+              label="Request a Callback"
+              className="inline-flex items-center gap-1.5 bg-secondary hover:bg-secondary-dark text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
+            />
             <Link
               href="/sign-up"
               className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
@@ -277,6 +275,10 @@ export default function Header({
                 <Phone size={18} />
                 Call Free: {freephone}
               </a>
+              <RequestCallback
+                label="Request a Callback"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-secondary hover:bg-secondary-dark text-white rounded-xl text-base font-semibold transition-colors"
+              />
               <Link
                 href="/sign-up"
                 onClick={() => setMobileOpen(false)}

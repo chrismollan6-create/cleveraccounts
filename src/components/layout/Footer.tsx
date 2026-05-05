@@ -42,7 +42,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
-              <Image src="/images/logo-white.jpg" alt="Clever Accounts" width={160} height={48} className="h-12 w-auto rounded-lg" />
+              <Image src="/images/logo-white-simple.jpg" alt="Clever Accounts" width={160} height={48} className="h-12 w-auto rounded-lg" />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
               For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support.

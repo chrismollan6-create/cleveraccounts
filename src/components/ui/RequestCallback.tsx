@@ -30,12 +30,15 @@ interface Props {
   inline?: boolean;
   /** Label for the trigger button */
   label?: string;
+  /** Override trigger button classes (takes precedence over floating/inline) */
+  className?: string;
 }
 
 export default function RequestCallback({
   floating = false,
   inline = false,
   label = "Request a Callback",
+  className,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -95,7 +98,9 @@ export default function RequestCallback({
     <button
       onClick={() => setOpen(true)}
       className={
-        floating
+        className
+          ? className
+          : floating
           ? "fixed bottom-24 right-6 z-40 flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-5 py-3.5 rounded-full shadow-2xl transition-all hover:scale-105"
           : inline
           ? "inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-sm"

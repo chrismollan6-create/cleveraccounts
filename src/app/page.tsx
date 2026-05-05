@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 import { FAQPageJsonLd, PricingJsonLd } from "@/components/seo/StructuredData";
-import { getSiteSettings, getHomePage } from "@/sanity/queries";
+import { getSiteSettings, getHomePage, getPricingPlans } from "@/sanity/queries";
 
 const DEFAULT_TITLE = "Clever Accounts | Expert Online Accountants UK — From £42.50/month";
 const DEFAULT_DESC =
@@ -66,11 +66,16 @@ export default async function HomePage() {
     }
   } catch { /* use empty */ }
 
+  let pricingPlans: any[] = [];
+  try {
+    pricingPlans = (await getPricingPlans()) || [];
+  } catch { /* fallback to hardcoded */ }
+
   return (
     <>
       <FAQPageJsonLd faqs={HOME_FAQS} />
       <PricingJsonLd />
-      <HomePageClient faqs={HOME_FAQS} promoBadges={promoBadges} />
+      <HomePageClient faqs={HOME_FAQS} promoBadges={promoBadges} pricingPlans={pricingPlans} />
     </>
   );
 }
