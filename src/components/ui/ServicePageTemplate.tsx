@@ -100,7 +100,7 @@ export default function ServicePageTemplate({ data, children, promoBadge }: { da
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/images/hero-accountant.jpg"
+                  src="/images/hero-accountant.webp"
                   alt="Your dedicated accountant"
                   className="w-full h-[480px] object-cover"
                 />

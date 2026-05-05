@@ -135,9 +135,10 @@ interface HomePageClientProps {
   faqs: { q: string; a: string }[];
   promoBadges?: Record<string, string>;
   pricingPlans?: CmsPricingPlan[];
+  freephone?: string;
 }
 
-export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [] }: HomePageClientProps) {
+export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [], freephone }: HomePageClientProps) {
   const serviceTabs = buildServiceTabs(pricingPlans);
   const defaultTab = serviceTabs.find((t) => t.id === "limited-company")?.id || serviceTabs[0]?.id;
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -283,8 +284,8 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
 
         {/* Wave */}
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1440 100" fill="none" className="w-full h-auto">
-            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="#059669" />
+          <svg viewBox="0 0 1440 100" fill="none" preserveAspectRatio="none" className="w-full h-12 md:h-16">
+            <path d="M0,50 C480,100 960,0 1440,50 L1440,100 L0,100 Z" fill="#10b981" />
           </svg>
         </div>
       </section>
@@ -292,29 +293,37 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
       {/* ═══════════════════════════════════════
           REFERRAL BANNER — High visibility
           ═══════════════════════════════════════ */}
-      <section className="bg-emerald-600 pt-2 pb-5">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-500 to-emerald-700 pt-7 pb-6">
+        <div className="absolute inset-0 pattern-dots opacity-10 pointer-events-none" />
+        <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-16 right-1/4 w-56 h-56 bg-amber-300/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                <Gift size={22} className="text-white" />
+              <div className="relative flex-shrink-0">
+                <div className="absolute inset-0 bg-amber-300/30 rounded-2xl blur-md" />
+                <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-lg">
+                  <Gift size={24} className="text-white" />
+                </div>
               </div>
               <div>
-                <p className="text-white font-black text-lg leading-tight">
-                  Refer a friend — earn up to <span className="underline decoration-white/60 decoration-2">£250</span>
+                <p className="text-white font-black text-lg leading-tight tracking-tight">
+                  Refer a friend — earn up to{" "}
+                  <span className="text-amber-300 underline decoration-amber-300/60 decoration-2 underline-offset-2">£250</span>
                 </p>
-                <p className="text-emerald-100 text-sm mt-0.5">
+                <p className="text-emerald-50/90 text-sm mt-0.5">
                   Know someone who needs an accountant? You both benefit.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
-
               <Link
                 href="/refer-a-friend"
-                className="inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-emerald-50 transition-colors whitespace-nowrap"
+                className="group inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-6 py-3 rounded-xl text-sm shadow-lg hover:shadow-xl hover:bg-amber-50 transition-all whitespace-nowrap"
               >
-                Find out more <ArrowRight size={15} />
+                Find out more
+                <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
           </div>
@@ -829,7 +838,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
       {/* ═══════════════════════════════════════
           STICKY FLOATING CTA
           ═══════════════════════════════════════ */}
-      <StickyFloatingCTA />
+      <StickyFloatingCTA freephone={freephone} />
     </>
   );
 }

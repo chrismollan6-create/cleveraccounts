@@ -276,7 +276,7 @@ export default function AccountingSoftwarePage() {
             </div>
             <div className="relative rounded-3xl overflow-hidden shadow-xl aspect-[4/3] bg-dark flex items-center justify-center">
               <Image
-                src="/images/hero-accountant.jpg"
+                src="/images/hero-accountant.webp"
                 alt="Clever Accounts FreeAgent Platinum Partner"
                 fill
                 className="object-cover"

@@ -380,6 +380,23 @@ function SectionCard({ icon, title, description, children }: {
   );
 }
 
+// "Next up" preview — shown at the bottom of each editable step so users always know
+// what's coming and that they're nearly done. Reduces "how long is this going to take" anxiety.
+function NextUpHint({ title, desc, icon }: { title: string; desc: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-r from-primary/5 to-blue-50/40 border border-primary/15">
+      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-primary uppercase tracking-wider">Coming up</p>
+        <p className="text-sm font-semibold text-dark truncate">{title}</p>
+        <p className="text-xs text-text-light truncate">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── PostCoder address lookup ─────────────────────────────────────────────────
 
 function AddressLookup({
@@ -517,15 +534,16 @@ function AddressFields({
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
 const STEPS = [
-  { label: "Your Details", icon: <User size={16} /> },
-  { label: "Business Details", icon: <Building2 size={16} /> },
-  { label: "Payment", icon: <CreditCard size={16} /> },
-  { label: "Confirm", icon: <CheckCircle2 size={16} /> },
+  { label: "Business", icon: <Building2 size={16} />, time: "1 min" },
+  { label: "Identity", icon: <ShieldCheck size={16} />, time: "1 min" },
+  { label: "Addresses", icon: <MapPin size={16} />, time: "1 min" },
+  { label: "Payment", icon: <CreditCard size={16} />, time: "1 min" },
+  { label: "Confirm", icon: <CheckCircle2 size={16} />, time: "30s" },
 ];
 
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex items-center mb-8">
+    <div className="flex items-center mb-6">
       {STEPS.map((step, i) => {
         const num = i + 1;
         const done = num < current;
@@ -533,14 +551,14 @@ function StepIndicator({ current }: { current: number }) {
         return (
           <div key={step.label} className="flex items-center flex-1 last:flex-none">
             <div className="flex flex-col items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
+              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
                 done ? "bg-success text-white shadow-sm" :
                 active ? "bg-primary text-white shadow-md ring-4 ring-primary/20" :
                 "bg-gray-100 text-gray-400"
               }`}>
-                {done ? <CheckCircle2 size={20} /> : step.icon}
+                {done ? <CheckCircle2 size={18} /> : step.icon}
               </div>
-              <span className={`text-xs mt-1.5 hidden sm:block font-medium ${
+              <span className={`text-[10px] md:text-xs mt-1.5 hidden sm:block font-medium ${
                 active ? "text-primary" : done ? "text-success" : "text-gray-400"
               }`}>
                 {step.label}
@@ -552,6 +570,26 @@ function StepIndicator({ current }: { current: number }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// Persistent header showing the user's contact info — saves space versus an inline section
+function ContactStrip({ firstName, lastName, email }: { firstName: string; lastName: string; email: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl mb-5">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+          {(firstName?.[0] || "") + (lastName?.[0] || "")}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-dark truncate">{firstName} {lastName}</p>
+          <p className="text-xs text-text-light truncate">{email}</p>
+        </div>
+      </div>
+      <a href="/contact" className="text-xs text-primary hover:underline font-medium shrink-0 whitespace-nowrap">
+        Need to change?
+      </a>
     </div>
   );
 }
@@ -620,7 +658,7 @@ function SignUpDetailsContent() {
   // Abandonment tracking — fire when user leaves mid-flow
   useEffect(() => {
     function handleUnload() {
-      if (step < 4 && !isCompleted) {
+      if (step < 5 && !isCompleted) {
         // Use sendBeacon so it fires even as the page closes
         const payload = JSON.stringify({
           event: "signup_abandoned",
@@ -649,7 +687,7 @@ function SignUpDetailsContent() {
   useEffect(() => {
     if (paymentParam === "cancelled") {
       setStripeError("Payment was cancelled. Please try again when you're ready.");
-      setStep(3); setIsLoading(false);
+      setStep(4); setIsLoading(false);
     } else if (paymentParam === "success" && sessionId && token) {
       fetch(`/api/signup/stripe/status?t=${encodeURIComponent(token)}&sessionId=${encodeURIComponent(sessionId)}`)
         .then((r) => r.json())
@@ -663,13 +701,13 @@ function SignUpDetailsContent() {
               sector: formData.sector,
               ...getStoredUTMParams(),
             });
-            setStep(4);
+            setStep(5);
           } else {
             setStripeError("Payment could not be verified. Please try again or contact us.");
-            setStep(3);
+            setStep(4);
           }
         })
-        .catch(() => { setStripeError("Could not verify payment. Please contact us."); setStep(3); })
+        .catch(() => { setStripeError("Could not verify payment. Please contact us."); setStep(4); })
         .finally(() => setIsLoading(false));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -700,39 +738,41 @@ function SignUpDetailsContent() {
 
   function validateStep(s: number): boolean {
     const errors: Partial<Record<keyof FormData, string>> = {};
+    // Step 1 — Business basics + switching
     if (s === 1) {
       if (!formData.company.trim()) errors.company = "Please enter your business name";
       if (!formData.describeTheBusiness.trim()) errors.describeTheBusiness = "Please describe your business";
-      if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
-      if (!formData.nationality) errors.nationality = "Please select your nationality";
-      if (!formData.ownerStreet.trim()) errors.ownerStreet = "Street address is required";
-      if (!formData.ownerCity.trim()) errors.ownerCity = "Town/city is required";
-      if (!formData.ownerPostalCode.trim()) errors.ownerPostalCode = "Postcode is required";
-      if (isLtd) {
-        if (!formData.directorFirstName.trim()) errors.directorFirstName = "Required";
-        if (!formData.directorLastName.trim()) errors.directorLastName = "Required";
-        if (!formData.newCompany && !formData.companyNumber.trim()) errors.companyNumber = "Enter your company number";
+      if (isLtd && !formData.newCompany && !formData.companyNumber.trim()) {
+        errors.companyNumber = "Enter your company number";
       }
       if (formData.transferringFromAccountant && !formData.priorAccountantDetails.trim()) {
         errors.priorAccountantDetails = "Please provide your previous accountant details";
       }
     }
+    // Step 2 — Identity
     if (s === 2) {
-      if (!formData.vatNeeded) errors.vatNeeded = "Please select your VAT status";
-      if (formData.vatNeeded === "Existing VAT registration" && !formData.vatNumber.trim()) {
-        errors.vatNumber = "Please enter your VAT number";
+      if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
+      if (!formData.nationality) errors.nationality = "Please select your nationality";
+      if (isLtd) {
+        if (!formData.directorFirstName.trim()) errors.directorFirstName = "Director first name is required";
+        if (!formData.directorLastName.trim()) errors.directorLastName = "Director last name is required";
       }
-      if (!formData.payeNeeded) errors.payeNeeded = "Please select your PAYE status";
-      if (formData.payeNeeded === "Existing PAYE registration" && !formData.payeReference.trim()) {
-        errors.payeReference = "Please enter your PAYE reference";
-      }
-      if (!formData.tradingStartDate) errors.tradingStartDate = "Please enter when you started trading";
+    }
+    // Step 3 — Addresses
+    if (s === 3) {
+      if (!formData.ownerStreet.trim()) errors.ownerStreet = "Home street address is required";
+      if (!formData.ownerCity.trim()) errors.ownerCity = "Home town/city is required";
+      if (!formData.ownerPostalCode.trim()) errors.ownerPostalCode = "Home postcode is required";
       if (isLtd && formData.registeredOfficeAddress === null) {
         errors.registeredOfficeAddress = "Please choose your registered office option" as never;
       }
-      if (!formData.mailingStreet.trim()) errors.mailingStreet = "Street address is required";
-      if (!formData.mailingCity.trim()) errors.mailingCity = "Town/city is required";
-      if (!formData.mailingPostalCode.trim()) errors.mailingPostalCode = "Postcode is required";
+      // Business address only required when user opts to use their own (Ltd) or always (sole trader)
+      const needsBusinessAddress = !isLtd || formData.registeredOfficeAddress === false;
+      if (needsBusinessAddress) {
+        if (!formData.mailingStreet.trim()) errors.mailingStreet = "Business street address is required";
+        if (!formData.mailingCity.trim()) errors.mailingCity = "Business town/city is required";
+        if (!formData.mailingPostalCode.trim()) errors.mailingPostalCode = "Business postcode is required";
+      }
     }
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -894,18 +934,24 @@ function SignUpDetailsContent() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <p className="text-sm font-medium text-primary mb-1">Step {step} of 4</p>
+          <div className="inline-flex items-center gap-2 mb-3">
+            <p className="text-sm font-semibold text-primary">Step {step} of 5</p>
+            <span className="text-text-light/40">·</span>
+            <p className="text-xs text-text-light">~{STEPS[step - 1]?.time} to complete</p>
+          </div>
           <h1 className="text-2xl md:text-3xl font-bold text-dark">
             {step === 1 && `Welcome, ${formData.firstName}!`}
-            {step === 2 && "About Your Business"}
-            {step === 3 && "First Month Payment"}
-            {step === 4 && "Review & Confirm"}
+            {step === 2 && "Verify Your Identity"}
+            {step === 3 && "Where Should We Reach You?"}
+            {step === 4 && "Secure Your Account"}
+            {step === 5 && "Almost Done — Review & Confirm"}
           </h1>
           <p className="text-text-light mt-2 text-sm max-w-md mx-auto">
-            {step === 1 && "Let's start with a few personal details so we can set up your account correctly."}
-            {step === 2 && "Tell us about your business — this helps us handle your accounting from day one."}
-            {step === 3 && "Secure your account with your first month's payment."}
-            {step === 4 && "Check everything looks right before we get started."}
+            {step === 1 && "Tell us a few quick things about your business so we can get you the right accountant."}
+            {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. This takes 60 seconds."}
+            {step === 3 && "We'll use these for HMRC correspondence and your statutory filings."}
+            {step === 4 && "First month at 50% off — secure your account with a small upfront payment."}
+            {step === 5 && "Quick check that everything's right, then we'll get you onboarded."}
           </p>
         </div>
 
@@ -927,36 +973,20 @@ function SignUpDetailsContent() {
               </div>
             )}
 
+            {/* Persistent contact strip — visible on all editable steps */}
+            {step < 4 && (
+              <ContactStrip firstName={formData.firstName} lastName={formData.lastName} email={formData.email} />
+            )}
+
             {/* ═══════════════════════════════════════════════════════════════
-                STEP 1 — YOUR DETAILS
+                STEP 1 — ABOUT YOUR BUSINESS
             ═══════════════════════════════════════════════════════════════ */}
             {step === 1 && (
               <div className="space-y-4">
 
-                {/* Contact info (read-only) */}
-                <SectionCard icon={<User size={18} />} title="Your Contact Information"
-                  description="Pre-filled from when you registered — contact us to make changes.">
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { label: "First Name", value: formData.firstName },
-                      { label: "Last Name", value: formData.lastName },
-                      { label: "Email Address", value: formData.email },
-                      { label: "Phone Number", value: formData.phone },
-                    ].map(({ label, value }) => (
-                      <div key={label}>
-                        <p className="text-xs font-medium text-text-light mb-1">{label}</p>
-                        <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
-                          <span className="text-sm text-dark flex-1 truncate">{value}</span>
-                          <ShieldCheck size={14} className="text-gray-300 shrink-0" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </SectionCard>
-
                 {/* Business / Company */}
                 <SectionCard icon={<Building2 size={18} />} title={isLtd ? "Your Company" : "Your Business"}
-                  description={isLtd ? "Details about your limited company." : "Tell us about your business."}>
+                  description={isLtd ? "The basics so we can set up your accounting." : "Quick details so we can match you with the right accountant."}>
 
                   {isLtd && (
                     <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100 cursor-pointer"
@@ -966,7 +996,7 @@ function SignUpDetailsContent() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-dark">I need to form a new limited company</p>
-                        <p className="text-xs text-text-light mt-0.5">Tick this if you haven&apos;t registered your company yet — we can help with that.</p>
+                        <p className="text-xs text-text-light mt-0.5">Tick this if you haven&apos;t registered your company yet — we&apos;ll handle the formation.</p>
                       </div>
                     </div>
                   )}
@@ -1014,92 +1044,9 @@ function SignUpDetailsContent() {
                   </FieldWrapper>
                 </SectionCard>
 
-                {/* Personal details */}
-                <SectionCard icon={<ShieldCheck size={18} />} title="Personal Information"
-                  description="Required for HMRC identity verification and to set up your tax records.">
-
-                  <InfoBox icon={<Info size={16} />} colour="blue">
-                    <p className="font-medium mb-0.5">Why do we need this?</p>
-                    <p>HMRC requires us to verify your identity before we can act as your accountant. This information is held securely and never shared with third parties.</p>
-                  </InfoBox>
-
-                  <FieldWrapper label="Date of Birth" required
-                    hint="Used for HMRC identity verification."
-                    error={err("dateOfBirth")}>
-                    <input type="date" value={formData.dateOfBirth}
-                      onChange={(e) => set("dateOfBirth", e.target.value)}
-                      className={err("dateOfBirth") ? inputErrCls : inputCls} />
-                  </FieldWrapper>
-
-                  <FieldWrapper label="Nationality" required error={err("nationality")}>
-                    <div className="relative">
-                      <select value={formData.nationality} onChange={(e) => set("nationality", e.target.value)}
-                        className={`${err("nationality") ? inputErrCls : selectCls} appearance-none pr-10`}>
-                        <option value="">Select nationality…</option>
-                        {NATIONALITIES.map((n) => <option key={n} value={n}>{n}</option>)}
-                      </select>
-                      <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light pointer-events-none" />
-                    </div>
-                  </FieldWrapper>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FieldWrapper label="Personal UTR Number"
-                      hint="10-digit number from HMRC — leave blank if you don't have one yet."
-                      tip="Your Unique Taxpayer Reference (UTR) is a 10-digit number on any letter from HMRC or your self assessment return. Leave blank if you haven't registered for self assessment yet.">
-                      <input type="text" value={formData.personalUtr}
-                        onChange={(e) => set("personalUtr", e.target.value)}
-                        className={inputCls} placeholder="e.g. 1234567890" maxLength={10} />
-                    </FieldWrapper>
-                    <FieldWrapper label="National Insurance Number"
-                      hint="9 characters, no spaces — e.g. QQ123456C."
-                      tip="Your NI number is in the format QQ123456C (2 letters, 6 digits, 1 letter). You'll find it on a payslip, P60, or any letter from HMRC or the Department for Work and Pensions.">
-                      <input type="text" value={formData.nationalInsuranceNumber}
-                        onChange={(e) => set("nationalInsuranceNumber", e.target.value.replace(/\s/g, "").toUpperCase())}
-                        className={inputCls} placeholder="e.g. QQ123456C" maxLength={9} />
-                    </FieldWrapper>
-                  </div>
-
-                  {/* Ltd-only: Director details */}
-                  {isLtd && (
-                    <div className="space-y-4 bg-gray-50 rounded-xl border border-gray-200 p-4 mt-2">
-                      <div>
-                        <p className="text-sm font-semibold text-dark">Director Details</p>
-                        <p className="text-xs text-text-light mt-0.5">The primary director responsible for this account. If there are multiple directors, we&apos;ll collect the others once you&apos;re onboarded.</p>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FieldWrapper label="Director First Name" required error={err("directorFirstName")}>
-                          <input type="text" value={formData.directorFirstName}
-                            onChange={(e) => set("directorFirstName", e.target.value)}
-                            className={err("directorFirstName") ? inputErrCls : inputCls} />
-                        </FieldWrapper>
-                        <FieldWrapper label="Director Last Name" required error={err("directorLastName")}>
-                          <input type="text" value={formData.directorLastName}
-                            onChange={(e) => set("directorLastName", e.target.value)}
-                            className={err("directorLastName") ? inputErrCls : inputCls} />
-                        </FieldWrapper>
-                      </div>
-                    </div>
-                  )}
-                </SectionCard>
-
-                {/* Home address */}
-                <SectionCard icon={<MapPin size={18} />} title="Your Home Address"
-                  description="Your personal residential address — not your business address.">
-                  <AddressFields
-                    prefix="Home"
-                    streetField="ownerStreet" cityField="ownerCity" countyField="ownerCounty" postcodeField="ownerPostalCode"
-                    streetVal={formData.ownerStreet} cityVal={formData.ownerCity}
-                    countyVal={formData.ownerCounty} postcodeVal={formData.ownerPostalCode}
-                    onStreet={(v) => set("ownerStreet", v)} onCity={(v) => set("ownerCity", v)}
-                    onCounty={(v) => set("ownerCounty", v)} onPostcode={(v) => set("ownerPostalCode", v)}
-                    streetError={err("ownerStreet")} cityError={err("ownerCity")} postcodeError={err("ownerPostalCode")}
-                    onLookup={(s, c, co, pc) => { set("ownerStreet", s); set("ownerCity", c); set("ownerCounty", co); set("ownerPostalCode", pc); }}
-                  />
-                </SectionCard>
-
                 {/* Transferring accountant */}
                 <SectionCard icon={<ArrowRight size={18} />} title="Switching From Another Accountant?"
-                  description="If you're moving to us from another accountant, we'll handle the handover for you.">
+                  description="Optional — if you're moving to us, we'll handle the handover for you.">
                   <div className="flex items-start gap-3 p-4 bg-gray-100 rounded-xl cursor-pointer"
                     onClick={() => set("transferringFromAccountant", !formData.transferringFromAccountant)}>
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${formData.transferringFromAccountant ? "bg-primary border-primary" : "border-gray-300"}`}>
@@ -1131,148 +1078,157 @@ function SignUpDetailsContent() {
                     </div>
                   )}
                 </SectionCard>
+
+                <NextUpHint title="Next: Verify your identity" desc="Quick HMRC checks — DoB, nationality, and your NI/UTR if you have one." icon={<ShieldCheck size={14} />} />
               </div>
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                STEP 2 — BUSINESS DETAILS
+                STEP 2 — IDENTITY (HMRC verification)
             ═══════════════════════════════════════════════════════════════ */}
             {step === 2 && (
-              <div className="space-y-5">
+              <div className="space-y-4">
 
-                {/* VAT */}
-                <SectionCard icon={<Building2 size={18} />} title="VAT Status"
-                  description="VAT (Value Added Tax) is charged on most goods and services. We need to know your current status.">
+                <InfoBox icon={<ShieldCheck size={16} />} colour="blue">
+                  <p className="font-semibold mb-1">Why we need this — and what we don&apos;t do with it</p>
+                  <p>HMRC requires us to verify your identity before we can act as your accountant. This information is held securely, encrypted at rest, and <strong>never shared with third parties</strong>.</p>
+                </InfoBox>
 
-                  <InfoBox icon={<Info size={16} />} colour="blue">
-                    <p>Most businesses must register for VAT once their taxable turnover exceeds <strong>£90,000</strong> in a rolling 12-month period. However, <strong>voluntary registration can sometimes be beneficial</strong> even below this threshold — for example, if your customers are VAT-registered businesses, you can reclaim VAT on your costs. If you&apos;re not sure which option is right for you, don&apos;t worry — your dedicated accountant will advise you on the best approach for your situation.</p>
-                  </InfoBox>
+                {/* Required identity */}
+                <SectionCard icon={<ShieldCheck size={18} />} title="HMRC Identity Check"
+                  description="Required — these confirm who you are with HMRC.">
 
-                  <FieldWrapper label="VAT Registration Status" required error={err("vatNeeded")}>
-                    <div className="relative">
-                      <select value={formData.vatNeeded} onChange={(e) => set("vatNeeded", e.target.value)}
-                        className={`${err("vatNeeded") ? inputErrCls : selectCls} appearance-none pr-10`}>
-                        <option value="">Select your VAT status…</option>
-                        <option value="Not VAT Registered">Not VAT Registered — turnover under £90k</option>
-                        <option value="Existing VAT registration">Already VAT Registered — I have a VAT number</option>
-                        <option value="Needs VAT registration">I need to register for VAT</option>
-                      </select>
-                      <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light pointer-events-none" />
-                    </div>
-                  </FieldWrapper>
-
-                  {formData.vatNeeded === "Existing VAT registration" && (
-                    <FieldWrapper label="VAT Registration Number" required
-                      hint="9-digit number in the format GB123456789 — on your VAT certificate or HMRC online account."
-                      error={err("vatNumber")}
-                      tip="Your VAT registration number is on your VAT certificate from HMRC, on any VAT returns you've submitted, or in your HMRC business tax account.">
-                      <input type="text" value={formData.vatNumber}
-                        onChange={(e) => set("vatNumber", e.target.value)}
-                        className={err("vatNumber") ? inputErrCls : inputCls}
-                        placeholder="e.g. GB123456789" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FieldWrapper label="Date of Birth" required
+                      hint="Used by HMRC to confirm your identity."
+                      error={err("dateOfBirth")}>
+                      <input type="date" value={formData.dateOfBirth}
+                        onChange={(e) => set("dateOfBirth", e.target.value)}
+                        className={err("dateOfBirth") ? inputErrCls : inputCls} />
                     </FieldWrapper>
-                  )}
-                  {formData.vatNeeded === "Needs VAT registration" && (
-                    <InfoBox colour="green" icon={<CheckCircle2 size={16} />}>
-                      No problem — we&apos;ll handle your VAT registration as part of your onboarding. No action needed from you now.
-                    </InfoBox>
-                  )}
-                </SectionCard>
 
-                {/* PAYE */}
-                <SectionCard icon={<User size={18} />} title="PAYE / Payroll"
-                  description="PAYE (Pay As You Earn) is the system used to pay employees and directors a salary through the company.">
+                    <FieldWrapper label="Nationality" required error={err("nationality")}>
+                      <div className="relative">
+                        <select value={formData.nationality} onChange={(e) => set("nationality", e.target.value)}
+                          className={`${err("nationality") ? inputErrCls : selectCls} appearance-none pr-10`}>
+                          <option value="">Select nationality…</option>
+                          {NATIONALITIES.map((n) => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                        <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light pointer-events-none" />
+                      </div>
+                    </FieldWrapper>
+                  </div>
 
-                  <FieldWrapper label="PAYE / Payroll Status" required error={err("payeNeeded")}>
-                    <div className="relative">
-                      <select value={formData.payeNeeded} onChange={(e) => set("payeNeeded", e.target.value)}
-                        className={`${err("payeNeeded") ? inputErrCls : selectCls} appearance-none pr-10`}>
-                        <option value="">Select your PAYE status…</option>
-                        <option value="Not PAYE registered">No PAYE — I don&apos;t pay a salary through the business</option>
-                        <option value="Existing PAYE registration">Already have PAYE — I have a PAYE reference</option>
-                        <option value="Needs PAYE registration">I need to set up PAYE / payroll</option>
-                      </select>
-                      <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light pointer-events-none" />
-                    </div>
-                  </FieldWrapper>
-
-                  {formData.payeNeeded === "Existing PAYE registration" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FieldWrapper label="PAYE Reference Number" required
-                        hint="Format: 123/AB45678 — on your P60 or HMRC payroll letter."
-                        error={err("payeReference")}
-                        tip="Your PAYE reference is on any payroll correspondence from HMRC, your P60, or in your HMRC online account under 'PAYE for Employers'.">
-                        <input type="text" value={formData.payeReference}
-                          onChange={(e) => set("payeReference", e.target.value)}
-                          className={err("payeReference") ? inputErrCls : inputCls}
-                          placeholder="e.g. 123/AB45678" />
-                      </FieldWrapper>
-                      <FieldWrapper label="Accounts Office Reference"
-                        hint="13-character reference — on your payslip booklet or HMRC letter."
-                        tip="The Accounts Office Reference is a 13-character reference (e.g. 123PA00012345) found on your payslip booklet or on any HMRC Accounts Office letter.">
-                        <input type="text" value={formData.payeAccountsOffice}
-                          onChange={(e) => set("payeAccountsOffice", e.target.value)}
-                          className={inputCls} placeholder="e.g. 123PA00012345" />
-                      </FieldWrapper>
+                  {/* Ltd-only: Director details — sits inside identity card since it's about you */}
+                  {isLtd && (
+                    <div className="space-y-3 bg-gray-50 rounded-xl border border-gray-200 p-4 mt-1">
+                      <div>
+                        <p className="text-sm font-semibold text-dark">Director on Record</p>
+                        <p className="text-xs text-text-light mt-0.5">If <strong>you&apos;re</strong> the primary director, enter your own name. Multiple directors? We&apos;ll collect the rest after onboarding.</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <FieldWrapper label="Director First Name" required error={err("directorFirstName")}>
+                          <input type="text" value={formData.directorFirstName}
+                            onChange={(e) => set("directorFirstName", e.target.value)}
+                            className={err("directorFirstName") ? inputErrCls : inputCls}
+                            placeholder={formData.firstName || "First name"} />
+                        </FieldWrapper>
+                        <FieldWrapper label="Director Last Name" required error={err("directorLastName")}>
+                          <input type="text" value={formData.directorLastName}
+                            onChange={(e) => set("directorLastName", e.target.value)}
+                            className={err("directorLastName") ? inputErrCls : inputCls}
+                            placeholder={formData.lastName || "Last name"} />
+                        </FieldWrapper>
+                      </div>
                     </div>
                   )}
-                  {formData.payeNeeded === "Needs PAYE registration" && (
-                    <InfoBox colour="green" icon={<CheckCircle2 size={16} />}>
-                      Great — we&apos;ll set up your PAYE scheme as part of your onboarding. We&apos;ll be in touch to confirm the details.
-                    </InfoBox>
-                  )}
                 </SectionCard>
 
-                {/* Trading start */}
-                <SectionCard icon={<ClipboardList size={18} />} title="Trading History"
-                  description="When did you start (or plan to start) trading? This affects your tax obligations.">
-                  <FieldWrapper label={`${isCIS ? "CIS" : isLtd ? "Company" : "Self-Employment"} Start Date`} required
-                    hint={isLtd ? "The date your company was incorporated, or the date you plan to start trading." : "The date you started (or plan to start) self-employment."}
-                    error={err("tradingStartDate")}>
-                    <input type="date" value={formData.tradingStartDate}
-                      onChange={(e) => set("tradingStartDate", e.target.value)}
-                      className={`${err("tradingStartDate") ? inputErrCls : inputCls} w-48`} />
-                  </FieldWrapper>
+                {/* Optional identity */}
+                <SectionCard icon={<Info size={18} />} title="Tax References"
+                  description="Optional — speeds things up, but we can collect these later if you don't have them to hand.">
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FieldWrapper label="Personal UTR Number"
+                      hint="10-digit number from HMRC. Skip if you don't have one yet."
+                      tip="Your Unique Taxpayer Reference (UTR) is a 10-digit number on any letter from HMRC or your self assessment return. Leave blank if you haven't registered for self assessment yet.">
+                      <input type="text" value={formData.personalUtr}
+                        onChange={(e) => set("personalUtr", e.target.value)}
+                        className={inputCls} placeholder="e.g. 1234567890" maxLength={10} />
+                    </FieldWrapper>
+                    <FieldWrapper label="National Insurance Number"
+                      hint="Format QQ123456C — found on a payslip or P60."
+                      tip="Your NI number is in the format QQ123456C (2 letters, 6 digits, 1 letter). You'll find it on a payslip, P60, or any letter from HMRC or the Department for Work and Pensions.">
+                      <input type="text" value={formData.nationalInsuranceNumber}
+                        onChange={(e) => set("nationalInsuranceNumber", e.target.value.replace(/\s/g, "").toUpperCase())}
+                        className={inputCls} placeholder="e.g. QQ123456C" maxLength={9} />
+                    </FieldWrapper>
+                  </div>
                 </SectionCard>
 
-                {/* Registered office (Ltd only) */}
+                <NextUpHint title="Next: Your addresses" desc={isLtd ? "Home address and your registered office choice." : "Home address and where your business operates from."} icon={<MapPin size={14} />} />
+              </div>
+            )}
+
+            {/* ═══════════════════════════════════════════════════════════════
+                STEP 3 — ADDRESSES
+            ═══════════════════════════════════════════════════════════════ */}
+            {step === 3 && (
+              <div className="space-y-4">
+
+                {/* Home address — always required */}
+                <SectionCard icon={<MapPin size={18} />} title="Your Home Address"
+                  description="Your personal residential address. We use this for HMRC correspondence about you personally.">
+                  <AddressFields
+                    prefix="Home"
+                    streetField="ownerStreet" cityField="ownerCity" countyField="ownerCounty" postcodeField="ownerPostalCode"
+                    streetVal={formData.ownerStreet} cityVal={formData.ownerCity}
+                    countyVal={formData.ownerCounty} postcodeVal={formData.ownerPostalCode}
+                    onStreet={(v) => set("ownerStreet", v)} onCity={(v) => set("ownerCity", v)}
+                    onCounty={(v) => set("ownerCounty", v)} onPostcode={(v) => set("ownerPostalCode", v)}
+                    streetError={err("ownerStreet")} cityError={err("ownerCity")} postcodeError={err("ownerPostalCode")}
+                    onLookup={(s, c, co, pc) => { set("ownerStreet", s); set("ownerCity", c); set("ownerCounty", co); set("ownerPostalCode", pc); }}
+                  />
+                </SectionCard>
+
+                {/* Registered office (Ltd only) — choice gates whether business address is required below */}
                 {isLtd && (
                   <SectionCard icon={<Building2 size={18} />} title="Registered Office Address"
-                    description="Every limited company must have a registered office address — this is the official address on public record at Companies House.">
+                    description="Every limited company needs an official address on the public Companies House register.">
 
                     <InfoBox icon={<Info size={16} />} colour="blue">
-                      This is the address HMRC and Companies House will use for official correspondence. It doesn&apos;t have to be where you actually work.
+                      <p className="font-semibold mb-0.5">What is this?</p>
+                      <p>This is the address HMRC and Companies House will use for official correspondence. <strong>It&apos;s public</strong> — anyone can search Companies House and see it. It doesn&apos;t have to be where you actually work.</p>
                     </InfoBox>
 
                     <div className="space-y-3">
                       {[
-                        { val: "ours", label: "Use Clever Accounts' registered office address", desc: "We'll provide our office address — ideal if you work from home and want to keep your home address private." },
-                        { val: "own", label: "Use my own address", desc: "Your business address will be used as the registered office and will appear on the public Companies House register." },
-                      ].map(({ val, label, desc }) => (
-                        <div key={val}
-                          onClick={() => set("registeredOfficeAddress", val === "ours")}
-                          className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                            (val === "ours" && formData.registeredOfficeAddress === true) ||
-                            (val === "own" && formData.registeredOfficeAddress === false)
-                              ? "border-primary bg-primary/5"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}>
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
-                            (val === "ours" && formData.registeredOfficeAddress === true) ||
-                            (val === "own" && formData.registeredOfficeAddress === false)
-                              ? "border-primary" : "border-gray-300"
-                          }`}>
-                            {((val === "ours" && formData.registeredOfficeAddress === true) ||
-                              (val === "own" && formData.registeredOfficeAddress === false)) && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                        { val: "ours", label: "Use Clever Accounts' registered office", desc: "We provide our office as your registered address — keeps your home address off the public record. Recommended if you work from home.", recommended: true },
+                        { val: "own", label: "Use my own address", desc: "Your business address will appear publicly on the Companies House register.", recommended: false },
+                      ].map(({ val, label, desc, recommended }) => {
+                        const selected = (val === "ours" && formData.registeredOfficeAddress === true) ||
+                                         (val === "own" && formData.registeredOfficeAddress === false);
+                        return (
+                          <div key={val}
+                            onClick={() => set("registeredOfficeAddress", val === "ours")}
+                            className={`relative flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                              selected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300"
+                            }`}>
+                            {recommended && (
+                              <span className="absolute -top-2 right-4 bg-success text-white text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full">Recommended</span>
                             )}
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                              selected ? "border-primary" : "border-gray-300"
+                            }`}>
+                              {selected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-dark">{label}</p>
+                              <p className="text-xs text-text-light mt-0.5">{desc}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-dark">{label}</p>
-                            <p className="text-xs text-text-light mt-0.5">{desc}</p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                     {err("registeredOfficeAddress") && (
                       <p className="text-xs text-red-500">{err("registeredOfficeAddress")}</p>
@@ -1280,42 +1236,49 @@ function SignUpDetailsContent() {
                   </SectionCard>
                 )}
 
-                {/* Business address */}
-                <SectionCard icon={<MapPin size={18} />} title={
-                  isLtd
-                    ? (formData.registeredOfficeAddress ? "Business Trading Address" : "Registered Office Address")
-                    : "Business Address"
-                } description={
-                  isLtd && formData.registeredOfficeAddress
-                    ? "Where the business actually operates from (can be the same as your home address)."
-                    : "The main address for your business. For sole traders this is often your home address."
-                }>
-                  <AddressFields
-                    prefix="Business"
-                    streetField="mailingStreet" cityField="mailingCity"
-                    countyField="mailingState" postcodeField="mailingPostalCode"
-                    streetVal={formData.mailingStreet} cityVal={formData.mailingCity}
-                    countyVal={formData.mailingState} postcodeVal={formData.mailingPostalCode}
-                    onStreet={(v) => set("mailingStreet", v)} onCity={(v) => set("mailingCity", v)}
-                    onCounty={(v) => set("mailingState", v)} onPostcode={(v) => set("mailingPostalCode", v)}
-                    streetError={err("mailingStreet")} cityError={err("mailingCity")} postcodeError={err("mailingPostalCode")}
-                    onLookup={(s, c, co, pc) => { set("mailingStreet", s); set("mailingCity", c); set("mailingState", co); set("mailingPostalCode", pc); }}
-                  />
-                  <div className="pt-2">
-                    <FieldWrapper label="Country">
-                      <input type="text" value={formData.mailingCountry}
-                        onChange={(e) => set("mailingCountry", e.target.value)}
-                        className={`${inputCls} w-56`} />
-                    </FieldWrapper>
-                  </div>
-                </SectionCard>
+                {/* Business address — only required if user opted to use their own (Ltd) or always (sole trader) */}
+                {(!isLtd || formData.registeredOfficeAddress === false) && (
+                  <SectionCard icon={<MapPin size={18} />} title={isLtd ? "Your Business Address" : "Business Address"}
+                    description={isLtd
+                      ? "This will be used as your registered office and appear publicly on Companies House."
+                      : "Where your business operates. For sole traders this is often your home address."}>
+                    <AddressFields
+                      prefix="Business"
+                      streetField="mailingStreet" cityField="mailingCity"
+                      countyField="mailingState" postcodeField="mailingPostalCode"
+                      streetVal={formData.mailingStreet} cityVal={formData.mailingCity}
+                      countyVal={formData.mailingState} postcodeVal={formData.mailingPostalCode}
+                      onStreet={(v) => set("mailingStreet", v)} onCity={(v) => set("mailingCity", v)}
+                      onCounty={(v) => set("mailingState", v)} onPostcode={(v) => set("mailingPostalCode", v)}
+                      streetError={err("mailingStreet")} cityError={err("mailingCity")} postcodeError={err("mailingPostalCode")}
+                      onLookup={(s, c, co, pc) => { set("mailingStreet", s); set("mailingCity", c); set("mailingState", co); set("mailingPostalCode", pc); }}
+                    />
+                    <div className="pt-2">
+                      <FieldWrapper label="Country">
+                        <input type="text" value={formData.mailingCountry}
+                          onChange={(e) => set("mailingCountry", e.target.value)}
+                          className={`${inputCls} w-56`} />
+                      </FieldWrapper>
+                    </div>
+                  </SectionCard>
+                )}
+
+                {/* When user chose "ours", show a confirmation card so they know nothing's missing */}
+                {isLtd && formData.registeredOfficeAddress === true && (
+                  <InfoBox icon={<CheckCircle2 size={16} />} colour="green">
+                    <p className="font-semibold mb-0.5">All set</p>
+                    <p>We&apos;ll use Clever Accounts&apos; registered office for your company. We&apos;ll forward any HMRC or Companies House post to you the same day it arrives.</p>
+                  </InfoBox>
+                )}
+
+                <NextUpHint title="Next: Secure your account" desc="Pay your first month at 50% off — fully refundable, cancel anytime." icon={<CreditCard size={14} />} />
               </div>
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                STEP 3 — PAYMENT
+                STEP 4 — PAYMENT
             ═══════════════════════════════════════════════════════════════ */}
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-5">
                 {isFirstMonthFree ? (
                   <div className="text-center py-6">
@@ -1392,9 +1355,9 @@ function SignUpDetailsContent() {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                STEP 4 — REVIEW & CONFIRM
+                STEP 5 — REVIEW & CONFIRM
             ═══════════════════════════════════════════════════════════════ */}
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-6">
 
                 {/* ── Summary grid ── */}
@@ -1420,11 +1383,14 @@ function SignUpDetailsContent() {
                     <SummaryRow label="Home Address" value={[formData.ownerStreet, formData.ownerCity, formData.ownerPostalCode].filter(Boolean).join(", ")} />
                   </SummaryCard>
 
-                  <SummaryCard title="Tax &amp; Payroll" colour="amber">
-                    <SummaryRow label="VAT Status" value={formData.vatNeeded} />
-                    {formData.vatNumber && <SummaryRow label="VAT Number" value={formData.vatNumber} />}
-                    <SummaryRow label="PAYE Status" value={formData.payeNeeded} />
-                    <SummaryRow label="Business Address" value={[formData.mailingStreet, formData.mailingCity, formData.mailingPostalCode].filter(Boolean).join(", ")} />
+                  <SummaryCard title="Addresses" colour="amber">
+                    {isLtd && formData.registeredOfficeAddress === true && (
+                      <SummaryRow label="Registered Office" value="Clever Accounts (provided by us)" />
+                    )}
+                    {(!isLtd || formData.registeredOfficeAddress === false) && (
+                      <SummaryRow label={isLtd ? "Registered Office" : "Business Address"}
+                        value={[formData.mailingStreet, formData.mailingCity, formData.mailingPostalCode].filter(Boolean).join(", ")} />
+                    )}
                   </SummaryCard>
                 </div>
 
@@ -1468,7 +1434,7 @@ function SignUpDetailsContent() {
                       {
                         day: "Within 24 hours",
                         title: "Meet your dedicated accountant",
-                        desc: "An experienced accountant will be personally assigned to your account and will call or email to introduce themselves and discuss your needs.",
+                        desc: "An experienced accountant will be personally assigned to your account. They'll call to introduce themselves, walk through your VAT, PAYE and trading setup, and answer any questions.",
                         icon: "🤝",
                       },
                       {
@@ -1550,7 +1516,7 @@ function SignUpDetailsContent() {
             {/* ── Navigation ── */}
             <div className="mt-8 pt-6 border-t border-border space-y-3">
               {/* DEV ONLY: skip button — always visible for testing */}
-              {step < 4 && (
+              {step < 5 && (
                 <div className="flex justify-center">
                   <button type="button" onClick={handleSkip}
                     className="text-xs text-gray-400 hover:text-gray-600 border border-dashed border-gray-300 px-3 py-1.5 rounded-lg transition-colors">
@@ -1559,7 +1525,7 @@ function SignUpDetailsContent() {
                 </div>
               )}
 
-              {!(step === 3 && !isFirstMonthFree && !stripePaymentComplete) && (
+              {!(step === 4 && !isFirstMonthFree && !stripePaymentComplete) && (
                 <div className="flex items-center justify-between">
                   {step > 1 ? (
                     <button type="button" onClick={handleBack}
@@ -1568,7 +1534,7 @@ function SignUpDetailsContent() {
                     </button>
                   ) : <div />}
 
-                  {step < 4 && !(step === 3 && !isFirstMonthFree) && (
+                  {step < 5 && !(step === 4 && !isFirstMonthFree) && (
                     <button type="button" onClick={handleNext} disabled={isSaving}
                       className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-7 py-3 rounded-xl transition-colors disabled:opacity-70 shadow-sm">
                       {isSaving

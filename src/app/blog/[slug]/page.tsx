@@ -12,6 +12,8 @@ import {
   CtaBlockRenderer,
 } from "@/components/blog/PortableTextBlocks";
 import { getBlogPost, getBlogSlugs } from "@/lib/sanity";
+import { getSiteSettings } from "@/sanity/queries";
+import { COMPANY } from "@/lib/constants";
 
 // ── Hardcoded fallback posts ──────────────────────────────────────────────────
 const HARDCODED: Record<string, { title: string; category: string; date: string; author: string; content: string[] }> = {
@@ -40,7 +42,7 @@ const HARDCODED: Record<string, { title: string; category: string; date: string;
       "At Clever Accounts, our specialist contractor team reviews every contract to assess IR35 status. We provide detailed written assessments and can support you if a client's determination doesn't align with the reality of your working arrangements.",
       "Our unique Clever FLEX solution means you don't have to choose between PSC and umbrella. As your contracts change, you can switch seamlessly between the two — all managed by the same dedicated accountant.",
       "Tips for contractors in 2026: Always get your contracts reviewed before starting work. Keep evidence of your working practices. Understand the difference between substitution, control, and mutuality of obligation. And most importantly, work with an accountant who specialises in contractor tax.",
-      "If you need IR35 advice or want to discuss your contracting arrangements, our specialist team is here to help. Call us on 0800 756 9786 or get in touch through our website.",
+      "If you need IR35 advice or want to discuss your contracting arrangements, our specialist team is here to help. Call us on {{phone}} or get in touch through our website.",
     ],
   },
   "tax-saving-tips-ltd": {
@@ -275,11 +277,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const publishedIso = new Date(post.date).toISOString();
 
+  let freephone = COMPANY.freephone;
+  let email = COMPANY.email;
+  try {
+    const settings = await getSiteSettings();
+    if (settings?.freephone) freephone = settings.freephone;
+    if (settings?.email) email = settings.email;
+  } catch { /* use defaults */ }
+
+  const interpolate = (s: string) =>
+    s.replace(/\{\{phone\}\}/g, freephone).replace(/\{\{email\}\}/g, email);
+
   return (
     <>
       <BlogPostingJsonLd
         title={post.title}
-        description={post.content[0]}
+        description={interpolate(post.content[0])}
         publishedAt={publishedIso}
         authorName={post.author}
         url={`/blog/${slug}`}
@@ -308,7 +321,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <article className="bg-white py-12 md:py-16">
         <div className="max-w-3xl mx-auto px-4 space-y-6">
           {post.content.map((para, i) => (
-            <p key={i} className="text-text leading-relaxed">{para}</p>
+            <p key={i} className="text-text leading-relaxed">{interpolate(para)}</p>
           ))}
         </div>
       </article>

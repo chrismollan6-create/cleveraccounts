@@ -78,13 +78,13 @@ export const servicePages: Record<string, ServicePageData> = {
       { value: "100%", label: "Self assessment returns filed on time", colour: "from-purple-500 to-pink-400" },
     ],
     lifestyleImage: {
-      src: "/images/sole-trader-lifestyle.jpg",
+      src: "/images/sole-trader-lifestyle.webp",
       alt: "Sole trader working from a café",
       heading: "Work from anywhere. We've got the accounting covered.",
       body: "Whether you're at your desk, on a job, or grabbing a coffee between clients — your dedicated accountant is handling the numbers in the background. Self assessment, tax planning, HMRC correspondence. All of it. So you can focus on what you actually do.",
     },
     lifestyleImage2: {
-      src: "/images/sole-trader-tradesperson.jpg",
+      src: "/images/sole-trader-tradesperson.webp",
       alt: "Self-employed tradesperson",
       heading: "We work for all kinds of sole traders.",
       body: "Plumbers, electricians, builders, mechanics, consultants, designers — we've seen it all. Whatever your trade, your dedicated accountant understands how self-employed income works and makes sure you're claiming everything you're entitled to.",
@@ -187,7 +187,7 @@ export const servicePages: Record<string, ServicePageData> = {
       { value: "20+", label: "Years of limited company expertise", colour: "from-purple-500 to-pink-400" },
     ],
     lifestyleImage: {
-      src: "/images/limited-company-director.jpg",
+      src: "/images/limited-company-director.webp",
       alt: "Limited company director at work",
       heading: "Run your company. Leave the compliance to us.",
       body: "Accounts, VAT, payroll, Companies House — a limited company has a lot of moving parts. We handle every single one, so you can spend your time growing the business rather than wrestling with HMRC deadlines.",
@@ -310,7 +310,7 @@ export const servicePages: Record<string, ServicePageData> = {
       { value: "20+", label: "Years of contractor tax expertise", colour: "from-purple-500 to-pink-400" },
     ],
     lifestyleImage: {
-      src: "/images/hero-accountant.jpg",
+      src: "/images/hero-accountant.webp",
       alt: "Contractor working with their accountant",
       heading: "Your IR35 specialist is one call away.",
       body: "New contract? Renewal coming up? Not sure about your status? Your dedicated contractor accountant reviews your situation, advises on working practices, and gives you a clear written IR35 opinion — fast. No waiting, no vague answers.",
@@ -485,7 +485,7 @@ export const servicePages: Record<string, ServicePageData> = {
       { value: "All types", label: "BTL, HMO, commercial, holiday lets", colour: "from-purple-500 to-pink-400" },
     ],
     lifestyleImage: {
-      src: "/images/hero-accountant.jpg",
+      src: "/images/hero-accountant.webp",
       alt: "Property accountant discussing a landlord's portfolio",
       heading: "Property tax is complex. We make it simple.",
       body: "Section 24, CGT deadlines, ATED charges, FHL rules — the tax landscape for landlords keeps getting more complicated. Your dedicated property accountant stays on top of every change and makes sure your portfolio is always structured to minimise tax and maximise your returns.",

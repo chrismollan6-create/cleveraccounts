@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 import { FAQPageJsonLd, PricingJsonLd } from "@/components/seo/StructuredData";
 import { getSiteSettings, getHomePage, getPricingPlans } from "@/sanity/queries";
+import { COMPANY } from "@/lib/constants";
 
 const DEFAULT_TITLE = "Clever Accounts | Expert Online Accountants UK — From £42.50/month";
 const DEFAULT_DESC =
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const HOME_FAQS = [
+const buildHomeFaqs = (freephone: string, email: string) => [
   {
     q: "Is there a minimum contract or cancellation fee?",
     a: "No. There's no minimum term and no exit fees — you can cancel at any time with 30 days' notice. Your data and records stay yours.",
@@ -50,32 +51,38 @@ const HOME_FAQS = [
   },
   {
     q: "Can I speak to a real person before signing up?",
-    a: "Absolutely. Call us on 0800 756 9786, request a callback via the chat bubble, or email info@cleveraccounts.com — a qualified accountant will walk you through everything.",
+    a: `Absolutely. Call us on ${freephone}, request a callback via the chat bubble, or email ${email} — a qualified accountant will walk you through everything.`,
   },
 ];
 
 export default async function HomePage() {
   let promoBadges: Record<string, string> = {};
+  let freephone = COMPANY.freephone;
+  let email = COMPANY.email;
   try {
     const settings = await getSiteSettings();
+    if (settings?.freephone) freephone = settings.freephone;
+    if (settings?.email) email = settings.email;
     const p = settings?.promo;
     if (p?.enabled && p.appliesTo?.length) {
       const text = (p.badgeText ||
         `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim()) || null;
       if (text) for (const plan of p.appliesTo) promoBadges[plan] = text;
     }
-  } catch { /* use empty */ }
+  } catch { /* use defaults */ }
 
   let pricingPlans: any[] = [];
   try {
     pricingPlans = (await getPricingPlans()) || [];
   } catch { /* fallback to hardcoded */ }
 
+  const homeFaqs = buildHomeFaqs(freephone, email);
+
   return (
     <>
-      <FAQPageJsonLd faqs={HOME_FAQS} />
+      <FAQPageJsonLd faqs={homeFaqs} />
       <PricingJsonLd />
-      <HomePageClient faqs={HOME_FAQS} promoBadges={promoBadges} pricingPlans={pricingPlans} />
+      <HomePageClient faqs={homeFaqs} promoBadges={promoBadges} pricingPlans={pricingPlans} freephone={freephone} />
     </>
   );
 }

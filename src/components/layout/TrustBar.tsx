@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Star, Trophy } from "lucide-react";
+import Image from "next/image";
+import { Star } from "lucide-react";
 
 function Stars({ rating, color }: { rating: number; color: string }) {
   const full = Math.floor(rating);
@@ -62,12 +63,17 @@ export default function TrustBar() {
               href="https://www.freeagent.com/find-an-accountant/clever-accounts-limited/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:opacity-80 transition-opacity shrink-0 whitespace-nowrap"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0 whitespace-nowrap"
               aria-label="FreeAgent Platinum Partner"
             >
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[9px] font-black" style={{ background: "#E6007E" }}>F</span>
+              <Image
+                src="/images/freeagentplat.jpg"
+                alt=""
+                width={105}
+                height={28}
+                className="h-7 w-auto object-contain"
+              />
               <span className="text-xs font-semibold text-dark">FreeAgent</span>
-              <span className="text-xs bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">Platinum Partner</span>
             </a>
 
             <div className="hidden sm:block w-px h-4 bg-border shrink-0" />
@@ -77,21 +83,32 @@ export default function TrustBar() {
               href="https://www.fcsa.org.uk/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:opacity-80 transition-opacity shrink-0 whitespace-nowrap"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0 whitespace-nowrap"
               aria-label="FCSA Accredited"
             >
-              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" aria-hidden="true">
-                <path d="M10 2L12.5 7.5H18L13.5 11L15.5 17L10 13.5L4.5 17L6.5 11L2 7.5H7.5L10 2Z" fill="#1A3A6B" />
-              </svg>
-              <span className="text-xs font-semibold text-dark">FCSA Accredited</span>
+              <span className="relative inline-block h-7 w-7 overflow-hidden">
+                <Image
+                  src="/images/FCSA.jpg"
+                  alt=""
+                  fill
+                  className="object-cover scale-[1.35]"
+                />
+              </span>
+              <span className="text-xs font-semibold text-dark">FCSA</span>
             </a>
 
             <div className="hidden sm:block w-px h-4 bg-border shrink-0" />
 
             {/* Contracting Awards Finalist */}
-            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-              <Trophy size={13} className="text-amber-500" />
-              <span className="text-xs font-semibold text-dark">Contracting Awards Finalist</span>
+            <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
+              <Image
+                src="/images/Award2020.jpg"
+                alt=""
+                width={28}
+                height={28}
+                className="h-7 w-auto object-contain"
+              />
+              <span className="text-xs font-semibold text-dark">Contracting Awards</span>
               <span className="text-xs text-text-light">2023, 2024, 2025</span>
             </div>
 

@@ -5,7 +5,7 @@ import { Phone, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
 import { COMPANY } from "@/lib/constants";
 
-export default function StickyFloatingCTA() {
+export default function StickyFloatingCTA({ freephone = COMPANY.freephone }: { freephone?: string } = {}) {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -37,11 +37,11 @@ export default function StickyFloatingCTA() {
           {/* Right: CTAs */}
           <div className="flex items-center gap-3 flex-1 sm:flex-none justify-between sm:justify-end">
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${freephone.replace(/\s/g, "")}`}
               className="flex items-center gap-2 bg-dark hover:bg-secondary text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
             >
               <Phone size={16} />
-              <span className="hidden md:inline">{COMPANY.freephone}</span>
+              <span className="hidden md:inline">{freephone}</span>
               <span className="md:hidden">Call Free</span>
             </a>
             <Link
