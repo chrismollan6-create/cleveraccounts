@@ -34,6 +34,7 @@ import TaxCalculator from "@/components/ui/TaxCalculator";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import PricingFAQ from "@/components/ui/PricingFAQ";
+import RequestCallback from "@/components/ui/RequestCallback";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA — fallback if CMS empty
@@ -178,30 +179,29 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                 Your own dedicated accountant, unlimited advice, and free software — all for one fixed monthly fee. No surprises. Ever.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <Link
                   href="/sign-up"
-                  className="btn-primary inline-flex items-center gap-3 text-lg px-10 py-5 rounded-2xl animate-pulse-glow"
+                  className="btn-primary inline-flex items-center gap-2 text-base px-6 py-3 rounded-xl animate-pulse-glow"
                 >
-                  Get Started — From £42.50/mo
-                  <ArrowRight size={22} />
+                  Get Started
+                  <ArrowRight size={18} />
                 </Link>
-                <a
-                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
-                  className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm font-medium"
-                >
-                  <Phone size={15} />
-                  {COMPANY.freephone}
-                </a>
+                <RequestCallback
+                  inline
+                  label="Request a Callback"
+                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold text-base px-6 py-3 rounded-xl transition-colors"
+                />
               </div>
 
               <p className="text-slate-500 text-sm mt-4 flex items-center gap-4">
-                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> No setup fees</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> 50% off first 3 months</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> Cancel anytime</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-primary-light" /> Free to set up</span>
               </p>
 
-              {/* Trust signals — visible above the fold on all devices */}
+              {/* Trust signals — visible above the fold on all devices 
+             
               <div className="mt-8 pt-8 border-t border-white/10 flex flex-nowrap items-center gap-x-4">
                 <div className="flex items-center gap-1.5 shrink-0">
                   <div className="flex">
@@ -217,7 +217,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                 <span className="text-white/70 text-xs font-medium shrink-0">ICAEW Regulated</span>
                 <div className="h-3.5 w-px bg-white/20 shrink-0" />
                 <span className="text-white/70 text-xs font-medium shrink-0">20+ years</span>
-              </div>
+              </div>*/}
             </div>
 
             {/* Right — People-first visual */}
@@ -309,10 +309,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="hidden md:flex items-center gap-2 text-emerald-100 text-sm">
-                <Users size={15} />
-                <span>Already referred by a client? <strong className="text-white">Join today.</strong></span>
-              </div>
+
               <Link
                 href="/refer-a-friend"
                 className="inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-emerald-50 transition-colors whitespace-nowrap"
@@ -334,7 +331,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
               { value: "10,000+", label: "Businesses Trust Us" },
               { value: "20+", label: "Years Experience" },
               { value: "£0", label: "Setup Fees" },
-              { value: "ICAEW", label: "Regulated Firm" },
+              { value: "FCSA", label: "Regulated Firm" },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <span className="text-2xl md:text-3xl font-black text-gradient-teal">{s.value}</span>
@@ -620,9 +617,9 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
 
       {/* ═══════════════════════════════════════
           BEFORE / AFTER — Interactive slider
-          ═══════════════════════════════════════ */}
+          ═══════════════════════════════════════ 
       <BeforeAfter />
-
+*/}
       {/* ═══════════════════════════════════════
           VALUE COMPARISON — vs doing it yourself
           ═══════════════════════════════════════ */}
