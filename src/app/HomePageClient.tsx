@@ -26,15 +26,15 @@ import {
   BarChart3,
   MessageCircle,
   Sparkles,
-  Quote,
   Tag,
 } from "lucide-react";
-import { COMPANY, TESTIMONIALS } from "@/lib/constants";
+import { COMPANY } from "@/lib/constants";
 import TaxCalculator from "@/components/ui/TaxCalculator";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
+import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA — fallback if CMS empty
@@ -693,86 +693,25 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
       </section>
 
       {/* ═══════════════════════════════════════
-          CLIENT SPOTLIGHT — Featured story
+          CLIENT REVIEWS — Live Google Reviews feed
           ═══════════════════════════════════════ */}
       <section className="bg-white py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <span className="text-primary font-bold text-sm uppercase tracking-wider">Real People, Real Results</span>
             <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
               Don&apos;t Take Our Word for It
             </h2>
+            <p className="text-text-light mt-4 text-lg max-w-2xl mx-auto">
+              Live Google reviews from real Clever Accounts clients.
+            </p>
           </div>
 
-          {/* Featured client story */}
-          <div className="bg-primary-50 rounded-3xl p-8 md:p-12 mb-12 max-w-5xl mx-auto relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blob-shape" />
-            <div className="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-              <div className="md:col-span-3 text-center">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-3xl font-black mx-auto mb-3">
-                  SM
-                </div>
-                <h3 className="text-lg font-bold text-dark">Sarah Mitchell</h3>
-                <p className="text-primary text-sm font-semibold">Sole Trader</p>
-                <p className="text-text-light text-xs">Freelance Copywriter</p>
-                <div className="flex justify-center gap-0.5 mt-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-              </div>
-              <div className="md:col-span-9">
-                <Quote size={36} className="text-primary/20 mb-3" />
-                <p className="text-lg text-dark leading-relaxed mb-4">
-                  &ldquo;Before Clever Accounts, I was spending every Sunday doing my books. Now my accountant Sarah handles everything. She even spotted £1,400 in expenses I didn&apos;t know I could claim. <strong className="text-primary">The service paid for itself three times over in the first year.</strong>&rdquo;
-                </p>
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <span className="flex items-center gap-2 bg-white rounded-full px-4 py-2 font-semibold">
-                    <CheckCircle2 size={16} className="text-primary" /> £1,400 extra tax savings
-                  </span>
-                  <span className="flex items-center gap-2 bg-white rounded-full px-4 py-2 font-semibold">
-                    <Clock size={16} className="text-primary" /> 10+ hours/month saved
-                  </span>
-                  <span className="flex items-center gap-2 bg-white rounded-full px-4 py-2 font-semibold">
-                    <Shield size={16} className="text-primary" /> Zero missed deadlines
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Review cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TESTIMONIALS.map((t, i) => {
-              const gradients = ["from-primary to-primary-light", "from-accent to-purple-400", "from-emerald-500 to-teal-400", "from-blue-500 to-indigo-400"];
-              return (
-                <div key={i} className="bg-white rounded-2xl p-6 border border-border card-glow relative">
-                  <Quote size={32} className="text-primary/10 absolute top-4 right-4" />
-                  <div className="flex gap-0.5 mb-4">
-                    {[...Array(t.rating)].map((_, j) => (
-                      <Star key={j} size={16} className="fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-sm text-text leading-relaxed mb-5 relative z-10">
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-border">
-                    <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${gradients[i % 4]} flex items-center justify-center text-white text-xs font-black`}>
-                      {t.name.split(" ").map((n) => n[0]).join("")}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-dark">{t.name}</p>
-                      <p className="text-xs text-text-light">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <GoogleReviewsWidget />
 
           <div className="text-center mt-12">
             <Link href="/reviews" className="inline-flex items-center gap-2 text-primary font-bold text-lg hover:text-primary-dark transition-colors">
-              Read all 10,000+ reviews <ArrowRight size={18} />
+              See all reviews <ArrowRight size={18} />
             </Link>
           </div>
         </div>
