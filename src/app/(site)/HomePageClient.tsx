@@ -121,7 +121,7 @@ function buildHeadline(plan: CmsPricingPlan): string {
   if (plan.homepageHeadline) return plan.homepageHeadline;
   if (plan.homepagePlural) return `Tailored accounting for ${plan.homepagePlural.toLowerCase()}`;
   // No safe way to pluralise an arbitrary plan name — use a template that doesn't need one.
-  return `Tailored accounting — ${plan.name}`;
+  return `Complete accounting for a ${plan.name}`;
 }
 
 function buildServiceTabs(plans: CmsPricingPlan[]) {

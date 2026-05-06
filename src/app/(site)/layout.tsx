@@ -10,7 +10,7 @@ import CookieConsent from "@/components/ui/CookieConsent";
 import ChatButton from "@/components/ui/ChatButton";
 import RequestCallback from "@/components/ui/RequestCallback";
 import PromoBanner from "@/components/layout/PromoBanner";
-import "./globals.css";
+import "../globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cleveraccounts.com"),

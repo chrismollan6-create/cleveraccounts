@@ -750,7 +750,8 @@ function ContactStrip({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-function SignUpDetailsContent() {
+function SignUpDetailsContent({ freephone }: { freephone?: string }) {
+  const phone = freephone || COMPANY.freephone;
   const searchParams = useSearchParams();
   const token = searchParams.get("t") ?? "";
   const paymentParam = searchParams.get("payment");
@@ -808,6 +809,20 @@ function SignUpDetailsContent() {
       ...getStoredUTMParams(),
     });
   }, []);
+
+  // Auto-fill director name with user's own name (Ltd Co only).
+  // Runs whenever first/last name change AND director field is still empty —
+  // so a manually edited director name is never clobbered.
+  useEffect(() => {
+    if (!isLtd) return;
+    if (formData.firstName && !formData.directorFirstName) {
+      setFormData((d) => ({ ...d, directorFirstName: formData.firstName }));
+    }
+    if (formData.lastName && !formData.directorLastName) {
+      setFormData((d) => ({ ...d, directorLastName: formData.lastName }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLtd, formData.firstName, formData.lastName]);
 
   // Abandonment tracking — fire when user leaves mid-flow
   useEffect(() => {
@@ -1108,7 +1123,7 @@ function SignUpDetailsContent() {
                   {step === 1 && "A few quick things about your business so we can match you with the right accountant."}
                   {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. Takes about 60 seconds."}
                   {step === 3 && "These addresses are used for HMRC correspondence and your statutory filings."}
-                  {step === 4 && "First month at 50% off. Secure your account with a small upfront payment."}
+                  {step === 4 && "50% off your first 3 months. Secure your account with a small upfront payment."}
                   {step === 5 && "A quick check that everything looks right, then we'll get you onboarded."}
                 </p>
               </div>
@@ -1142,7 +1157,7 @@ function SignUpDetailsContent() {
                 Stuck on something?{" "}
                 <a href="/contact" className="text-primary font-semibold hover:underline">Chat to us</a>
                 {" or call "}
-                <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="text-primary font-semibold hover:underline whitespace-nowrap">{COMPANY.freephone}</a>
+                <a href={`tel:${phone.replace(/\s/g, "")}`} className="text-primary font-semibold hover:underline whitespace-nowrap">{phone}</a>
               </div>
             </div>
           </aside>
@@ -1167,7 +1182,7 @@ function SignUpDetailsContent() {
                 {step === 1 && "A few quick things about your business."}
                 {step === 2 && "HMRC requires us to verify who you are. Takes about 60 seconds."}
                 {step === 3 && "Used for HMRC correspondence and your statutory filings."}
-                {step === 4 && "First month at 50% off."}
+                {step === 4 && "50% off your first 3 months."}
                 {step === 5 && "Quick check that everything looks right."}
               </p>
             </div>
@@ -1329,12 +1344,12 @@ function SignUpDetailsContent() {
               <div className="space-y-5">
 
                 {/* Required identity — info banner now nested inside for tighter visual hierarchy */}
-                <SectionCard icon={<ShieldCheck size={18} />} title="HMRC Identity Check"
-                  description="Required — these details confirm who you are with HMRC.">
+                <SectionCard icon={<ShieldCheck size={18} />} title="Identity Check"
+                  description="Required — we are required to perform identification checks.">
 
                   <InfoBox icon={<ShieldCheck size={16} />} colour="blue">
                     <p className="font-semibold mb-0.5">Held securely, never shared</p>
-                    <p>This information is encrypted at rest and <strong>never shared with third parties</strong> outside of HMRC submissions.</p>
+                    <p>This information is encrypted and <strong>never shared with third parties</strong> outside of the systems required to perform these identity checks.</p>
                   </InfoBox>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1365,7 +1380,7 @@ function SignUpDetailsContent() {
                     <div className="space-y-3 pt-4 mt-2 border-t border-gray-100">
                       <div>
                         <p className="text-[13px] font-semibold text-dark">Director on Record</p>
-                        <p className="text-xs text-text-light mt-0.5">If <strong>you&apos;re</strong> the primary director, enter your own name. Multiple directors? We&apos;ll collect the rest after onboarding.</p>
+                        <p className="text-xs text-text-light mt-0.5">We&apos;ve pre-filled this with your name — change it if a different person is the primary director. Multiple directors? We&apos;ll collect the rest after onboarding.</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <FieldWrapper label="Director First Name" required error={err("directorFirstName")}
@@ -1493,6 +1508,22 @@ function SignUpDetailsContent() {
                     description={isLtd
                       ? "This will be used as your registered office and appear publicly on Companies House."
                       : "Where your business operates. For sole traders this is often your home address."}>
+                    {/* Quick-fill: copy personal address into business address */}
+                    {(formData.ownerStreet || formData.ownerCity || formData.ownerPostalCode) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          set("mailingStreet", formData.ownerStreet);
+                          set("mailingCity", formData.ownerCity);
+                          set("mailingState", formData.ownerCounty);
+                          set("mailingPostalCode", formData.ownerPostalCode);
+                        }}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/8 hover:bg-primary/12 border border-primary/20 px-3 py-1.5 rounded-lg transition-colors mb-3"
+                      >
+                        <MapPin size={13} />
+                        Use my personal address
+                      </button>
+                    )}
                     <AddressFields
                       prefix="Business"
                       streetField="mailingStreet" cityField="mailingCity"
@@ -1522,7 +1553,7 @@ function SignUpDetailsContent() {
                   </InfoBox>
                 )}
 
-                <NextUpHint title="Next: Secure your account" desc="Pay your first month at 50% off — fully refundable, cancel anytime." icon={<CreditCard size={14} />} />
+                <NextUpHint title="Next: Secure your account" desc="50% off your first 3 months — fully refundable, cancel anytime." icon={<CreditCard size={14} />} />
               </div>
             )}
 
@@ -1541,7 +1572,7 @@ function SignUpDetailsContent() {
                       No payment is needed today. Your monthly fee of <strong>£{monthlyFee.toFixed(2)}</strong> will begin from month two.
                     </p>
                     <div className="bg-gray-50 rounded-xl p-4 text-sm text-text-light max-w-xs mx-auto">
-                      From month 2 onwards: <strong className="text-dark">£{monthlyFee.toFixed(2)}/month</strong>
+                      From month 4 onwards: <strong className="text-dark">£{monthlyFee.toFixed(2)}/month</strong>
                     </div>
                   </div>
                 ) : stripePaymentComplete ? (
@@ -1551,7 +1582,7 @@ function SignUpDetailsContent() {
                     </div>
                     <h3 className="text-xl font-bold text-dark mb-2">Payment Received!</h3>
                     <p className="text-text-light">
-                      <strong>£{chargeAmount.toFixed(2)}</strong> collected — that&apos;s 50% off your first month.
+                      <strong>£{chargeAmount.toFixed(2)}</strong> collected today — that&apos;s 50% off your first 3 months.
                     </p>
                   </div>
                 ) : (
@@ -1565,14 +1596,15 @@ function SignUpDetailsContent() {
                         </div>
                         <div className="text-right">
                           <div className="inline-block bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full mb-1">50% OFF</div>
-                          <p className="text-sm text-text-light">First month</p>
+                          <p className="text-sm text-text-light">First 3 months</p>
                           <p className="text-2xl font-bold text-primary">£{chargeAmount.toFixed(2)}</p>
                         </div>
                       </div>
                       <div className="border-t border-primary/10 pt-4 space-y-2 text-sm">
                         {[
-                          "50% discount on your first month",
-                          "Full price applies from month 2",
+                          "50% discount on your first 3 months",
+                          "Full price applies from month 4",
+                          "Refundable if you're not happy",
                           "Cancel anytime — no minimum contract",
                         ].map((item) => (
                           <div key={item} className="flex items-center gap-2 text-text">
@@ -1924,10 +1956,10 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function SignUpDetailsPage() {
+export default function SignUpDetailsClient({ freephone }: { freephone?: string }) {
   return (
     <Suspense>
-      <SignUpDetailsContent />
+      <SignUpDetailsContent freephone={freephone} />
     </Suspense>
   );
 }
