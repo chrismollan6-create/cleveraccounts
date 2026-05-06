@@ -215,8 +215,6 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                 <div className="h-3.5 w-px bg-white/20 shrink-0" />
                 <span className="text-white/70 text-xs font-medium shrink-0">10,000+ businesses</span>
                 <div className="h-3.5 w-px bg-white/20 shrink-0" />
-                <span className="text-white/70 text-xs font-medium shrink-0">ICAEW Regulated</span>
-                <div className="h-3.5 w-px bg-white/20 shrink-0" />
                 <span className="text-white/70 text-xs font-medium shrink-0">20+ years</span>
               </div>*/}
             </div>

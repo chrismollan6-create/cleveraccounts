@@ -47,7 +47,7 @@ const buildHomeFaqs = (freephone: string, email: string) => [
   },
   {
     q: "Are you qualified and regulated?",
-    a: "Yes — our firm is regulated by ICAEW, we're FCSA accredited for our umbrella service, and we're a FreeAgent Platinum Partner. Your accounts are in qualified hands.",
+    a: "Yes — we're FCSA accredited for our umbrella service and a FreeAgent Platinum Partner. Your accounts are in qualified, professionally accountable hands.",
   },
   {
     q: "Can I speak to a real person before signing up?",
