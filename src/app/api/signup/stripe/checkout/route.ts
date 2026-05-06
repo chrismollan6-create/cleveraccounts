@@ -33,7 +33,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(data);
+    // Salesforce returns { sessionId, checkoutUrl } — the client expects `url`.
+    // Normalise here so the API contract is Stripe-shaped.
+    return NextResponse.json({
+      url: data.checkoutUrl ?? data.url,
+      sessionId: data.sessionId,
+    });
   } catch (err) {
     console.error('/api/signup/stripe/checkout error:', err);
     return NextResponse.json({ error: 'An unexpected error occurred.' }, { status: 500 });
