@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   CheckCircle2,
@@ -107,12 +108,20 @@ type CmsPricingPlan = {
   ctaLink?: string;
   homepageIcon?: string;
   homepageHeadline?: string;
+  homepagePlural?: string;
   homepageStat?: string;
   homepageLearnMore?: string;
 };
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function buildHeadline(plan: CmsPricingPlan): string {
+  if (plan.homepageHeadline) return plan.homepageHeadline;
+  if (plan.homepagePlural) return `Tailored accounting for ${plan.homepagePlural.toLowerCase()}`;
+  // No safe way to pluralise an arbitrary plan name — use a template that doesn't need one.
+  return `Tailored accounting — ${plan.name}`;
 }
 
 function buildServiceTabs(plans: CmsPricingPlan[]) {
@@ -123,7 +132,7 @@ function buildServiceTabs(plans: CmsPricingPlan[]) {
       id: slugify(p.name!),
       label: p.name!,
       icon: ICON_MAP[p.homepageIcon || ""] ?? FALLBACK_TABS[i % FALLBACK_TABS.length].icon,
-      headline: p.homepageHeadline || `Tailored accounting for ${p.name!.toLowerCase()}s`,
+      headline: buildHeadline(p),
       price: p.price!,
       features: p.features?.length ? p.features : FALLBACK_TABS[i % FALLBACK_TABS.length].features,
       href: p.homepageLearnMore || p.ctaLink || "/sign-up",
@@ -227,9 +236,9 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                 {/* Accountant profiles */}
                 <div className="space-y-4">
                   {[
-                    { name: "Sarah Johnson", role: "Your Dedicated Accountant", speciality: "Sole Trader Specialist", initials: "SJ", color: "from-primary to-primary-light" },
-                    { name: "Michael Chen", role: "Tax Planning Expert", speciality: "Limited Company & IR35", initials: "MC", color: "from-accent to-purple-400" },
-                    { name: "Emma Williams", role: "Payroll & VAT Manager", speciality: "Contractor Specialist", initials: "EW", color: "from-emerald-500 to-teal-400" },
+                    { name: "Charlie McAuley", role: "Your Dedicated Accountant", speciality: "Sole Trader Specialist", initials: "SJ", color: "from-primary to-primary-light" },
+                    { name: "Mark White", role: "Tax Planning Expert", speciality: "Limited Company & IR35", initials: "MC", color: "from-accent to-purple-400" },
+                    { name: "Anne-Marie", role: "Payroll & VAT Manager", speciality: "Contractor Specialist", initials: "EW", color: "from-emerald-500 to-teal-400" },
                   ].map((person, i) => (
                     <div key={i} className="flex items-center gap-4 bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-all">
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${person.color} flex items-center justify-center text-white font-bold text-lg shrink-0`}>
@@ -260,7 +269,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                     <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-dark">Sarah is available</p>
+                    <p className="text-sm font-bold text-dark">Kiran is available</p>
                     <p className="text-xs text-text-light">Your accountant is online</p>
                   </div>
                 </div>
@@ -352,7 +361,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
       {/* ═══════════════════════════════════════
           THE PROBLEM — Emotional connection
           ═══════════════════════════════════════ */}
-      <section className="bg-white py-20 md:py-28">
+      <section className="gradient-warm-section py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <span className="text-primary font-bold text-sm uppercase tracking-wider">Sound Familiar?</span>
@@ -504,6 +513,31 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
         </div>
       </section>
 
+            {/* ═══════════════════════════════════════
+          CLIENT REVIEWS — Live Google Reviews feed
+          ═══════════════════════════════════════ */}
+      <section className="bg-white py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <span className="text-primary font-bold text-sm uppercase tracking-wider">Real People, Real Results</span>
+            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
+              Don&apos;t Take Our Word for It
+            </h2>
+            <p className="text-text-light mt-4 text-lg max-w-2xl mx-auto">
+              Live Google reviews from real Clever Accounts clients.
+            </p>
+          </div>
+
+          <GoogleReviewsWidget />
+
+          <div className="text-center mt-12">
+            <Link href="/reviews" className="inline-flex items-center gap-2 text-primary font-bold text-lg hover:text-primary-dark transition-colors">
+              See all reviews <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════════════════════
           TAX SAVINGS CALCULATOR
           ═══════════════════════════════════════ */}
@@ -561,51 +595,78 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
+            {([
               {
-                name: "Sarah Johnson",
+                name: "Charlie McAuley",
                 role: "Sole Trader Specialist",
-                experience: "12 years experience",
-                initials: "SJ",
+                experience: "5 years experience",
+                initials: "CM",
                 gradient: "from-primary to-primary-light",
+                image: "/images/Charlie.png", // TODO: replace with /images/CharlieMcAuley.webp once uploaded
                 quote: "I love helping sole traders keep more of what they earn. It's personal for me — I started as a sole trader myself.",
                 specialities: ["Self Assessment", "MTD", "Expense Planning"],
               },
               {
-                name: "Michael Chen",
+                name: "Jimmy Brooke",
                 role: "Limited Company Expert",
-                experience: "15 years experience",
-                initials: "MC",
+                experience: "10 years experience",
+                initials: "MW",
                 gradient: "from-accent to-purple-400",
+                image: "/images/Jimmy.png", // TODO: replace with /images/MarkWhite.webp once uploaded
                 quote: "My job is to make sure your limited company is as tax-efficient as possible. I'm proactive — I don't wait for you to ask.",
                 specialities: ["Corporation Tax", "VAT", "Payroll"],
               },
               {
-                name: "Emma Williams",
+                name: "Rebecca Binks",
                 role: "Contractor & IR35 Specialist",
                 experience: "10 years experience",
-                initials: "EW",
+                initials: "HS",
                 gradient: "from-emerald-500 to-teal-400",
+                image: "/images/Rebecca.png", // TODO: replace with /images/HasnainShafi.webp once uploaded
                 quote: "Contractors face unique challenges. I review every contract, manage your IR35 status, and make Clever FLEX seamless.",
                 specialities: ["IR35", "Contract Reviews", "Clever FLEX"],
               },
-            ].map((person) => (
-              <div key={person.name} className="bg-white rounded-3xl p-8 border border-border card-glow text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
-                <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${person.gradient} flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 relative`}>
-                  {person.initials}
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white" />
+            ] as { name: string; role: string; experience: string; initials: string; gradient: string; image: string | undefined; quote: string; specialities: string[] }[]).map((person) => (
+              <div key={person.name} className="bg-white rounded-3xl border border-border card-glow text-center relative overflow-hidden flex flex-col">
+                {/* Photo banner */}
+                <div className="relative h-64 w-full overflow-hidden bg-slate-100">
+                  {person.image ? (
+                    <Image
+                      src={person.image}
+                      alt={`${person.name}, ${person.role} at Clever Accounts`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className={`w-full h-full bg-gradient-to-br ${person.gradient} flex items-center justify-center text-white font-black text-6xl tracking-tight`}>
+                      {person.initials}
+                    </div>
+                  )}
+                  {/* Subtle bottom fade so name/role read cleanly */}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/60 to-transparent" />
+                  {/* Online pill */}
+                  <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-full pl-2 pr-3 py-1 shadow-sm">
+                    <span className="relative flex w-2 h-2">
+                      <span className="absolute inline-flex w-full h-full rounded-full bg-green-400 opacity-75 animate-ping" />
+                      <span className="relative inline-flex rounded-full w-2 h-2 bg-green-500" />
+                    </span>
+                    <span className="text-[11px] font-bold text-dark uppercase tracking-wide">Online</span>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-dark">{person.name}</h3>
-                <p className="text-primary font-semibold text-sm">{person.role}</p>
-                <p className="text-text-light text-xs mb-4">{person.experience}</p>
-                <p className="text-text text-sm italic leading-relaxed mb-5">
-                  &ldquo;{person.quote}&rdquo;
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {person.specialities.map((s) => (
-                    <span key={s} className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">{s}</span>
-                  ))}
+                {/* Content */}
+                <div className="px-7 pt-5 pb-8 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold text-dark">{person.name}</h3>
+                  <p className="text-primary font-semibold text-sm">{person.role}</p>
+                  <p className="text-text-light text-xs mb-4">{person.experience}</p>
+                  <p className="text-text text-sm italic leading-relaxed mb-5">
+                    &ldquo;{person.quote}&rdquo;
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center mt-auto">
+                    {person.specialities.map((s) => (
+                      <span key={s} className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">{s}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
@@ -630,7 +691,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
       {/* ═══════════════════════════════════════
           VALUE COMPARISON — vs doing it yourself
           ═══════════════════════════════════════ */}
-      <section className="gradient-warm-section py-20 md:py-28">
+      <section className="bg-white py-20 md:py-28">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-14">
             <span className="text-primary font-bold text-sm uppercase tracking-wider">The Smart Choice</span>
@@ -699,30 +760,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
-          CLIENT REVIEWS — Live Google Reviews feed
-          ═══════════════════════════════════════ */}
-      <section className="bg-white py-20 md:py-28">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <span className="text-primary font-bold text-sm uppercase tracking-wider">Real People, Real Results</span>
-            <h2 className="text-4xl md:text-5xl font-black text-dark mt-3">
-              Don&apos;t Take Our Word for It
-            </h2>
-            <p className="text-text-light mt-4 text-lg max-w-2xl mx-auto">
-              Live Google reviews from real Clever Accounts clients.
-            </p>
-          </div>
 
-          <GoogleReviewsWidget />
-
-          <div className="text-center mt-12">
-            <Link href="/reviews" className="inline-flex items-center gap-2 text-primary font-bold text-lg hover:text-primary-dark transition-colors">
-              See all reviews <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════
           FAQ — Common questions

@@ -99,7 +99,7 @@ export default function TaxCalculator() {
   const potentialSavings = businessType === "sole-trader" ? savings : 0;
 
   return (
-    <section className="bg-white py-20 md:py-28 relative overflow-hidden">
+    <section className="gradient-warm-section py-20 md:py-28 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blob-shape" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-secondary/5 blob-shape-2" />

@@ -81,7 +81,13 @@ export default defineType({
       name: "homepageHeadline",
       title: "Homepage Headline",
       type: "string",
-      description: "Headline shown in the homepage 'I'm a...' panel, e.g. 'Complete accounting for your limited company'",
+      description: "Headline shown in the homepage 'I'm a...' panel, e.g. 'Complete accounting for your limited company'. If left blank, a headline is generated from the plural below.",
+    }),
+    defineField({
+      name: "homepagePlural",
+      title: "Homepage Plural Label",
+      type: "string",
+      description: "Plural form of the plan, used to auto-generate the headline when 'Homepage Headline' is blank. e.g. 'limited companies', 'sole traders', 'contractors', 'premium contractors'. Always lowercase.",
     }),
     defineField({
       name: "homepageStat",

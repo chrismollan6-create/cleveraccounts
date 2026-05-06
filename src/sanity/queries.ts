@@ -67,7 +67,7 @@ export async function getFeaturedFAQs() {
 export async function getPricingPlans() {
   return client.fetch(`*[_type == "pricingPlan"] | order(order asc) {
     _id, name, subtitle, price, priceNote, popular, features, ctaText, ctaLink, order,
-    homepageIcon, homepageHeadline, homepageStat, homepageLearnMore
+    homepageIcon, homepageHeadline, homepagePlural, homepageStat, homepageLearnMore
   }`);
 }
 
