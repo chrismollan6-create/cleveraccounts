@@ -775,6 +775,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   const isFirstMonthFree = formData.signUpIncentive === "1st month free";
   const monthlyFee = parseFloat(formData.expectedFee || "0");
   const chargeAmount = monthlyFee > 0 ? parseFloat((monthlyFee * 0.5).toFixed(2)) : 0;
+  // VAT is added by Stripe automatic_tax based on customer's UK billing address.
+  // We surface the gross figure in the UI so the Pay button matches what Stripe debits.
+  const VAT_RATE = 0.20;
+  const vatAmount = parseFloat((chargeAmount * VAT_RATE).toFixed(2));
+  const chargeAmountInclVat = parseFloat((chargeAmount + vatAmount).toFixed(2));
 
   // ── Load form data ─────────────────────────────────────────────────────────
 
@@ -1582,7 +1587,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                     </div>
                     <h3 className="text-xl font-bold text-dark mb-2">Payment Received!</h3>
                     <p className="text-text-light">
-                      <strong>£{chargeAmount.toFixed(2)}</strong> collected today — that&apos;s 50% off your first 3 months.
+                      <strong>£{chargeAmountInclVat.toFixed(2)}</strong> collected today (£{chargeAmount.toFixed(2)} + £{vatAmount.toFixed(2)} VAT) — that&apos;s 50% off your first 3 months.
                     </p>
                   </div>
                 ) : (
@@ -1592,12 +1597,23 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <p className="text-sm text-text-light">Your monthly fee</p>
-                          <p className="text-2xl font-bold text-dark">£{monthlyFee.toFixed(2)}<span className="text-sm font-normal text-text-light">/month</span></p>
+                          <p className="text-2xl font-bold text-dark">£{monthlyFee.toFixed(2)}<span className="text-sm font-normal text-text-light">/month + VAT</span></p>
                         </div>
                         <div className="text-right">
                           <div className="inline-block bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full mb-1">50% OFF</div>
                           <p className="text-sm text-text-light">First 3 months</p>
-                          <p className="text-2xl font-bold text-primary">£{chargeAmount.toFixed(2)}</p>
+                          <p className="text-2xl font-bold text-primary">£{chargeAmount.toFixed(2)}<span className="text-sm font-normal text-text-light"> + VAT</span></p>
+                        </div>
+                      </div>
+                      {/* VAT-inclusive total — what Stripe will actually debit today */}
+                      <div className="border-t border-primary/10 pt-3 mb-3 flex items-center justify-between text-sm">
+                        <div className="text-text-light">
+                          <p>Subtotal: £{chargeAmount.toFixed(2)}</p>
+                          <p>VAT (20%): £{vatAmount.toFixed(2)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-text-light uppercase tracking-wider">Today&apos;s payment</p>
+                          <p className="text-xl font-bold text-dark">£{chargeAmountInclVat.toFixed(2)}</p>
                         </div>
                       </div>
                       <div className="border-t border-primary/10 pt-4 space-y-2 text-sm">
@@ -1625,7 +1641,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                     <button type="button" onClick={handlePayNow}
                       className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl text-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
                       <CreditCard size={20} />
-                      Pay £{chargeAmount.toFixed(2)} Securely
+                      Pay £{chargeAmountInclVat.toFixed(2)} Securely
                     </button>
 
                     <div className="flex items-center justify-center gap-2 text-xs text-text-light">
