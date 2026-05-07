@@ -9,7 +9,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Token required' }, { status: 400 });
     }
 
-    const body = await request.text();
+    // Inject our own returnBaseUrl into the body so Stripe redirects back to
+    // the website funnel (instead of the legacy Salesforce-hosted form, which
+    // is the default for sales-invited signups).
+    const incomingBody = await request.json().catch(() => ({}));
+    const origin = request.nextUrl.origin; // e.g. https://cleveraccounts.com
+    const enrichedBody = JSON.stringify({
+      ...incomingBody,
+      returnBaseUrl: `${origin}/sign-up/details`,
+    });
+
     const sfToken = await getSalesforceToken();
 
     const sfRes = await fetch(
@@ -20,7 +29,7 @@ export async function POST(request: NextRequest) {
           Authorization: `Bearer ${sfToken}`,
           'Content-Type': 'application/json',
         },
-        body,
+        body: enrichedBody,
       }
     );
 
