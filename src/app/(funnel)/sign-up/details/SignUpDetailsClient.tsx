@@ -1170,6 +1170,16 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
     const accountant = cs?.accountant;
     const hasAccountant = !!accountant?.name;
     const paid = cs?.totalGross != null && cs.totalGross > 0;
+    // Treat company as redundant when it equals the person's name (the
+    // sole-trader pattern: Lead.Company is auto-populated with firstName lastName
+    // because the field is required on the standard Lead object).
+    const personFullName = `${firstName || ''} ${cs?.lastName || formData.lastName || ''}`.trim();
+    const showCompanyInHeader = !!company && company.trim().toLowerCase() !== personFullName.toLowerCase();
+    // Salesforce returns a default avatar URL even when no photo is uploaded
+    // (path ends in /profilephoto/005/F or 005/T with no content ID). Detect
+    // those defaults and fall back to the gradient + initials block.
+    const hasRealPhoto = !!accountant?.photoUrl
+      && !/\/profilephoto\/005\/[FT](?:[?#]|$)/i.test(accountant.photoUrl);
     const fmtMoney = (n?: number) => n != null ? `£${n.toFixed(2)}` : '—';
     const fmtDate = (s?: string) => {
       if (!s) return '—';
@@ -1192,7 +1202,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
               Welcome aboard, {firstName}!
             </h1>
             <p className="text-text-light text-lg max-w-xl mx-auto leading-relaxed">
-              {company
+              {showCompanyInHeader
                 ? <>Your sign-up for <strong className="text-dark">{company}</strong> is confirmed. Here&apos;s what happens next.</>
                 : <>Your sign-up is confirmed. Here&apos;s what happens next.</>
               }
@@ -1210,19 +1220,23 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
             {/* Dedicated accountant card */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-              <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4">Your Dedicated Team</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4">
+                {hasAccountant && accountant?.firstName
+                  ? `Meet ${accountant.firstName}`
+                  : 'Your Dedicated Team'}
+              </p>
               {hasAccountant ? (
                 <>
                   <div className="flex items-center gap-4 mb-4">
-                    {accountant?.photoUrl ? (
+                    {hasRealPhoto ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={accountant.photoUrl}
-                        alt={accountant.name}
+                        src={accountant!.photoUrl}
+                        alt={accountant!.name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-primary/15"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white font-bold text-lg shadow-sm">
                         {accountant?.initials || accountant?.name?.charAt(0)}
                       </div>
                     )}
@@ -1246,7 +1260,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                     )}
                   </div>
                   <p className="text-xs text-text-light mt-4 pt-4 border-t border-gray-100">
-                    {accountant?.firstName || 'Your accountant'} will call within 24 hours to introduce themselves.
+                    {accountant?.firstName || 'Your accountant'} will call you within 24 hours.
                   </p>
                 </>
               ) : (
