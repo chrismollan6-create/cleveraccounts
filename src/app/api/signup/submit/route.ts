@@ -21,13 +21,24 @@ export async function POST(request: NextRequest) {
       body,
     });
 
-    const data = await sfRes.json();
+    const rawBody = await sfRes.text();
+    let data: { error?: string; success?: boolean; message?: string } = {};
+    try { data = JSON.parse(rawBody); } catch { /* non-JSON response — log it */ }
 
     if (!sfRes.ok) {
-      return NextResponse.json(
-        { error: data.error || 'Failed to submit form' },
-        { status: sfRes.status }
-      );
+      // Log full upstream context server-side for debugging
+      console.error('[/api/signup/submit] Salesforce non-OK', {
+        status: sfRes.status,
+        body: rawBody.slice(0, 500),
+      });
+      // Surface the actual upstream message (or a snippet of the body) to the client
+      // rather than a generic "Failed to submit form" — Apex AuraHandledException
+      // sometimes mangles getMessage() to "Script-thrown exception", in which case
+      // we want to show the user something more actionable.
+      const upstream = data.error && data.error !== 'Script-thrown exception'
+        ? data.error
+        : rawBody.slice(0, 200) || `Salesforce returned ${sfRes.status}`;
+      return NextResponse.json({ error: upstream }, { status: sfRes.status });
     }
 
     return NextResponse.json(data);
