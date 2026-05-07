@@ -6,12 +6,44 @@ import {
   CheckCircle2, ChevronLeft, ChevronRight, Loader2, AlertCircle,
   CreditCard, ClipboardList, User, Building2, MapPin, Info,
   ShieldCheck, Search, ChevronDown, HelpCircle, ArrowRight,
-  Check, Plus, Star,
+  Check, Plus, Star, Phone, Mail, Calendar, Gift, Mailbox,
+  Sparkles, Award,
 } from "lucide-react";
 import { trackEvent, captureUTMParams, getStoredUTMParams } from "@/components/seo/GoogleTagManager";
 import { COMPANY } from "@/lib/constants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ConversionStatusAccountant {
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  initials?: string;
+  email?: string;
+  phone?: string;
+  photoUrl?: string;
+  title?: string;
+}
+
+interface ConversionStatus {
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  email?: string;
+  branding?: string;
+  isConverted?: boolean;
+  signUpIncentive?: string;
+  monthlyFee?: number;
+  subtotalNet?: number;
+  vatRate?: number;
+  vatAmount?: number;
+  totalGross?: number;
+  nextChargeDate?: string;
+  fullMonthlyFee?: number;
+  accountId?: string;
+  accountName?: string;
+  accountant?: ConversionStatusAccountant;
+}
 
 interface FormData {
   firstName: string; lastName: string; email: string; phone: string;
@@ -451,6 +483,35 @@ function SectionCard({ icon, title, description, children }: {
 
 // "Next up" preview — shown at the bottom of each editable step so users always know
 // what's coming and that they're nearly done. Reduces "how long is this going to take" anxiety.
+/**
+ * One row in the post-signup onboarding timeline. `done` toggles the visual
+ * (green check vs. soft pending dot). `when` is a short relative timing
+ * label that sits to the right of the title.
+ */
+function TimelineStep({
+  icon, title, when, done,
+}: { icon: React.ReactNode; title: string; when: string; done: boolean }) {
+  return (
+    <li className="flex items-start gap-3">
+      <div
+        className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+          done
+            ? 'bg-emerald-50 text-success border border-emerald-200'
+            : 'bg-gray-50 text-text-light border border-gray-200'
+        }`}
+      >
+        {done ? <Check size={16} strokeWidth={2.5} /> : icon}
+      </div>
+      <div className="flex-1 min-w-0 flex items-center justify-between gap-3 pt-1">
+        <p className={`text-sm ${done ? 'text-text-light line-through decoration-1' : 'text-text font-medium'}`}>
+          {title}
+        </p>
+        <p className="text-xs text-text-light shrink-0">{when}</p>
+      </div>
+    </li>
+  );
+}
+
 function NextUpHint({ title, desc, icon }: { title: string; desc: string; icon: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50/80 border border-gray-200">
@@ -765,6 +826,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   const [isExpired, setIsExpired] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [conversionStatus, setConversionStatus] = useState<ConversionStatus | null>(null);
   const [stripePaymentComplete, setStripePaymentComplete] = useState(false);
   const [stripeError, setStripeError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -805,6 +867,39 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   }, [token]);
 
   useEffect(() => { loadFormData(); }, [loadFormData]);
+
+  // When the signup is complete, fetch the post-conversion status so we can
+  // render the rich completion screen (assigned accountant + payment summary).
+  // Polled briefly after submit because the Salesforce queueable runs async,
+  // so the Account/Owner may not exist for the first few seconds.
+  useEffect(() => {
+    if (!isCompleted || !token) return;
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 8; // ~24s total at 3s intervals — enough for the conversion queueable to land
+    async function poll() {
+      try {
+        const res = await fetch(`/api/signup/conversion-status?t=${encodeURIComponent(token)}`);
+        if (!res.ok) throw new Error('non-ok');
+        const data: ConversionStatus = await res.json();
+        if (cancelled) return;
+        setConversionStatus(data);
+        // Keep polling until the accountant info is filled in (Account.OwnerId resolved)
+        if (!data.accountant?.name && attempts < maxAttempts) {
+          attempts++;
+          setTimeout(poll, 3000);
+        }
+      } catch {
+        if (cancelled) return;
+        if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(poll, 3000);
+        }
+      }
+    }
+    poll();
+    return () => { cancelled = true; };
+  }, [isCompleted, token]);
 
   // Re-capture UTMs from URL in case sessionStorage was cleared (e.g. after Stripe redirect)
   useEffect(() => {
@@ -1068,31 +1163,237 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   }
 
   if (isCompleted) {
+    const cs = conversionStatus;
+    const firstName = cs?.firstName || formData.firstName;
+    const company = cs?.company || formData.company;
+    const email = cs?.email || formData.email;
+    const accountant = cs?.accountant;
+    const hasAccountant = !!accountant?.name;
+    const paid = cs?.totalGross != null && cs.totalGross > 0;
+    const fmtMoney = (n?: number) => n != null ? `£${n.toFixed(2)}` : '—';
+    const fmtDate = (s?: string) => {
+      if (!s) return '—';
+      try {
+        return new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch { return s; }
+    };
+    const isHalfPriceDiscount = cs?.signUpIncentive === '3 month 50% discount';
+
     return (
-      <PageShell>
-        <div className="text-center py-8">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-            <CheckCircle2 size={40} className="text-success" />
+      <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-10 md:py-16 pb-24">
+        <div className="max-w-4xl mx-auto px-4 space-y-6">
+
+          {/* ── Header ── */}
+          <div className="text-center mb-2">
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-green-50 rounded-full flex items-center justify-center mx-auto mb-5 shadow-sm">
+              <CheckCircle2 size={44} className="text-success" strokeWidth={2.2} />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-black text-dark tracking-tight mb-3">
+              Welcome aboard, {firstName}!
+            </h1>
+            <p className="text-text-light text-lg max-w-xl mx-auto leading-relaxed">
+              {company
+                ? <>Your sign-up for <strong className="text-dark">{company}</strong> is confirmed. Here&apos;s what happens next.</>
+                : <>Your sign-up is confirmed. Here&apos;s what happens next.</>
+              }
+            </p>
+            {email && (
+              <p className="text-sm text-text-light mt-3 inline-flex items-center gap-1.5">
+                <Mail size={14} className="text-primary" />
+                Confirmation sent to <strong className="text-dark">{email}</strong>
+              </p>
+            )}
           </div>
-          <h2 className="text-2xl font-bold text-dark mb-3">You&apos;re all set, {formData.firstName}!</h2>
-          <p className="text-text-light mb-6 max-w-sm mx-auto">
-            Thank you for choosing Clever Accounts. We&apos;ll be in touch within 24 hours to introduce you to your dedicated accountant.
-          </p>
-          <div className="bg-gray-50 rounded-2xl p-5 text-left max-w-sm mx-auto space-y-3 mb-6">
-            {[
-              "Your dedicated accountant will be in touch",
-              "We'll send you a letter of engagement to sign",
-              "Access to FreeAgent accounting software",
-              "Unlimited phone and email support",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-sm text-text">
-                <CheckCircle2 size={16} className="text-success shrink-0" />
-                {item}
+
+          {/* ── Top row: Accountant + Payment ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            {/* Dedicated accountant card */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+              <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4">Your Dedicated Team</p>
+              {hasAccountant ? (
+                <>
+                  <div className="flex items-center gap-4 mb-4">
+                    {accountant?.photoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={accountant.photoUrl}
+                        alt={accountant.name}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-primary/15"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white font-bold text-lg">
+                        {accountant?.initials || accountant?.name?.charAt(0)}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-lg font-bold text-dark truncate">{accountant?.name}</p>
+                      <p className="text-sm text-primary font-semibold truncate">{accountant?.title || 'Your Dedicated Accountant'}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    {accountant?.phone && (
+                      <a href={`tel:${accountant.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-text hover:text-primary transition-colors">
+                        <Phone size={15} className="text-primary shrink-0" />
+                        {accountant.phone}
+                      </a>
+                    )}
+                    {accountant?.email && (
+                      <a href={`mailto:${accountant.email}`} className="flex items-center gap-2 text-text hover:text-primary transition-colors break-all">
+                        <Mail size={15} className="text-primary shrink-0" />
+                        {accountant.email}
+                      </a>
+                    )}
+                  </div>
+                  <p className="text-xs text-text-light mt-4 pt-4 border-t border-gray-100">
+                    {accountant?.firstName || 'Your accountant'} will call within 24 hours to introduce themselves.
+                  </p>
+                </>
+              ) : (
+                <div className="flex items-center gap-3 text-sm text-text-light py-2">
+                  <Loader2 size={16} className="animate-spin text-primary shrink-0" />
+                  Matching you with the right accountant…
+                </div>
+              )}
+            </div>
+
+            {/* Payment summary card */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+              <p className="text-xs font-bold text-primary uppercase tracking-wider mb-4">Today&apos;s Payment</p>
+              {paid ? (
+                <>
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-text-light">Subtotal</span>
+                      <span className="text-text font-medium">{fmtMoney(cs?.subtotalNet)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-light">VAT (20%)</span>
+                      <span className="text-text font-medium">{fmtMoney(cs?.vatAmount)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-gray-100">
+                      <span className="font-bold text-dark">Paid today</span>
+                      <span className="font-bold text-primary text-lg">{fmtMoney(cs?.totalGross)}</span>
+                    </div>
+                  </div>
+                  {isHalfPriceDiscount && cs?.fullMonthlyFee != null && (
+                    <div className="bg-primary/5 rounded-xl p-3 text-xs text-text-light">
+                      <p className="flex items-center gap-1.5 font-semibold text-dark mb-0.5">
+                        <Calendar size={13} className="text-primary" />
+                        Full price kicks in {fmtDate(cs?.nextChargeDate)}
+                      </p>
+                      <p>Then £{cs.fullMonthlyFee.toFixed(2)}/mo + VAT (£{(cs.fullMonthlyFee * 1.2).toFixed(2)} gross)</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  <p className="text-text-light">Your subscription is set up.</p>
+                  {cs?.fullMonthlyFee != null && (
+                    <p className="text-text">
+                      Monthly fee: <strong>£{cs.fullMonthlyFee.toFixed(2)}/mo + VAT</strong>
+                    </p>
+                  )}
+                  <p className="text-xs text-text-light pt-2">First charge {fmtDate(cs?.nextChargeDate)}</p>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* ── Onboarding timeline ── */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <p className="text-xs font-bold text-primary uppercase tracking-wider">Your Onboarding</p>
+              <p className="text-xs text-text-light">Next 48 hours</p>
+            </div>
+            <ol className="space-y-4">
+              <TimelineStep
+                icon={<Mail size={16} />}
+                done
+                title={`Confirmation email sent${email ? ` to ${email}` : ''}`}
+                when="Just now"
+              />
+              <TimelineStep
+                icon={<ClipboardList size={16} />}
+                done={false}
+                title="Letter of engagement to sign"
+                when="In your inbox within 10 minutes"
+              />
+              <TimelineStep
+                icon={<Phone size={16} />}
+                done={false}
+                title={hasAccountant
+                  ? `Welcome call from ${accountant?.firstName || accountant?.name}`
+                  : 'Welcome call from your accountant'}
+                when="Within 24 hours"
+              />
+              <TimelineStep
+                icon={<Building2 size={16} />}
+                done={false}
+                title="FreeAgent accounting software set up"
+                when="Login emailed by tomorrow"
+              />
+              <TimelineStep
+                icon={<ShieldCheck size={16} />}
+                done={false}
+                title="ID & AML check (HMRC requirement)"
+                when="Quick link emailed today"
+              />
+            </ol>
+          </div>
+
+          {/* ── Trust + perks ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            {/* Refer-a-friend */}
+            <a href="/refer-a-friend" className="group bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-5 text-white shadow-md hover:shadow-lg transition-shadow">
+              <Gift size={24} className="mb-3 opacity-90" />
+              <p className="font-bold text-base mb-1">Earn £250 per referral</p>
+              <p className="text-sm text-white/85 mb-3">Know a friend who needs a great accountant? Refer them and you both win.</p>
+              <span className="inline-flex items-center gap-1 text-sm font-semibold group-hover:gap-2 transition-all">
+                Refer a friend <ArrowRight size={14} />
+              </span>
+            </a>
+
+            {/* Trustpilot */}
+            <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col">
+              <div className="flex items-center gap-1 mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
+                ))}
+                <span className="ml-1 font-bold text-dark">4.7</span>
               </div>
-            ))}
+              <p className="text-sm text-text mb-1">Rated <strong>Excellent</strong> on Trustpilot</p>
+              <p className="text-xs text-text-light mb-auto">By 700+ UK businesses just like yours.</p>
+              <a href="https://uk.trustpilot.com/review/cleveraccounts.co.uk" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:text-primary-dark mt-3 inline-flex items-center gap-1">
+                Leave a quick review <ArrowRight size={12} />
+              </a>
+            </div>
+
+            {/* Accreditations */}
+            <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+              <Award size={20} className="text-primary mb-2" />
+              <p className="font-bold text-dark text-sm mb-2">FCSA accredited</p>
+              <p className="text-xs text-text-light leading-relaxed">
+                Regulated and audited annually. Your accounts are in safe, compliant hands.
+              </p>
+            </div>
+
           </div>
+
+          {/* ── Help footer ── */}
+          <div className="text-center pt-4">
+            <p className="text-sm text-text-light">
+              Questions before your accountant calls?{' '}
+              <a href="/contact" className="text-primary font-semibold hover:underline">Chat to us</a>
+              {' or call '}
+              <a href={`tel:${phone.replace(/\s/g, '')}`} className="text-primary font-semibold hover:underline whitespace-nowrap">{phone}</a>
+            </p>
+          </div>
+
         </div>
-      </PageShell>
+      </div>
     );
   }
 
