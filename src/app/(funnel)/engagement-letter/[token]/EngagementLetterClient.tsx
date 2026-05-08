@@ -382,9 +382,14 @@ function SigningPanel({ token, letter, signer, displayIp }: SigningPanelProps) {
         return;
       }
 
+      // PDF generation is async (post-sign queueable runs ~30s later) — sign()
+      // returns null pdfDownloadUrl. Stitch in the proxy URL ourselves; the
+      // proxy returns 202 until the queueable finishes, after which the
+      // download starts working.
       setSuccess({
         signedAt: new Date().toISOString(),
-        pdfDownloadUrl: data?.pdfDownloadUrl ?? null,
+        pdfDownloadUrl: data?.pdfDownloadUrl
+          ?? `/api/engagement-letter/pdf?t=${encodeURIComponent(token)}`,
       });
 
       // Scroll the success card into view
@@ -424,13 +429,7 @@ function SigningPanel({ token, letter, signer, displayIp }: SigningPanelProps) {
               . A copy will be emailed to you shortly.
             </p>
             {success.pdfDownloadUrl && (
-              <a
-                href={success.pdfDownloadUrl}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
-              >
-                <FileText size={16} />
-                Download signed copy
-              </a>
+              <DownloadButton url={success.pdfDownloadUrl} />
             )}
           </div>
         </div>
@@ -575,6 +574,65 @@ function SigningPanel({ token, letter, signer, displayIp }: SigningPanelProps) {
         After signing, we&apos;ll email you a copy and start work on your account.
       </p>
     </form>
+  );
+}
+
+/**
+ * Download button that handles the async-PDF window gracefully. The PDF
+ * queueable runs ~30s after signing, so the proxy returns 202 if the user
+ * clicks too soon. We detect this and politely tell them to wait.
+ */
+function DownloadButton({ url }: { url: string }) {
+  const [waitMessage, setWaitMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setWaitMessage(null);
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.status === 202) {
+        setWaitMessage("Your signed copy is being generated — try again in 30 seconds. We'll also email it to you.");
+        return;
+      }
+      if (!res.ok) {
+        setWaitMessage('Could not load the signed copy. The email version should arrive shortly — please check your inbox.');
+        return;
+      }
+      const blob = await res.blob();
+      // Force a download
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'Engagement-Letter.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (err) {
+      console.error('PDF download error', err);
+      setWaitMessage('Could not load the signed copy. Please check your inbox for the emailed version.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <a
+        href={url}
+        onClick={handleClick}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
+      >
+        <FileText size={16} />
+        {busy ? 'Loading…' : 'Download signed copy'}
+      </a>
+      {waitMessage && (
+        <p className="mt-2 text-sm text-text-light">{waitMessage}</p>
+      )}
+    </div>
   );
 }
 
