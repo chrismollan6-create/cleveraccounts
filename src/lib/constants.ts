@@ -2,7 +2,7 @@ export const COMPANY = {
   name: "Clever Accounts",
   tagline: "Online Accounting Made Clever",
   phone: "0113 518 8800",
-  freephone: "0800 756 9786",
+  freephone: "0113 515 8800",
   email: "info@cleveraccounts.com",
   website: "https://cleveraccounts.com",
   portalUrl: "https://portal.cleveraccounts.com",

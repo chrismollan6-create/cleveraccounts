@@ -50,10 +50,6 @@ export default function Footer() {
               For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support.
             </p>
             <div className="space-y-3">
-              <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
-                <Phone size={16} className="text-primary" />
-                {COMPANY.freephone} (Freephone)
-              </a>
               <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
                 <Phone size={16} className="text-primary" />
                 {COMPANY.phone}

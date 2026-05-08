@@ -15,7 +15,7 @@ export default defineType({
       name: "freephone",
       title: "Freephone Number",
       type: "string",
-      description: "Displayed in the top bar and landing pages (e.g. 0800 756 9786)",
+      description: "Displayed in the top bar and landing pages (e.g. 0113 518 8800)",
     }),
     defineField({
       name: "email",
