@@ -5,10 +5,13 @@
  * placeholder + typo cleanup applied during transcription).
  *
  * Mail-merge tokens used here:
- *   {{joiningDate}}    — replaces the literal "(Joined date)" placeholder
- *   {{jurisdiction}}   — replaces the "England and Wales/ Scotland/ Northern Ireland" slash mess
- *   {{phoneNumber}}    — replaces the "(Clever Accounts Phone line, email?)" placeholder in §13
- *   {{supportEmail}}   — replaces same
+ *   {{joiningDate}}      — replaces the literal "(Joined date)" placeholder
+ *   {{jurisdiction}}     — replaces the "England and Wales/ Scotland/ Northern Ireland" slash mess
+ *   {{phoneNumber}}      — replaces the contact-line placeholder in §13
+ *   {{supportEmail}}     — replaces same
+ *   {{brandName}}        — short brand name, e.g. "Clever Accounts" / "Workwell Accountancy"
+ *   {{brandLegalName}}   — registered name, e.g. "Clever Accounts Ltd"
+ *   {{brandPrivacyUrl}}  — privacy notice URL referenced in §10
  */
 
 import type { Section } from '../types';
@@ -20,7 +23,7 @@ export const STANDARD_TERMS: Section[] = [
     title: 'Introduction',
     body:
       'Thanks for engaging us as your accountants.\n\n' +
-      'This letter and attached schedule(s) of service together with our standard terms of business dated {{joiningDate}} set out the basis upon which we will provide our services as accountants. It includes our and your respective responsibilities upon Clever Accounts taking this engagement.',
+      'This letter and attached schedule(s) of service together with our standard terms of business dated {{joiningDate}} set out the basis upon which we will provide our services as accountants. It includes our and your respective responsibilities upon {{brandName}} taking this engagement.',
   },
   {
     id: 'std-02-applicable-law',
@@ -100,7 +103,7 @@ export const STANDARD_TERMS: Section[] = [
       '- to comply with our legal and regulatory compliance and crime prevention;\n' +
       '- contacting you with details of other services where you have consented to us doing so;\n' +
       '- other legitimate interests relating to protection against potential claims and disciplinary action against us.\n\n' +
-      'This includes, but is not limited to, purposes such as updating and enhancing our client records, analysis for management purposes and statutory returns. Further details on the processing of data are contained in our privacy notice (https://cleveraccounts.com/privacy), which should be read alongside these terms and conditions.',
+      'This includes, but is not limited to, purposes such as updating and enhancing our client records, analysis for management purposes and statutory returns. Further details on the processing of data are contained in our privacy notice ({{brandPrivacyUrl}}), which should be read alongside these terms and conditions.',
   },
   {
     id: 'std-10-period-of-engagement',
@@ -147,7 +150,7 @@ export const STANDARD_TERMS: Section[] = [
     number: '14',
     title: 'Fees',
     body:
-      'Our fees have been agreed with you at the commencement of this engagement and will be taken over 12 equal instalments for your added convenience. Clever Accounts reserves the right to review your fee on a periodic basis and will try, wherever possible, to notify you within 30 days of any intended changes.\n\n' +
+      'Our fees have been agreed with you at the commencement of this engagement and will be taken over 12 equal instalments for your added convenience. {{brandName}} reserves the right to review your fee on a periodic basis and will try, wherever possible, to notify you within 30 days of any intended changes.\n\n' +
       "If it is necessary to carry out work outside the responsibilities outlined in this letter this will involve additional fees, particularly where your records are not completed to the agreed stage prior to preparing each year's accounts.\n\n" +
       'Additional time costs, where appropriate, will be computed based on the time spent on your affairs by staff, or we may agree a fixed fee for a single assignment.\n\n' +
       'Payment by direct debit for all fees is mandatory except where a different payment method has been agreed upfront, or payment has been taken via a third-party service in advance.\n\n' +

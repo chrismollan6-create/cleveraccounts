@@ -52,7 +52,8 @@ export interface SectionGroup {
 
 /**
  * Variables resolved into mail-merge tokens at render time.
- * Sourced from the Salesforce DTO returned by /api/engagement-letter.
+ * Sourced from the Salesforce DTO returned by /api/engagement-letter
+ * + the active brand resolved from the request host (src/lib/brand.ts).
  */
 export interface MergeContext {
   /** ISO yyyy-mm-dd date the engagement begins (= parent record CreatedDate). */
@@ -65,10 +66,18 @@ export interface MergeContext {
   firstName: string;
   /** Signer's last name. */
   lastName: string;
-  /** Clever Accounts contact line for §13 Quality of Service. */
+  /** Brand contact phone for §13 Quality of Service. */
   phoneNumber: string;
-  /** Clever Accounts support inbox. */
+  /** Brand support inbox for §13 Quality of Service. */
   supportEmail: string;
+  /** Brand display name, e.g. "Clever Accounts" or "Workwell Accountancy". */
+  brandName: string;
+  /** Brand legal/registered name, e.g. "Clever Accounts Ltd". */
+  brandLegalName: string;
+  /** Brand privacy notice URL referenced in §10. */
+  brandPrivacyUrl: string;
+  /** Brand postal address shown in complaints procedure C1. */
+  brandPostalAddress: string;
 }
 
 /** Shape returned by getLetter(variant, ctx) — already merged + ready to render. */

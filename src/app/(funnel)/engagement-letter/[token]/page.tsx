@@ -112,7 +112,11 @@ export default async function EngagementLetterPage({
     firstName: dto.signerFirstName ?? '',
     lastName: dto.signerLastName ?? '',
     phoneNumber: brand.phone,
-    supportEmail: 'support@cleveraccounts.com',
+    supportEmail: brand.supportEmail,
+    brandName: brand.name,
+    brandLegalName: brand.legalName,
+    brandPrivacyUrl: `https://${brand.domain}/privacy`,
+    brandPostalAddress: brand.postalAddress,
   };
 
   // If signer name / business name aren't filled in by Salesforce we should

@@ -44,6 +44,10 @@ export interface BrandConfig {
   email: string;
   /** Sender domain / domain for transactional email From address. */
   senderEmail: string;
+  /** Support inbox shown in legal documents (engagement letter §13). */
+  supportEmail: string;
+  /** Full postal address shown in legal documents (engagement letter complaints C1). */
+  postalAddress: string;
   /**
    * Salesforce Lead.Branding__c value (long form). Sent on signup payloads.
    * Apex `LeadConversionService` translates this to the short Account form.
@@ -113,6 +117,8 @@ export const BRANDS = {
     freephone: '0113 515 8800',
     email: 'info@cleveraccounts.com',
     senderEmail: 'sales@cleveraccounts.com',
+    supportEmail: 'support@cleveraccounts.com',
+    postalAddress: 'Brookfield Court, Selby Road, Leeds, LS25 1NB',
     salesforceLeadValue: 'Clever Accounts Ltd',
     salesforceAccountValue: 'Clever Accounts',
     assets: {
@@ -161,6 +167,8 @@ export const BRANDS = {
     freephone: '01923 257257',
     email: 'accountancy@workwellsolutions.com',
     senderEmail: 'accountancy@workwellsolutions.com',
+    supportEmail: 'accountancy@workwellsolutions.com',
+    postalAddress: 'Radius House, 51 Clarendon Road, Watford, Hertfordshire, WD17 1HP',
     salesforceLeadValue: 'Workwell Accountancy Solutions',
     salesforceAccountValue: 'Workwell',
     assets: {
