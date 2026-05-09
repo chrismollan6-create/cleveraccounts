@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
+import { brandIdFromHost, getBrandById } from '@/lib/brand';
+import type { BrandId } from '@/lib/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +19,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Resolve brand from middleware-set x-brand header (which honours both
+    // the Host and the dev-only ?_brand= override). Falls back to host parsing
+    // for defensive belt-and-braces in case middleware was somehow skipped.
+    const brandIdHeader = request.headers.get('x-brand') as BrandId | null;
+    const brandId: BrandId =
+      brandIdHeader === 'workwell' || brandIdHeader === 'clever'
+        ? brandIdHeader
+        : brandIdFromHost(request.headers.get('host') ?? '');
+    const brand = getBrandById(brandId);
+
     const token = await getSalesforceToken();
 
     const sfRes = await fetch(sfApex('/SignupLead'), {
@@ -27,6 +39,9 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         firstName, lastName, email, phone, businessType,
+        // Lead.Branding__c value (long form). Apex LeadConversionService
+        // translates this to Account/Contact short-form during conversion.
+        branding: brand.salesforceLeadValue,
         utmSource: utm_source || '',
         utmMedium: utm_medium || '',
         utmCampaign: utm_campaign || '',
