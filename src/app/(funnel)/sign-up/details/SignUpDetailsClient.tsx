@@ -10,7 +10,7 @@ import {
   Sparkles, Award,
 } from "lucide-react";
 import { trackEvent, captureUTMParams, getStoredUTMParams } from "@/components/seo/GoogleTagManager";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -812,7 +812,8 @@ function ContactStrip({
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 function SignUpDetailsContent({ freephone }: { freephone?: string }) {
-  const phone = freephone || COMPANY.freephone;
+  const brand = useBrand();
+  const phone = freephone || brand.freephone;
   const searchParams = useSearchParams();
   const token = searchParams.get("t") ?? "";
   const paymentParam = searchParams.get("payment");

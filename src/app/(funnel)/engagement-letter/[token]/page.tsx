@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { renderLetter, type VariantId, type Jurisdiction, type MergeContext } from '@/content/engagement-letter';
-import { COMPANY } from '@/lib/constants';
+import { getBrand } from '@/lib/brand';
 import EngagementLetterClient from './EngagementLetterClient';
 import LetterStateMessage from './LetterStateMessage';
 
@@ -56,6 +56,7 @@ export default async function EngagementLetterPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
+  const brand = await getBrand();
 
   if (!token || token.length < 10) {
     notFound();
@@ -91,7 +92,7 @@ export default async function EngagementLetterPage({
     return (
       <LetterStateMessage
         title="This signing link has expired"
-        body={`For security, signing links expire after a fixed period. Please contact us at ${COMPANY.email} or ${COMPANY.phone} and we'll send you a fresh letter.`}
+        body={`For security, signing links expire after a fixed period. Please contact us at ${brand.email} or ${brand.phone} and we'll send you a fresh letter.`}
         variant="warning"
       />
     );
@@ -107,7 +108,7 @@ export default async function EngagementLetterPage({
     businessName: dto.businessName ?? '',
     firstName: dto.signerFirstName ?? '',
     lastName: dto.signerLastName ?? '',
-    phoneNumber: COMPANY.phone,
+    phoneNumber: brand.phone,
     supportEmail: 'support@cleveraccounts.com',
   };
 

@@ -21,7 +21,7 @@ import {
   HeartHandshake,
   BarChart3,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "How It Works — 3 Simple Steps | Clever Accounts",
@@ -124,7 +124,8 @@ const testimonials = [
   },
 ];
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+  const brand = await getBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -149,8 +150,8 @@ export default function HowItWorksPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
               Get Started <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>
@@ -319,8 +320,8 @@ export default function HowItWorksPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
               Get Started — Free <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-white/70 text-sm">

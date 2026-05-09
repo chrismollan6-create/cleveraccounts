@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { Phone, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
-export default function StickyFloatingCTA({ freephone = COMPANY.freephone }: { freephone?: string } = {}) {
+export default function StickyFloatingCTA({ freephone }: { freephone?: string } = {}) {
+  const brand = useBrand();
+  const phoneNumber = freephone ?? brand.freephone;
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -37,11 +39,11 @@ export default function StickyFloatingCTA({ freephone = COMPANY.freephone }: { f
           {/* Right: CTAs */}
           <div className="flex items-center gap-3 flex-1 sm:flex-none justify-between sm:justify-end">
             <a
-              href={`tel:${freephone.replace(/\s/g, "")}`}
+              href={`tel:${phoneNumber.replace(/\s/g, "")}`}
               className="flex items-center gap-2 bg-dark hover:bg-secondary text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all"
             >
               <Phone size={16} />
-              <span className="hidden md:inline">{freephone}</span>
+              <span className="hidden md:inline">{phoneNumber}</span>
               <span className="md:hidden">Call Free</span>
             </a>
             <Link

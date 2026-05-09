@@ -21,7 +21,7 @@ import {
   Settings,
   BadgeCheck,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 // ── FreeAgent features ────────────────────────────────────────
 const freeagentFeatures = [
@@ -162,7 +162,8 @@ const steps = [
   },
 ];
 
-export default function IntegrationsPage() {
+export default async function IntegrationsPage() {
+  const brand = await getBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -200,10 +201,10 @@ export default function IntegrationsPage() {
                 Get Started Free <ArrowRight size={20} />
               </Link>
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                 className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20"
               >
-                <Phone size={20} /> {COMPANY.freephone}
+                <Phone size={20} /> {brand.freephone}
               </a>
             </div>
           </div>
@@ -590,7 +591,7 @@ export default function IntegrationsPage() {
             <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
               FreeAgent included free. Open banking. MTD-ready. Dedicated
               accountant. No setup fees. No minimum contract. Join{" "}
-              {COMPANY.stats.businesses.toLocaleString()}+ businesses already
+              {brand.stats.businesses.toLocaleString()}+ businesses already
               with Clever Accounts.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -601,10 +602,10 @@ export default function IntegrationsPage() {
                 Get Started Free <ArrowRight size={20} />
               </Link>
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                 className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/25 transition-all border border-white/30"
               >
-                <Phone size={20} /> {COMPANY.freephone}
+                <Phone size={20} /> {brand.freephone}
               </a>
             </div>
           </div>

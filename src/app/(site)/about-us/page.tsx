@@ -17,7 +17,7 @@ import {
   BadgeCheck,
   Building2,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "About Clever Accounts — 20 Years of Online Accounting | Clever Accounts",
@@ -72,7 +72,8 @@ const timeline = [
   { year: "2026", event: "Preparing our clients for MTD for Income Tax with proactive onboarding and FreeAgent setup well ahead of the April deadline." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const brand = await getBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -250,7 +251,7 @@ export default function AboutPage() {
             <p className="text-text-light max-w-xl mx-auto">Based in Yorkshire and the Home Counties, serving businesses across the whole of the UK.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {COMPANY.offices.map((office) => (
+            {brand.offices.map((office) => (
               <div key={office.city} className="bg-white border border-border rounded-2xl p-7 shadow-sm card-hover">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
                   <Building2 size={24} />
@@ -260,8 +261,8 @@ export default function AboutPage() {
                   <MapPin size={14} className="shrink-0" /> {office.address}
                 </p>
                 <div className="mt-4 pt-4 border-t border-border">
-                  <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="text-primary font-semibold text-sm flex items-center gap-2 hover:text-primary/80 transition-colors">
-                    <Phone size={14} /> {COMPANY.phone}
+                  <a href={`tel:${brand.phone.replace(/\s/g, "")}`} className="text-primary font-semibold text-sm flex items-center gap-2 hover:text-primary/80 transition-colors">
+                    <Phone size={14} /> {brand.phone}
                   </a>
                 </div>
               </div>

@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { MessageCircle, X, Phone, Mail, ArrowRight, CheckCircle2, ChevronDown, Loader2 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 const timeSlots = ["ASAP", "Morning (9–12)", "Afternoon (12–5)", "Tomorrow AM", "Tomorrow PM"];
 const businessTypes = ["Sole Trader", "Limited Company", "Contractor", "Landlord", "Startup", "CIS / Construction", "Ecommerce", "Other"];
 
 export default function ChatButton() {
+  const brand = useBrand();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"menu" | "callback">("menu");
   const [submitted, setSubmitted] = useState(false);
@@ -86,7 +87,7 @@ export default function ChatButton() {
               </button>
 
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                 className="flex items-center gap-3 p-3 rounded-xl bg-surface hover:bg-primary/5 transition-colors group"
               >
                 <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
@@ -94,13 +95,13 @@ export default function ChatButton() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-dark">Call Us Free</p>
-                  <p className="text-xs text-text-light">{COMPANY.freephone}</p>
+                  <p className="text-xs text-text-light">{brand.freephone}</p>
                 </div>
                 <ArrowRight size={16} className="text-text-light" />
               </a>
 
               <a
-                href={`mailto:${COMPANY.email}`}
+                href={`mailto:${brand.email}`}
                 className="flex items-center gap-3 p-3 rounded-xl bg-surface hover:bg-primary/5 transition-colors group"
               >
                 <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
@@ -108,7 +109,7 @@ export default function ChatButton() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-dark">Email Us</p>
-                  <p className="text-xs text-text-light">{COMPANY.email}</p>
+                  <p className="text-xs text-text-light">{brand.email}</p>
                 </div>
                 <ArrowRight size={16} className="text-text-light" />
               </a>

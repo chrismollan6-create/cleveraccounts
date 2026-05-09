@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink, ArrowRight } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Log In",
   description: "Log in to your Clever Accounts portal to manage your accounting, view your dashboard, and access your FreeAgent software.",
 };
 
-export default function LogInPage() {
+export default async function LogInPage() {
+  const brand = await getBrand();
   return (
     <section className="gradient-hero-subtle min-h-[calc(100vh-200px)] flex items-center py-16">
       <div className="max-w-lg mx-auto px-4 w-full">
@@ -17,7 +18,7 @@ export default function LogInPage() {
           <h1 className="text-3xl font-bold text-dark mb-2">Welcome Back</h1>
           <p className="text-text-light mb-8">Log in to your Clever Accounts portal</p>
           <a
-            href={COMPANY.portalUrl}
+            href={brand.portalUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl text-lg transition-colors flex items-center justify-center gap-2"

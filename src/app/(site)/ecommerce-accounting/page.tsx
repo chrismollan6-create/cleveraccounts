@@ -29,7 +29,7 @@ import {
   DollarSign,
   ShieldCheck,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 // ── Challenges ────────────────────────────────────────────────
 const challenges = [
@@ -295,6 +295,7 @@ const breadcrumbJsonLd = {
 };
 
 export default function EcommerceAccountingPage() {
+  const brand = useBrand();
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
@@ -336,10 +337,10 @@ export default function EcommerceAccountingPage() {
                   Get Started <ArrowRight size={20} />
                 </Link>
                 <a
-                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                  href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                   className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20"
                 >
-                  <Phone size={20} /> {COMPANY.freephone}
+                  <Phone size={20} /> {brand.freephone}
                 </a>
               </div>
             </div>
@@ -549,10 +550,10 @@ export default function EcommerceAccountingPage() {
               <p className="text-text/70 text-sm">
                 Call our team on{" "}
                 <a
-                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                  href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                   className="text-primary font-semibold hover:underline"
                 >
-                  {COMPANY.freephone}
+                  {brand.freephone}
                 </a>{" "}
                 for a free no-obligation conversation about your international
                 VAT position.
@@ -717,10 +718,10 @@ export default function EcommerceAccountingPage() {
                 Get Started Free <ArrowRight size={20} />
               </Link>
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                 className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/25 transition-all border border-white/30"
               >
-                <Phone size={20} /> {COMPANY.freephone}
+                <Phone size={20} /> {brand.freephone}
               </a>
             </div>
           </div>

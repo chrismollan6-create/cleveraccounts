@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 const footerLinks = {
   services: [
@@ -33,7 +33,8 @@ const footerLinks = {
   ],
 };
 
-export default function Footer() {
+export default async function Footer() {
+  const brand = await getBrand();
   return (
     <footer className="bg-dark text-white">
       {/* Main footer */}
@@ -43,20 +44,20 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="inline-flex items-center bg-white rounded-xl px-2 py-1 shadow-sm">
-                <Image src="/images/logo.png" alt="Clever Accounts" width={160} height={48} className="h-9 w-auto" />
+                <Image src={brand.assets.logo} alt={brand.name} width={160} height={48} className="h-9 w-auto" />
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
-              For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support.
+              For nearly {brand.stats.years} years, {brand.name} has been providing expert online accountancy services to over {brand.stats.businesses.toLocaleString()} UK businesses. One monthly fee, unlimited support.
             </p>
             <div className="space-y-3">
-              <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
+              <a href={`tel:${brand.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
                 <Phone size={16} className="text-primary" />
-                {COMPANY.phone}
+                {brand.phone}
               </a>
-              <a href={`mailto:${COMPANY.email}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
+              <a href={`mailto:${brand.email}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
                 <Mail size={16} className="text-primary" />
-                {COMPANY.email}
+                {brand.email}
               </a>
               <div className="flex items-start gap-2 text-sm text-slate-300">
                 <MapPin size={16} className="text-primary mt-0.5" />

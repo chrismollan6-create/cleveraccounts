@@ -12,10 +12,11 @@ import {
   MessageCircle,
   Zap,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 import RequestCallback from "@/components/ui/RequestCallback";
 
 export default function ContactPage() {
+  const brand = useBrand();
   const [submitted, setSubmitted] = useState(false);
 
   return (
@@ -142,12 +143,12 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-black text-white mb-1">Call Us</h3>
-                    <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="block text-secondary font-bold text-lg hover:text-secondary/80 transition-colors">
-                      {COMPANY.freephone}
+                    <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="block text-secondary font-bold text-lg hover:text-secondary/80 transition-colors">
+                      {brand.freephone}
                     </a>
                     <p className="text-white/50 text-xs mt-0.5">Freephone</p>
-                    <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="block text-white/60 text-sm mt-2 hover:text-white transition-colors">
-                      {COMPANY.phone}
+                    <a href={`tel:${brand.phone.replace(/\s/g, "")}`} className="block text-white/60 text-sm mt-2 hover:text-white transition-colors">
+                      {brand.phone}
                     </a>
                   </div>
                 </div>
@@ -160,8 +161,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-dark mb-1">Email</h3>
-                    <a href={`mailto:${COMPANY.email}`} className="text-primary hover:text-primary/80 font-medium text-sm transition-colors">
-                      {COMPANY.email}
+                    <a href={`mailto:${brand.email}`} className="text-primary hover:text-primary/80 font-medium text-sm transition-colors">
+                      {brand.email}
                     </a>
                     <p className="text-xs text-text-light mt-1">Typically responded to within 2 hours</p>
                   </div>
@@ -197,7 +198,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-dark mb-2">Our Offices</h3>
                     <div className="space-y-1">
-                      {COMPANY.offices.map((office) => (
+                      {brand.offices.map((office) => (
                         <div key={office.city} className="text-sm">
                           <span className="font-semibold text-dark">{office.city}</span>
                           <span className="text-text-light"> — {office.address}</span>

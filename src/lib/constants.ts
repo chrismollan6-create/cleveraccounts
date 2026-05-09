@@ -8,10 +8,6 @@
  *   - Server components / route handlers: `import { getBrand } from '@/lib/brand'`
  *   - Client components: `import { useBrand } from '@/lib/useBrand'`
  *
- * The legacy `COMPANY` export below is a deprecated shim that always returns
- * the Clever brand — it exists so the ~30 files still using `COMPANY.foo`
- * keep building during the multi-tenant migration. Remove the shim when those
- * call sites have been moved to useBrand()/getBrand().
  */
 
 export type BrandId = 'clever' | 'workwell';
@@ -193,25 +189,6 @@ export const BRANDS = {
     social: {},
   },
 } as const satisfies Record<BrandId, BrandConfig>;
-
-/**
- * @deprecated Use `getBrand()` (server) or `useBrand()` (client) instead.
- * This shim points at the Clever brand so existing call sites keep working
- * during the migration. Will be removed once all 35 `COMPANY.*` references
- * have been migrated.
- */
-export const COMPANY = {
-  name: BRANDS.clever.name,
-  tagline: BRANDS.clever.tagline,
-  phone: BRANDS.clever.phone,
-  freephone: BRANDS.clever.freephone,
-  email: BRANDS.clever.email,
-  website: `https://${BRANDS.clever.domain}`,
-  portalUrl: BRANDS.clever.portalUrl,
-  offices: BRANDS.clever.offices,
-  stats: BRANDS.clever.stats,
-  social: BRANDS.clever.social,
-};
 
 export const NAV_LINKS = [
   {

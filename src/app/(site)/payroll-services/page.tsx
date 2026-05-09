@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight, Phone } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Payroll Services",
   description: "Online payroll service for UK businesses. Monthly payroll processing, RTI submissions, payslips for directors & staff. Included in our Limited Company package.",
 };
 
-export default function PayrollServicesPage() {
+export default async function PayrollServicesPage() {
+  const brand = await getBrand();
   return (
     <>
       <section className="gradient-hero relative overflow-hidden">
@@ -25,8 +26,8 @@ export default function PayrollServicesPage() {
               <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-primary font-semibold px-8 py-4 rounded-xl text-lg hover:bg-primary-light hover:text-primary-dark transition-all shadow-lg">
                 Get Started <ArrowRight size={20} />
               </Link>
-              <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all">
-                <Phone size={20} /> {COMPANY.freephone}
+              <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all">
+                <Phone size={20} /> {brand.freephone}
               </a>
             </div>
           </div>

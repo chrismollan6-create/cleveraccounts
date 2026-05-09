@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   Tag,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 import { getPricingPlans, getFAQs, getSiteSettings } from "@/sanity/queries";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 
@@ -137,6 +137,7 @@ function planHasPromo(planName: string, promo: Promo): boolean {
 }
 
 export default async function PricingPage() {
+  const brand = await getBrand();
   let plans = fallbackPlans;
   let faqs = fallbackFaqs;
   let promo: Promo = null;
@@ -341,8 +342,8 @@ export default async function PricingPage() {
             <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
               Get a Custom Quote <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>
@@ -385,8 +386,8 @@ export default async function PricingPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
               Get Started Today <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white text-dark font-semibold px-8 py-4 rounded-xl text-lg hover:bg-surface transition-all border border-border shadow-sm">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white text-dark font-semibold px-8 py-4 rounded-xl text-lg hover:bg-surface transition-all border border-border shadow-sm">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>

@@ -17,7 +17,7 @@ import {
   User,
   RefreshCw,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 // ── 2025/26 Tax constants ─────────────────────────────────────
 const TAX = {
@@ -201,6 +201,7 @@ const CALCULATOR_JSONLD = {
 };
 
 export default function TakeHomeCalculatorPage() {
+  const brand = useBrand();
   const [income, setIncome] = useState(60000);
   const [expenses, setExpenses] = useState(5000);
   const [activeTab, setActiveTab] = useState<"comparison" | "soletrader" | "ltd">("comparison");
@@ -498,8 +499,8 @@ export default function TakeHomeCalculatorPage() {
               <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all whitespace-nowrap">
                 Get Started <ArrowRight size={18} />
               </Link>
-              <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-surface border border-border text-dark font-semibold px-6 py-3 rounded-xl hover:bg-surface/80 transition-all whitespace-nowrap">
-                <Phone size={18} /> {COMPANY.freephone}
+              <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-surface border border-border text-dark font-semibold px-6 py-3 rounded-xl hover:bg-surface/80 transition-all whitespace-nowrap">
+                <Phone size={18} /> {brand.freephone}
               </a>
             </div>
           </div>
@@ -549,8 +550,8 @@ export default function TakeHomeCalculatorPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
               Get Started Free <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-6 text-white/70 text-sm">

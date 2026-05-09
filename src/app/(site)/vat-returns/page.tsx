@@ -23,7 +23,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 // ── VAT Schemes ───────────────────────────────────────────────
 const vatSchemes = [
@@ -232,6 +232,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function VATReturnsPage() {
+  const brand = useBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -271,10 +272,10 @@ export default function VATReturnsPage() {
                   Get Started <ArrowRight size={20} />
                 </Link>
                 <a
-                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                  href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                   className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20"
                 >
-                  <Phone size={20} /> {COMPANY.freephone}
+                  <Phone size={20} /> {brand.freephone}
                 </a>
               </div>
             </div>
@@ -823,7 +824,7 @@ export default function VATReturnsPage() {
               Ready to Hand Your VAT Over to the Experts?
             </h2>
             <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-              Join thousands of UK businesses who trust {COMPANY.name} with
+              Join thousands of UK businesses who trust {brand.name} with
               their accounts. VAT registration, quarterly returns, MTD
               compliance — all handled from{" "}
               <strong className="text-white">£42.50/month</strong>.
@@ -836,10 +837,10 @@ export default function VATReturnsPage() {
                 Get Started <ArrowRight size={20} />
               </Link>
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                 className="inline-flex items-center justify-center gap-2 border-2 border-white/40 text-white font-semibold px-10 py-4 rounded-xl text-lg hover:bg-white/10 transition-all"
               >
-                <Phone size={20} /> {COMPANY.freephone}
+                <Phone size={20} /> {brand.freephone}
               </a>
             </div>
           </div>
@@ -858,7 +859,7 @@ export default function VATReturnsPage() {
           <p className="text-text-light leading-relaxed mb-6 max-w-xl mx-auto">
             Quarterly VAT returns, MTD submission via FreeAgent, scheme advice
             and HMRC registration — all included as standard with{" "}
-            {COMPANY.name}.
+            {brand.name}.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

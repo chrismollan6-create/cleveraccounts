@@ -27,7 +27,7 @@ import {
   BarChart3,
   Info,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 // ── Deduction rate cards ──────────────────────────────────────
 const deductionRates = [
@@ -280,6 +280,7 @@ const breadcrumbJsonLd = {
 
 // ── Page ──────────────────────────────────────────────────────
 export default function CisAccountingPage() {
+  const brand = useBrand();
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
@@ -325,10 +326,10 @@ export default function CisAccountingPage() {
                   Get Started <ArrowRight size={20} />
                 </Link>
                 <a
-                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                  href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                   className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20"
                 >
-                  <Phone size={20} /> {COMPANY.freephone}
+                  <Phone size={20} /> {brand.freephone}
                 </a>
               </div>
             </div>
@@ -984,10 +985,10 @@ export default function CisAccountingPage() {
               Get Started Today <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 bg-white/20 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/30 transition-all border border-white/30"
             >
-              <Phone size={20} /> {COMPANY.freephone}
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
           <p className="text-white/60 text-sm mt-5">

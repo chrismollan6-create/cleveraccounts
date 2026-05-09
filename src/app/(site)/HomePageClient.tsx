@@ -29,7 +29,7 @@ import {
   Sparkles,
   Tag,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 import TaxCalculator from "@/components/ui/TaxCalculator";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
@@ -148,6 +148,7 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [], freephone }: HomePageClientProps) {
+  const brand = useBrand();
   const serviceTabs = buildServiceTabs(pricingPlans);
   const defaultTab = serviceTabs.find((t) => t.id === "limited-company")?.id || serviceTabs[0]?.id;
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -858,15 +859,15 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
               Get Started — From £42.50/mo <ArrowRight size={22} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 bg-dark text-white font-bold px-8 py-5 rounded-2xl text-lg hover:bg-secondary transition-all"
             >
               <Phone size={20} />
-              Call {COMPANY.freephone}
+              Call {brand.freephone}
             </a>
           </div>
           <p className="text-text-light text-sm mt-6">
-            Or email us at <a href={`mailto:${COMPANY.email}`} className="text-primary font-semibold hover:text-primary-dark">{COMPANY.email}</a>
+            Or email us at <a href={`mailto:${brand.email}`} className="text-primary font-semibold hover:text-primary-dark">{brand.email}</a>
           </p>
         </div>
       </section>
