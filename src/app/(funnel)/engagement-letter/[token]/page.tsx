@@ -25,11 +25,14 @@ interface ApexLetterDto {
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Engagement Letter | Clever Accounts',
-  description: "Review and sign your engagement letter with Clever Accounts.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata() {
+  const brand = await getBrand();
+  return {
+    title: `Engagement Letter | ${brand.name}`,
+    description: `Review and sign your engagement letter with ${brand.name}.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 async function fetchLetter(token: string): Promise<{ status: number; data: ApexLetterDto | { error: string } }> {
   const sfToken = await getSalesforceToken();

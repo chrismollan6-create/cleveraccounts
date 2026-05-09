@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { trackEvent, captureUTMParams, getStoredUTMParams } from "@/components/seo/GoogleTagManager";
 import { useBrand } from "@/lib/useBrand";
+import { brandPossessive } from "@/lib/constants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1790,7 +1791,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
                     <div className="space-y-3">
                       {[
-                        { val: "ours", label: "Use Clever Accounts' registered office", desc: "We provide our office as your registered address — keeps your home address off the public record. Recommended if you work from home.", recommended: true },
+                        { val: "ours", label: `Use ${brandPossessive(brand)} registered office`, desc: "We provide our office as your registered address — keeps your home address off the public record. Recommended if you work from home.", recommended: true },
                         { val: "own", label: "Use my own address", desc: "Your business address will appear publicly on the Companies House register.", recommended: false },
                       ].map(({ val, label, desc, recommended }) => {
                         const selected = (val === "ours" && formData.registeredOfficeAddress === true) ||
@@ -1870,7 +1871,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                 {isLtd && formData.registeredOfficeAddress === true && (
                   <InfoBox icon={<CheckCircle2 size={16} />} colour="green">
                     <p className="font-semibold mb-0.5">All set</p>
-                    <p>We&apos;ll use Clever Accounts&apos; registered office for your company. We&apos;ll forward any HMRC or Companies House post to you the same day it arrives.</p>
+                    <p>We&apos;ll use {brandPossessive(brand)} registered office for your company. We&apos;ll forward any HMRC or Companies House post to you the same day it arrives.</p>
                   </InfoBox>
                 )}
 
@@ -1987,7 +1988,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                     <SummaryRow label="Type" value={formData.businessStructure} />
                     <SummaryRow label={isLtd ? "Company Name" : "Business Name"} value={formData.company} />
                     {isLtd && !formData.newCompany && formData.companyNumber && <SummaryRow label="Company No." value={formData.companyNumber} />}
-                    {isLtd && formData.newCompany && <SummaryRow label="Formation" value="To be formed by Clever Accounts" />}
+                    {isLtd && formData.newCompany && <SummaryRow label="Formation" value={`To be formed by ${brand.name}`} />}
                     {formData.tradingStartDate && <SummaryRow label="Trading Since" value={formData.tradingStartDate} />}
                   </SummaryCard>
 
@@ -2000,7 +2001,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
                   <SummaryCard title="Addresses" colour="amber">
                     {isLtd && formData.registeredOfficeAddress === true && (
-                      <SummaryRow label="Registered Office" value="Clever Accounts (provided by us)" />
+                      <SummaryRow label="Registered Office" value={`${brand.name} (provided by us)`} />
                     )}
                     {(!isLtd || formData.registeredOfficeAddress === false) && (
                       <SummaryRow label={isLtd ? "Registered Office" : "Business Address"}
@@ -2043,7 +2044,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                       {
                         day: "Immediately",
                         title: "Welcome email & confirmation",
-                        desc: "You'll receive a confirmation email with everything you need to know about getting started with Clever Accounts.",
+                        desc: `You'll receive a confirmation email with everything you need to know about getting started with ${brand.name}.`,
                         icon: "📧",
                       },
                       {

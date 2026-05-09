@@ -12,6 +12,15 @@
 
 export type BrandId = 'clever' | 'workwell';
 
+/**
+ * Possessive form of a brand name for natural-sounding copy. Handles the
+ * apostrophe-only suffix when the name ends in 's' (e.g. "Clever Accounts'")
+ * and the full "'s" otherwise (e.g. "Workwell Accountancy's").
+ */
+export function brandPossessive(brand: { name: string }): string {
+  return brand.name.endsWith('s') ? `${brand.name}'` : `${brand.name}'s`;
+}
+
 export interface BrandConfig {
   /** Short id used everywhere internally. */
   id: BrandId;
