@@ -1,32 +1,216 @@
-export const COMPANY = {
-  name: "Clever Accounts",
-  tagline: "Online Accounting Made Clever",
-  phone: "0113 518 8800",
-  freephone: "0113 515 8800",
-  email: "info@cleveraccounts.com",
-  website: "https://cleveraccounts.com",
-  portalUrl: "https://portal.cleveraccounts.com",
-  offices: [
-    {
-      city: "Leeds",
-      address: "Leeds, West Yorkshire, UK",
-    },
-    {
-      city: "Watford",
-      address: "Watford, Hertfordshire, UK",
-    },
-  ],
+/**
+ * Multi-tenant brand registry.
+ *
+ * Each brand is keyed by a short id ('clever' | 'workwell'). The host header
+ * (resolved in src/middleware.ts → src/lib/brand.ts) decides which brand a
+ * request is rendered for. Components should NOT reach into BRANDS directly:
+ *
+ *   - Server components / route handlers: `import { getBrand } from '@/lib/brand'`
+ *   - Client components: `import { useBrand } from '@/lib/useBrand'`
+ *
+ * The legacy `COMPANY` export below is a deprecated shim that always returns
+ * the Clever brand — it exists so the ~30 files still using `COMPANY.foo`
+ * keep building during the multi-tenant migration. Remove the shim when those
+ * call sites have been moved to useBrand()/getBrand().
+ */
+
+export type BrandId = 'clever' | 'workwell';
+
+export interface BrandConfig {
+  /** Short id used everywhere internally. */
+  id: BrandId;
+  /** Public display name (footer, emails, page titles). */
+  name: string;
+  /** Companies House registered name (legal/footer). */
+  legalName: string;
+  /** Marketing tagline shown in hero/meta. */
+  tagline: string;
+  /** Apex domain — used for canonical URLs, sitemap, robots. */
+  domain: string;
+  /** Where the multi-tenant Next app is reachable for this brand. */
+  appDomain: string;
+  /** Customer portal URL (login link). */
+  portalUrl: string;
+  /** Primary phone number shown on marketing surfaces. */
+  phone: string;
+  /** Freephone / sales number for funnel CTAs. */
+  freephone: string;
+  /** Public-facing inbox. */
+  email: string;
+  /** Sender domain / domain for transactional email From address. */
+  senderEmail: string;
+  /**
+   * Salesforce Lead.Branding__c value (long form). Sent on signup payloads.
+   * Apex `LeadConversionService` translates this to the short Account form.
+   */
+  salesforceLeadValue: string;
+  /** Salesforce Account.Branding__c / Contact.Branding__c value (short form). */
+  salesforceAccountValue: string;
+  /** Logo + asset paths under /public/brand/{id}/. */
+  assets: {
+    logo: string;
+    logoWhite: string;
+    favicon?: string;
+    ogImage?: string;
+  };
+  /** Tailwind v4 token overrides (applied via [data-brand="{id}"] in globals.css). */
+  colors: {
+    primary: string;
+    primaryDark: string;
+    primaryLight: string;
+    primary50: string;
+    secondary: string;
+    secondaryDark: string;
+    secondaryLight: string;
+    accent: string;
+    surface: string;
+    surfaceAlt: string;
+    text: string;
+    textLight: string;
+  };
+  /** Google Font family name + weights (loaded by layout). */
+  font: {
+    family: string;
+    weights: string;
+  };
+  /** Office locations shown on contact/about pages. */
+  offices: { city: string; address: string }[];
+  /** At-a-glance stats for hero / about pages. */
   stats: {
-    years: 20,
-    businesses: 10000,
-    setupFee: 0,
-    rating: 5,
-  },
+    years: number;
+    businesses: number;
+    setupFee: number;
+    rating: number;
+  };
+  /** Public social profiles. */
   social: {
-    facebook: "https://www.facebook.com/cleveraccounts",
-    twitter: "https://twitter.com/cleveraccounts",
-    linkedin: "https://www.linkedin.com/company/clever-accounts",
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+  };
+  /** GA4 / GTM ids per brand (TODO populate WW values once GA property exists). */
+  analytics?: {
+    gtmId?: string;
+    ga4Id?: string;
+  };
+}
+
+export const BRANDS = {
+  clever: {
+    id: 'clever',
+    name: 'Clever Accounts',
+    legalName: 'Clever Accounts Ltd',
+    tagline: 'Online Accounting Made Clever',
+    domain: 'cleveraccounts.com',
+    appDomain: 'cleveraccounts.com',
+    portalUrl: 'https://portal.cleveraccounts.com',
+    phone: '0113 518 8800',
+    freephone: '0113 515 8800',
+    email: 'info@cleveraccounts.com',
+    senderEmail: 'sales@cleveraccounts.com',
+    salesforceLeadValue: 'Clever Accounts Ltd',
+    salesforceAccountValue: 'Clever Accounts',
+    assets: {
+      logo: '/brand/clever/logo.png',
+      logoWhite: '/brand/clever/logo-white.jpg',
+    },
+    colors: {
+      primary: '#1A7A9B',
+      primaryDark: '#136280',
+      primaryLight: '#3BA7C4',
+      primary50: '#F0F9FF',
+      secondary: '#F97316',
+      secondaryDark: '#EA580C',
+      secondaryLight: '#FDBA74',
+      accent: '#8B5CF6',
+      surface: '#F0F9FF',
+      surfaceAlt: '#E0F2FE',
+      text: '#1E293B',
+      textLight: '#64748B',
+    },
+    font: {
+      family: 'Inter',
+      weights: '400;500;600;700;800;900',
+    },
+    offices: [
+      { city: 'Leeds', address: 'Leeds, West Yorkshire, UK' },
+      { city: 'Watford', address: 'Watford, Hertfordshire, UK' },
+    ],
+    stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },
+    social: {
+      facebook: 'https://www.facebook.com/cleveraccounts',
+      twitter: 'https://twitter.com/cleveraccounts',
+      linkedin: 'https://www.linkedin.com/company/clever-accounts',
+    },
   },
+  workwell: {
+    id: 'workwell',
+    name: 'Workwell Accountancy',
+    legalName: 'Workwell Accountancy Solutions Ltd',
+    tagline: 'Accountancy Service Experts',
+    domain: 'workwellaccountancy.com',
+    appDomain: 'app.workwellaccountancy.com',
+    // TODO: confirm WW portal URL with team
+    portalUrl: 'https://portal.cleveraccounts.com',
+    phone: '01923 257257',
+    freephone: '01923 257257',
+    email: 'accountancy@workwellsolutions.com',
+    senderEmail: 'accountancy@workwellsolutions.com',
+    salesforceLeadValue: 'Workwell Accountancy Solutions',
+    salesforceAccountValue: 'Workwell',
+    assets: {
+      logo: '/brand/workwell/logo.png',
+      logoWhite: '/brand/workwell/logo-white.png',
+    },
+    // Canonical palette extracted from workwellaccountancy.com theme CSS (2026-05-09).
+    // Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488) are
+    // both wrong — should be reconciled to #32535a in a follow-up.
+    colors: {
+      primary: '#32535a',
+      primaryDark: '#233a40',
+      primaryLight: '#4d7079',
+      primary50: '#f6f9f0',
+      secondary: '#9cbf50',
+      secondaryDark: '#6f8052',
+      secondaryLight: '#bdd289',
+      accent: '#71c5d6',
+      surface: '#edf3e0',
+      surfaceAlt: '#fafbec',
+      text: '#32535a',
+      textLight: '#6a7b82',
+    },
+    font: {
+      family: 'Montserrat Alternates',
+      weights: '400;700',
+    },
+    offices: [
+      {
+        city: 'Watford',
+        address: 'Radius House, 51 Clarendon Road, Watford, Hertfordshire, WD17 1HP',
+      },
+    ],
+    stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },
+    social: {},
+  },
+} as const satisfies Record<BrandId, BrandConfig>;
+
+/**
+ * @deprecated Use `getBrand()` (server) or `useBrand()` (client) instead.
+ * This shim points at the Clever brand so existing call sites keep working
+ * during the migration. Will be removed once all 35 `COMPANY.*` references
+ * have been migrated.
+ */
+export const COMPANY = {
+  name: BRANDS.clever.name,
+  tagline: BRANDS.clever.tagline,
+  phone: BRANDS.clever.phone,
+  freephone: BRANDS.clever.freephone,
+  email: BRANDS.clever.email,
+  website: `https://${BRANDS.clever.domain}`,
+  portalUrl: BRANDS.clever.portalUrl,
+  offices: BRANDS.clever.offices,
+  stats: BRANDS.clever.stats,
+  social: BRANDS.clever.social,
 };
 
 export const NAV_LINKS = [
