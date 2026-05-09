@@ -270,7 +270,7 @@ function SectionItem({ section, forceOpen }: SectionItemProps) {
   return (
     <details
       open={open}
-      className="group bg-white border border-gray-200 rounded-xl overflow-hidden transition-all hover:border-primary/30 has-[>summary]:open:border-primary/40 print:border-gray-300 print:bg-transparent print:rounded-none print:open:border-gray-300"
+      className="group bg-white border border-gray-200 rounded-xl overflow-hidden transition-all hover:border-primary/30 open:border-primary/40 print:border-gray-300 print:bg-transparent print:rounded-none"
     >
       <summary className="cursor-pointer list-none px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-4 hover:bg-primary/[0.02] transition-colors group-open:bg-primary/[0.03] print:px-0 print:py-2 print:cursor-auto print:hover:bg-transparent print:group-open:bg-transparent">
         {/* Number badge — pill-style, brand-coloured */}
