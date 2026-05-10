@@ -41,17 +41,25 @@ const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
   /^\/portal\/?$/, // bare /portal — landing page can be public
 ];
 
-function isOverrideAllowed(): boolean {
-  if (process.env.NODE_ENV !== 'production') return true;
-  const ctx = process.env.CONTEXT;
-  if (ctx && ctx !== 'production') return true;
-  return false;
+/** Brand override (?_brand=) is allowed everywhere except strict prod. */
+function isOverrideAllowed(host: string): boolean {
+  return !isStrictProduction(host);
 }
 
-function isStrictProduction(): boolean {
+/**
+ * True only on a real custom-domain production deploy. False for dev,
+ * localhost, and Netlify deploy URLs (.netlify.app / .netlify.live —
+ * production site's auto subdomain, deploy previews, branch deploys).
+ *
+ * Hostname-based rather than env-var based because `process.env.CONTEXT`
+ * isn't reliably exposed to Next.js Edge middleware on Netlify, so the
+ * old check incorrectly returned true on branch deploys.
+ */
+function isStrictProduction(host: string): boolean {
   if (process.env.NODE_ENV !== 'production') return false;
-  const ctx = process.env.CONTEXT;
-  if (ctx && ctx !== 'production') return false;
+  const h = host.toLowerCase().split(':')[0];
+  if (h.endsWith('.netlify.app') || h.endsWith('.netlify.live')) return false;
+  if (h === 'localhost' || h.startsWith('127.0.0.1')) return false;
   return true;
 }
 
@@ -80,7 +88,7 @@ export default clerkMiddleware(async (auth, req) => {
     brandId = portalBrandFromHost(host) ?? 'clever';
   } else {
     brandId = brandIdFromHost(host);
-    if (isOverrideAllowed()) {
+    if (isOverrideAllowed(host)) {
       const param = req.nextUrl.searchParams.get(BRAND_OVERRIDE_PARAM);
       if (param === 'clear') {
         cookieAction = 'clear';
@@ -128,7 +136,7 @@ export default clerkMiddleware(async (auth, req) => {
     // Already /portal/* on a portal host — let it through (rare, but defensive).
   } else if (url.pathname.startsWith('/portal')) {
     // /portal/* on a non-portal hostname.
-    if (isStrictProduction()) {
+    if (isStrictProduction(host)) {
       const target = BRANDS[brandId].portalDomain;
       const stripped = url.pathname.replace(/^\/portal/, '') || '/';
       return NextResponse.redirect(new URL(`https://${target}${stripped}${url.search}`), 308);
