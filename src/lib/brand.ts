@@ -1,28 +1,24 @@
-import { headers } from 'next/headers';
 import { BRANDS, type BrandConfig, type BrandId } from './constants';
+import { brandIdFromHost } from './brand-host';
 
 /**
- * Map a Host header value to a BrandId.
- *
- * Used by both the middleware (to stamp `x-brand` on the request) and any
- * server-side code that needs to resolve brand from a raw host string
- * (e.g. API routes that didn't go through middleware for some reason).
- *
- * Falls back to 'clever' for unknown hosts (localhost, *.netlify.app preview
- * URLs, marketing/SEO crawlers hitting the apex without a www prefix).
+ * Re-export for callers that import from `@/lib/brand`. The implementation
+ * lives in `brand-host.ts` so it can be imported by Edge middleware and any
+ * other context that can't load `next/headers`.
  */
-export function brandIdFromHost(host: string): BrandId {
-  // Normalise — strip port, lowercase.
-  const h = host.toLowerCase().split(':')[0];
-  if (h.includes('workwellaccountancy.com') || h.includes('workwell')) {
-    return 'workwell';
-  }
-  return 'clever';
-}
+export { brandIdFromHost };
 
 /**
  * Resolve the current request's brand inside a server component, layout, or
  * route handler. Reads the `x-brand` header set by middleware.
+ *
+ * `next/headers` is loaded via dynamic import so the top of this module
+ * stays free of server-only APIs — important because Turbopack will
+ * otherwise refuse to bundle it for any context that touches a
+ * non-server-only path. Side effect: callers must already be in an
+ * environment where `next/headers` is callable (server component,
+ * route handler, server action). Calling from a client component or
+ * middleware will throw at runtime.
  *
  * In environments where middleware didn't run (rare — e.g. pure static
  * generation outside of a request), defaults to Clever.
@@ -30,6 +26,7 @@ export function brandIdFromHost(host: string): BrandId {
  * Async because Next.js 15 made `headers()` async.
  */
 export async function getBrand(): Promise<BrandConfig> {
+  const { headers } = await import('next/headers');
   const h = await headers();
   const id = (h.get('x-brand') as BrandId | null) ?? 'clever';
   return BRANDS[id] ?? BRANDS.clever;

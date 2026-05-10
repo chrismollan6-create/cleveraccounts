@@ -34,7 +34,12 @@ export interface BrandConfig {
   domain: string;
   /** Where the multi-tenant Next app is reachable for this brand. */
   appDomain: string;
-  /** Customer portal URL (login link). */
+  /**
+   * Hostname for the client portal (no scheme). Middleware uses this to detect
+   * portal requests and rewrite paths into the `/portal/*` route segment.
+   */
+  portalDomain: string;
+  /** Customer portal URL (login link, used by marketing CTAs). */
   portalUrl: string;
   /** Primary phone number shown on marketing surfaces. */
   phone: string;
@@ -112,7 +117,8 @@ export const BRANDS = {
     tagline: 'Online Accounting Made Clever',
     domain: 'cleveraccounts.com',
     appDomain: 'cleveraccounts.com',
-    portalUrl: 'https://portal.cleveraccounts.com',
+    portalDomain: 'my.cleveraccounts.com',
+    portalUrl: 'https://my.cleveraccounts.com',
     phone: '0113 518 8800',
     freephone: '0113 515 8800',
     email: 'info@cleveraccounts.com',
@@ -161,8 +167,8 @@ export const BRANDS = {
     tagline: 'Accountancy Service Experts',
     domain: 'workwellaccountancy.com',
     appDomain: 'app.workwellaccountancy.com',
-    // TODO: confirm WW portal URL with team
-    portalUrl: 'https://portal.cleveraccounts.com',
+    portalDomain: 'my.workwellaccountancy.com',
+    portalUrl: 'https://my.workwellaccountancy.com',
     phone: '01923 257257',
     freephone: '01923 257257',
     email: 'accountancy@workwellsolutions.com',

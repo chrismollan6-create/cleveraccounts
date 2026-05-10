@@ -1,98 +1,171 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { brandIdFromHost } from '@/lib/brand';
-import type { BrandId } from '@/lib/constants';
+import { clerkMiddleware } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { brandIdFromHost } from '@/lib/brand-host';
+import { isPortalHost, portalBrandFromHost } from '@/lib/portal/host';
+import { BRANDS, type BrandId } from '@/lib/constants';
 
 /**
- * Multi-tenant brand detection.
+ * Multi-tenant brand detection + portal routing + Clerk auth gate.
  *
  * The Next.js app is reachable at multiple hosts:
- *   - cleveraccounts.com           → Clever brand
- *   - app.workwellaccountancy.com  → Workwell brand (subdomain CNAME'd to Netlify)
- *   - localhost / *.netlify.app    → Clever (default for dev/preview)
+ *   - cleveraccounts.com                  → Clever marketing
+ *   - app.workwellaccountancy.com         → Workwell marketing
+ *   - portal.cleveraccounts.com           → Clever client portal
+ *   - portal.workwellaccountancy.com      → Workwell client portal
+ *   - localhost / *.netlify.app           → Clever (default for dev/preview)
  *
- * We resolve the brand from the `Host` header here and stash the result on a
- * response header (`x-brand`) that downstream server components / route
- * handlers can read via `getBrand()` (src/lib/brand.ts).
+ * Brand resolution: the `Host` header is the source of truth (stamped onto
+ * `x-brand` so server components and route handlers can read it via
+ * `getBrand()`). In dev / Netlify previews only, a `?_brand=` query param
+ * + `_brand_override` cookie can flip the brand for QA.
  *
- * Brand is NEVER passed via query string in production — the host header is
- * the only source of truth there, preventing leaks from stale cross-domain
- * links. See "Debug brand override" below for the dev/preview-only escape
- * hatch used when DNS isn't yet pointed at Netlify.
+ * Portal routing: portal hostnames serve content from `src/app/portal/*` but
+ * users see clean URLs (e.g. portal.cleveraccounts.com/dashboard, not
+ * /portal/dashboard). We achieve this with an internal rewrite. Direct access
+ * to /portal/* on the marketing hostnames is allowed in dev (so devs can hit
+ * localhost:3000/portal/dashboard) but redirected to the portal subdomain in
+ * production for isolation.
+ *
+ * Auth: protected portal routes require a Clerk session. Public portal routes
+ * (sign-in, sign-up, root marketing landing) skip the gate. Marketing routes
+ * are unaffected — Clerk only matters when the request is portal-bound.
  */
 
 const BRAND_OVERRIDE_COOKIE = '_brand_override';
 const BRAND_OVERRIDE_PARAM = '_brand';
 
-/**
- * Whether the brand override (cookie + ?_brand=) is honoured. Allowed in:
- *   - Local development  (NODE_ENV !== 'production')
- *   - Netlify deploy previews / branch deploys (CONTEXT !== 'production')
- *
- * Hard-blocked in true production deploys so a stale shared link with
- * ?_brand=workwell can't ever flip the live cleveraccounts.com to Workwell.
- */
+/** Portal paths that don't require authentication (matched after /portal prefix is added). */
+const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
+  /^\/portal\/sign-in(\/.*)?$/,
+  /^\/portal\/sign-up(\/.*)?$/,
+  /^\/portal\/?$/, // bare /portal — landing page can be public
+];
+
 function isOverrideAllowed(): boolean {
   if (process.env.NODE_ENV !== 'production') return true;
-  // On Netlify, CONTEXT is set to one of: production | deploy-preview | branch-deploy | dev
   const ctx = process.env.CONTEXT;
   if (ctx && ctx !== 'production') return true;
   return false;
+}
+
+function isStrictProduction(): boolean {
+  if (process.env.NODE_ENV !== 'production') return false;
+  const ctx = process.env.CONTEXT;
+  if (ctx && ctx !== 'production') return false;
+  return true;
 }
 
 function isValidBrand(v: string | null | undefined): v is BrandId {
   return v === 'clever' || v === 'workwell';
 }
 
-export function middleware(req: NextRequest) {
+function isPublicPortalPath(portalPath: string): boolean {
+  return PUBLIC_PORTAL_PATTERNS.some((p) => p.test(portalPath));
+}
+
+export default clerkMiddleware(async (auth, req) => {
   const host = req.headers.get('host') ?? '';
-  let brandId: BrandId = brandIdFromHost(host);
+  const url = req.nextUrl;
+  const isPortal = isPortalHost(host);
+
+  // ───────────────────────────────────────────────────────────────────────
+  // 1. Brand resolution.
+  // ───────────────────────────────────────────────────────────────────────
+
+  let brandId: BrandId;
   let cookieAction: 'set-clever' | 'set-workwell' | 'clear' | null = null;
 
-  if (isOverrideAllowed()) {
-    const param = req.nextUrl.searchParams.get(BRAND_OVERRIDE_PARAM);
-    if (param === 'clear') {
-      // Explicit clear → drop cookie, fall back to host-resolved brand
-      cookieAction = 'clear';
-    } else if (isValidBrand(param)) {
-      // Query param wins, and we persist via cookie so subsequent navigations
-      // (which won't have the param) keep the override active
-      brandId = param;
-      cookieAction = param === 'workwell' ? 'set-workwell' : 'set-clever';
-    } else {
-      // No param → honour existing cookie if present and valid
-      const cookieValue = req.cookies.get(BRAND_OVERRIDE_COOKIE)?.value;
-      if (isValidBrand(cookieValue)) {
-        brandId = cookieValue;
+  if (isPortal) {
+    // Portal hostname → brand fixed by hostname. No QA override on portal.
+    brandId = portalBrandFromHost(host) ?? 'clever';
+  } else {
+    brandId = brandIdFromHost(host);
+    if (isOverrideAllowed()) {
+      const param = req.nextUrl.searchParams.get(BRAND_OVERRIDE_PARAM);
+      if (param === 'clear') {
+        cookieAction = 'clear';
+      } else if (isValidBrand(param)) {
+        brandId = param;
+        cookieAction = param === 'workwell' ? 'set-workwell' : 'set-clever';
+      } else {
+        const cookieValue = req.cookies.get(BRAND_OVERRIDE_COOKIE)?.value;
+        if (isValidBrand(cookieValue)) brandId = cookieValue;
       }
     }
   }
 
-  // Forward the resolved brand to downstream RSC/route handlers via a
-  // request header. (Cloning headers and re-supplying via `request.headers`
-  // is the canonical Next.js pattern.)
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-brand', brandId);
+  requestHeaders.set('x-portal', isPortal ? '1' : '0');
+
+  // ───────────────────────────────────────────────────────────────────────
+  // 2. Portal routing.
+  // ───────────────────────────────────────────────────────────────────────
+
+  if (isPortal) {
+    // On a portal hostname every URL must resolve under /portal/*.
+    // Determine the equivalent `/portal/...` path so we can auth-gate it
+    // before issuing the internal rewrite.
+    const portalPath = url.pathname.startsWith('/portal')
+      ? url.pathname
+      : '/portal' + url.pathname;
+
+    if (!isPublicPortalPath(portalPath)) {
+      const { userId } = await auth();
+      if (!userId) {
+        const signInUrl = url.clone();
+        signInUrl.pathname = '/sign-in';
+        signInUrl.searchParams.set('redirect_url', url.pathname + url.search);
+        return NextResponse.redirect(signInUrl);
+      }
+    }
+
+    if (!url.pathname.startsWith('/portal')) {
+      const rewriteUrl = url.clone();
+      rewriteUrl.pathname = portalPath;
+      return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
+    }
+    // Already /portal/* on a portal host — let it through (rare, but defensive).
+  } else if (url.pathname.startsWith('/portal')) {
+    // /portal/* on a non-portal hostname.
+    if (isStrictProduction()) {
+      const target = BRANDS[brandId].portalDomain;
+      const stripped = url.pathname.replace(/^\/portal/, '') || '/';
+      return NextResponse.redirect(new URL(`https://${target}${stripped}${url.search}`), 308);
+    }
+
+    // Dev / preview: enforce auth gate but allow direct /portal/* access.
+    if (!isPublicPortalPath(url.pathname)) {
+      const { userId } = await auth();
+      if (!userId) {
+        const signInUrl = url.clone();
+        signInUrl.pathname = '/portal/sign-in';
+        signInUrl.searchParams.set('redirect_url', url.pathname + url.search);
+        return NextResponse.redirect(signInUrl);
+      }
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  // 3. Default response (marketing pages + dev/preview portal access).
+  // ───────────────────────────────────────────────────────────────────────
 
   const res = NextResponse.next({ request: { headers: requestHeaders } });
 
-  // Apply any cookie change. SameSite=Lax + no Secure flag so it works on
-  // http://localhost during dev. Path=/ so every route honours it.
   if (cookieAction === 'clear') {
     res.cookies.set(BRAND_OVERRIDE_COOKIE, '', { path: '/', maxAge: 0 });
   } else if (cookieAction === 'set-clever' || cookieAction === 'set-workwell') {
     res.cookies.set(BRAND_OVERRIDE_COOKIE, cookieAction === 'set-workwell' ? 'workwell' : 'clever', {
       path: '/',
       sameSite: 'lax',
-      // No maxAge → session cookie, cleared when the browser closes.
-      // No httpOnly → harmless to be readable; lets devtools confirm it.
     });
   }
 
   return res;
-}
+});
 
 export const config = {
-  // Skip static assets and Next internals — they don't need brand awareness.
+  // Skip static assets and Next internals — they don't need brand/auth awareness.
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|brand/|images/|robots.txt|sitemap.xml).*)',
   ],
