@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle } from "lucide-react";
 import { getBrand } from "@/lib/brand";
+import { getCurrentPortalUser } from "@/lib/portal/auth";
 import {
   getOnboardingForCurrentUser,
   isOnboardingError,
@@ -13,18 +14,34 @@ import StatsRow from "@/components/portal/StatsRow";
 import EngagementLetterCard from "@/components/portal/EngagementLetterCard";
 import TasksPanel from "@/components/portal/TasksPanel";
 import ActivityTimeline from "@/components/portal/ActivityTimeline";
+import AccessGate from "@/components/portal/AccessGate";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [user, brand, onboardingResult] = await Promise.all([
+  const [user, brand, portalUser, onboardingResult] = await Promise.all([
     currentUser(),
     getBrand(),
+    getCurrentPortalUser(),
     getOnboardingForCurrentUser(),
   ]);
 
   const firstName =
     user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? null;
+
+  // Soft-block states — show AccessGate instead of trying to load data
+  if (portalUser && (portalUser.status === "disabled" || portalUser.status === "pending")) {
+    return (
+      <DashboardShell>
+        <AccessGate
+          brand={brand}
+          state={portalUser.status}
+          firstName={firstName}
+          email={portalUser.email}
+        />
+      </DashboardShell>
+    );
+  }
 
   // Error state
   if (isOnboardingError(onboardingResult)) {

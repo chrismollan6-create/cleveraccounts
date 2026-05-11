@@ -1,17 +1,19 @@
+import { cache } from "react";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
+import { getPortalDb, schema } from "./db/client";
+import type { PortalBrand, PortalUserStatus } from "./db/schema";
 
 /**
- * Portal user resolution.
+ * Portal user resolution — the chokepoint between Clerk (auth) and Salesforce
+ * (data). Every server component / API route that reads portal data goes
+ * through this; it returns the SF Account + Contact context the user is
+ * authorised for.
  *
- * `getCurrentPortalUser()` is the chokepoint that maps a Clerk session to
- * the user's Salesforce Account/Contact. Every portal API route + server
- * component that reads scoped data MUST go through this — it's where the
- * IDOR-prevention boundary lives.
+ * Cached per-request via React `cache()` so layout, dashboard, and any other
+ * server component on the same request only hit Postgres once.
  *
- * Phase 1 stub: returns the Clerk user only. Once the SF↔Clerk link table
- * (portal.users in Postgres) exists, this will additionally return
- * `{ accountSfId, contactSfId, brand }` so callers can scope SOQL/Postgres
- * queries by Account.
+ * Replaces the Phase-1 `PORTAL_DEV_ACCOUNT_ID` dev hack.
  */
 
 export interface PortalUser {
@@ -19,41 +21,74 @@ export interface PortalUser {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
-  // Populated after the portal.users link table exists (Track A + sync):
+  /** SF Account this user is mapped to. Null when status = 'disabled'. */
   accountSfId: string | null;
   contactSfId: string | null;
-  brand: "clever" | "workwell" | null;
+  brand: PortalBrand | null;
+  status: PortalUserStatus;
 }
 
 /**
- * Returns the current authenticated portal user, or null if not signed in.
- * Throws if the Clerk session exists but no SF mapping is found AND we're
- * past Phase 1 (toggle via env once Track A lands).
+ * Returns the current authenticated portal user, mapped to their SF Account.
+ *
+ * Returns null when:
+ *   - User is not signed in
+ *   - User signed in but has no portal.users row yet (e.g. webhook hasn't
+ *     fired — should be milliseconds, race-condition only)
+ *
+ * Returns a row with status='disabled' when the user signed in but their
+ * email doesn't map to any SF Contact. Callers should render the AccessGate
+ * UI instead of data.
  */
-export async function getCurrentPortalUser(): Promise<PortalUser | null> {
+export const getCurrentPortalUser = cache(async function (): Promise<PortalUser | null> {
   const { userId } = await auth();
   if (!userId) return null;
 
-  const user = await currentUser();
-  if (!user) return null;
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses?.[0]?.emailAddress ?? null;
+  const firstName = clerkUser?.firstName ?? null;
+  const lastName = clerkUser?.lastName ?? null;
 
+  // Look up the portal.users link row
+  const db = getPortalDb();
+  const rows = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.clerkUserId, userId))
+    .limit(1);
+
+  if (rows.length === 0) {
+    // Webhook hasn't fired yet — return a "pending" placeholder so the
+    // dashboard can render a "setting up your portal..." state instead of
+    // 404'ing.
+    return {
+      clerkUserId: userId,
+      email,
+      firstName,
+      lastName,
+      accountSfId: null,
+      contactSfId: null,
+      brand: null,
+      status: "pending",
+    };
+  }
+
+  const row = rows[0];
   return {
-    clerkUserId: userId,
-    email: user.emailAddresses?.[0]?.emailAddress ?? null,
-    firstName: user.firstName ?? null,
-    lastName: user.lastName ?? null,
-    // TODO(Track A): populate from portal.users link table.
-    accountSfId: null,
-    contactSfId: null,
-    brand: null,
+    clerkUserId: row.clerkUserId,
+    email: row.email,
+    firstName,
+    lastName,
+    accountSfId: row.status === "disabled" ? null : row.accountSfId,
+    contactSfId: row.status === "disabled" ? null : row.contactSfId,
+    brand: row.brand,
+    status: row.status,
   };
-}
+});
 
-/** Convenience: throws if not signed in. Use in server-only code paths. */
+/** Convenience: throws when no signed-in portal user — for code paths that demand auth. */
 export async function requirePortalUser(): Promise<PortalUser> {
   const user = await getCurrentPortalUser();
-  if (!user) {
-    throw new Error("Not authenticated");
-  }
+  if (!user) throw new Error("Not authenticated");
   return user;
 }
