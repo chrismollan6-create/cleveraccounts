@@ -2,6 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
+import { logPortalEvent } from "@/lib/portal/audit";
 import {
   getOnboardingForCurrentUser,
   isOnboardingError,
@@ -31,6 +32,12 @@ export default async function DashboardPage() {
 
   // Soft-block states — show AccessGate instead of trying to load data
   if (portalUser && (portalUser.status === "disabled" || portalUser.status === "pending")) {
+    // Fire-and-forget audit (no await — never block render)
+    void logPortalEvent({
+      action: "access_gate_shown",
+      target: portalUser.status,
+      metadata: { email: portalUser.email },
+    });
     return (
       <DashboardShell>
         <AccessGate
@@ -45,6 +52,11 @@ export default async function DashboardPage() {
 
   // Error state
   if (isOnboardingError(onboardingResult)) {
+    void logPortalEvent({
+      action: "dashboard_load_error",
+      target: onboardingResult.error,
+      metadata: { message: onboardingResult.message, status: onboardingResult.status },
+    });
     return (
       <DashboardShell>
         <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-6 sm:p-8 max-w-2xl">
@@ -91,6 +103,17 @@ export default async function DashboardPage() {
   }
 
   const completedStages = status.stages.filter((s) => s.state === "complete").length;
+
+  // Fire-and-forget audit log — never block render
+  void logPortalEvent({
+    action: "view_dashboard",
+    target: status.accountId,
+    metadata: {
+      currentStage: status.currentStage,
+      stageNumber: status.stageNumber,
+      blockedOn: status.blockedOn,
+    },
+  });
 
   return (
     <DashboardShell>

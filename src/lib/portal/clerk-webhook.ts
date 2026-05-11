@@ -2,6 +2,7 @@ import { fetchPortalApex } from "./salesforce";
 import { getPortalDb, schema } from "./db/client";
 import { eq, sql as drizzleSql } from "drizzle-orm";
 import type { PortalBrand, PortalUserStatus } from "./db/schema";
+import { logPortalEvent } from "./audit";
 
 /**
  * Clerk webhook event types we care about.
@@ -89,6 +90,12 @@ export async function handleUserCreatedOrUpdated(
     // No verified email yet — leave a placeholder row so we can update it
     // once Clerk verifies the address. Status 'disabled' means dashboard
     // shows the gate page until they verify.
+    await logPortalEvent({
+      action: "user_signup",
+      target: event.data.id,
+      metadata: { result: "no_verified_email" },
+      override: { clerkUserId: event.data.id },
+    });
     return { status: "disabled", action: "no_verified_email" };
   }
 
@@ -115,6 +122,12 @@ export async function handleUserCreatedOrUpdated(
           status: "disabled",
         },
       });
+    await logPortalEvent({
+      action: "user_signup",
+      target: event.data.id,
+      metadata: { result: "no_sf_match", email },
+      override: { clerkUserId: event.data.id },
+    });
     return { status: "disabled", action: "no_sf_match" };
   }
 
@@ -143,6 +156,21 @@ export async function handleUserCreatedOrUpdated(
       },
     });
 
+  await logPortalEvent({
+    action: "user_signup",
+    target: event.data.id,
+    metadata: {
+      result: "linked",
+      email,
+      brand: mapping.brand,
+      hasActiveWorkflow: mapping.hasActiveWorkflow,
+    },
+    override: {
+      clerkUserId: event.data.id,
+      accountSfId: mapping.accountId,
+    },
+  });
+
   return { status: finalStatus, action: "linked" };
 }
 
@@ -159,6 +187,11 @@ export async function handleUserDeleted(
     .update(schema.users)
     .set({ status: "disabled" })
     .where(eq(schema.users.clerkUserId, event.data.id));
+  await logPortalEvent({
+    action: "user_deleted",
+    target: event.data.id,
+    override: { clerkUserId: event.data.id },
+  });
   return { action: "disabled" };
 }
 
