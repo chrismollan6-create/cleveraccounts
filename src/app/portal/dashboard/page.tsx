@@ -16,16 +16,20 @@ import EngagementLetterCard from "@/components/portal/EngagementLetterCard";
 import TasksPanel from "@/components/portal/TasksPanel";
 import ActivityTimeline from "@/components/portal/ActivityTimeline";
 import AccessGate from "@/components/portal/AccessGate";
+import MessagesPreviewCard from "@/components/portal/MessagesPreviewCard";
+import { listMessagesForCurrentUser } from "@/lib/portal/messages";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [user, brand, portalUser, onboardingResult] = await Promise.all([
+  const [user, brand, portalUser, onboardingResult, messagesResult] = await Promise.all([
     currentUser(),
     getBrand(),
     getCurrentPortalUser(),
     getOnboardingForCurrentUser(),
+    listMessagesForCurrentUser(5),
   ]);
+  const previewMessages = messagesResult.ok === true ? messagesResult.data : [];
 
   const firstName =
     user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? null;
@@ -144,6 +148,7 @@ export default async function DashboardPage() {
         </div>
         <div className="space-y-6">
           <AccountantCard accountant={status.accountant} brandName={brand.name} />
+          <MessagesPreviewCard messages={previewMessages} />
           <EngagementLetterCard />
         </div>
       </div>

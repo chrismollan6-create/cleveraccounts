@@ -35,9 +35,9 @@ interface Props {
 
 const PRIMARY_NAV: NavItem[] = [
   { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
+  { label: "Messages", href: "/portal/messages", icon: MessageCircle },
   { label: "Documents", href: "/portal/documents", icon: FileText, disabled: true, badge: "Soon" },
   { label: "Appointments", href: "/portal/appointments", icon: CalendarDays, disabled: true, badge: "Soon" },
-  { label: "Messages", href: "/portal/messages", icon: MessageCircle, disabled: true, badge: "Soon" },
 ];
 
 const SECONDARY_NAV: NavItem[] = [
