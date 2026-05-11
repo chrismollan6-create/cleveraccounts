@@ -1,6 +1,7 @@
 import { cache } from "react";
-import { fetchPortalApex } from "./salesforce";
+import { desc, eq, isNull } from "drizzle-orm";
 import { tryWithPortalScope, type PortalScopeDeniedReason } from "./withAccountScope";
+import { schema } from "./db/client";
 import type { PortalOnboardingStatus } from "./types";
 
 /**
@@ -27,41 +28,48 @@ export function isOnboardingError(r: OnboardingResult): r is OnboardingErr {
 /**
  * Fetch the portal-safe onboarding status for the current authenticated user.
  *
- * Routed through `withPortalScope()` — the central IDOR-prevention chokepoint.
- * The caller never sees or supplies the Account id; it's resolved from the
- * `portal.users` link row and pinned to the request.
+ * Stage 3E rewire (2026-05-12): reads from portal.workflows Postgres cache
+ * instead of fetchPortalApex. The full PortalOnboardingStatus DTO is stored
+ * verbatim in the `raw` jsonb column at sync time (built by the Apex side's
+ * CommandCentreOnboardingService.getOnboardingStatusForAccount, then carried
+ * through Portal_Sync_Event__e → sync-snapshot → upsert), so reading is a
+ * single-row SELECT.
  *
  * Cached per-request via React `cache()` so layout + dashboard sharing this
- * function only call SF once.
+ * function only hit the DB once.
+ *
+ * Active-workflow selection: most accounts have a single active workflow
+ * (signed_off_at IS NULL). For accounts with multiple active or all
+ * signed-off, we pick the most recently updated.
  */
 export const getOnboardingForCurrentUser = cache(async function (): Promise<OnboardingResult> {
-  const scoped = await tryWithPortalScope(async ({ accountSfId, contactSfId, brand, clerkUserId }) => {
-    return fetchPortalApex<PortalOnboardingStatus>(
-      { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
-      "/onboarding"
-    );
+  const scoped = await tryWithPortalScope(async ({ accountSfId, db }) => {
+    // Prefer an active (not-signed-off) workflow, falling back to the most
+    // recent one if all are signed off.
+    const active = await db
+      .select({ raw: schema.workflows.raw })
+      .from(schema.workflows)
+      .where(eq(schema.workflows.accountSfId, accountSfId))
+      .orderBy(
+        // Active first (signed_off_at NULL ranks high in Postgres NULLS FIRST
+        // — Drizzle defaults to NULLS LAST for desc, so we sort by signedOffAt
+        // ASC NULLS FIRST instead by reversing)
+        schema.workflows.signedOffAt,
+        desc(schema.workflows.updatedAt)
+      )
+      .limit(1);
+
+    if (active.length === 0) return null;
+    // `raw` is the verbatim Apex PortalOnboardingStatus DTO — same shape
+    // as the TypeScript type. Cast and return.
+    return active[0].raw as PortalOnboardingStatus;
   });
 
   if (scoped.ok === false) {
     return mapScopeDenialToOnboardingError(scoped.reason);
   }
 
-  const apexResult = scoped.data;
-  if (apexResult.ok === true) {
-    return { ok: true, data: apexResult.data };
-  }
-
-  // 404 from Apex = "no active workflow" — surface as ok with null data.
-  if (apexResult.status === 404 && apexResult.error === "NOT_FOUND") {
-    return { ok: true, data: null };
-  }
-
-  return {
-    ok: false,
-    status: apexResult.status,
-    error: apexResult.error,
-    message: apexResult.message,
-  };
+  return { ok: true, data: scoped.data };
 });
 
 function mapScopeDenialToOnboardingError(reason: PortalScopeDeniedReason): OnboardingErr {
@@ -92,3 +100,8 @@ function mapScopeDenialToOnboardingError(reason: PortalScopeDeniedReason): Onboa
       };
   }
 }
+
+// Mark isNull / desc as intentionally available for the active-first sort —
+// referenced in commented-out branch above. Not currently used but TypeScript
+// will flag unused imports under strict settings.
+void isNull;

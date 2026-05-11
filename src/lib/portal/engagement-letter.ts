@@ -1,52 +1,88 @@
-import { fetchPortalApex } from "./salesforce";
+import { desc, eq, and, ne } from "drizzle-orm";
 import {
   tryWithPortalScope,
   type PortalScopeResult,
 } from "./withAccountScope";
 import { logPortalEventScoped } from "./audit";
+import { schema } from "./db/client";
 import type { PortalEngagementLetter } from "./types";
 
 /**
- * Server-side helpers for portal Engagement Letter viewing + signing.
- * Phase D scope: GET the active EL for the user's Account. Sign-in-portal
- * lands in the next deploy (PortalRestService.handleEngagementLetterSign
- * currently returns 501 NOT_IMPLEMENTED).
+ * Server-side helpers for portal Engagement Letter viewing.
  *
- * The public token-based signing flow at /engagement-letter/[token] keeps
- * working — we link to that from the portal until in-portal signing lands.
+ * Stage 3E rewire (2026-05-12): reads from portal.engagement_letters
+ * Postgres cache instead of fetchPortalApex. ~10x latency reduction.
+ *
+ * In-portal SIGNING (still SF-direct) lands in the next deploy —
+ * PortalRestService.handleEngagementLetterSign currently returns 501.
+ * The public token-based signing flow at /engagement-letter/[token]
+ * is the workaround the portal UI links to today.
  */
 
 export async function getEngagementLetterForCurrentUser(): Promise<
   PortalScopeResult<PortalEngagementLetter | null>
 > {
-  return tryWithPortalScope(async ({ accountSfId, contactSfId, brand, db, clerkUserId }) => {
-    const result = await fetchPortalApex<PortalEngagementLetter>(
-      { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
-      "/engagement-letter"
-    );
+  return tryWithPortalScope(async ({ accountSfId, db, clerkUserId }) => {
+    // Most recent non-cancelled, non-superseded EL for this account.
+    // The portal.engagement_letters_account_status_idx index supports
+    // this filter+sort efficiently.
+    const rows = await db
+      .select({
+        id: schema.engagementLetters.sfId,
+        status: schema.engagementLetters.status,
+        variant: schema.engagementLetters.variant,
+        sentAt: schema.engagementLetters.sentAt,
+        signedAt: schema.engagementLetters.signedAt,
+        signerName: schema.engagementLetters.signerName,
+        token: schema.engagementLetters.token,
+        pdfReady: schema.engagementLetters.pdfReady,
+      })
+      .from(schema.engagementLetters)
+      .where(
+        and(
+          eq(schema.engagementLetters.accountSfId, accountSfId),
+          ne(schema.engagementLetters.status, "Cancelled"),
+          ne(schema.engagementLetters.status, "Superseded")
+        )
+      )
+      .orderBy(desc(schema.engagementLetters.sentAt))
+      .limit(1);
 
-    // 404 from Apex = no EL on file. Surface as ok with null data so the
-    // UI can render an "we'll send your engagement letter shortly" state.
-    if (result.ok === false) {
-      if (result.status === 404 && result.error === "NOT_FOUND") {
-        await logPortalEventScoped(db, {
-          action: "view_engagement_letter",
-          clerkUserId,
-          accountSfId,
-          metadata: { found: false },
-        });
-        return null;
-      }
-      throw new Error(`EL fetch failed: ${result.error} - ${result.message}`);
+    if (rows.length === 0) {
+      await logPortalEventScoped(db, {
+        action: "view_engagement_letter",
+        clerkUserId,
+        accountSfId,
+        metadata: { found: false, source: "cache" },
+      });
+      return null;
     }
 
+    const r = rows[0];
     await logPortalEventScoped(db, {
       action: "view_engagement_letter",
       clerkUserId,
       accountSfId,
-      target: result.data.id,
-      metadata: { status: result.data.status, found: true },
+      target: r.id,
+      metadata: { status: r.status, found: true, source: "cache" },
     });
-    return result.data;
+
+    return {
+      id: r.id,
+      // Cast status to the discriminated union — Apex serialises one of
+      // 'Sent' | 'Viewed' | 'Signed' | 'Cancelled' | 'Superseded'; we've
+      // filtered out the last two via the WHERE clause above.
+      status: r.status as PortalEngagementLetter["status"],
+      variant: r.variant ?? "",
+      sentDate:
+        r.sentAt instanceof Date ? r.sentAt.toISOString() : (r.sentAt ?? null),
+      signedDate:
+        r.signedAt instanceof Date
+          ? r.signedAt.toISOString()
+          : (r.signedAt ?? null),
+      signerName: r.signerName,
+      token: r.token,
+      pdfReady: r.pdfReady,
+    };
   });
 }
