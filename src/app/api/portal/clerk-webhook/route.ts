@@ -3,6 +3,7 @@ import { Webhook } from "svix";
 import {
   handleUserCreatedOrUpdated,
   handleUserDeleted,
+  handleSessionEvent,
   type ClerkWebhookEvent,
 } from "@/lib/portal/clerk-webhook";
 
@@ -70,6 +71,17 @@ export async function POST(req: Request) {
     if (event.type === "user.deleted") {
       const result = await handleUserDeleted(event);
       console.log(`[clerk-webhook] user.deleted ${event.data.id} → ${result.action}`);
+      return NextResponse.json({ ok: true, action: result.action });
+    }
+
+    if (
+      event.type === "session.created" ||
+      event.type === "session.ended" ||
+      event.type === "session.removed" ||
+      event.type === "session.revoked"
+    ) {
+      const result = await handleSessionEvent(event);
+      console.log(`[clerk-webhook] ${event.type} ${event.data.id} → ${result.action}`);
       return NextResponse.json({ ok: true, action: result.action });
     }
 

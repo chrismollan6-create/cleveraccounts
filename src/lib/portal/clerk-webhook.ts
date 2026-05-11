@@ -32,7 +32,20 @@ export type ClerkUserDeletedEvent = {
   };
 };
 
-export type ClerkWebhookEvent = ClerkUserEvent | ClerkUserDeletedEvent;
+export type ClerkSessionEvent = {
+  type: "session.created" | "session.ended" | "session.removed" | "session.revoked";
+  data: {
+    id: string;             // session id (sess_...)
+    user_id: string;        // clerk user id
+    client_id?: string;
+    status?: string;
+    created_at?: number;
+    last_active_at?: number;
+    ended_at?: number;
+  };
+};
+
+export type ClerkWebhookEvent = ClerkUserEvent | ClerkUserDeletedEvent | ClerkSessionEvent;
 
 /**
  * Pick the verified primary email from a Clerk user payload.
@@ -206,4 +219,49 @@ export async function touchLastSeen(clerkUserId: string): Promise<void> {
     .update(schema.users)
     .set({ lastSeenAt: drizzleSql`now()` })
     .where(eq(schema.users.clerkUserId, clerkUserId));
+}
+
+/**
+ * Handle session lifecycle events from Clerk. Each one becomes an audit_log
+ * row. `session.created` also touches `last_seen_at` on the user row.
+ *
+ * Clerk fires four session events:
+ *   - session.created  — fresh sign-in
+ *   - session.ended    — natural logout (user clicks Sign Out)
+ *   - session.removed  — session invalidated (browser cleared cookies, etc.)
+ *   - session.revoked  — admin force-revoked
+ */
+export async function handleSessionEvent(
+  event: ClerkSessionEvent
+): Promise<{ action: string }> {
+  const db = getPortalDb();
+  const clerkUserId = event.data.user_id;
+
+  // Pull the user's account id for the audit row (if mapped)
+  const userRow = await db
+    .select({ accountSfId: schema.users.accountSfId })
+    .from(schema.users)
+    .where(eq(schema.users.clerkUserId, clerkUserId))
+    .limit(1);
+  const accountSfId = userRow[0]?.accountSfId ?? null;
+
+  if (event.type === "session.created") {
+    await db
+      .update(schema.users)
+      .set({
+        lastSeenAt: drizzleSql`now()`,
+        // Stamp firstLoginAt on the first ever session — keep null afterwards
+        firstLoginAt: drizzleSql`coalesce(${schema.users.firstLoginAt}, now())`,
+      })
+      .where(eq(schema.users.clerkUserId, clerkUserId));
+  }
+
+  await logPortalEvent({
+    action: event.type, // 'session.created' | 'session.ended' | 'session.removed' | 'session.revoked'
+    target: event.data.id,
+    metadata: { client_id: event.data.client_id },
+    override: { clerkUserId, accountSfId },
+  });
+
+  return { action: event.type };
 }
