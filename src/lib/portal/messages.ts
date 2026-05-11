@@ -22,11 +22,12 @@ export async function listMessagesForCurrentUser(
   pageSize: number = 50
 ): Promise<PortalScopeResult<PortalMessage[]>> {
   const effective = Math.min(Math.max(1, pageSize), 200);
-  return tryWithPortalScope(async ({ accountSfId, db, clerkUserId }) => {
-    const result = await fetchPortalApex<PortalMessage[]>("/messages", {
-      accountId: accountSfId,
-      pageSize: String(effective),
-    });
+  return tryWithPortalScope(async ({ accountSfId, contactSfId, brand, db, clerkUserId }) => {
+    const result = await fetchPortalApex<PortalMessage[]>(
+      { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
+      "/messages",
+      { pageSize: String(effective) }
+    );
     if (result.ok === true) {
       // Audit the read so we can answer "did this user see message X?"
       await logPortalEventScoped(db, {
@@ -70,15 +71,16 @@ export async function sendMessageForCurrentUser(
     };
   }
 
-  return tryWithPortalScope(async ({ accountSfId, contactSfId, db, clerkUserId }) => {
+  return tryWithPortalScope(async ({ accountSfId, contactSfId, brand, db, clerkUserId }) => {
     const result = await fetchPortalApex<SendMessageResult>(
+      { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
       "/messages",
       undefined,
       {
         method: "POST",
         body: {
-          accountId: accountSfId,
-          contactId: contactSfId,
+          // accountId/contactId deliberately NOT sent — Apex uses the JWT
+          // claims instead. Only the actual message content goes in the body.
           body: trimmed,
           subject: subject ?? null,
         },

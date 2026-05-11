@@ -1,4 +1,5 @@
 import { getPortalSalesforceToken, sfApex } from "@/lib/salesforce";
+import { signPortalApexJwt, type PortalAuthScope } from "./apex-jwt";
 
 /**
  * Result envelope for portal-facing Salesforce calls. Matches the JSON shape
@@ -27,14 +28,23 @@ export interface FetchPortalApexOptions {
 }
 
 /**
- * Call a portal Apex REST endpoint with Connected App Bearer auth.
+ * Call a portal Apex REST endpoint with both Connected App Bearer auth AND
+ * an HMAC-signed X-Portal-Auth JWT carrying the user's resolved Salesforce
+ * scope (accountId/contactId/clerkUserId/brand).
  *
- * Convention: `path` is relative to /services/apexrest/Portal (e.g. '/onboarding').
- * Use this helper from server-side code only — it relies on the SF service
- * account token in env vars and would leak the Connected App if used from
- * the browser.
+ * Stage 2 portal security hardening: Apex uses the JWT-derived accountId
+ * for SOQL — request body / query params are IGNORED for that purpose. So
+ * even a bug in `withPortalScope()` upstream that passes the wrong
+ * accountId in a URL can't cause an IDOR.
+ *
+ * The `scope` arg is intentionally explicit (not auto-derived) so every
+ * call site documents which scope it's acting under. Pre-auth flows that
+ * must run before a scope exists — currently only `/access` for the Clerk
+ * webhook's email-to-account lookup — pass `null` and the call goes out
+ * with Bearer-only auth.
  */
 export async function fetchPortalApex<T>(
+  scope: PortalAuthScope | null,
   path: string,
   params?: Record<string, string>,
   options?: FetchPortalApexOptions
@@ -49,6 +59,24 @@ export async function fetchPortalApex<T>(
       error: "SF_AUTH",
       message: err instanceof Error ? err.message : "Failed to obtain Salesforce token",
     };
+  }
+
+  // Build the X-Portal-Auth JWT for everything except the pre-auth /access
+  // lookup. The signer throws on missing config — that's intentional so
+  // a misconfigured production deploy fails loud rather than running
+  // unsigned requests that Apex would 401 anyway.
+  let portalAuthJwt: string | null = null;
+  if (scope !== null) {
+    try {
+      portalAuthJwt = signPortalApexJwt(scope);
+    } catch (err) {
+      return {
+        ok: false,
+        status: 500,
+        error: "JWT_SIGN",
+        message: err instanceof Error ? err.message : "Failed to sign portal JWT",
+      };
+    }
   }
 
   const method = options?.method ?? "GET";
@@ -66,6 +94,7 @@ export async function fetchPortalApex<T>(
     Authorization: `Bearer ${token}`,
     Accept: "application/json",
   };
+  if (portalAuthJwt) headers["X-Portal-Auth"] = portalAuthJwt;
   if (method === "POST") headers["Content-Type"] = "application/json";
 
   let res: Response;

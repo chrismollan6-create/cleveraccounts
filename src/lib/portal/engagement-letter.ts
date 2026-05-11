@@ -19,10 +19,10 @@ import type { PortalEngagementLetter } from "./types";
 export async function getEngagementLetterForCurrentUser(): Promise<
   PortalScopeResult<PortalEngagementLetter | null>
 > {
-  return tryWithPortalScope(async ({ accountSfId, db, clerkUserId }) => {
+  return tryWithPortalScope(async ({ accountSfId, contactSfId, brand, db, clerkUserId }) => {
     const result = await fetchPortalApex<PortalEngagementLetter>(
-      "/engagement-letter",
-      { accountId: accountSfId }
+      { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
+      "/engagement-letter"
     );
 
     // 404 from Apex = no EL on file. Surface as ok with null data so the

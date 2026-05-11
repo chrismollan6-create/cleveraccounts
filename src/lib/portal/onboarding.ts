@@ -35,10 +35,11 @@ export function isOnboardingError(r: OnboardingResult): r is OnboardingErr {
  * function only call SF once.
  */
 export const getOnboardingForCurrentUser = cache(async function (): Promise<OnboardingResult> {
-  const scoped = await tryWithPortalScope(async ({ accountSfId }) => {
-    return fetchPortalApex<PortalOnboardingStatus>("/onboarding", {
-      accountId: accountSfId,
-    });
+  const scoped = await tryWithPortalScope(async ({ accountSfId, contactSfId, brand, clerkUserId }) => {
+    return fetchPortalApex<PortalOnboardingStatus>(
+      { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
+      "/onboarding"
+    );
   });
 
   if (scoped.ok === false) {

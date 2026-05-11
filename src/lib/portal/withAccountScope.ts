@@ -54,8 +54,12 @@ export type PortalScopeDeniedReason =
  *
  * Usage:
  *
- *   const result = await withPortalScope(async ({ accountSfId, db }) => {
- *     return fetchPortalApex('/onboarding', { accountId: accountSfId });
+ *   const result = await withPortalScope(async (scope) => {
+ *     return fetchPortalApex(
+ *       { clerkUserId: scope.clerkUserId, accountId: scope.accountSfId,
+ *         contactId: scope.contactSfId, brand: scope.brand },
+ *       '/onboarding'
+ *     );
  *   });
  *
  * Throws `PortalScopeDeniedError` for any non-active state. Callers SHOULD

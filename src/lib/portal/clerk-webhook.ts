@@ -79,7 +79,10 @@ interface AccessMapping {
  * matching Contact, or null when the email isn't on any active client account.
  */
 async function resolveSfMapping(email: string): Promise<AccessMapping | null> {
-  const result = await fetchPortalApex<AccessMapping>("/access", { email });
+  // Pre-auth: this lookup runs before the portal.users row exists, so we
+  // can't yet sign a scope-carrying JWT. `null` scope skips the
+  // X-Portal-Auth header — /access is the only endpoint that allows this.
+  const result = await fetchPortalApex<AccessMapping>(null, "/access", { email });
   if (result.ok === true) return result.data;
   // result.ok === false here — but TS needs explicit literal-comparison narrowing
   // because tsconfig has strict: false (no discriminated-union refinement on !result.ok).
