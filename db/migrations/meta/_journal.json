@@ -8,6 +8,13 @@
       "when": 1778510392372,
       "tag": "0000_strange_loki",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778533893031,
+      "tag": "0001_simple_madame_web",
+      "breakpoints": true
     }
   ]
 }

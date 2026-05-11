@@ -1,4 +1,17 @@
-import { pgSchema, text, timestamp, bigserial, jsonb, inet, check, index, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgSchema,
+  text,
+  timestamp,
+  bigserial,
+  jsonb,
+  inet,
+  integer,
+  boolean,
+  date,
+  check,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 /**
@@ -101,6 +114,250 @@ export const pushTokens = portal.table(
   })
 );
 
+// ───────────────────────────────────────────────────────────────────────────
+// Salesforce read cache (Stage 3, 2026-05-11)
+//
+// Mirrors a curated slice of SF data so portal page renders don't have to
+// hit the SF REST API on every request. Population path:
+//
+//   SF trigger → Portal_Sync_Event__e → subscriber Apex → outbound HTTPS
+//   callout (HMAC-signed) → /api/portal/sync → upsert into these tables
+//
+// Latency: typically 2-5 seconds from SF change to portal-visible. The
+// user signed off on this trade-off when we agreed Stage 3 over keeping
+// real-time SF reads ("real-time emails not needed").
+//
+// What we DON'T cache:
+//   - Anything not directly used by the portal — keeps blast radius small
+//     and avoids GDPR over-retention.
+//   - The full row — we keep only the fields the portal renders or filters
+//     by. `raw` jsonb holds the verbatim event payload for debug.
+//
+// All cached tables share the convention:
+//   sf_id        — SF 18-char id, primary key
+//   account_sf_id — denormalised for fast WHERE on portal queries
+//   updated_at   — when our cache row last changed (UTC, set by sync)
+//   sf_updated_at — SF's LastModifiedDate (for drift detection)
+//   raw          — full event payload, for forensic debugging
+// ───────────────────────────────────────────────────────────────────────────
+
+// portal.accounts ─── cached SF Account (the firm / client entity)
+export const accounts = portal.table(
+  "accounts",
+  {
+    sfId: text("sf_id").primaryKey(),
+    name: text("name").notNull(),
+    brand: text("brand").$type<PortalBrand>().notNull(),
+    /** SF User id of the assigned accountant (Account.OwnerId). */
+    ownerSfId: text("owner_sf_id"),
+    /** Inactive accounts hide from the portal but stay cached for audit. */
+    active: boolean("active").notNull().default(true),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    brandIdx: index("accounts_brand_idx").on(t.brand),
+    ownerIdx: index("accounts_owner_idx").on(t.ownerSfId),
+  })
+);
+
+// portal.contacts ─── cached SF Contact (the individual person)
+export const contacts = portal.table(
+  "contacts",
+  {
+    sfId: text("sf_id").primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    email: text("email"),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    phone: text("phone"),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountIdx: index("contacts_account_idx").on(t.accountSfId),
+    emailIdx: index("contacts_email_idx").on(t.email),
+  })
+);
+
+// portal.workflows ─── cached New_Client_Workflow__c (onboarding state)
+export const workflows = portal.table(
+  "workflows",
+  {
+    sfId: text("sf_id").primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    /** One of welcome / main / portal / checkin30 / checkin60 / catchup / complete. */
+    currentStage: text("current_stage").notNull(),
+    stageNumber: integer("stage_number").notNull(),
+    /** 'client' | 'us' | 'nobody' — who is the bottleneck. */
+    blockedOn: text("blocked_on").notNull(),
+    /** 'on_track' | 'due_soon' | 'overdue' — derived SLA status. */
+    slaStatus: text("sla_status").notNull(),
+    signedOffAt: date("signed_off_at"),
+    // Per-stage milestone fields — denormalised for the dashboard stepper
+    welcomeCompleteAt: date("welcome_complete_at"),
+    welcomeDueAt: timestamp("welcome_due_at", { withTimezone: true }),
+    welcomeScheduledAt: timestamp("welcome_scheduled_at", { withTimezone: true }),
+    mainCompleteAt: date("main_complete_at"),
+    mainDueAt: timestamp("main_due_at", { withTimezone: true }),
+    mainScheduledAt: timestamp("main_scheduled_at", { withTimezone: true }),
+    portalCompleteAt: date("portal_complete_at"),
+    portalDueAt: timestamp("portal_due_at", { withTimezone: true }),
+    portalScheduledAt: timestamp("portal_scheduled_at", { withTimezone: true }),
+    catchupCompleteAt: date("catchup_complete_at"),
+    catchupDueAt: timestamp("catchup_due_at", { withTimezone: true }),
+    catchupScheduledAt: timestamp("catchup_scheduled_at", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountIdx: index("workflows_account_idx").on(t.accountSfId),
+    activeIdx: index("workflows_active_idx").on(t.accountSfId, t.signedOffAt),
+  })
+);
+
+// portal.engagement_letters ─── cached Engagement_Letter__c
+export const engagementLetters = portal.table(
+  "engagement_letters",
+  {
+    sfId: text("sf_id").primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    /** 'Draft' | 'Sent' | 'Viewed' | 'Signed' | 'Cancelled' | 'Superseded'. */
+    status: text("status").notNull(),
+    variant: text("variant"),
+    /** Public token for the email signing link (still used as fallback). */
+    token: text("token"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    firstViewedAt: timestamp("first_viewed_at", { withTimezone: true }),
+    signedAt: timestamp("signed_at", { withTimezone: true }),
+    signerName: text("signer_name"),
+    signerEmail: text("signer_email"),
+    /** True when Signed_PDF_Id__c is non-null (PDF available for download). */
+    pdfReady: boolean("pdf_ready").notNull().default(false),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountIdx: index("engagement_letters_account_idx").on(t.accountSfId),
+    // Portal shows the most recent non-cancelled letter — index supports it
+    accountStatusIdx: index("engagement_letters_account_status_idx").on(
+      t.accountSfId,
+      t.status
+    ),
+  })
+);
+
+// portal.cases ─── cached Case (only Origin='Portal' rows are synced)
+export const cases = portal.table(
+  "cases",
+  {
+    sfId: text("sf_id").primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    contactSfId: text("contact_sf_id"),
+    /** 'New' | 'Working' | 'Closed' | etc. — SF standard Case statuses. */
+    status: text("status").notNull(),
+    subject: text("subject"),
+    /** Portal-relevant boolean derived from IsClosed. */
+    isClosed: boolean("is_closed").notNull().default(false),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountIdx: index("cases_account_idx").on(t.accountSfId),
+    openIdx: index("cases_open_idx").on(t.accountSfId, t.isClosed),
+  })
+);
+
+// portal.email_messages ─── cached EmailMessage children of portal Cases
+export const emailMessages = portal.table(
+  "email_messages",
+  {
+    sfId: text("sf_id").primaryKey(),
+    caseSfId: text("case_sf_id").notNull(),
+    /** Denormalised from the parent Case for fast portal queries. */
+    accountSfId: text("account_sf_id").notNull(),
+    fromAddress: text("from_address"),
+    fromName: text("from_name"),
+    subject: text("subject"),
+    bodyText: text("body_text"),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull(),
+    /** True when the message came from the client (portal-authored). */
+    isFromClient: boolean("is_from_client").notNull().default(false),
+    /** True when sent via the portal (vs. inbound from staff email). */
+    isPortalAuthored: boolean("is_portal_authored").notNull().default(false),
+    /** Staff-side checkbox to hide a message from the portal. */
+    hideFromPortal: boolean("hide_from_portal").notNull().default(false),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    // Primary access pattern: "show me this account's messages, newest first"
+    accountSentIdx: index("email_messages_account_sent_idx").on(
+      t.accountSfId,
+      t.sentAt.desc()
+    ),
+    caseIdx: index("email_messages_case_idx").on(t.caseSfId),
+  })
+);
+
+// portal.accountants ─── cached User profile of assigned accountants
+// Strictly the fields the portal renders — never the entire User row.
+export const accountants = portal.table(
+  "accountants",
+  {
+    sfId: text("sf_id").primaryKey(), // User.Id
+    name: text("name"),
+    email: text("email"),
+    /** SF UserId_short__c field — used to build the Calendly booking URL. */
+    calendlySlug: text("calendly_slug"),
+    photoUrl: text("photo_url"),
+    /** Inactive accountants stay cached for historical records; portal hides them. */
+    active: boolean("active").notNull().default(true),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  }
+);
+
+// ───────────────────────────────────────────────────────────────────────────
+// portal.sync_log
+// Forensic + ops trail for cache updates. One row per inbound sync event.
+// Lets us answer "when did account X last sync, and from which SF object?"
+// without re-reading the audit_log table.
+// ───────────────────────────────────────────────────────────────────────────
+
+export const syncLog = portal.table(
+  "sync_log",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    /** 'Account' | 'Contact' | 'Case' | 'EmailMessage' | 'Engagement_Letter__c' | … */
+    objectType: text("object_type").notNull(),
+    sfId: text("sf_id").notNull(),
+    /** 'UPSERT' | 'DELETE' | 'IGNORED_NOT_PORTAL' (Case/EmailMessage not Origin=Portal). */
+    operation: text("operation").notNull(),
+    /** 'success' | 'error'. */
+    status: text("status").notNull(),
+    /** Set only when status='error'. */
+    errorMessage: text("error_message"),
+    /** Lag in milliseconds from SF event to Postgres write. */
+    latencyMs: integer("latency_ms"),
+  },
+  (t) => ({
+    objectIdx: index("sync_log_object_idx").on(t.objectType, t.sfId, t.at.desc()),
+    statusAtIdx: index("sync_log_status_at_idx").on(t.status, t.at.desc()),
+  })
+);
+
 // Convenient inferred types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -108,3 +365,21 @@ export type AuditLogEntry = typeof auditLog.$inferSelect;
 export type NewAuditLogEntry = typeof auditLog.$inferInsert;
 export type PushToken = typeof pushTokens.$inferSelect;
 export type NewPushToken = typeof pushTokens.$inferInsert;
+
+// Cache types
+export type CachedAccount = typeof accounts.$inferSelect;
+export type NewCachedAccount = typeof accounts.$inferInsert;
+export type CachedContact = typeof contacts.$inferSelect;
+export type NewCachedContact = typeof contacts.$inferInsert;
+export type CachedWorkflow = typeof workflows.$inferSelect;
+export type NewCachedWorkflow = typeof workflows.$inferInsert;
+export type CachedEngagementLetter = typeof engagementLetters.$inferSelect;
+export type NewCachedEngagementLetter = typeof engagementLetters.$inferInsert;
+export type CachedCase = typeof cases.$inferSelect;
+export type NewCachedCase = typeof cases.$inferInsert;
+export type CachedEmailMessage = typeof emailMessages.$inferSelect;
+export type NewCachedEmailMessage = typeof emailMessages.$inferInsert;
+export type CachedAccountant = typeof accountants.$inferSelect;
+export type NewCachedAccountant = typeof accountants.$inferInsert;
+export type SyncLogEntry = typeof syncLog.$inferSelect;
+export type NewSyncLogEntry = typeof syncLog.$inferInsert;
