@@ -1,4 +1,4 @@
-import { FileSignature, CheckCircle2, ArrowRight, Eye } from "lucide-react";
+import { FileSignature, ArrowRight } from "lucide-react";
 import type { PortalEngagementLetter } from "@/lib/portal/types";
 
 interface Props {
@@ -6,8 +6,11 @@ interface Props {
 }
 
 /**
- * Engagement letter status card, slotted into the Messages list. Adapts
- * tone to the EL state — "Sign now" if unsigned, "View signed copy" if done.
+ * Engagement letter status card, slotted into the Messages list ABOVE the
+ * conversation thread. Renders only for unsigned states (Sent / Viewed) —
+ * once signed, the conversation is the focus and we surface a compact
+ * "EL signed" confirmation in the right sidebar instead (see
+ * MessagesSidePanel.EngagementLetterStatus).
  *
  * Note: in-portal signing isn't wired yet (the Apex /sign endpoint returns
  * 501). For now the unsigned CTA links to the existing public token URL,
@@ -15,40 +18,8 @@ interface Props {
  * becomes a fully in-portal flow.
  */
 export default function EngagementLetterInline({ letter }: Props) {
-  if (letter.status === "Signed") {
-    return (
-      <div className="bg-emerald-50/70 rounded-2xl border border-emerald-100 p-5 sm:p-6 animate-fade-in-up">
-        <div className="flex items-start gap-3">
-          <div className="shrink-0 h-11 w-11 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
-            <CheckCircle2 size={20} />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-emerald-900">
-              Engagement letter signed
-            </h3>
-            <p className="mt-0.5 text-sm text-emerald-800/85">
-              {letter.signedDate
-                ? `Signed ${formatDate(letter.signedDate)}.`
-                : "All formal terms agreed."}{" "}
-              We&apos;ve got a copy on file.
-            </p>
-            {letter.pdfReady && letter.token && (
-              <a
-                href={`/api/engagement-letter/pdf?t=${letter.token}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:text-emerald-900 transition-colors"
-              >
-                <Eye size={14} />
-                Download signed copy
-                <ArrowRight size={14} />
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Signed letters live in the sidebar — don't compete with the thread
+  if (letter.status === "Signed") return null;
 
   // Unsigned / Sent / Viewed states
   const isViewed = letter.status === "Viewed";
@@ -98,12 +69,3 @@ export default function EngagementLetterInline({ letter }: Props) {
   );
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}

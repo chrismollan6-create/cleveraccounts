@@ -93,7 +93,11 @@ export default function MessagesView({
     setOptimisticPending((prev) => [pending, ...prev]);
   }, []);
 
-  const showEmpty = allMessages.length === 0 && !initialEngagementLetter;
+  // Only the unsigned-EL card renders in the main column now; a signed EL
+  // lives in the sidebar. So "empty" = no messages AND no unsigned EL to act on.
+  const hasUnsignedEl =
+    initialEngagementLetter && initialEngagementLetter.status !== "Signed";
+  const showEmpty = allMessages.length === 0 && !hasUnsignedEl;
   const accountantFirstName = accountant?.name?.split(" ")?.[0] ?? null;
 
   return (
@@ -147,7 +151,11 @@ export default function MessagesView({
 
         {/* Right column: Accountant + tips */}
         <div className="lg:col-span-1">
-          <MessagesSidePanel accountant={accountant} brandName={brandName} />
+          <MessagesSidePanel
+            accountant={accountant}
+            brandName={brandName}
+            engagementLetter={initialEngagementLetter}
+          />
         </div>
       </div>
 

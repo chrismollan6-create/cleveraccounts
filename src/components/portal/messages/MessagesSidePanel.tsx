@@ -6,12 +6,18 @@ import {
   Shield,
   Sparkles,
   FileText,
+  CheckCircle2,
+  Download,
 } from "lucide-react";
-import type { PortalAccountantInfo } from "@/lib/portal/types";
+import type {
+  PortalAccountantInfo,
+  PortalEngagementLetter,
+} from "@/lib/portal/types";
 
 interface Props {
   accountant: PortalAccountantInfo | null;
   brandName: string;
+  engagementLetter: PortalEngagementLetter | null;
 }
 
 /**
@@ -25,14 +31,76 @@ interface Props {
  * Designed to make the page feel populated without competing with the
  * conversation thread for attention.
  */
-export default function MessagesSidePanel({ accountant, brandName }: Props) {
+export default function MessagesSidePanel({
+  accountant,
+  brandName,
+  engagementLetter,
+}: Props) {
+  const showSignedEl =
+    engagementLetter && engagementLetter.status === "Signed";
+
   return (
     <div className="space-y-5 lg:sticky lg:top-6 animate-fade-in-up">
       <AccountantMiniCard accountant={accountant} brandName={brandName} />
+      {showSignedEl && (
+        <EngagementLetterSignedCard letter={engagementLetter} />
+      )}
       <ResponseTimeCard />
       <TipsCard />
     </div>
   );
+}
+
+function EngagementLetterSignedCard({
+  letter,
+}: {
+  letter: PortalEngagementLetter;
+}) {
+  const downloadHref =
+    letter.pdfReady && letter.token
+      ? `/api/engagement-letter/pdf?t=${letter.token}`
+      : null;
+
+  return (
+    <div className="bg-emerald-50/70 rounded-2xl border border-emerald-100 p-4">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 h-9 w-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
+          <CheckCircle2 size={16} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-emerald-900">
+            Engagement letter signed
+          </p>
+          <p className="mt-0.5 text-[11px] text-emerald-800/80 leading-relaxed">
+            {letter.signedDate
+              ? `On ${formatShortDate(letter.signedDate)} — we’ve got it on file.`
+              : "All formal terms agreed. We’ve got it on file."}
+          </p>
+          {downloadHref && (
+            <a
+              href={downloadHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              <Download size={11} />
+              Download signed copy
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function formatShortDate(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function AccountantMiniCard({
