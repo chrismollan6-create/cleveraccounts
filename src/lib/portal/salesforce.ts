@@ -1,4 +1,4 @@
-import { getSalesforceToken, sfApex } from "@/lib/salesforce";
+import { getPortalSalesforceToken, sfApex } from "@/lib/salesforce";
 
 /**
  * Result envelope for portal-facing Salesforce calls. Matches the JSON shape
@@ -41,7 +41,7 @@ export async function fetchPortalApex<T>(
 ): Promise<PortalApexResult<T>> {
   let token: string;
   try {
-    token = await getSalesforceToken();
+    token = await getPortalSalesforceToken();
   } catch (err) {
     return {
       ok: false,
