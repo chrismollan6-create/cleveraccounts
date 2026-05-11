@@ -71,6 +71,65 @@ function isPublicPortalPath(portalPath: string): boolean {
   return PUBLIC_PORTAL_PATTERNS.some((p) => p.test(portalPath));
 }
 
+// ─── Security headers ───────────────────────────────────────────────────────
+// CSP scoped to portal routes — strict-mode allowlist for Clerk + Calendly +
+// Supabase + Cloudflare Turnstile (when added). Marketing routes use a
+// looser CSP because Webflow / GTM / Stripe / Sanity all need third-party
+// origins our portal doesn't.
+
+const PORTAL_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https://*.salesforce.com https://*.cleveraccounts.com https://*.workwellaccountancy.com https://*.clerk.com https://img.clerk.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "connect-src 'self' https://*.clerk.accounts.dev https://clerk.com https://clerk-telemetry.com https://*.supabase.co wss://*.supabase.co https://api.calendly.com",
+  "frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev https://calendly.com",
+  "frame-ancestors 'none'",
+  "form-action 'self' https://*.clerk.accounts.dev",
+  "base-uri 'self'",
+].join("; ");
+
+/**
+ * Apply security headers to any response. Strictness depends on whether the
+ * response is portal-bound (hostname is a portal host OR pathname starts
+ * with /portal). Portal responses get the locked-down CSP + frame-deny;
+ * marketing responses get the universal headers only.
+ */
+function applySecurityHeaders(
+  res: NextResponse,
+  opts: { host: string; isPortalBound: boolean }
+): NextResponse {
+  // Universal — applies to every response
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("Referrer-Policy", "same-origin");
+  res.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  );
+
+  // HSTS — only on real production hostnames (Netlify deploy URLs don't need
+  // it; localhost can't honour it).
+  if (isStrictProduction(opts.host)) {
+    res.headers.set(
+      "Strict-Transport-Security",
+      "max-age=63072000; includeSubDomains; preload"
+    );
+  }
+
+  if (opts.isPortalBound) {
+    res.headers.set("X-Frame-Options", "DENY");
+    res.headers.set("Content-Security-Policy", PORTAL_CSP);
+  } else {
+    // Marketing — Webflow/Sanity embeds may use iframes, so allow same-origin
+    res.headers.set("X-Frame-Options", "SAMEORIGIN");
+    // No global CSP on marketing yet — too easy to break GTM/Stripe/Sanity.
+    // Tighten in a follow-up after auditing those flows.
+  }
+
+  return res;
+}
+
 export default clerkMiddleware(async (auth, req) => {
   const host = req.headers.get('host') ?? '';
   const url = req.nextUrl;
@@ -124,14 +183,20 @@ export default clerkMiddleware(async (auth, req) => {
         const signInUrl = url.clone();
         signInUrl.pathname = '/sign-in';
         signInUrl.searchParams.set('redirect_url', url.pathname + url.search);
-        return NextResponse.redirect(signInUrl);
+        return applySecurityHeaders(NextResponse.redirect(signInUrl), {
+          host,
+          isPortalBound: true,
+        });
       }
     }
 
     if (!url.pathname.startsWith('/portal')) {
       const rewriteUrl = url.clone();
       rewriteUrl.pathname = portalPath;
-      return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
+      return applySecurityHeaders(
+        NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } }),
+        { host, isPortalBound: true }
+      );
     }
     // Already /portal/* on a portal host — let it through (rare, but defensive).
   } else if (url.pathname.startsWith('/portal')) {
@@ -139,7 +204,10 @@ export default clerkMiddleware(async (auth, req) => {
     if (isStrictProduction(host)) {
       const target = BRANDS[brandId].portalDomain;
       const stripped = url.pathname.replace(/^\/portal/, '') || '/';
-      return NextResponse.redirect(new URL(`https://${target}${stripped}${url.search}`), 308);
+      return applySecurityHeaders(
+        NextResponse.redirect(new URL(`https://${target}${stripped}${url.search}`), 308),
+        { host, isPortalBound: true }
+      );
     }
 
     // Dev / preview: enforce auth gate but allow direct /portal/* access.
@@ -149,7 +217,10 @@ export default clerkMiddleware(async (auth, req) => {
         const signInUrl = url.clone();
         signInUrl.pathname = '/portal/sign-in';
         signInUrl.searchParams.set('redirect_url', url.pathname + url.search);
-        return NextResponse.redirect(signInUrl);
+        return applySecurityHeaders(NextResponse.redirect(signInUrl), {
+          host,
+          isPortalBound: true,
+        });
       }
     }
   }
@@ -169,7 +240,11 @@ export default clerkMiddleware(async (auth, req) => {
     });
   }
 
-  return res;
+  // The "is this response portal-bound?" decision: hostname is portal, OR
+  // path is /portal/* (catches dev/preview branch-deploy access at the same
+  // URL as marketing routes).
+  const isPortalBound = isPortal || url.pathname.startsWith('/portal');
+  return applySecurityHeaders(res, { host, isPortalBound });
 });
 
 export const config = {
