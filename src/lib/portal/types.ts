@@ -51,6 +51,57 @@ export interface PortalAccountantInfo {
   photoUrl: string | null;
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Messages (Phase D)
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface PortalMessage {
+  id: string;
+  caseId: string;
+  caseSubject: string | null;
+  caseStatus: string | null;
+  caseClosed: boolean;
+  fromAddress: string | null;
+  fromName: string | null;
+  subject: string | null;
+  /** Markdown source — render with react-markdown on the portal side. */
+  bodyText: string;
+  sentAt: string; // ISO 8601
+  /** True when message came from the client (matches a Contact on the Account). */
+  isFromClient: boolean;
+  /** True when the message originated from the portal Compose box (vs Outlook). */
+  isPortalAuthored: boolean;
+}
+
+export interface SendMessageResult {
+  emailMessageId: string;
+  caseId: string;
+  /** True if a new Case was opened (false = appended to existing open Case). */
+  newCase: boolean;
+  message: PortalMessage;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Engagement Letter (Phase D)
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface PortalEngagementLetter {
+  id: string;
+  status: "Sent" | "Viewed" | "Signed" | "Expired";
+  variant: "sole-trader" | "limited-company" | string;
+  sentDate: string | null;
+  signedDate: string | null;
+  signerName: string | null;
+  /** Opaque token — only included when the EL is still being sent/viewed. */
+  token: string | null;
+  /** True when the signed PDF has been generated and is downloadable. */
+  pdfReady: boolean;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Compliance tasks (Foundation 1 → already shipped)
+// ───────────────────────────────────────────────────────────────────────────
+
 export type PortalTaskState = "pending" | "in_progress" | "complete" | "awaiting_us";
 
 export interface PortalTask {

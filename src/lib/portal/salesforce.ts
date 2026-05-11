@@ -19,6 +19,13 @@ export interface PortalApexError {
 
 export type PortalApexResult<T> = PortalApexOk<T> | PortalApexError;
 
+export interface FetchPortalApexOptions {
+  /** HTTP method — defaults to GET. */
+  method?: "GET" | "POST";
+  /** JSON-serialisable body for POST requests. */
+  body?: unknown;
+}
+
 /**
  * Call a portal Apex REST endpoint with Connected App Bearer auth.
  *
@@ -29,7 +36,8 @@ export type PortalApexResult<T> = PortalApexOk<T> | PortalApexError;
  */
 export async function fetchPortalApex<T>(
   path: string,
-  params?: Record<string, string>
+  params?: Record<string, string>,
+  options?: FetchPortalApexOptions
 ): Promise<PortalApexResult<T>> {
   let token: string;
   try {
@@ -43,6 +51,7 @@ export async function fetchPortalApex<T>(
     };
   }
 
+  const method = options?.method ?? "GET";
   const baseUrl = sfApex(`/Portal${path.startsWith("/") ? path : "/" + path}`);
   const url = new URL(baseUrl);
   if (params) {
@@ -53,14 +62,18 @@ export async function fetchPortalApex<T>(
     }
   }
 
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/json",
+  };
+  if (method === "POST") headers["Content-Type"] = "application/json";
+
   let res: Response;
   try {
     res = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
+      method,
+      headers,
+      body: method === "POST" && options?.body !== undefined ? JSON.stringify(options.body) : undefined,
       cache: "no-store",
     });
   } catch (err) {
