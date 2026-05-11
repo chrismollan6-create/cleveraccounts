@@ -4,19 +4,22 @@ import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { listMessagesForCurrentUser } from "@/lib/portal/messages";
 import { getEngagementLetterForCurrentUser } from "@/lib/portal/engagement-letter";
+import { getOnboardingForCurrentUser, isOnboardingError } from "@/lib/portal/onboarding";
 import MessagesView from "@/components/portal/messages/MessagesView";
 import AccessGate from "@/components/portal/AccessGate";
 
 export const dynamic = "force-dynamic";
 
 export default async function MessagesPage() {
-  const [user, brand, portalUser, initialMessages, initialEl] = await Promise.all([
-    currentUser(),
-    getBrand(),
-    getCurrentPortalUser(),
-    listMessagesForCurrentUser(50),
-    getEngagementLetterForCurrentUser(),
-  ]);
+  const [user, brand, portalUser, initialMessages, initialEl, onboarding] =
+    await Promise.all([
+      currentUser(),
+      getBrand(),
+      getCurrentPortalUser(),
+      listMessagesForCurrentUser(50),
+      getEngagementLetterForCurrentUser(),
+      getOnboardingForCurrentUser(),
+    ]);
 
   const firstName =
     user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? null;
@@ -35,7 +38,6 @@ export default async function MessagesPage() {
     );
   }
 
-  // Hard error — couldn't fetch initial messages
   if (initialMessages.ok === false) {
     return (
       <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1400px] mx-auto">
@@ -47,9 +49,8 @@ export default async function MessagesPage() {
                 Couldn&apos;t load your messages
               </h2>
               <p className="mt-1 text-sm text-amber-800">
-                We hit an issue loading your conversation history. Try refreshing
-                the page; if this keeps happening, drop your accountant a quick
-                email and we&apos;ll sort it.
+                We hit an issue loading your conversation history. Try refreshing —
+                if this keeps happening, drop us an email and we&apos;ll sort it.
               </p>
             </div>
           </div>
@@ -58,23 +59,18 @@ export default async function MessagesPage() {
     );
   }
 
-  const initialEngagementLetter =
-    initialEl.ok === true ? initialEl.data : null;
+  const initialEngagementLetter = initialEl.ok === true ? initialEl.data : null;
+  const accountant =
+    !isOnboardingError(onboarding) && onboarding.data
+      ? onboarding.data.accountant
+      : null;
 
   return (
     <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1400px] mx-auto">
-      <div className="mb-6 animate-fade-in-up">
-        <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
-          Messages
-        </h1>
-        <p className="mt-1.5 text-text-light">
-          Your direct line to your accountant at {brand.name}.
-        </p>
-      </div>
-
       <MessagesView
         initialMessages={initialMessages.data}
         initialEngagementLetter={initialEngagementLetter}
+        accountant={accountant}
         currentUserFirstName={firstName ?? "you"}
         brandName={brand.name}
       />

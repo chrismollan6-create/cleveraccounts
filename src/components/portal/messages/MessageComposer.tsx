@@ -5,6 +5,7 @@ import { Send, Loader2, AlertCircle } from "lucide-react";
 import type { PortalMessage, SendMessageResult } from "@/lib/portal/types";
 
 interface Props {
+  accountantFirstName: string | null;
   onOptimisticInsert: (pending: PortalMessage) => void;
   onSent: (result: SendMessageResult) => void;
 }
@@ -20,7 +21,14 @@ const MAX_BODY_LENGTH = 10_000;
  * messages display, but we don't show a fancy editor here. Keeps composer
  * lightweight, mobile-friendly.
  */
-export default function MessageComposer({ onOptimisticInsert, onSent }: Props) {
+export default function MessageComposer({
+  accountantFirstName,
+  onOptimisticInsert,
+  onSent,
+}: Props) {
+  const placeholder = accountantFirstName
+    ? `Hi ${accountantFirstName}, quick question about my year-end accounts…`
+    : "Hi there, quick question about my year-end accounts…";
   const [body, setBody] = useState("");
   const [subject, setSubject] = useState("");
   const [sending, setSending] = useState(false);
@@ -101,7 +109,7 @@ export default function MessageComposer({ onOptimisticInsert, onSent }: Props) {
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="Hi Sarah, quick question about my year-end accounts..."
+        placeholder={placeholder}
         rows={4}
         maxLength={MAX_BODY_LENGTH + 100} // allow a bit over for paste, validate strictly
         className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all resize-y min-h-[100px]"

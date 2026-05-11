@@ -2,41 +2,44 @@
 
 import { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
-import type { PortalMessage, PortalEngagementLetter, SendMessageResult } from "@/lib/portal/types";
+import { MessageSquare, Sparkles } from "lucide-react";
+import type {
+  PortalMessage,
+  PortalEngagementLetter,
+  SendMessageResult,
+  PortalAccountantInfo,
+} from "@/lib/portal/types";
 import MessageComposer from "./MessageComposer";
-import MessageList from "./MessageList";
+import MessageThread from "./MessageThread";
 import EngagementLetterInline from "./EngagementLetterInline";
 import MessagesEmptyState from "./MessagesEmptyState";
+import MessagesSidePanel from "./MessagesSidePanel";
 
 interface Props {
   initialMessages: PortalMessage[];
   initialEngagementLetter: PortalEngagementLetter | null;
+  accountant: PortalAccountantInfo | null;
   currentUserFirstName: string;
   brandName: string;
 }
 
 /**
- * Top-level Messages page client component.
+ * Top-level Messages page client view.
  *
- * Owns:
- *   - SWR polling for the messages list (10s when tab visible, paused
- *     when hidden via the Page Visibility API)
- *   - Optimistic insert when the user sends a new message
- *   - Coordinating Composer + List + EL card
- *
- * Hydrated from server-fetched `initialMessages` so the first paint is
- * instant; SWR takes over from the first poll.
+ * Layout: two-column (composer + conversation | accountant sidebar).
+ * Conversation is rendered chat-style: accountant left, client right.
+ * SWR polls /api/portal/messages every 10s when the tab is visible.
  */
 export default function MessagesView({
   initialMessages,
   initialEngagementLetter,
+  accountant,
   currentUserFirstName,
   brandName,
 }: Props) {
   const [tabVisible, setTabVisible] = useState(true);
   const [optimisticPending, setOptimisticPending] = useState<PortalMessage[]>([]);
 
-  // Track tab visibility so we don't poll in background tabs
   useEffect(() => {
     if (typeof document === "undefined") return;
     const onVis = () => setTabVisible(!document.hidden);
@@ -56,7 +59,6 @@ export default function MessagesView({
     }
   );
 
-  // Drop any optimistic message that's now confirmed in the real list
   useEffect(() => {
     if (!data) return;
     setOptimisticPending((pending) =>
@@ -66,18 +68,14 @@ export default function MessagesView({
     );
   }, [data]);
 
-  // Merge optimistic + real, dedupe by id, newest first
   const allMessages = mergeAndDedupe(data ?? [], optimisticPending);
 
   const onSent = useCallback(
     (result: SendMessageResult) => {
-      // Replace optimistic placeholder with the real returned message,
-      // then trigger a revalidate so other clients/devices see it too.
       setOptimisticPending([]);
       mutate(
         (current) => {
           const next = [result.message, ...(current ?? [])];
-          // Dedupe by id (in case revalidate already raced ahead)
           const seen = new Set<string>();
           return next.filter((m) => {
             if (seen.has(m.id)) return false;
@@ -96,69 +94,80 @@ export default function MessagesView({
   }, []);
 
   const showEmpty = allMessages.length === 0 && !initialEngagementLetter;
+  const accountantFirstName = accountant?.name?.split(" ")?.[0] ?? null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      {/* Left column: Composer + Messages list */}
-      <div className="lg:col-span-2 space-y-6">
-        <MessageComposer
-          onOptimisticInsert={onOptimisticInsert}
-          onSent={onSent}
-        />
+    <>
+      {/* Page header */}
+      <div className="mb-6 animate-fade-in-up">
+        <div className="flex items-center gap-2">
+          <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <MessageSquare size={18} className="text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+              Messages
+            </h1>
+            <p className="text-sm text-text-light">
+              {accountantFirstName
+                ? `Your direct line to ${accountantFirstName} at ${brandName}.`
+                : `Your direct line to your accountant at ${brandName}.`}
+            </p>
+          </div>
+        </div>
+      </div>
 
-        {initialEngagementLetter && (
-          <EngagementLetterInline letter={initialEngagementLetter} />
-        )}
-
-        {showEmpty ? (
-          <MessagesEmptyState firstName={currentUserFirstName} brandName={brandName} />
-        ) : (
-          <MessageList
-            messages={allMessages}
-            isRefreshing={isValidating}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Left column: Composer + Conversation */}
+        <div className="lg:col-span-2 space-y-6">
+          <MessageComposer
+            accountantFirstName={accountantFirstName}
+            onOptimisticInsert={onOptimisticInsert}
+            onSent={onSent}
           />
-        )}
+
+          {initialEngagementLetter && (
+            <EngagementLetterInline letter={initialEngagementLetter} />
+          )}
+
+          {showEmpty ? (
+            <MessagesEmptyState
+              firstName={currentUserFirstName}
+              brandName={brandName}
+              accountantFirstName={accountantFirstName}
+            />
+          ) : (
+            <MessageThread
+              messages={allMessages}
+              isRefreshing={isValidating}
+              accountant={accountant}
+            />
+          )}
+        </div>
+
+        {/* Right column: Accountant + tips */}
+        <div className="lg:col-span-1">
+          <MessagesSidePanel accountant={accountant} brandName={brandName} />
+        </div>
       </div>
 
-      {/* Right column: helper / context */}
-      <div className="space-y-4">
-        <aside className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 animate-fade-in-up">
-          <h3 className="text-sm font-semibold text-text uppercase tracking-wider">
-            How this works
-          </h3>
-          <ul className="mt-3 space-y-2.5 text-sm text-text-light">
-            <li className="flex gap-2">
-              <span className="text-primary font-bold">·</span>
-              <span>
-                Send your accountant a message — it lands in their Salesforce
-                queue as a Case.
-              </span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-primary font-bold">·</span>
-              <span>
-                Replies arrive here within a few seconds — keep this tab open
-                and you&apos;ll see them appear.
-              </span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-primary font-bold">·</span>
-              <span>
-                For urgent matters, give us a call — the number is in your
-                portal footer.
-              </span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-primary font-bold">·</span>
-              <span>
-                You can use simple <strong>**markdown**</strong>: bold,{" "}
-                <em>*italic*</em>, [links](url), and dash-prefixed lists.
-              </span>
-            </li>
-          </ul>
-        </aside>
+      {/* Status announcer for assistive tech */}
+      <div
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+      >
+        {isValidating ? "Checking for new messages…" : null}
       </div>
-    </div>
+
+      {/* Subtle real-time indicator (top-right floating, only when polling fires) */}
+      {isValidating && (
+        <div className="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 shadow-sm text-xs text-text-light animate-fade-in">
+          <Sparkles size={12} className="text-primary animate-pulse" />
+          Checking for new messages…
+        </div>
+      )}
+    </>
   );
 }
 
@@ -179,7 +188,6 @@ function mergeAndDedupe(
     seen.add(m.id);
     out.push(m);
   }
-  // Newest first
   return out.sort(
     (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
   );
