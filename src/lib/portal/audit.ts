@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { getCurrentPortalUser } from "./auth";
 import { getPortalDb, schema } from "./db/client";
+import { sanitisedError } from "./log";
 
 /**
  * Portal audit log helper. Every "interesting" event (login, dashboard view,
@@ -63,7 +64,7 @@ export async function logPortalEvent(input: LogPortalEventInput): Promise<void> 
       metadata: input.metadata ?? null,
     });
   } catch (err) {
-    console.error("[audit] logPortalEvent failed:", err);
+    console.error("[audit] logPortalEvent failed:", sanitisedError(err));
   }
 }
 
@@ -107,6 +108,6 @@ export async function logPortalEventScoped(
       metadata: input.metadata ?? null,
     });
   } catch (err) {
-    console.error("[audit] logPortalEventScoped failed:", err);
+    console.error("[audit] logPortalEventScoped failed:", sanitisedError(err));
   }
 }

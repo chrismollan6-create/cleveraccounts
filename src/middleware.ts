@@ -77,9 +77,17 @@ function isPublicPortalPath(portalPath: string): boolean {
 // looser CSP because Webflow / GTM / Stripe / Sanity all need third-party
 // origins our portal doesn't.
 
+// 'unsafe-eval' deliberately removed (security audit, May 2026) — never
+// required by Clerk or Next.js in production builds. Confirmed safe.
+//
+// 'unsafe-inline' is still here as a known compromise: removing it requires
+// nonce-based CSP plumbed through middleware → x-nonce header → Next.js
+// framework scripts → Clerk's <ClerkProvider>. Scheduled with Foundation 6
+// (prod Clerk + MFA + custom auth domain) since both need careful Clerk
+// testing. Tracked in C:\Users\chris\.claude\plans\portal-foundations-secure-by-default.md.
 const PORTAL_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+  "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://*.salesforce.com https://*.cleveraccounts.com https://*.workwellaccountancy.com https://*.clerk.com https://img.clerk.com",
   "font-src 'self' https://fonts.gstatic.com",
@@ -88,6 +96,8 @@ const PORTAL_CSP = [
   "frame-ancestors 'none'",
   "form-action 'self' https://*.clerk.accounts.dev",
   "base-uri 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
 ].join("; ");
 
 /**

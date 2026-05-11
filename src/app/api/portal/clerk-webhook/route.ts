@@ -6,6 +6,7 @@ import {
   handleSessionEvent,
   type ClerkWebhookEvent,
 } from "@/lib/portal/clerk-webhook";
+import { sanitisedError } from "@/lib/portal/log";
 
 /**
  * POST /api/portal/clerk-webhook
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       "svix-signature": svixSig,
     }) as ClerkWebhookEvent;
   } catch (err) {
-    console.error("[clerk-webhook] signature verification failed:", err);
+    console.error("[clerk-webhook] signature verification failed:", sanitisedError(err));
     return NextResponse.json(
       { error: "INVALID_SIGNATURE", message: "Could not verify webhook signature" },
       { status: 401 }
@@ -89,12 +90,14 @@ export async function POST(req: Request) {
     console.log(`[clerk-webhook] ignored event type: ${(event as { type: string }).type}`);
     return NextResponse.json({ ok: true, action: "ignored" });
   } catch (err) {
-    console.error("[clerk-webhook] handler failed:", err);
-    // Return 500 so Svix retries with backoff
+    console.error("[clerk-webhook] handler failed:", sanitisedError(err));
+    // Return 500 so Svix retries with backoff. Body is a generic code —
+    // do NOT echo err.message because Svix logs request bodies and we
+    // don't want PII landing there either.
     return NextResponse.json(
       {
         error: "HANDLER_FAILED",
-        message: err instanceof Error ? err.message : "Unknown error",
+        message: "Webhook handler errored — see server logs",
       },
       { status: 500 }
     );

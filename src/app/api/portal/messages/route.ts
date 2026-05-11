@@ -10,6 +10,7 @@ import {
   checkPortalApiLimit,
   rateLimitResponse,
 } from "@/lib/portal/ratelimit";
+import { assertSameOrigin } from "@/lib/portal/csrf";
 
 /**
  * GET /api/portal/messages?pageSize=50
@@ -26,7 +27,13 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const pageSizeParam = url.searchParams.get("pageSize");
-  const pageSize = pageSizeParam ? parseInt(pageSizeParam, 10) : 50;
+  // Clamp at the route boundary so a malicious `?pageSize=999999999` never
+  // reaches the SF layer. listMessagesForCurrentUser clamps again — this is
+  // belt-and-braces. NaN from a non-numeric input collapses to 50.
+  const parsed = pageSizeParam ? parseInt(pageSizeParam, 10) : 50;
+  const pageSize = Number.isFinite(parsed)
+    ? Math.min(Math.max(1, parsed), 200)
+    : 50;
 
   const result = await listMessagesForCurrentUser(pageSize);
 
@@ -47,6 +54,11 @@ export async function GET(req: Request) {
  * deter spam.
  */
 export async function POST(req: Request) {
+  // CSRF defence: reject cross-site POSTs before we do any work. Clerk's
+  // cookie is SameSite=Lax — this closes the gap.
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   const { userId } = await auth();
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";

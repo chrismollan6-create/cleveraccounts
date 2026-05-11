@@ -5,10 +5,15 @@ import { Redis } from "@upstash/redis";
  * Portal API rate limiting backed by Upstash Redis. Slides a 60-second window
  * keyed by Clerk user id (when available) or IP (anonymous endpoints).
  *
- * Graceful degradation: if `UPSTASH_REDIS_REST_URL` and
- * `UPSTASH_REDIS_REST_TOKEN` aren't both set, every check returns `{ ok: true }`
- * and logs a warning once per process. Lets the portal run without rate
- * limiting until the env vars are configured.
+ * Failure mode (changed by security audit, May 2026):
+ *   - Production (NODE_ENV=production): if `UPSTASH_REDIS_REST_URL` and
+ *     `UPSTASH_REDIS_REST_TOKEN` aren't both set, every limit check throws.
+ *     This forces a 500 on every API request and surfaces in Netlify logs
+ *     so a misconfigured deploy can't silently disable rate limiting. To
+ *     intentionally degrade (e.g. a debug branch deploy without Upstash),
+ *     set `PORTAL_RATE_LIMIT_OPTIONAL=1`.
+ *   - Dev / non-production: warn once and return `{ ok: true }` so a local
+ *     `npm run dev` works without Upstash. Set the env vars to test.
  *
  * Limits:
  *   - portalApi: 30 requests / 60s — generous for the dashboard, tight enough
@@ -27,10 +32,22 @@ function getLimiters(): { portal: Ratelimit; authAdjacent: Ratelimit } | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
+    const isProd = process.env.NODE_ENV === "production";
+    const opted = process.env.PORTAL_RATE_LIMIT_OPTIONAL === "1";
+    if (isProd && !opted) {
+      // Fail hard — no silent disable in production.
+      throw new Error(
+        "[ratelimit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are " +
+          "required in production. Set both Netlify env vars, or set " +
+          "PORTAL_RATE_LIMIT_OPTIONAL=1 to intentionally disable (not recommended)."
+      );
+    }
     if (!warned) {
       console.warn(
         "[ratelimit] UPSTASH_REDIS_REST_URL/TOKEN not set — rate limiting disabled. " +
-          "Set both env vars on Netlify to enable."
+          (isProd
+            ? "PORTAL_RATE_LIMIT_OPTIONAL=1 detected; running without limits."
+            : "Set both env vars on Netlify to enable.")
       );
       warned = true;
     }

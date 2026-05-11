@@ -131,8 +131,13 @@ function Bubble({
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                a: ({ ...props }) => (
-                  <a {...props} target="_blank" rel="noopener noreferrer nofollow" />
+                a: ({ href, ...props }) => (
+                  <a
+                    {...props}
+                    href={safeLinkHref(href)}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                  />
                 ),
                 code: ({ ...props }) => (
                   <code
@@ -279,6 +284,31 @@ function formatRelative(iso: string): string {
   const diffHr = Math.floor(diffMin / 60);
   if (diffHr < 24) return `${diffHr}h`;
   return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
+/**
+ * Whitelist of URL schemes safe to render in chat-message links.
+ *
+ * Threat: a compromised staff account could send `[click](javascript:…)` and
+ * render an XSS payload as a real link. React itself blocks `javascript:`
+ * in href and warns at runtime, but other schemes (`data:`, `vbscript:`,
+ * weird unicode variants of `javascript`) slip through and a future React
+ * upgrade could relax that behaviour. Defence-in-depth: validate scheme
+ * before render.
+ *
+ * Permitted: http(s), mailto, tel, in-document fragments (#…), relative paths.
+ * Everything else (including bare `javascript:` and `data:` URIs) collapses
+ * to "#" so the link is harmless if clicked.
+ */
+function safeLinkHref(href: string | undefined): string {
+  if (!href) return "#";
+  const trimmed = href.trim();
+  if (trimmed.startsWith("#") || trimmed.startsWith("/")) return trimmed;
+  // Reject anything with an unusual scheme — only allow our explicit list.
+  // Regex anchored to the start so leading whitespace / control chars can't
+  // bypass it. Comparison is case-insensitive (`JAVASCRIPT:` is also unsafe).
+  if (/^(https?|mailto|tel):/i.test(trimmed)) return trimmed;
+  return "#";
 }
 
 function initials(name: string): string {
