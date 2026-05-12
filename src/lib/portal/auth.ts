@@ -57,15 +57,25 @@ export interface PortalUser {
  * UI instead of data.
  */
 export const getCurrentPortalUser = cache(async function (): Promise<PortalUser | null> {
+  // Fine-grained instrumentation — splits Clerk auth from Postgres so we
+  // can see which is the source of the ~200ms total. Remove once perf
+  // is settled.
+  const tAuth = performance.now();
   const { userId } = await auth();
+  const dAuth = performance.now() - tAuth;
   if (!userId) return null;
 
   const db = getPortalDb();
+  const tDb = performance.now();
   const rows = await db
     .select()
     .from(schema.users)
     .where(eq(schema.users.clerkUserId, userId))
     .limit(1);
+  const dDb = performance.now() - tDb;
+  console.log(
+    `[auth] auth() ${dAuth.toFixed(0)}ms · pg.select(users) ${dDb.toFixed(0)}ms`
+  );
 
   // Hot path: the DB row exists AND has firstName cached — return without
   // touching Clerk's API. Saves ~200-400ms per render.
