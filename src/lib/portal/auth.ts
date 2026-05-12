@@ -44,18 +44,24 @@ export const getCurrentPortalUser = cache(async function (): Promise<PortalUser 
   const { userId } = await auth();
   if (!userId) return null;
 
-  const clerkUser = await currentUser();
+  // Parallel: kick off the Clerk profile fetch AND the portal.users
+  // Postgres lookup at the same time. Previously these ran serially,
+  // adding ~200-300ms of avoidable latency on every server render.
+  // The DB query doesn't need the Clerk user object — it keys on userId,
+  // which `auth()` already gave us.
+  const db = getPortalDb();
+  const [clerkUser, rows] = await Promise.all([
+    currentUser(),
+    db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.clerkUserId, userId))
+      .limit(1),
+  ]);
+
   const email = clerkUser?.emailAddresses?.[0]?.emailAddress ?? null;
   const firstName = clerkUser?.firstName ?? null;
   const lastName = clerkUser?.lastName ?? null;
-
-  // Look up the portal.users link row
-  const db = getPortalDb();
-  const rows = await db
-    .select()
-    .from(schema.users)
-    .where(eq(schema.users.clerkUserId, userId))
-    .limit(1);
 
   if (rows.length === 0) {
     // Webhook hasn't fired yet — return a "pending" placeholder so the
