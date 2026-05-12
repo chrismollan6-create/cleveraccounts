@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { getPortalDb, schema } from "./db/client";
 import type { PortalBrand, PortalUserStatus } from "./db/schema";
@@ -77,9 +77,13 @@ export const getCurrentPortalUser = cache(async function (): Promise<PortalUser 
     `[auth] auth() ${dAuth.toFixed(0)}ms · pg.select(users) ${dDb.toFixed(0)}ms`
   );
 
-  // Hot path: the DB row exists AND has firstName cached — return without
-  // touching Clerk's API. Saves ~200-400ms per render.
-  if (rows.length > 0 && rows[0].firstName !== null) {
+  // Hot path: the DB row exists — return it without touching Clerk's
+  // API regardless of whether firstName is populated. The Clerk webhook
+  // (user.created / user.updated) is the source of truth for name fields.
+  // If it fired without names (e.g. user signed up via OAuth that didn't
+  // provide first/last), the column stays null and the UI falls back to
+  // email prefix. Saves the ~200-300ms Clerk round-trip on every render.
+  if (rows.length > 0) {
     const row = rows[0];
     return {
       clerkUserId: row.clerkUserId,
@@ -93,23 +97,14 @@ export const getCurrentPortalUser = cache(async function (): Promise<PortalUser 
     };
   }
 
-  // Cold path: webhook hasn't populated names yet (brand-new user OR
-  // existing row from before profile caching landed). Fall back to Clerk
-  // API + lazily back-fill the DB so the next render is cheap.
-  const clerkUser = await currentUser();
-  const email =
-    rows[0]?.email ?? clerkUser?.emailAddresses?.[0]?.emailAddress ?? null;
-  const firstName = clerkUser?.firstName ?? null;
-  const lastName = clerkUser?.lastName ?? null;
-
-  // Back-fill the row's name fields if we have a row and Clerk gave us
-  // names. Fire-and-forget — don't block render on the write.
-  if (rows.length > 0 && (firstName || lastName)) {
-    void db
-      .update(schema.users)
-      .set({ firstName, lastName })
-      .where(eq(schema.users.clerkUserId, userId));
-  }
+  // Cold path: no row at all. Webhook hasn't fired yet (typically a
+  // millisecond-scale race with sign-up). Return a pending placeholder
+  // so the dashboard renders an "Setting up your portal…" state. We
+  // STILL skip Clerk here — first sign-in renders without their name,
+  // every subsequent render reads the webhook-populated row.
+  const email = null;
+  const firstName = null;
+  const lastName = null;
 
   if (rows.length === 0) {
     // Webhook hasn't fired yet — return a "pending" placeholder so the
