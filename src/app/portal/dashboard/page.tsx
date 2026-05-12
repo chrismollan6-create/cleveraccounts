@@ -20,16 +20,29 @@ import { listMessagesForCurrentUser } from "@/lib/portal/messages";
 
 export const dynamic = "force-dynamic";
 
+/** Time-instrument a server-side fetch. Logs to Netlify function logs. */
+async function timed<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const t = performance.now();
+  const r = await fn();
+  console.log(`[dashboard] ${label} ${(performance.now() - t).toFixed(0)}ms`);
+  return r;
+}
+
 export default async function DashboardPage() {
   // No more direct currentUser() call — name/email now come from the
   // portal.users cache via getCurrentPortalUser. Saves a ~200-400ms
   // Clerk API round-trip per render.
+  //
+  // Perf instrumentation: timestamped checkpoints so we can see exactly
+  // where the time goes on each render. Inspect via Netlify function logs.
+  const t0 = performance.now();
   const [brand, portalUser, onboardingResult, messagesResult] = await Promise.all([
-    getBrand(),
-    getCurrentPortalUser(),
-    getOnboardingForCurrentUser(),
-    listMessagesForCurrentUser(5),
+    timed("brand", () => getBrand()),
+    timed("portalUser", () => getCurrentPortalUser()),
+    timed("onboarding", () => getOnboardingForCurrentUser()),
+    timed("messages", () => listMessagesForCurrentUser(5)),
   ]);
+  console.log(`[dashboard] total fetch ${(performance.now() - t0).toFixed(0)}ms`);
   const previewMessages = messagesResult.ok === true ? messagesResult.data : [];
 
   const firstName =
