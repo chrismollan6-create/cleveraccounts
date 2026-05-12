@@ -47,6 +47,14 @@ export const users = portal.table(
     accountSfId: text("account_sf_id").notNull(),
     brand: text("brand").$type<PortalBrand>().notNull(),
     email: text("email").notNull(),
+    /**
+     * Profile name cached from the Clerk webhook payload — populated by
+     * user.created / user.updated handlers. Lets server components render
+     * "Hi {firstName}" without calling Clerk's API on every render
+     * (~200-400ms saved per page render).
+     */
+    firstName: text("first_name"),
+    lastName: text("last_name"),
     status: text("status").$type<PortalUserStatus>().notNull(),
     invitedAt: timestamp("invited_at", { withTimezone: true }).notNull().defaultNow(),
     firstLoginAt: timestamp("first_login_at", { withTimezone: true }),

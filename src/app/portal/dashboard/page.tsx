@@ -1,4 +1,3 @@
-import { currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
@@ -22,8 +21,10 @@ import { listMessagesForCurrentUser } from "@/lib/portal/messages";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [user, brand, portalUser, onboardingResult, messagesResult] = await Promise.all([
-    currentUser(),
+  // No more direct currentUser() call — name/email now come from the
+  // portal.users cache via getCurrentPortalUser. Saves a ~200-400ms
+  // Clerk API round-trip per render.
+  const [brand, portalUser, onboardingResult, messagesResult] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     getOnboardingForCurrentUser(),
@@ -32,7 +33,7 @@ export default async function DashboardPage() {
   const previewMessages = messagesResult.ok === true ? messagesResult.data : [];
 
   const firstName =
-    user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? null;
+    portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
 
   // Soft-block states — show AccessGate instead of trying to load data
   if (portalUser && (portalUser.status === "disabled" || portalUser.status === "pending")) {

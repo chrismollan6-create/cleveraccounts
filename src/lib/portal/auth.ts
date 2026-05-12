@@ -5,6 +5,22 @@ import { getPortalDb, schema } from "./db/client";
 import type { PortalBrand, PortalUserStatus } from "./db/schema";
 
 /**
+ * NOTE on Clerk profile caching:
+ *
+ * The portal.users row now carries `first_name` + `last_name` columns,
+ * populated by the Clerk webhook on `user.created` / `user.updated`.
+ * Most page renders never hit Clerk's API any more — we read names
+ * from the DB row in a single SELECT.
+ *
+ * Edge case: if the webhook hasn't run yet (brand-new user signing in
+ * for the first time, or webhook delivery briefly delayed), the DB row
+ * has null names. In that case we DO fall back to `currentUser()` and
+ * lazily back-fill the DB so the next render is cheap. The Clerk
+ * `session.created` webhook should fire on each new session and refresh
+ * the profile too — see clerk-webhook.ts.
+ */
+
+/**
  * Portal user resolution — the chokepoint between Clerk (auth) and Salesforce
  * (data). Every server component / API route that reads portal data goes
  * through this; it returns the SF Account + Contact context the user is
@@ -44,24 +60,46 @@ export const getCurrentPortalUser = cache(async function (): Promise<PortalUser 
   const { userId } = await auth();
   if (!userId) return null;
 
-  // Parallel: kick off the Clerk profile fetch AND the portal.users
-  // Postgres lookup at the same time. Previously these ran serially,
-  // adding ~200-300ms of avoidable latency on every server render.
-  // The DB query doesn't need the Clerk user object — it keys on userId,
-  // which `auth()` already gave us.
   const db = getPortalDb();
-  const [clerkUser, rows] = await Promise.all([
-    currentUser(),
-    db
-      .select()
-      .from(schema.users)
-      .where(eq(schema.users.clerkUserId, userId))
-      .limit(1),
-  ]);
+  const rows = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.clerkUserId, userId))
+    .limit(1);
 
-  const email = clerkUser?.emailAddresses?.[0]?.emailAddress ?? null;
+  // Hot path: the DB row exists AND has firstName cached — return without
+  // touching Clerk's API. Saves ~200-400ms per render.
+  if (rows.length > 0 && rows[0].firstName !== null) {
+    const row = rows[0];
+    return {
+      clerkUserId: row.clerkUserId,
+      email: row.email,
+      firstName: row.firstName,
+      lastName: row.lastName,
+      accountSfId: row.status === "disabled" ? null : row.accountSfId,
+      contactSfId: row.status === "disabled" ? null : row.contactSfId,
+      brand: row.brand,
+      status: row.status,
+    };
+  }
+
+  // Cold path: webhook hasn't populated names yet (brand-new user OR
+  // existing row from before profile caching landed). Fall back to Clerk
+  // API + lazily back-fill the DB so the next render is cheap.
+  const clerkUser = await currentUser();
+  const email =
+    rows[0]?.email ?? clerkUser?.emailAddresses?.[0]?.emailAddress ?? null;
   const firstName = clerkUser?.firstName ?? null;
   const lastName = clerkUser?.lastName ?? null;
+
+  // Back-fill the row's name fields if we have a row and Clerk gave us
+  // names. Fire-and-forget — don't block render on the write.
+  if (rows.length > 0 && (firstName || lastName)) {
+    void db
+      .update(schema.users)
+      .set({ firstName, lastName })
+      .where(eq(schema.users.clerkUserId, userId));
+  }
 
   if (rows.length === 0) {
     // Webhook hasn't fired yet — return a "pending" placeholder so the

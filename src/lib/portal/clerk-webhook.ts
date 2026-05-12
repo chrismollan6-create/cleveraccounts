@@ -15,6 +15,8 @@ export type ClerkUserEvent = {
   type: "user.created" | "user.updated";
   data: {
     id: string;
+    first_name: string | null;
+    last_name: string | null;
     email_addresses: Array<{
       email_address: string;
       id: string;
@@ -129,12 +131,16 @@ export async function handleUserCreatedOrUpdated(
         accountSfId: "",
         brand: "clever", // best-guess default; updated on later events
         email,
+        firstName: event.data.first_name,
+        lastName: event.data.last_name,
         status: "disabled",
       })
       .onConflictDoUpdate({
         target: schema.users.clerkUserId,
         set: {
           email,
+          firstName: event.data.first_name,
+          lastName: event.data.last_name,
           status: "disabled",
         },
       });
@@ -159,6 +165,8 @@ export async function handleUserCreatedOrUpdated(
       accountSfId: mapping.accountId,
       brand: mapping.brand,
       email,
+      firstName: event.data.first_name,
+      lastName: event.data.last_name,
       status: finalStatus,
     })
     .onConflictDoUpdate({
@@ -168,6 +176,8 @@ export async function handleUserCreatedOrUpdated(
         accountSfId: mapping.accountId,
         brand: mapping.brand,
         email,
+        firstName: event.data.first_name,
+        lastName: event.data.last_name,
         status: finalStatus,
       },
     });

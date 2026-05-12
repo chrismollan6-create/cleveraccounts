@@ -1,4 +1,3 @@
-import { currentUser } from "@clerk/nextjs/server";
 import { AlertTriangle } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
@@ -11,9 +10,10 @@ import AccessGate from "@/components/portal/AccessGate";
 export const dynamic = "force-dynamic";
 
 export default async function MessagesPage() {
-  const [user, brand, portalUser, initialMessages, initialEl, onboarding] =
+  // Profile name now comes from the portal.users cache via
+  // getCurrentPortalUser — no Clerk API call needed on render.
+  const [brand, portalUser, initialMessages, initialEl, onboarding] =
     await Promise.all([
-      currentUser(),
       getBrand(),
       getCurrentPortalUser(),
       listMessagesForCurrentUser(50),
@@ -22,7 +22,7 @@ export default async function MessagesPage() {
     ]);
 
   const firstName =
-    user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ?? null;
+    portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
 
   // Soft-block states (same pattern as dashboard)
   if (portalUser && (portalUser.status === "disabled" || portalUser.status === "pending")) {
