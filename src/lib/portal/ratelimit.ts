@@ -28,18 +28,26 @@ let warned = false;
 function getLimiters(): { portal: Ratelimit; authAdjacent: Ratelimit } | null {
   if (cached) return cached;
 
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Accept either env var name — the Upstash SDK documents `_REST_` in the
+  // middle but our .env.local.example historically used the shorter form.
+  // Belt-and-braces so a Netlify env var named either way works.
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.UPSTASH_REDIS_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.UPSTASH_REDIS_TOKEN;
 
   if (!url || !token) {
     const isProd = process.env.NODE_ENV === "production";
     const opted = process.env.PORTAL_RATE_LIMIT_OPTIONAL === "1";
     if (isProd && !opted) {
-      // Fail hard — no silent disable in production.
+      // Fail hard — no silent disable in production. Accept either env
+      // var naming convention.
       throw new Error(
-        "[ratelimit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are " +
-          "required in production. Set both Netlify env vars, or set " +
-          "PORTAL_RATE_LIMIT_OPTIONAL=1 to intentionally disable (not recommended)."
+        "[ratelimit] Upstash credentials missing in production. Set EITHER " +
+          "UPSTASH_REDIS_REST_URL+UPSTASH_REDIS_REST_TOKEN (Upstash's canonical names) " +
+          "OR UPSTASH_REDIS_URL+UPSTASH_REDIS_TOKEN (our .env.local.example legacy names) " +
+          "on Netlify. To intentionally disable rate-limiting (not recommended for prod), " +
+          "set PORTAL_RATE_LIMIT_OPTIONAL=1."
       );
     }
     if (!warned) {

@@ -11,6 +11,7 @@ import {
   rateLimitResponse,
 } from "@/lib/portal/ratelimit";
 import { assertSameOrigin } from "@/lib/portal/csrf";
+import { sanitisedError } from "@/lib/portal/log";
 
 /**
  * GET /api/portal/messages?pageSize=50
@@ -35,7 +36,21 @@ export async function GET(req: Request) {
     ? Math.min(Math.max(1, parsed), 200)
     : 50;
 
-  const result = await listMessagesForCurrentUser(pageSize);
+  // Wrap so unexpected exceptions (Drizzle/Postgres/Clerk errors) get
+  // logged with their real message instead of being silently turned into
+  // an opaque 500 by the Next.js framework. SWR polls every 10s — a
+  // recurring error here was burning network panel red until we knew
+  // what to fix.
+  let result: Awaited<ReturnType<typeof listMessagesForCurrentUser>>;
+  try {
+    result = await listMessagesForCurrentUser(pageSize);
+  } catch (err) {
+    console.error("[/api/portal/messages] uncaught:", sanitisedError(err));
+    return NextResponse.json(
+      { error: "INTERNAL", message: "Messages fetch failed — see server logs" },
+      { status: 500 }
+    );
+  }
 
   if (result.ok === false) {
     return NextResponse.json(
