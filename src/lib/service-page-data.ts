@@ -67,9 +67,9 @@ export const servicePages: Record<string, ServicePageData> = {
       { q: "Is FreeAgent easy to use?", a: "Absolutely. FreeAgent is designed for non-accountants and is incredibly intuitive. Plus, your accountant will set everything up and walk you through it." },
     ],
     testimonial: {
-      name: "Angela Brooks",
+      name: "Brian S",
       role: "Sole Trader",
-      quote: "I was terrified of Making Tax Digital but Clever Accounts made the transition completely painless. They set everything up and walked me through it.",
+      quote: "Really good introduction from Rebecca, including training in the software. Very friendly service and I feel very comfortable working with Clever Accounts through the process of MTD! Thank you.",
     },
     stats: [
       { value: "£1,200", label: "Average annual tax saving per client", colour: "from-primary to-blue-400" },
@@ -176,12 +176,12 @@ export const servicePages: Record<string, ServicePageData> = {
       { q: "What about payroll?", a: "Payroll for directors and staff is included. We handle monthly RTI submissions to HMRC and provide payslips." },
     ],
     testimonial: {
-      name: "Emily Watson",
+      name: "Dee R",
       role: "Limited Company Director",
-      quote: "I used to dread tax season. Now everything is handled for me. The software is easy to use and my accountant is just a phone call away.",
+      quote: "This is a great company to have handle accounting of any business, I have been using them for a good couple of years now and I am 100% committed, Keeley Bell is a wonderful accountant - always has time for any questions and answers them thoroughly and professional.",
     },
     stats: [
-      { value: "3,000+", label: "Directors switched to us this year", colour: "from-primary to-blue-400" },
+      { value: "1,500+", label: "Directors switched to us this year", colour: "from-primary to-blue-400" },
       { value: "6", label: "Tax obligations covered in one fee", colour: "from-secondary to-emerald-400" },
       { value: "£0", label: "Setup fees — ever", colour: "from-amber-500 to-yellow-400" },
       { value: "20+", label: "Years of limited company expertise", colour: "from-purple-500 to-pink-400" },
@@ -299,9 +299,9 @@ export const servicePages: Record<string, ServicePageData> = {
       { q: "What's included in the monthly fee?", a: "Everything: specialist contractor accountant, year-end accounts, CT600, VAT returns, director payroll, Companies House filings, director self assessment, IR35 support, contract reviews, Clever FLEX, free FreeAgent software, and unlimited advice." },
     ],
     testimonial: {
-      name: "James Cooper",
+      name: "Fred M",
       role: "IT Contractor",
-      quote: "The IR35 support alone is worth every penny. They reviewed my contract within 24 hours and I had a written opinion the same day. Completely invaluable.",
+      quote: "Great experience! I received clear and helpful advice on my accounting questions during our call. Very professional, friendly, and easy to talk to. I’d happily recommend Hasnain.",
     },
     stats: [
       { value: "2,000+", label: "Contractors trust us with their IR35", colour: "from-primary to-blue-400" },
@@ -593,9 +593,9 @@ export const servicePages: Record<string, ServicePageData> = {
       { q: "When should I register for VAT?", a: "You must register when turnover exceeds £90,000 in a 12-month period. However, voluntary registration can sometimes be beneficial — your accountant will advise." },
     ],
     testimonial: {
-      name: "David Thompson",
+      name: "Michael C",
       role: "Startup Founder",
-      quote: "As a new business owner, having Clever Accounts on my side gave me confidence from day one. Their advice has been invaluable.",
+      quote: "Excellent advice and service from Hamza Ali, just set up as a sole trader and I have been guided through the requirements needed to keep my accounts in order along with training on the FreeAgent software. Would highly recommend.",
     },
   },
 };

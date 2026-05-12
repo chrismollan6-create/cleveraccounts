@@ -115,7 +115,7 @@ export default function IR35Page() {
         </div>
 
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1440 80" fill="none" className="w-full h-auto">
+          <svg viewBox="0 0 1440 80" fill="none" preserveAspectRatio="none" className="w-full h-auto">
             <path d="M0,40 C480,80 960,0 1440,40 L1440,80 L0,80 Z" fill="white" />
           </svg>
         </div>
@@ -328,7 +328,7 @@ export default function IR35Page() {
         </div>
 
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full h-auto">
+          <svg viewBox="0 0 1440 60" fill="none" preserveAspectRatio="none" className="w-full h-auto">
             <path d="M0,30 C480,60 960,0 1440,30 L1440,60 L0,60 Z" fill="white" />
           </svg>
         </div>
@@ -473,7 +473,7 @@ export default function IR35Page() {
         </div>
 
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full h-auto">
+          <svg viewBox="0 0 1440 60" fill="none" preserveAspectRatio="none" className="w-full h-auto">
             <path d="M0,30 C480,60 960,0 1440,30 L1440,60 L0,60 Z" fill="white" />
           </svg>
         </div>
@@ -542,7 +542,7 @@ export default function IR35Page() {
           </div>
         </div>
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full h-auto">
+          <svg viewBox="0 0 1440 60" fill="none" preserveAspectRatio="none" className="w-full h-auto">
             <path d="M0,30 C480,60 960,0 1440,30 L1440,60 L0,60 Z" fill="white" />
           </svg>
         </div>

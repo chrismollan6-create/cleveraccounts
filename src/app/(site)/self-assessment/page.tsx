@@ -1,5 +1,6 @@
 "use client";
 
+import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -338,9 +339,9 @@ export default function SelfAssessmentPage() {
 
       {/* ── WAVE DIVIDER dark → white ─────────────────────────── */}
       <div className="bg-dark">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
             fill="white"
           />
         </svg>
@@ -367,7 +368,7 @@ export default function SelfAssessmentPage() {
               </p>
               <p className="text-text leading-relaxed mb-5">
                 You must register with HMRC by{" "}
-                <strong className="text-dark">5 October</strong> following the
+                <strong className="text-dark">5 October </strong> following the
                 end of the tax year in which you first need to file. If
                 you&apos;re newly self-employed or have recently started
                 receiving rental or investment income, don&apos;t delay.
@@ -406,10 +407,10 @@ export default function SelfAssessmentPage() {
 
       {/* ── WAVE DIVIDER white → surface ─────────────────────── */}
       <div className="bg-white">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
-            fill="rgb(var(--color-surface, 240 249 255))"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
+            fill="#F0F9FF"
           />
         </svg>
       </div>
@@ -451,9 +452,9 @@ export default function SelfAssessmentPage() {
 
       {/* ── WAVE DIVIDER surface → dark ──────────────────────── */}
       <div className="bg-surface">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
             fill="#0F172A"
           />
         </svg>
@@ -521,9 +522,9 @@ export default function SelfAssessmentPage() {
 
       {/* ── WAVE DIVIDER dark → white ─────────────────────────── */}
       <div className="bg-dark">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
             fill="white"
           />
         </svg>
@@ -564,7 +565,7 @@ export default function SelfAssessmentPage() {
       </section>
 
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="bg-surface py-16 md:py-24">
+      <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
@@ -575,39 +576,18 @@ export default function SelfAssessmentPage() {
               <span className="text-gradient">Say</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map(({ name, role, quote, rating }) => (
-              <div
-                key={name}
-                className="bg-white border border-border rounded-2xl shadow-sm card-hover p-6 flex flex-col"
-              >
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: rating }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className="text-secondary fill-secondary"
-                    />
-                  ))}
-                </div>
-                <p className="text-text leading-relaxed mb-6 flex-1">
-                  &ldquo;{quote}&rdquo;
-                </p>
-                <div>
-                  <p className="font-bold text-dark">{name}</p>
-                  <p className="text-text/60 text-sm">{role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-7xl mx-auto px-4">
+
+          <GoogleReviewsWidget />
+        </div>
         </div>
       </section>
 
       {/* ── WAVE DIVIDER surface → dark ──────────────────────── */}
       <div className="bg-surface">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
             fill="#0F172A"
           />
         </svg>
@@ -635,9 +615,9 @@ export default function SelfAssessmentPage() {
 
       {/* ── WAVE DIVIDER dark → orange CTA ───────────────────── */}
       <div className="bg-dark">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
             fill="rgb(234 88 12)"
           />
         </svg>
@@ -676,10 +656,10 @@ export default function SelfAssessmentPage() {
 
       {/* ── WAVE DIVIDER orange → surface ────────────────────── */}
       <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600">
-        <svg viewBox="0 0 1440 40" className="w-full block" aria-hidden="true">
+        <svg viewBox="0 0 1440 40" preserveAspectRatio="none" className="w-full block" aria-hidden="true">
           <path
-            d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z"
-            fill="rgb(var(--color-surface, 240 249 255))"
+            d="M0,20 C480,0 960,0 1440,20 L1440,40 L0,40 Z"
+            fill="#F0F9FF"
           />
         </svg>
       </div>

@@ -94,7 +94,7 @@ const fallbackFaqs = [
   { _id: "f1", question: "Are there any setup fees?", answer: "No. There are absolutely no setup fees when you join Clever Accounts. You can start enjoying pro-active accountancy support from day one, at no extra cost." },
   { _id: "f2", question: "Is there a minimum contract period?", answer: "No minimum contract, ever. You can cancel at any time. We want you to stay because we're brilliant — not because you're locked in." },
   { _id: "f3", question: "What's included in the monthly fee?", answer: "Everything. Your dedicated accountant, unlimited advice, all tax returns and filings, Companies House submissions, free FreeAgent accounting software, and a real-time financial dashboard. One fee, no surprises." },
-  { _id: "f4", question: "Is FreeAgent really included for free?", answer: "Yes — completely free with every plan. FreeAgent normally costs up to £29/month direct. With Clever Accounts it's included at no extra charge. We're a FreeAgent Platinum Partner." },
+  { _id: "f4", question: "Is FreeAgent really included for free?", answer: "Yes — completely free with every plan. FreeAgent normally costs up to £33/month direct. With Clever Accounts it's included at no extra charge. We're a FreeAgent Platinum Partner." },
   { _id: "f5", question: "Can I switch plans later?", answer: "Absolutely. If your business structure changes — say you move from sole trader to limited company — just speak to your accountant. We'll switch your plan and manage the transition for you." },
   { _id: "f6", question: "Do you offer bespoke pricing?", answer: "Yes. For businesses with more complex needs — multiple directors, larger payrolls, or international operations — we can put together a custom package. Get in touch for a quote." },
   { _id: "f7", question: "What happens when I sign up?", answer: "You'll be matched with a dedicated accountant within one business day. They'll book an onboarding call, set up your FreeAgent account, and handle any transfer from your previous accountant if needed." },
@@ -190,7 +190,7 @@ export default async function PricingPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -348,7 +348,7 @@ export default async function PricingPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>
@@ -368,7 +368,7 @@ export default async function PricingPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>

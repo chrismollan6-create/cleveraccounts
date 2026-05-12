@@ -31,6 +31,11 @@ const footerLinks = {
     { label: "Tax Returns", href: "/tax-returns" },
     { label: "Partner Services", href: "/partners" },
   ],
+  guides: [
+    { label: "IT Contractor Guide", href: "/it-contractor-accountant" },
+    { label: "Small Limited Company Guide", href: "/small-business-accountant" },
+    { label: "Switching Accountants Guide", href: "/switching-accountants" },
+  ],
 };
 
 export default function Footer() {
@@ -38,7 +43,7 @@ export default function Footer() {
     <footer className="bg-dark text-white">
       {/* Main footer */}
       <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
           {/* Brand column */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
@@ -60,7 +65,7 @@ export default function Footer() {
               </a>
               <div className="flex items-start gap-2 text-sm text-slate-300">
                 <MapPin size={16} className="text-primary mt-0.5" />
-                <span>Leeds & Watford, UK</span>
+                <span>Leeds, UK</span>
               </div>
             </div>
           </div>
@@ -98,6 +103,20 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Useful Links</h3>
             <ul className="space-y-2.5">
               {footerLinks.useful.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Guides */}
+          <div>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Guides</h3>
+            <ul className="space-y-2.5">
+              {footerLinks.guides.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
                     {link.label}

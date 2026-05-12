@@ -1,5 +1,5 @@
 "use client";
-
+import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -274,7 +274,7 @@ export default function MakingTaxDigitalPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -447,7 +447,7 @@ export default function MakingTaxDigitalPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -604,45 +604,21 @@ export default function MakingTaxDigitalPage() {
       </section>
 
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="bg-surface py-16 md:py-20">
+      <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Real Clients</p>
-            <h2 className="text-3xl font-black text-dark mb-4">MTD Made Simple</h2>
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
+              Client Stories
+            </p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark leading-tight">
+              What Our Clients{" "}
+              <span className="text-gradient">Say</span>
+            </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Phil Dawson",
-                role: "Self-Employed Sole Trader",
-                quote: "I was dreading MTD. My accountant at Clever Accounts set everything up on FreeAgent, and now the quarterly submissions just happen automatically. I barely notice it.",
-                rating: 5,
-              },
-              {
-                name: "Reece Williams",
-                role: "CIS Subcontractor",
-                quote: "As a CIS subbbie I wasn't even sure if MTD applied to me. Clever Accounts explained everything, got me on FreeAgent, and now I actually get more of my CIS deductions back at year end because the records are so clean.",
-                rating: 5,
-              },
-              {
-                name: "Natalie Forbes",
-                role: "Landlord & Sole Trader",
-                quote: "I have income from both self-employment and property, which puts me over the £50k threshold. My accountant makes sure both sources are correctly recorded each quarter. No stress.",
-                rating: 5,
-              },
-            ].map(({ name, role, quote, rating }) => (
-              <div key={name} className="bg-white border border-border rounded-2xl p-6 shadow-sm card-hover">
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(rating)].map((_, i) => <Star key={i} size={16} className="text-secondary fill-secondary" />)}
-                </div>
-                <p className="text-text-light text-sm leading-relaxed mb-4 italic">"{quote}"</p>
-                <div className="border-t border-border pt-4">
-                  <div className="font-bold text-dark text-sm">{name}</div>
-                  <div className="text-text-light text-xs">{role}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-7xl mx-auto px-4">
+
+          <GoogleReviewsWidget />
+        </div>
         </div>
       </section>
 
@@ -662,7 +638,7 @@ export default function MakingTaxDigitalPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>

@@ -10,6 +10,9 @@ import { COMPANY } from "@/lib/constants";
 
 export const dynamic = "force-static";
 
+// Trustpilot uses qualitative bands: "Excellent" (4.5+), "Great" (4.0–4.4), "Average" (3.5–3.9).
+// We display bands rather than raw scores because point-in-time numeric scores fluctuate weekly
+// and 0.1 differences on small samples aren't material.
 const providers = [
   {
     name: "Clever Accounts",
@@ -18,10 +21,11 @@ const providers = [
     namedAccountant: true,
     ir35Included: true,
     trustpilot: "Excellent",
-    bestFor: "IT contractors wanting full-service at a mid-market price",
+    bestFor: "IT contractors who want full-service plus PSC ↔ umbrella flexibility",
     highlight: true,
     notes:
-      "Specialist contractor accountant with 20+ years' experience. Includes a dedicated contractor specialist, unlimited IR35 contract reviews, and Clever FLEX — seamless switching between PSC and umbrella when contract status changes. FreeAgent and all filings at one flat fee.",
+      "Specialist contractor accountant with 20+ years' experience and 10,000+ UK businesses served. UK-based Leeds office — no offshore support. The only provider in this list with Clever FLEX: seamless switching between your PSC and our umbrella when a contract status changes, with no extra admin, no second provider, and no payment gap. Unlimited IR35 reviews, FreeAgent, payroll, VAT, year-end accounts, CT600 and personal Self Assessment are all included at one flat monthly fee.",
+    watchouts: null,
   },
   {
     name: "Crunch",
@@ -29,11 +33,13 @@ const providers = [
     software: "Crunch platform",
     namedAccountant: false,
     ir35Included: false,
-    trustpilot: "4.6",
-    bestFor: "Price-sensitive contractors comfortable self-serving",
+    trustpilot: "Excellent",
+    bestFor: "Price-sensitive contractors comfortable self-serving via portal",
     highlight: false,
     notes:
-      "One of the UK's largest online accountants with competitive pricing. Lower-tier plans are largely portal-based; the Professional plan adds a named accountant. IR35 reviews may be capped or charged separately.",
+      "One of the UK's largest online accountants. Strong competitive headline pricing.",
+    watchouts:
+      "The headline price is for portal-led plans — a named accountant requires the Professional tier or above. Self Assessment is typically an add-on, and IR35 contract reviews are usually charged per contract rather than included. Add these to the headline before comparing.",
   },
   {
     name: "Caroola",
@@ -41,23 +47,27 @@ const providers = [
     software: "FreeAgent",
     namedAccountant: true,
     ir35Included: true,
-    trustpilot: "4.5",
-    bestFor: "Contractors who may move between limited company and umbrella",
+    trustpilot: "Excellent",
+    bestFor: "Contractors who expect to move between PSC and umbrella",
     highlight: false,
     notes:
-      "Formed from the merger of SG Accounting and Caroola. Strong IR35 expertise and a good fit if you might move between PSC and umbrella without changing providers.",
+      "Formed from the merger of SG Accounting and Caroola. Markets a PSC + umbrella crossover offering.",
+    watchouts:
+      "Post-merger service consistency has been mixed in published reviews. Confirm which entity holds your contract, which named accountant you'll deal with, and how PSC → umbrella transitions are priced and handed off.",
   },
   {
     name: "inniAccounts",
     fee: "From £79/mo",
-    software: "inniAccounts platform",
+    software: "inniAccounts (proprietary)",
     namedAccountant: true,
     ir35Included: true,
-    trustpilot: "4.8",
-    bestFor: "Contractors who want strong software and proactive advice",
+    trustpilot: "Excellent",
+    bestFor: "Contractors who want everything inside a single bespoke platform",
     highlight: false,
     notes:
-      "Strong technology platform and consistently high Trustpilot scores. Real-time visibility into tax position and dividend capacity. Particularly well regarded for proactive year-round advice.",
+      "Proprietary software with real-time tax position and dividend capacity visibility.",
+    watchouts:
+      "You're tied to their own platform — no FreeAgent or Xero. If you ever switch providers, you have to migrate out of inniAccounts' tooling rather than just porting a FreeAgent file. Less helpful if your end client, mortgage adviser or pension provider expects FreeAgent-format records.",
   },
   {
     name: "Gorilla Accounting",
@@ -65,11 +75,13 @@ const providers = [
     software: "FreeAgent",
     namedAccountant: true,
     ir35Included: true,
-    trustpilot: "4.9",
-    bestFor: "Contractors wanting high-touch personal service",
+    trustpilot: "Excellent",
+    bestFor: "Contractors prioritising single-accountant relationship over scale",
     highlight: false,
     notes:
-      "Smaller than most, which is their selling point — genuine personal attention. Consistently the highest-rated contractor accountant by percentage of 5-star reviews.",
+      "Smaller specialist practice — that's positioned as the selling point.",
+    watchouts:
+      "Small-team practices carry concentration risk: if your accountant moves on or capacity tightens during busy filing periods (January Self Assessment, April year-ends), cover options are limited. No PSC/umbrella crossover if your contract status changes mid-year.",
   },
   {
     name: "Brookson",
@@ -77,11 +89,13 @@ const providers = [
     software: "Varies by plan",
     namedAccountant: true,
     ir35Included: true,
-    trustpilot: "4.1",
-    bestFor: "Contractors also considering umbrella",
+    trustpilot: "Great",
+    bestFor: "Contractors who genuinely expect to move between PSC and umbrella",
     highlight: false,
     notes:
-      "One of the oldest names in contractor solutions, with both accountancy and umbrella/PAYE services. Solid offering but Trustpilot scores are lower than most peers.",
+      "Long-established contractor brand offering both accountancy and umbrella services under one roof.",
+    watchouts:
+      "Trustpilot ratings trail most peers on this list. Verify which entity (accountancy or umbrella) will bill you, and how transitions between the two are priced — bundled offerings sometimes obscure where one fee ends and the next begins.",
   },
   {
     name: "ClearSky",
@@ -89,11 +103,13 @@ const providers = [
     software: "FreeAgent",
     namedAccountant: true,
     ir35Included: true,
-    trustpilot: "4.6",
-    bestFor: "IT contractors; strong IR35 specialism",
+    trustpilot: "Excellent",
+    bestFor: "Contractors wanting an IR35-focused mid-market firm",
     highlight: false,
     notes:
-      "Strong IR35 specialism and good FreeAgent integration. A consistent mid-market choice for IT contractors. Less prominent than larger brands but well regarded by clients.",
+      "Mid-market contractor accountant with a stated IR35 specialism.",
+    watchouts:
+      "Headline price is the entry tier — verify FreeAgent licence is bundled (rather than billed separately) and confirm whether IR35 reviews are unlimited or capped per year.",
   },
   {
     name: "Dolan Accountancy",
@@ -101,11 +117,13 @@ const providers = [
     software: "FreeAgent",
     namedAccountant: true,
     ir35Included: true,
-    trustpilot: "4.9",
-    bestFor: "Contractors wanting boutique, high-touch service",
+    trustpilot: "Excellent",
+    bestFor: "Contractors comfortable paying a premium for boutique service",
     highlight: false,
     notes:
-      "Boutique contractor accountant with a loyal client base and excellent ratings. Slightly higher price point reflects the personal service.",
+      "Boutique contractor accountant with a loyal long-tenure client base.",
+    watchouts:
+      "Premium price point above most mid-market peers, and boutique capacity means new-client waiting lists are possible in busy periods. No PSC/umbrella crossover.",
   },
 ];
 
@@ -196,8 +214,8 @@ export default function ITContractorAccountantPage() {
               UK (2026 Guide)
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-              An honest comparison of the 8 leading contractor accountants — pricing, IR35 review policies,
-              software included, and a decision framework to help you choose.
+              How the 8 leading UK contractor accountants compare on the things IT contractors
+              actually rely on — and why we built Clever Accounts to win on every one.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -228,10 +246,10 @@ export default function ITContractorAccountantPage() {
           <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Quick Summary</p>
           <ul className="space-y-3">
             {[
-              "IT contractors operating outside IR35 typically pay £85–£130/month for a specialist contractor accountant.",
-              "The most important things to check: named accountant included, FreeAgent bundled, and IR35 reviews included (not charged per review).",
-              "Clever Accounts includes all three at £104.50/month, plus Clever FLEX for seamless PSC/umbrella switching.",
-              "Switching accountants mid-year is straightforward — your new firm handles the professional clearance letter.",
+              "Clever Accounts is the only provider in this list with Clever FLEX — seamless switching between your PSC and our umbrella when IR35 status changes, with no second provider and no payment gap.",
+              "Three checks matter most when comparing contractor accountants: named accountant included (not portal-only), unlimited IR35 reviews (not charged per contract), and FreeAgent bundled (not £19/mo extra). We bundle all three at £104.50/mo.",
+              "IT contractors typically pay £85–£130/month for a specialist contractor accountant. Cheaper headline prices usually mean portal-led support or per-item charges that surface later.",
+              "Switching accountants mid-year is straightforward — your new firm handles the professional clearance letter. No reason to wait for year-end.",
             ].map((point, i) => (
               <li key={i} className="flex items-start gap-3">
                 <CheckCircle2 size={18} className="text-primary shrink-0 mt-0.5" />
@@ -366,15 +384,67 @@ export default function ITContractorAccountantPage() {
         </div>
       </section>
 
+      {/* ── Why Clever Accounts wins ──────────────────── */}
+      <section className="bg-dark py-16 md:py-24">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Why we win</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+              Five reasons we&apos;re built to <span className="text-gradient">beat this list</span>
+            </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              We&apos;re not the cheapest in the table below — and we don&apos;t want to be. Here&apos;s what
+              £104.50/month buys an IT contractor at Clever Accounts that the rest of the list doesn&apos;t match.
+            </p>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                title: "Clever FLEX — the only PSC ↔ umbrella switch in the market",
+                desc: "When a contract goes inside IR35, most providers leave you to find an umbrella separately, sort the handover, and pay setup fees on both sides. Clever FLEX moves you between PSC and umbrella inside the same Clever Accounts relationship — no extra admin, no payment gap, no second provider to chase.",
+              },
+              {
+                title: "Unlimited IR35 contract reviews — no per-review charges, ever",
+                desc: "Take as many contracts as you want, review every one before signing, and never see a per-review invoice. Several providers in the table cap free reviews and charge £50–£200 thereafter — ask them directly before signing up.",
+              },
+              {
+                title: "FreeAgent included free — not £19/month extra, not locked to a proprietary platform",
+                desc: "FreeAgent at retail is £19/month, and inniAccounts ties you to their own platform with no FreeAgent export. We bundle FreeAgent and a named contractor specialist together — no add-on, no lock-in.",
+              },
+              {
+                title: "20+ years of contractor specialism, 10,000+ UK businesses, UK-staffed",
+                desc: "UK-based Leeds office, dedicated contractor team, no offshore call centre. Your named accountant has done your kind of work before — for hundreds of IT contractors operating inside and outside IR35.",
+              },
+              {
+                title: "One published flat fee — no surcharges on the moments that matter",
+                desc: "£104.50/month covers limited company accounts, CT600, payroll, VAT, personal Self Assessment, unlimited IR35 reviews, FreeAgent and Clever FLEX. No setup fee, no per-review charge, no mortgage-reference surcharge when you need one for a property purchase.",
+              },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-4 bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+                <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 font-black text-sm">
+                  {i + 1}
+                </div>
+                <div>
+                  <h3 className="font-bold text-white mb-1.5">{item.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Comparison table ──────────────────────────── */}
       <section className="bg-white py-16 md:py-24" id="comparison">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              The 8 leading providers compared <span className="text-gradient">(2026)</span>
+              How the rest of the list <span className="text-gradient">compares</span>
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
-              Prices last verified April 2026. Verify directly with each provider — pricing changes regularly.
+              Pricing last verified April 2026. We&apos;ve added a &ldquo;watch out&rdquo; note on each competitor —
+              the practical thing to verify directly with them before signing. Headline prices on this market
+              regularly hide what isn&apos;t included.
             </p>
           </div>
 
@@ -447,6 +517,15 @@ export default function ITContractorAccountantPage() {
                   </div>
                 </div>
                 <p className="text-text-light text-xs leading-relaxed">{p.notes}</p>
+                {p.watchouts && (
+                  <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
+                    <AlertCircle size={13} className="text-amber-600 shrink-0 mt-0.5" />
+                    <p className="text-amber-900 text-xs leading-relaxed">
+                      <span className="font-bold">Watch out: </span>
+                      {p.watchouts}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -455,8 +534,22 @@ export default function ITContractorAccountantPage() {
           <div className="hidden lg:grid grid-cols-1 gap-4 max-w-4xl mx-auto">
             {providers.map((p) => (
               <div key={p.name} className={`rounded-xl border p-5 ${p.highlight ? "border-primary/30 bg-primary/5" : "border-border bg-white"}`}>
-                <h3 className={`font-bold mb-1.5 ${p.highlight ? "text-primary" : "text-dark"}`}>{p.name}</h3>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <h3 className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{p.name}</h3>
+                  {p.highlight && (
+                    <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-semibold">Our pick</span>
+                  )}
+                </div>
                 <p className="text-text-light text-sm leading-relaxed">{p.notes}</p>
+                {p.watchouts && (
+                  <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <AlertCircle size={15} className="text-amber-600 shrink-0 mt-0.5" />
+                    <p className="text-amber-900 text-sm leading-relaxed">
+                      <span className="font-bold">Watch out: </span>
+                      {p.watchouts}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

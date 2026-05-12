@@ -284,7 +284,7 @@ export default function SwitchAccountantPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -445,7 +445,7 @@ export default function SwitchAccountantPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>
@@ -518,7 +518,7 @@ export default function SwitchAccountantPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>

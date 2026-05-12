@@ -22,7 +22,7 @@ import { COMPANY } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "About Clever Accounts — 20 Years of Online Accounting | Clever Accounts",
   description:
-    "Clever Accounts has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds & Watford based.",
+    "Clever Accounts has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds based.",
 };
 
 const values = [
@@ -59,13 +59,12 @@ const whyUs = [
   "MTD-compliant from day one",
   "Open banking with 25+ UK banks",
   "Real-time financial dashboard on any device",
-  "Leeds and Watford offices",
+  "UK-based Leeds office",
   "20+ years UK accounting experience",
 ];
 
 const timeline = [
   { year: "2004", event: "Founded in Leeds with a simple mission: make accounting accessible and affordable for every UK business." },
-  { year: "2010", event: "Expanded to Watford, extending our reach across the UK with local expertise in two key business centres." },
   { year: "2015", event: "Became an early adopter of cloud accounting, partnering with FreeAgent to give clients real-time visibility of their finances." },
   { year: "2019", event: "Achieved FreeAgent Platinum Partner status — the highest tier — reflecting our depth of expertise and client volume." },
   { year: "2022", event: "Passed 10,000 active business clients. Led our clients through the MTD for VAT rollout with zero disruption." },
@@ -124,7 +123,7 @@ export default function AboutPage() {
                 <div className="flex items-center gap-3">
                   <MapPin size={16} className="text-white/40 shrink-0" />
                   <div>
-                    <div className="text-white/70 text-sm font-semibold">Leeds & Watford</div>
+                    <div className="text-white/70 text-sm font-semibold">Leeds</div>
                     <div className="text-white/40 text-xs">Serving businesses across the UK</div>
                   </div>
                 </div>
@@ -134,7 +133,7 @@ export default function AboutPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -160,7 +159,7 @@ export default function AboutPage() {
                   So we built something in between — and better. Expert, dedicated accountants. Powerful cloud software included free. A fixed monthly price with no surprises.
                 </p>
                 <p>
-                  Today we serve over 10,000 businesses across the UK from our offices in Leeds and Watford. We're specialists in sole trader, limited company, contractor, and landlord accounting — and we've been preparing our clients for Making Tax Digital long before it became mandatory.
+                  Today we serve over 10,000 businesses across the UK from our offices in Leeds. We're specialists in sole trader, limited company, contractor, and landlord accounting — and we've been preparing our clients for Making Tax Digital long before it became mandatory.
                 </p>
               </div>
             </div>
@@ -235,40 +234,12 @@ export default function AboutPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>
       </section>
 
-      {/* ── OFFICES ──────────────────────────────────────────── */}
-      <section className="bg-surface py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Where We Are</p>
-            <h2 className="text-3xl font-black text-dark mb-4">Our Offices</h2>
-            <p className="text-text-light max-w-xl mx-auto">Based in Yorkshire and the Home Counties, serving businesses across the whole of the UK.</p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {COMPANY.offices.map((office) => (
-              <div key={office.city} className="bg-white border border-border rounded-2xl p-7 shadow-sm card-hover">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
-                  <Building2 size={24} />
-                </div>
-                <h3 className="font-black text-dark text-xl mb-1">{office.city}</h3>
-                <p className="text-text-light text-sm flex items-center gap-2">
-                  <MapPin size={14} className="shrink-0" /> {office.address}
-                </p>
-                <div className="mt-4 pt-4 border-t border-border">
-                  <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="text-primary font-semibold text-sm flex items-center gap-2 hover:text-primary/80 transition-colors">
-                    <Phone size={14} /> {COMPANY.phone}
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── TESTIMONIAL ──────────────────────────────────────── */}
       <section className="bg-white py-12">

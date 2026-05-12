@@ -1,5 +1,5 @@
 "use client";
-
+import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -324,7 +324,7 @@ export default function VATReturnsPage() {
                     VAT included in packages from
                   </p>
                   <p className="text-white font-black text-2xl">
-                    £42.50
+                    £60.00
                     <span className="text-white/50 text-sm font-normal">
                       /month
                     </span>
@@ -340,6 +340,7 @@ export default function VATReturnsPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -473,12 +474,13 @@ export default function VATReturnsPage() {
         <svg
           viewBox="0 0 1440 40"
           fill="none"
+          preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-10 absolute bottom-0"
         >
           <path
             d="M0,20 C360,0 1080,40 1440,20 L1440,40 L0,40 Z"
-            fill="var(--color-surface, #F8FAFC)"
+            fill="#F0F9FF"
           />
         </svg>
       </div>
@@ -576,6 +578,7 @@ export default function VATReturnsPage() {
         <svg
           viewBox="0 0 1440 40"
           fill="none"
+          preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-10 absolute bottom-0"
         >
@@ -625,22 +628,23 @@ export default function VATReturnsPage() {
             })}
           </div>
         </div>
-
-        {/* Wave divider — dark to white */}
-        <div className="relative mt-16 overflow-hidden h-10">
-          <svg
-            viewBox="0 0 1440 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-10"
-          >
-            <path
-              d="M0,20 C360,0 1080,40 1440,20 L1440,40 L0,40 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
+
+      {/* Wave divider — dark to white */}
+      <div className="relative overflow-hidden bg-dark h-10">
+        <svg
+          viewBox="0 0 1440 40"
+          fill="none"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-10 absolute bottom-0"
+        >
+          <path
+            d="M0,20 C360,0 1080,40 1440,20 L1440,40 L0,40 Z"
+            fill="white"
+          />
+        </svg>
+      </div>
 
       {/* ── MTD FOR VAT CALLOUT ──────────────────────────────── */}
       <section className="bg-white py-16 md:py-20">
@@ -759,37 +763,17 @@ export default function VATReturnsPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-              What Our Clients Say
+              Client Stories
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-dark leading-tight">
-              VAT Made Simple for Real Businesses
+              What Our Clients{" "}
+              <span className="text-gradient">Say</span>
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="bg-white border border-border rounded-2xl shadow-sm card-hover p-7"
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className="text-secondary fill-secondary"
-                    />
-                  ))}
-                </div>
-                <p className="text-text leading-relaxed mb-5 italic">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div>
-                  <p className="font-black text-dark">{t.name}</p>
-                  <p className="text-text-light text-sm">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-7xl mx-auto px-4">
+
+          <GoogleReviewsWidget />
+        </div>
         </div>
       </section>
 
@@ -826,7 +810,7 @@ export default function VATReturnsPage() {
               Join thousands of UK businesses who trust {COMPANY.name} with
               their accounts. VAT registration, quarterly returns, MTD
               compliance — all handled from{" "}
-              <strong className="text-white">£42.50/month</strong>.
+              <strong className="text-white">£60.00/month</strong>.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

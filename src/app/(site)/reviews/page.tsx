@@ -145,7 +145,7 @@ export default async function ReviewsPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>
@@ -171,48 +171,7 @@ export default async function ReviewsPage() {
         </div>
       </section>
 
-      {/* ── REVIEWS GRID ─────────────────────────────────────── */}
-      <section className="bg-surface py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {reviews.map((review, i) => (
-              <div
-                key={i}
-                className="bg-white border border-border rounded-2xl p-6 card-hover relative overflow-hidden flex flex-col"
-              >
-                {/* Background quote mark */}
-                <Quote
-                  size={64}
-                  className="absolute -top-2 -right-2 text-border opacity-60"
-                />
 
-                {/* Stars */}
-                <div className="flex gap-0.5 mb-4 relative">
-                  {[...Array(review.rating)].map((_, j) => (
-                    <Star key={j} size={15} className="fill-secondary text-secondary" />
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <p className="text-sm text-text leading-relaxed mb-6 flex-1 relative">
-                  &ldquo;{review.quote}&rdquo;
-                </p>
-
-                {/* Author */}
-                <div className="flex items-center gap-3 border-t border-border pt-4">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarColours[i % avatarColours.length]} flex items-center justify-center text-white text-xs font-black shrink-0`}>
-                    {review.name.split(" ").map((n: string) => n[0]).join("")}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-dark leading-tight">{review.name}</p>
-                    <p className="text-xs text-text-light">{review.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── GOOGLE REVIEWS WIDGET ────────────────────────────── */}
       <section className="bg-white py-16 border-b border-border">

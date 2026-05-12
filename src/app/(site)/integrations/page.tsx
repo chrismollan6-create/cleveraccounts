@@ -237,7 +237,7 @@ export default function IntegrationsPage() {
                 practices.
               </p>
               <p className="text-text/70 leading-relaxed mb-6">
-                FreeAgent normally costs up to £19/month. With Clever Accounts,
+                FreeAgent normally costs up to £33/month. With Clever Accounts,
                 it&apos;s completely free — included as standard in every
                 package, for as long as you&apos;re a client.
               </p>

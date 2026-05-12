@@ -398,14 +398,15 @@ export default function CisAccountingPage() {
         </div>
 
         {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
+        <div className="absolute bottom-0 left-0 right-0 leading-none">
           <svg
-            viewBox="0 0 1440 40"
+            viewBox="0 0 1440 60"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-10"
+            className="w-full h-12 md:h-16 block"
           >
-            <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
+            <path d="M0,60 C360,0 1080,0 1440,60 L1440,60 L0,60 Z" fill="white" />
           </svg>
         </div>
       </section>
@@ -492,6 +493,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -621,6 +623,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -672,6 +675,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -788,6 +792,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -861,6 +866,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -910,6 +916,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -949,6 +956,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >
@@ -1000,6 +1008,7 @@ export default function CisAccountingPage() {
           <svg
             viewBox="0 0 1440 40"
             fill="none"
+            preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             className="w-full h-10"
           >

@@ -206,7 +206,7 @@ function WaveDivider({ fromDark, flip = false }: { fromDark: boolean; flip?: boo
   const fill = fromDark ? "#F0F9FF" : "#0F172A";
   return (
     <div className={`leading-none ${flip ? "rotate-180" : ""}`} style={{ marginBottom: "-2px" }}>
-      <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+      <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
         <path
           d="M0,32 C360,56 1080,8 1440,32 L1440,56 L0,56 Z"
           fill={fill}
@@ -220,7 +220,7 @@ function WaveDividerSurface({ fromDark }: { fromDark: boolean }) {
   const fill = fromDark ? "#ffffff" : "#0F172A";
   return (
     <div className="leading-none" style={{ marginBottom: "-2px" }}>
-      <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+      <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
         <path
           d="M0,32 C360,56 1080,8 1440,32 L1440,56 L0,56 Z"
           fill={fill}
@@ -284,7 +284,7 @@ export default function TaxDeadlinesPage() {
 
         {/* Wave out of hero into white */}
         <div className="absolute bottom-0 left-0 right-0 leading-none">
-          <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+          <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
             <path d="M0,32 C360,56 1080,8 1440,32 L1440,56 L0,56 Z" fill="#ffffff" />
           </svg>
         </div>
@@ -360,7 +360,7 @@ export default function TaxDeadlinesPage() {
 
       {/* Wave into surface */}
       <div className="bg-white leading-none">
-        <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+        <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
           <path d="M0,24 C480,56 960,0 1440,24 L1440,56 L0,56 Z" fill="#F0F9FF" />
         </svg>
       </div>
@@ -434,7 +434,7 @@ export default function TaxDeadlinesPage() {
 
       {/* Wave into dark */}
       <div className="bg-surface leading-none">
-        <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+        <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
           <path d="M0,24 C480,0 960,56 1440,24 L1440,56 L0,56 Z" fill="#0F172A" />
         </svg>
       </div>
@@ -519,7 +519,7 @@ export default function TaxDeadlinesPage() {
 
       {/* Wave into white */}
       <div className="bg-dark leading-none">
-        <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+        <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
           <path d="M0,32 C360,56 1080,8 1440,32 L1440,56 L0,56 Z" fill="#ffffff" />
         </svg>
       </div>
@@ -580,7 +580,7 @@ export default function TaxDeadlinesPage() {
 
       {/* Wave into surface */}
       <div className="bg-white leading-none">
-        <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+        <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
           <path d="M0,24 C480,56 960,0 1440,24 L1440,56 L0,56 Z" fill="#F0F9FF" />
         </svg>
       </div>
@@ -655,7 +655,7 @@ export default function TaxDeadlinesPage() {
 
       {/* Wave into dark */}
       <div className="bg-surface leading-none">
-        <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+        <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
           <path d="M0,24 C480,0 960,56 1440,24 L1440,56 L0,56 Z" fill="#0F172A" />
         </svg>
       </div>
@@ -719,7 +719,7 @@ export default function TaxDeadlinesPage() {
 
       {/* Wave into orange CTA */}
       <div className="bg-dark leading-none">
-        <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+        <svg viewBox="0 0 1440 56" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
           <path d="M0,32 C360,56 1080,8 1440,32 L1440,56 L0,56 Z" fill="#F97316" />
         </svg>
       </div>

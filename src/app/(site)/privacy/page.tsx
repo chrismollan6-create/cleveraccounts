@@ -200,8 +200,8 @@ export default function PrivacyPolicyPage() {
               For any questions or concerns regarding your privacy, you may contact us using the following details:
             </p>
             <p className="text-text-light text-sm mt-2">Chris Mollan</p>
-            <Link href="/contact-us" className="text-primary hover:underline text-sm">
-              https://cleveraccounts.com/contact-us
+            <Link href="/contact" className="text-primary hover:underline text-sm">
+              https://cleveraccounts.com/contact
             </Link>
           </div>
         </div>
