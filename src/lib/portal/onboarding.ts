@@ -60,9 +60,23 @@ export const getOnboardingForCurrentUser = cache(async function (): Promise<Onbo
       .limit(1);
 
     if (active.length === 0) return null;
-    // `raw` is the verbatim Apex PortalOnboardingStatus DTO — same shape
-    // as the TypeScript type. Cast and return.
-    return active[0].raw as PortalOnboardingStatus;
+
+    // The cached `raw` column carries the Apex snapshot envelope, which
+    // for New_Client_Workflow__c historically wrapped the
+    // PortalOnboardingStatus DTO under its own `raw` key (so we end up
+    // with raw.raw being the real DTO). The sync-handler fix lands at
+    // the same time as this commit so future syncs store the DTO
+    // directly — keep this defensive unwrap so:
+    //   (a) rows synced before the fix still render
+    //   (b) any future double-wrap regressions don't silently break
+    const cached = active[0].raw as Record<string, unknown> | null;
+    if (!cached) return null;
+    const inner = (cached as { raw?: unknown }).raw;
+    const dto =
+      inner && typeof inner === "object" && "workflowId" in (inner as Record<string, unknown>)
+        ? (inner as PortalOnboardingStatus)
+        : (cached as unknown as PortalOnboardingStatus);
+    return dto;
   });
 
   if (scoped.ok === false) {

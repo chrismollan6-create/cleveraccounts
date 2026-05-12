@@ -302,6 +302,14 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
       return;
     }
     case "New_Client_Workflow__c": {
+      // The Apex snapshot endpoint returns an envelope:
+      //   { sfId, accountSfId, currentStage, ..., raw: <full PortalOnboardingStatus DTO> }
+      // We use the envelope's flat fields for our explicit columns AND store
+      // the nested DTO (s.raw) as the cache row's raw jsonb so reads can
+      // unwrap it directly into PortalOnboardingStatus. Storing the whole
+      // envelope as raw would double-wrap and the dashboard would see
+      // undefined for stages/accountant/tasks.
+      const dto = (s as { raw?: unknown }).raw ?? s;
       await db
         .insert(schema.workflows)
         .values({
@@ -312,7 +320,7 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
           blockedOn: (s.blockedOn as string) ?? "nobody",
           slaStatus: (s.slaStatus as string) ?? "on_track",
           signedOffAt: parseDate(s.signedOffAt),
-          raw: s,
+          raw: dto as Record<string, unknown>,
         })
         .onConflictDoUpdate({
           target: schema.workflows.sfId,
@@ -324,7 +332,7 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
             slaStatus: (s.slaStatus as string) ?? "on_track",
             signedOffAt: parseDate(s.signedOffAt),
             updatedAt: new Date(),
-            raw: s,
+            raw: dto as Record<string, unknown>,
           },
         });
       return;
