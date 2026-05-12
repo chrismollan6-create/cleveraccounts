@@ -36,6 +36,7 @@ export const NAV_LINKS = [
           { label: "Sole Trader", href: "/sole-trader" },
           { label: "Limited Company", href: "/limited-company" },
           { label: "Contractor", href: "/contractor-accountancy" },
+          { label: "Freelancer", href: "/freelancer-accountancy" },
           { label: "Landlord", href: "/landlord-accounting" },
           { label: "Startups", href: "/accounting-for-startups" },
           { label: "CIS / Construction", href: "/cis-accounting" },

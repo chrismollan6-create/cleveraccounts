@@ -3,38 +3,49 @@ import Image from "next/image";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
 
+// Footer columns mirror the top nav structure so the two stay in sync.
+// "Who We Help" + "Specialist Services" exactly match the Services dropdown
+// in the header. "Guides" is footer-only (educational/SEO content). "Company"
+// contains site-wide utility pages (About, Pricing, Compare, FAQ etc.) plus
+// the standalone top-level nav items (How It Works, Blog, Contact).
 const footerLinks = {
-  services: [
+  whoWeHelp: [
     { label: "Sole Trader", href: "/sole-trader" },
     { label: "Limited Company", href: "/limited-company" },
     { label: "Contractor", href: "/contractor-accountancy" },
     { label: "Freelancer", href: "/freelancer-accountancy" },
     { label: "Landlord", href: "/landlord-accounting" },
     { label: "Startups", href: "/accounting-for-startups" },
+    { label: "CIS / Construction", href: "/cis-accounting" },
+    { label: "Ecommerce", href: "/ecommerce-accounting" },
+  ],
+  specialistServices: [
     { label: "IR35 Specialist", href: "/contractor-accountants/ir35" },
-  ],
-  company: [
-    { label: "About Us", href: "/about-us" },
-    { label: "How It Works", href: "/how-it-works" },
-    { label: "Reviews", href: "/reviews" },
-    { label: "Blog", href: "/blog" },
-    { label: "FAQ", href: "/faq" },
-    { label: "Contact", href: "/contact" },
-  ],
-  useful: [
-    { label: "Pricing", href: "/pricing" },
-    { label: "Accounting Software", href: "/our-services/accounting-software" },
-    { label: "Switch Accountant", href: "/our-services/accountant-switch" },
-    { label: "Compare", href: "/compare" },
+    { label: "Self Assessment", href: "/self-assessment" },
     { label: "VAT Returns", href: "/vat-returns" },
     { label: "Payroll Services", href: "/payroll-services" },
     { label: "Tax Returns", href: "/tax-returns" },
+    { label: "Making Tax Digital", href: "/making-tax-digital" },
+    { label: "Accounting Software", href: "/our-services/accounting-software" },
+    { label: "Switch Accountant", href: "/our-services/accountant-switch" },
+    { label: "Take Home Calculator", href: "/take-home-calculator" },
+    { label: "Integrations", href: "/integrations" },
     { label: "Partner Services", href: "/partners" },
   ],
   guides: [
     { label: "IT Contractor Guide", href: "/it-contractor-accountant" },
     { label: "Small Limited Company Guide", href: "/small-business-accountant" },
     { label: "Switching Accountants Guide", href: "/switching-accountants" },
+  ],
+  company: [
+    { label: "About Us", href: "/about-us" },
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Compare", href: "/compare" },
+    { label: "Reviews", href: "/reviews" },
+    { label: "Blog", href: "/blog" },
+    { label: "FAQ", href: "/faq" },
+    { label: "Contact", href: "/contact" },
   ],
 };
 
@@ -59,10 +70,7 @@ export default function Footer() {
                 <Phone size={16} className="text-primary" />
                 {COMPANY.phone}
               </a>
-              <a href={`mailto:${COMPANY.email}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
-                <Mail size={16} className="text-primary" />
-                {COMPANY.email}
-              </a>
+
               <div className="flex items-start gap-2 text-sm text-slate-300">
                 <MapPin size={16} className="text-primary mt-0.5" />
                 <span>Leeds, UK</span>
@@ -70,11 +78,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Services */}
+          {/* Who We Help — mirrors top nav */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Services</h3>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Who We Help</h3>
             <ul className="space-y-2.5">
-              {footerLinks.services.map((link) => (
+              {footerLinks.whoWeHelp.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
                     {link.label}
@@ -84,11 +92,11 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Specialist Services — mirrors top nav + footer-only service pages */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h3>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Specialist Services</h3>
             <ul className="space-y-2.5">
-              {footerLinks.company.map((link) => (
+              {footerLinks.specialistServices.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
                     {link.label}
@@ -98,25 +106,25 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Useful Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Useful Links</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.useful.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Guides */}
+          {/* Guides — educational / SEO content (footer only) */}
           <div>
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Guides</h3>
             <ul className="space-y-2.5">
               {footerLinks.guides.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company — site-wide utility pages */}
+          <div>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h3>
+            <ul className="space-y-2.5">
+              {footerLinks.company.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
                     {link.label}

@@ -1,94 +1,368 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, X } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  X,
+  UserCheck,
+  MessageCircle,
+  Zap,
+  BarChart2,
+  FileText,
+  Building2,
+  BadgeCheck,
+  ShieldCheck,
+  Shield,
+  Smartphone,
+  Receipt,
+  TrendingUp,
+  Users,
+  Phone,
+  Sparkles,
+} from "lucide-react";
+import { COMPANY } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Compare Clever Accounts",
-  description: "Compare Clever Accounts vs local accountants vs DIY accounting. See why 10,000+ businesses choose Clever Accounts.",
+  title: "Compare Clever Accounts vs Local Accountants vs DIY Software | Clever Accounts",
+  description:
+    "How Clever Accounts compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance. See why 10,000+ UK businesses chose us.",
 };
 
-const rows = [
-  { feature: "Dedicated named accountant", clever: true, local: true, diy: false },
-  { feature: "Unlimited advice included", clever: true, local: false, diy: false },
-  { feature: "Free accounting software", clever: true, local: false, diy: false },
-  { feature: "Real-time financial dashboard", clever: true, local: false, diy: true },
-  { feature: "All tax returns & filings", clever: true, local: true, diy: false },
-  { feature: "Open banking (25+ banks)", clever: true, local: false, diy: true },
-  { feature: "No setup fees", clever: true, local: false, diy: true },
-  { feature: "No minimum contract", clever: true, local: false, diy: true },
-  { feature: "IR35 support & contract reviews", clever: true, local: false, diy: false },
-  { feature: "Mobile app access", clever: true, local: false, diy: true },
-  { feature: "Invoice creation & tracking", clever: true, local: false, diy: true },
-  { feature: "MTD compliant", clever: true, local: true, diy: false },
-  { feature: "Proactive tax planning", clever: true, local: "Varies", diy: false },
-  { feature: "Payroll included", clever: true, local: "Extra cost", diy: false },
-  { feature: "Average monthly cost", clever: "From £42.50", local: "£100-300+", diy: "£15-50 (software only)" },
+type CellValue = boolean | string;
+
+interface Row {
+  feature: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  clever: CellValue;
+  local: CellValue;
+  diy: CellValue;
+}
+
+const featureRows: Row[] = [
+  { feature: "Dedicated named accountant",       icon: UserCheck,    clever: true, local: true,         diy: false },
+  { feature: "Unlimited advice included",        icon: MessageCircle, clever: true, local: false,        diy: false },
+  { feature: "FreeAgent included free",          icon: Zap,          clever: true, local: false,        diy: false },
+  { feature: "Real-time financial dashboard",    icon: BarChart2,    clever: true, local: false,        diy: true },
+  { feature: "All tax returns & filings",        icon: FileText,     clever: true, local: true,         diy: false },
+  { feature: "Open banking (25+ UK banks)",      icon: Building2,    clever: true, local: false,        diy: true },
+  { feature: "No setup fees",                    icon: BadgeCheck,   clever: true, local: false,        diy: true },
+  { feature: "No minimum contract",              icon: ShieldCheck,  clever: true, local: false,        diy: true },
+  { feature: "IR35 support & contract reviews",  icon: Shield,       clever: true, local: false,        diy: false },
+  { feature: "Mobile app access",                icon: Smartphone,   clever: true, local: false,        diy: true },
+  { feature: "Invoice creation & tracking",      icon: Receipt,      clever: true, local: false,        diy: true },
+  { feature: "MTD compliant",                    icon: CheckCircle2, clever: true, local: true,         diy: false },
+  { feature: "Proactive tax planning",           icon: TrendingUp,   clever: true, local: "Varies",     diy: false },
+  { feature: "Payroll included",                 icon: Users,        clever: true, local: "Extra cost", diy: false },
 ];
 
-function Cell({ value }: { value: boolean | string }) {
-  if (value === true) return <CheckCircle2 size={20} className="text-success mx-auto" />;
-  if (value === false) return <X size={20} className="text-red-400 mx-auto" />;
-  return <span className="text-sm text-text">{value}</span>;
+const pricing = {
+  clever: "From £42.50/mo",
+  local: "£100–£300+/mo",
+  diy: "£15–£50/mo (software only)",
+};
+
+// Differentiator content shown under the table — turns checkmarks into a story
+const differentiators = [
+  {
+    title: "A named accountant — not a portal",
+    icon: UserCheck,
+    desc: "When you call us, you reach your dedicated accountant who already knows your business — not a generic call centre or a chatbot triaging a ticket queue. Local high-street firms offer this too, but typically at 2–3× the cost. DIY software doesn't offer it at all.",
+  },
+  {
+    title: "Unlimited advice — not pay-per-call",
+    icon: MessageCircle,
+    desc: "Ring as often as you need. Email a question at 11am, get a reply by lunch. There's no meter ticking, no surprise invoice for a quick chat. Traditional firms often bill by the hour and DIY software has no advice channel at all.",
+  },
+  {
+    title: "FreeAgent included free — £19/mo saved",
+    icon: Zap,
+    desc: "FreeAgent retail is £19/month. We bundle it. You get HMRC-recognised MTD-compliant software with full bank feeds, invoicing, expenses, and your accountant working in the same system — no separate logins, no monthly software bill.",
+  },
+  {
+    title: "One flat fee — no surprises",
+    icon: BadgeCheck,
+    desc: "What you pay is what's on the pricing page. Tax returns, payroll, VAT, IR35 reviews, mortgage reference letters — all included. No setup fees, no per-call charges, no &ldquo;you-went-over-your-allowance&rdquo; invoices in February.",
+  },
+];
+
+function Cell({ value, highlight = false }: { value: CellValue; highlight?: boolean }) {
+  if (value === true)
+    return <CheckCircle2 size={22} className={`mx-auto ${highlight ? "text-primary" : "text-success"}`} />;
+  if (value === false) return <X size={22} className="text-red-400 mx-auto" />;
+  return <span className="text-sm font-semibold text-text">{value}</span>;
 }
 
 export default function ComparePage() {
   return (
     <>
-      <section className="gradient-hero-subtle py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4">Why Choose Clever Accounts?</h1>
-          <p className="text-lg text-text-light max-w-2xl mx-auto">
-            See how we compare to traditional accountants and DIY software.
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-dark py-20 md:py-28">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-3xl animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
+        </div>
+        <div className="relative max-w-5xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-6">
+            <Sparkles size={15} />
+            Why 10,000+ UK businesses chose Clever Accounts
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
+            Compare. <span className="text-gradient">Don&apos;t settle.</span>
+          </h1>
+          <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
+            How we stack up against the traditional local accountant and DIY accounting
+            software — across the things that actually matter when you&apos;re running a UK business.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition-all shadow-lg"
+            >
+              Get Started — From £42.50/mo <ArrowRight size={20} />
+            </Link>
+            <a
+              href="#comparison"
+              className="inline-flex items-center justify-center gap-2 border-2 border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all"
+            >
+              See the comparison
+            </a>
+          </div>
+        </div>
+
+        {/* Wave divider — dark to white */}
+        <div className="absolute bottom-0 left-0 right-0 leading-none">
+          <svg
+            viewBox="0 0 1440 60"
+            fill="none"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-12 md:h-16 block"
+          >
+            <path d="M0,60 C360,0 1080,0 1440,60 L1440,60 L0,60 Z" fill="white" />
+          </svg>
         </div>
       </section>
 
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+      {/* ── COMPARISON TABLE ─────────────────────────────────── */}
+      <section id="comparison" className="bg-white py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
+              Side-by-Side
+            </p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
+              Three ways to handle your accounting — only one keeps everything in one place
+            </h2>
+            <p className="text-text-light max-w-2xl mx-auto">
+              You can hire a local high-street firm, you can run your own books in DIY software,
+              or you can use us. Here&apos;s what each looks like.
+            </p>
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block rounded-2xl overflow-hidden border border-border shadow-sm">
+            <table className="w-full">
               <thead>
-                <tr>
-                  <th className="text-left p-4 text-sm font-medium text-text-light w-1/3">Feature</th>
-                  <th className="p-4 text-center w-[22%]">
-                    <div className="bg-primary/10 rounded-xl p-3">
-                      <div className="font-bold text-primary text-sm">Clever Accounts</div>
+                <tr className="bg-surface">
+                  <th className="text-left px-6 py-5 text-sm font-bold text-text-light w-[34%]">Feature</th>
+                  <th className="px-4 py-5 w-[22%]">
+                    <div className="bg-primary text-white rounded-xl py-3 px-3 shadow-sm relative">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow">
+                        Recommended
+                      </div>
+                      <div className="font-black text-base mt-1">Clever Accounts</div>
+                      <div className="text-white/80 text-xs mt-0.5">From £42.50/mo</div>
                     </div>
                   </th>
-                  <th className="p-4 text-center w-[22%]">
-                    <div className="bg-surface rounded-xl p-3">
-                      <div className="font-bold text-text text-sm">Local Accountant</div>
+                  <th className="px-4 py-5 w-[22%]">
+                    <div className="bg-white border border-border rounded-xl py-3 px-3">
+                      <div className="font-bold text-dark text-base">Local Accountant</div>
+                      <div className="text-text-light text-xs mt-0.5">£100–£300+/mo</div>
                     </div>
                   </th>
-                  <th className="p-4 text-center w-[22%]">
-                    <div className="bg-surface rounded-xl p-3">
-                      <div className="font-bold text-text text-sm">DIY Software</div>
+                  <th className="px-4 py-5 w-[22%]">
+                    <div className="bg-white border border-border rounded-xl py-3 px-3">
+                      <div className="font-bold text-dark text-base">DIY Software</div>
+                      <div className="text-text-light text-xs mt-0.5">£15–£50/mo (software only)</div>
                     </div>
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                {rows.map((row, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-surface/50" : ""}>
-                    <td className="p-4 text-sm font-medium text-dark">{row.feature}</td>
-                    <td className="p-4 text-center"><Cell value={row.clever} /></td>
-                    <td className="p-4 text-center"><Cell value={row.local} /></td>
-                    <td className="p-4 text-center"><Cell value={row.diy} /></td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-border">
+                {featureRows.map((row, i) => {
+                  const Icon = row.icon;
+                  return (
+                    <tr key={i} className={i % 2 === 0 ? "bg-surface/40" : "bg-white"}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <Icon size={16} />
+                          </div>
+                          <span className="text-sm font-semibold text-dark">{row.feature}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-center bg-primary/[0.04]"><Cell value={row.clever} highlight /></td>
+                      <td className="px-4 py-4 text-center"><Cell value={row.local} /></td>
+                      <td className="px-4 py-4 text-center"><Cell value={row.diy} /></td>
+                    </tr>
+                  );
+                })}
+                {/* Pricing row — special treatment */}
+                <tr className="bg-dark">
+                  <td className="px-6 py-5">
+                    <span className="text-sm font-bold uppercase tracking-wider text-white/70">Average monthly cost</span>
+                  </td>
+                  <td className="px-4 py-5 text-center bg-primary">
+                    <div className="text-white font-black text-lg">{pricing.clever}</div>
+                  </td>
+                  <td className="px-4 py-5 text-center">
+                    <div className="text-white font-bold text-sm">{pricing.local}</div>
+                  </td>
+                  <td className="px-4 py-5 text-center">
+                    <div className="text-white font-bold text-sm">{pricing.diy}</div>
+                  </td>
+                </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile stacked cards */}
+          <div className="md:hidden space-y-4">
+            {/* Clever Accounts card — highlighted */}
+            <div className="bg-primary text-white rounded-2xl p-6 shadow-lg relative">
+              <div className="absolute -top-3 left-6 bg-secondary text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow">
+                Recommended
+              </div>
+              <h3 className="font-black text-xl mb-1 mt-1">Clever Accounts</h3>
+              <p className="text-white/80 text-sm mb-5">From £42.50/month — everything in</p>
+              <ul className="space-y-2.5">
+                {featureRows.map((row) => (
+                  <li key={row.feature} className="flex items-center gap-2 text-sm">
+                    {row.clever === true ? (
+                      <CheckCircle2 size={16} className="text-white shrink-0" />
+                    ) : row.clever === false ? (
+                      <X size={16} className="text-white/40 shrink-0" />
+                    ) : (
+                      <span className="font-semibold text-white shrink-0">{row.clever}</span>
+                    )}
+                    <span className="text-white/90">{row.feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Local Accountant card */}
+            <div className="bg-white border border-border rounded-2xl p-6">
+              <h3 className="font-black text-xl text-dark mb-1">Local Accountant</h3>
+              <p className="text-text-light text-sm mb-5">£100–£300+ /month, plus extras</p>
+              <ul className="space-y-2.5">
+                {featureRows.map((row) => (
+                  <li key={row.feature} className="flex items-center gap-2 text-sm">
+                    {row.local === true ? (
+                      <CheckCircle2 size={16} className="text-success shrink-0" />
+                    ) : row.local === false ? (
+                      <X size={16} className="text-red-400 shrink-0" />
+                    ) : (
+                      <span className="font-semibold text-dark text-xs shrink-0">{row.local}</span>
+                    )}
+                    <span className="text-text">{row.feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* DIY Software card */}
+            <div className="bg-white border border-border rounded-2xl p-6">
+              <h3 className="font-black text-xl text-dark mb-1">DIY Software</h3>
+              <p className="text-text-light text-sm mb-5">£15–£50 /month — software only, no accountant</p>
+              <ul className="space-y-2.5">
+                {featureRows.map((row) => (
+                  <li key={row.feature} className="flex items-center gap-2 text-sm">
+                    {row.diy === true ? (
+                      <CheckCircle2 size={16} className="text-success shrink-0" />
+                    ) : row.diy === false ? (
+                      <X size={16} className="text-red-400 shrink-0" />
+                    ) : (
+                      <span className="font-semibold text-dark text-xs shrink-0">{row.diy}</span>
+                    )}
+                    <span className="text-text">{row.feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <p className="text-center text-text-light text-xs mt-6 max-w-2xl mx-auto">
+            Comparison reflects typical offerings in the UK market. Individual local accountants and software products vary.
+          </p>
+        </div>
+      </section>
+
+      {/* ── WHY IT MATTERS ───────────────────────────────────── */}
+      <section className="bg-surface py-16 md:py-24">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
+              Why It Matters
+            </p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
+              A check in a column is one thing — what it means in practice is another
+            </h2>
+            <p className="text-text-light max-w-2xl mx-auto">
+              The differences between the three options aren&apos;t small. Here&apos;s what
+              each row actually buys you with Clever Accounts.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {differentiators.map(({ title, icon: Icon, desc }) => (
+              <div key={title} className="bg-white border border-border rounded-2xl p-6 shadow-sm card-hover">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-dark mb-2">{title}</h3>
+                    <p className="text-text-light text-sm leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="gradient-hero py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">The Choice Is Clear</h2>
-          <p className="text-white/80 mb-8">Join 10,000+ businesses who chose Clever Accounts.</p>
-          <Link href="/sign-up" className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-8 py-4 rounded-xl text-lg hover:bg-primary-light hover:text-primary-dark transition-all shadow-lg">
-            Get Started Today <ArrowRight size={20} />
-          </Link>
+      {/* ── CTA ──────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16 md:py-20">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
+          <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-4">
+            The Smart Choice
+          </p>
+          <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-5">
+            Everything in one place. One flat fee. No surprises.
+          </h2>
+          <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
+            Join 10,000+ UK businesses who chose Clever Accounts. Dedicated accountant,
+            FreeAgent included, no setup fees, no minimum contract — from £42.50/month.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/90 transition-all shadow-lg"
+            >
+              Get Started Today <ArrowRight size={20} />
+            </Link>
+            <a
+              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all border border-white/30"
+            >
+              <Phone size={20} /> {COMPANY.freephone}
+            </a>
+          </div>
         </div>
       </section>
     </>
