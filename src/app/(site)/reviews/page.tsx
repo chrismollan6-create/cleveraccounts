@@ -188,7 +188,7 @@ export default async function ReviewsPage() {
             </div>
             <p className="text-text-light text-sm">4.4 stars · 479 verified Google reviews</p>
           </div>
-          <GoogleReviewsWidget />
+          <GoogleReviewsWidget dataRef="5f6cc51de97b359b22295360283c5602ac7e7f70" />
         </div>
       </section>
 
