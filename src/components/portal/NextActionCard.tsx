@@ -98,7 +98,7 @@ export default function NextActionCard({ status }: Props) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl ${theme.bg} text-white shadow-lg animate-fade-in-up`}
+      className={`relative overflow-hidden rounded-2xl ${theme.bg} text-white shadow-lg`}
       style={{ animationDelay: "100ms" }}
     >
       {/* Subtle dot-grid texture overlay for depth */}

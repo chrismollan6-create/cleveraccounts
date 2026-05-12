@@ -40,7 +40,7 @@ export default function MessagesSidePanel({
     engagementLetter && engagementLetter.status === "Signed";
 
   return (
-    <div className="space-y-5 lg:sticky lg:top-6 animate-fade-in-up">
+    <div className="space-y-5 lg:sticky lg:top-6">
       <AccountantMiniCard accountant={accountant} brandName={brandName} />
       {showSignedEl && (
         <EngagementLetterSignedCard letter={engagementLetter} />

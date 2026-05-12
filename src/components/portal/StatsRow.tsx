@@ -144,7 +144,7 @@ function StatCard({ icon: Icon, label, value, helper, tone, delay }: StatCardPro
 
   return (
     <div
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 animate-fade-in-up hover:shadow-md hover:border-gray-200 transition-all"
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 hover:shadow-md hover:border-gray-200 transition-all"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between gap-2">

@@ -103,7 +103,7 @@ export default function MessagesView({
   return (
     <>
       {/* Page header */}
-      <div className="mb-6 animate-fade-in-up">
+      <div className="mb-6">
         <div className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
             <MessageSquare size={18} className="text-primary" />

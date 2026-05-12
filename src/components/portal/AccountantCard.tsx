@@ -22,7 +22,7 @@ export default function AccountantCard({ accountant, brandName }: Props) {
   const calendlyHref = accountant.calendlyUrl ?? null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Decorative gradient header with subtle dot pattern */}
       <div
         className="relative h-24 bg-gradient-to-br from-primary-light via-primary to-primary-dark overflow-hidden"

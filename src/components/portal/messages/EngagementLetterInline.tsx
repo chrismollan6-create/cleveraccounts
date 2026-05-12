@@ -24,7 +24,7 @@ export default function EngagementLetterInline({ letter }: Props) {
   // Unsigned / Sent / Viewed states
   const isViewed = letter.status === "Viewed";
   return (
-    <div className="bg-gradient-to-br from-primary via-primary-dark to-primary text-white rounded-2xl p-5 sm:p-6 shadow-lg animate-fade-in-up relative overflow-hidden">
+    <div className="bg-gradient-to-br from-primary via-primary-dark to-primary text-white rounded-2xl p-5 sm:p-6 shadow-lg relative overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.18] pointer-events-none"
         style={{

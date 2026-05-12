@@ -19,7 +19,7 @@ export default function MessagesEmptyState({
 }: Props) {
   const greetingTarget = accountantFirstName ?? "your accountant";
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 sm:p-12 text-center animate-fade-in-up">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 sm:p-12 text-center">
       <div className="mx-auto h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
         <MessageSquare size={26} className="text-primary" />
       </div>

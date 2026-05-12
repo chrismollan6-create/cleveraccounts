@@ -28,7 +28,7 @@ export default function MessageThread({ messages, isRefreshing, accountant }: Pr
   return (
     <section
       aria-label="Conversation"
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in-up"
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
     >
       {/* Conversation header */}
       <header className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 bg-gradient-to-b from-white to-surface/30">

@@ -31,7 +31,7 @@ export default function TasksPanel({ tasks }: Props) {
   if (allComplete) {
     return (
       <div
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 via-emerald-50/70 to-teal-50/50 border border-emerald-100 p-5 sm:p-6 animate-fade-in-up"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 via-emerald-50/70 to-teal-50/50 border border-emerald-100 p-5 sm:p-6"
         style={{
           backgroundImage:
             "radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.08) 1px, transparent 0), linear-gradient(135deg, rgb(236 253 245), rgb(204 251 241 / 0.5))",
@@ -109,7 +109,7 @@ function TaskCard({ task, delay }: TaskCardProps) {
 
   return (
     <div
-      className={`group relative rounded-xl border p-4 sm:p-5 transition-all animate-fade-in-up ${tone.cardBg} ${tone.cardBorder} ${tone.hover}`}
+      className={`group relative rounded-xl border p-4 sm:p-5 transition-all ${tone.cardBg} ${tone.cardBorder} ${tone.hover}`}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start gap-3">

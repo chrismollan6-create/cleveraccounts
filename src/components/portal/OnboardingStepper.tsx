@@ -51,7 +51,7 @@ export default function OnboardingStepper({ stages }: Props) {
             return (
               <li
                 key={stage.key}
-                className="relative animate-fade-in-up"
+                className="relative"
                 style={{ animationDelay: `${idx * 80}ms` }}
               >
                 {/* Connector line */}
@@ -182,7 +182,7 @@ interface CurrentStagePanelProps {
 
 function CurrentStagePanel({ stage, content }: CurrentStagePanelProps) {
   return (
-    <div className="mt-4 rounded-2xl bg-gradient-to-br from-surface to-surface-alt/40 border border-primary/10 p-5 sm:p-6 space-y-5 animate-fade-in-up">
+    <div className="mt-4 rounded-2xl bg-gradient-to-br from-surface to-surface-alt/40 border border-primary/10 p-5 sm:p-6 space-y-5">
       {/* Why this matters */}
       <div>
         <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-primary">

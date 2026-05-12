@@ -52,7 +52,7 @@ export default function ActivityTimeline({ status, limit = 7 }: Props) {
         {visible.map((event, idx) => (
           <li
             key={event.key}
-            className="relative flex gap-3 animate-fade-in-up"
+            className="relative flex gap-3"
             style={{ animationDelay: `${idx * 60}ms` }}
           >
             {/* connector */}

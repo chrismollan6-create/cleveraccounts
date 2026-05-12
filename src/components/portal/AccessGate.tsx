@@ -22,7 +22,7 @@ export default function AccessGate({ brand, state, firstName, email }: Props) {
   const isDisabled = state === "disabled";
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12 animate-fade-in-up">
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-10 text-center">
           <div

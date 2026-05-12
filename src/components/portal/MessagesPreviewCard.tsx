@@ -17,7 +17,7 @@ export default function MessagesPreviewCard({ messages }: Props) {
     return (
       <Link
         href="/portal/messages"
-        className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up hover:shadow-md hover:border-primary/20 transition-all group"
+        className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-primary/20 transition-all group"
       >
         <div className="flex items-start gap-3">
           <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -49,7 +49,7 @@ export default function MessagesPreviewCard({ messages }: Props) {
   return (
     <Link
       href="/portal/messages"
-      className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up hover:shadow-md hover:border-primary/20 transition-all group overflow-hidden relative"
+      className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-primary/20 transition-all group overflow-hidden relative"
     >
       {fromAccountant && (
         <div className="absolute top-3 right-3">

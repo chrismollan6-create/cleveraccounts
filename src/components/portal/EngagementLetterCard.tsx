@@ -8,7 +8,7 @@ import { FileText, ArrowRight } from "lucide-react";
 export default function EngagementLetterCard() {
   return (
     <div
-      className="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden animate-fade-in-up"
+      className="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-5 overflow-hidden"
       style={{ animationDelay: "150ms" }}
     >
       {/* Subtle decorative motif */}
