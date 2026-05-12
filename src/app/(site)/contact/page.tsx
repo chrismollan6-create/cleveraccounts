@@ -11,12 +11,46 @@ import {
   CheckCircle2,
   MessageCircle,
   Zap,
+  Loader2,
 } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
 import RequestCallback from "@/components/ui/RequestCallback";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    businessType: "",
+    message: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.");
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -40,7 +74,7 @@ export default function ContactPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -65,67 +99,111 @@ export default function ContactPage() {
                   <p className="text-text-light text-sm">Thanks for getting in touch. We'll be in touch within 2 hours during business hours.</p>
                 </div>
               ) : (
-                <form
-                  className="space-y-5"
-                  onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
-                >
+                <form className="space-y-5" onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-semibold text-dark mb-1.5">Full Name *</label>
+                      <label htmlFor="contact-first-name" className="block text-sm font-semibold text-dark mb-1.5">First Name *</label>
                       <input
+                        id="contact-first-name"
+                        name="firstName"
                         type="text"
                         required
+                        value={form.firstName}
+                        onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
-                        placeholder="John Smith"
+                        placeholder="John"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-dark mb-1.5">Email Address *</label>
+                      <label htmlFor="contact-last-name" className="block text-sm font-semibold text-dark mb-1.5">Last Name *</label>
                       <input
+                        id="contact-last-name"
+                        name="lastName"
+                        type="text"
+                        required
+                        value={form.lastName}
+                        onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                        className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
+                        placeholder="Smith"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="contact-email" className="block text-sm font-semibold text-dark mb-1.5">Email Address *</label>
+                      <input
+                        id="contact-email"
+                        name="email"
                         type="email"
                         required
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
                         placeholder="john@example.com"
                       />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-semibold text-dark mb-1.5">Phone Number</label>
+                      <label htmlFor="contact-phone" className="block text-sm font-semibold text-dark mb-1.5">Phone Number</label>
                       <input
+                        id="contact-phone"
+                        name="phone"
                         type="tel"
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors placeholder:text-text-light/50"
                         placeholder="07123 456789"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-dark mb-1.5">Business Type</label>
-                      <select className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">
-                        <option value="">Select...</option>
-                        <option>Sole Trader</option>
-                        <option>Limited Company</option>
-                        <option>Contractor</option>
-                        <option>Landlord</option>
-                        <option>Startup</option>
-                        <option>CIS / Construction</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-dark mb-1.5">Message *</label>
+                    <label htmlFor="contact-business-type" className="block text-sm font-semibold text-dark mb-1.5">Business Type</label>
+                    <select
+                      id="contact-business-type"
+                      name="businessType"
+                      value={form.businessType}
+                      onChange={(e) => setForm({ ...form, businessType: e.target.value })}
+                      className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                    >
+                      <option value="">Select...</option>
+                      <option>Sole Trader</option>
+                      <option>Limited Company</option>
+                      <option>Contractor</option>
+                      <option>Landlord</option>
+                      <option>Startup</option>
+                      <option>CIS / Construction</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="contact-message" className="block text-sm font-semibold text-dark mb-1.5">Message *</label>
                     <textarea
+                      id="contact-message"
+                      name="message"
                       required
                       rows={5}
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
                       className="w-full px-4 py-3 border border-border rounded-xl text-text bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none placeholder:text-text-light/50"
                       placeholder="Tell us how we can help..."
                     />
                   </div>
+                  {error && (
+                    <p className="text-red-700 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
+                  )}
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-2 bg-primary text-white font-bold px-8 py-3.5 rounded-xl hover:bg-primary/90 transition-all shadow-sm"
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 bg-primary text-white font-bold px-8 py-3.5 rounded-xl hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-sm"
                   >
-                    Send Message <ArrowRight size={18} />
+                    {loading ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" /> Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send Message <ArrowRight size={18} />
+                      </>
+                    )}
                   </button>
                 </form>
               )}
@@ -145,28 +223,11 @@ export default function ContactPage() {
                     <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="block text-secondary font-bold text-lg hover:text-secondary/80 transition-colors">
                       {COMPANY.freephone}
                     </a>
-                    <p className="text-white/50 text-xs mt-0.5">Freephone</p>
-                    <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="block text-white/60 text-sm mt-2 hover:text-white transition-colors">
-                      {COMPANY.phone}
-                    </a>
+
                   </div>
                 </div>
               </div>
 
-              <div className="bg-surface border border-border rounded-2xl p-5">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Mail size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-dark mb-1">Email</h3>
-                    <a href={`mailto:${COMPANY.email}`} className="text-primary hover:text-primary/80 font-medium text-sm transition-colors">
-                      {COMPANY.email}
-                    </a>
-                    <p className="text-xs text-text-light mt-1">Typically responded to within 2 hours</p>
-                  </div>
-                </div>
-              </div>
 
               <div className="bg-surface border border-border rounded-2xl p-5">
                 <div className="flex items-start gap-4">
@@ -176,11 +237,11 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-dark mb-2">Opening Hours</h3>
                     <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between items-baseline gap-6 text-sm">
                         <span className="text-text-light">Monday – Friday</span>
                         <span className="font-semibold text-dark">9:00am – 5:30pm</span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between items-baseline gap-6 text-sm">
                         <span className="text-text-light">Saturday – Sunday</span>
                         <span className="text-text-light">Closed</span>
                       </div>
