@@ -48,8 +48,9 @@ function isOverrideAllowed(host: string): boolean {
 
 /**
  * True only on a real custom-domain production deploy. False for dev,
- * localhost, and Netlify deploy URLs (.netlify.app / .netlify.live —
- * production site's auto subdomain, deploy previews, branch deploys).
+ * localhost, and host-provider deploy URLs (Netlify .netlify.app / .live,
+ * Vercel .vercel.app — all of which are preview/branch URLs, never
+ * the canonical production host).
  *
  * Hostname-based rather than env-var based because `process.env.CONTEXT`
  * isn't reliably exposed to Next.js Edge middleware on Netlify, so the
@@ -59,6 +60,7 @@ function isStrictProduction(host: string): boolean {
   if (process.env.NODE_ENV !== 'production') return false;
   const h = host.toLowerCase().split(':')[0];
   if (h.endsWith('.netlify.app') || h.endsWith('.netlify.live')) return false;
+  if (h.endsWith('.vercel.app')) return false;
   if (h === 'localhost' || h.startsWith('127.0.0.1')) return false;
   return true;
 }
