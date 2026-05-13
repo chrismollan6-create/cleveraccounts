@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     "Latest accounting news, tax tips and business advice from Clever Accounts. Expert insights for sole traders, limited companies, contractors, and landlords.",
 };
 
+// Revalidate every 60s so new Sanity posts/images appear without a manual deploy.
+export const revalidate = 60;
+
 const posts = [
   {
     slug: "mtd-income-tax-sole-traders",
