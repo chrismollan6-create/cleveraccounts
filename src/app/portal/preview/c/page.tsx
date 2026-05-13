@@ -258,8 +258,8 @@ function PreviewBadge({ variant, label }: { variant: string; label: string }) {
         <Link href="/portal/preview" className="text-orange-700 underline">
           back
         </Link>
-        <Link href="/portal/preview/a" className="text-orange-700 underline">
-          A →
+        <Link href="/portal/preview/c1" className="text-orange-700 underline">
+          C1 →
         </Link>
       </div>
     </div>
