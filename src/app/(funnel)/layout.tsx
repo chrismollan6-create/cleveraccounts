@@ -8,6 +8,7 @@ import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/Goo
 import UTMCapture from "@/components/seo/UTMCapture";
 import CookieConsent from "@/components/ui/CookieConsent";
 import BrandProvider from "@/components/brand/BrandProvider";
+import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
 import "../globals.css";
 
@@ -137,6 +138,7 @@ export default async function FunnelLayout({
 
           <CookieConsent />
         </BrandProvider>
+        <VercelMonitoring />
       </body>
     </html>
   );

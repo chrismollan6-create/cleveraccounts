@@ -11,6 +11,7 @@ import ChatButton from "@/components/ui/ChatButton";
 import RequestCallback from "@/components/ui/RequestCallback";
 import PromoBanner from "@/components/layout/PromoBanner";
 import BrandProvider from "@/components/brand/BrandProvider";
+import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
 import "../globals.css";
 
@@ -128,6 +129,7 @@ export default async function RootLayout({
           <ChatButton />
           <CookieConsent />
         </BrandProvider>
+        <VercelMonitoring />
       </body>
     </html>
   );

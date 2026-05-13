@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import BrandProvider from "@/components/brand/BrandProvider";
 import PortalShell from "@/components/portal/PortalShell";
+import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
 import { getOnboardingForCurrentUser, isOnboardingError } from "@/lib/portal/onboarding";
 import "../globals.css";
@@ -100,6 +101,7 @@ export default async function PortalLayout({
               {children}
             </PortalShell>
           </BrandProvider>
+          <VercelMonitoring />
         </body>
       </html>
     </ClerkProvider>
