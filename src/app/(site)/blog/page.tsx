@@ -92,8 +92,6 @@ const categoryGradients: Record<string, string> = {
   "VAT": "from-purple-500/20 to-purple-500/5",
 };
 
-export const revalidate = 60;
-
 function normaliseCategory(raw: string | undefined): string {
   const map: Record<string, string> = {
     "tax": "Tax", "ir35": "IR35", "vat": "VAT",
