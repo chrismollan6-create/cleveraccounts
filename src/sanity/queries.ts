@@ -3,14 +3,18 @@ import { client } from "./client";
 // Blog posts
 export async function getBlogPosts() {
   return client.fetch(`*[_type == "blogPost"] | order(publishedAt desc) {
-    _id, title, slug, excerpt, featuredImage, category, author, publishedAt
+    _id, title, slug, excerpt,
+    featuredImage { alt, asset->{ url } },
+    category, author, publishedAt
   }`);
 }
 
 export async function getBlogPost(slug: string) {
   return client.fetch(
     `*[_type == "blogPost" && slug.current == $slug][0] {
-      _id, title, slug, excerpt, featuredImage, category, author, publishedAt,
+      _id, title, slug, excerpt,
+      featuredImage { alt, asset->{ url } },
+      category, author, publishedAt,
       body, metaTitle, metaDescription
     }`,
     { slug }
