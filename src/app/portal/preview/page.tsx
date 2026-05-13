@@ -19,30 +19,30 @@ const display = Instrument_Serif({ weight: "400", subsets: ["latin"] });
 const STUNNING = [
   {
     slug: "c1",
-    name: "Editorial",
-    tag: "Magazine layout",
+    name: "Linear app",
+    tag: "Polished software",
     summary:
-      "Full-bleed portrait of Charlie hero, massive Instrument Serif headline, two-column body with drop caps and pull-quotes. Reads like a luxury hotel landing page.",
-    references: "Hôtel Costes · Aesop · NYT Style",
-    feels: ["Confident", "Considered", "Premium"],
+      "Compact header strip, sober greeting, sophisticated 2-column layout. Tasks list, activity feed, small accountant chip (48px). All the polish of Linear with none of the marketing-site noise. Looks like software you use every day.",
+    references: "linear.app · vercel dashboard · height · notion 2026",
+    feels: ["Polished", "Efficient", "Professional"],
   },
   {
     slug: "c2",
-    name: "Bento mosaic",
-    tag: "Apple-inspired",
+    name: "Mercury bento",
+    tag: "Functional widgets",
     summary:
-      "Asymmetric grid of cards in varying sizes. Hero CTA card spans 4 cols dark; accountant portrait spans 2 rows; bright tile for action-needed; calm tile for engagement letter. Mix of light, dark, and brand-gradient cards.",
-    references: "apple.com/macbook-pro · notion · framer · cron · arc browser",
-    feels: ["Modern", "Tactile", "Premium-tech"],
+      "Bento grid of REAL widgets: progress meter with bar chart, time-slot picker baked into next-step card, accountant card with reply-time stats, journey stages, business meta. Avatar chip 40px. Mercury Bank's home page energy.",
+    references: "Mercury Bank · Ramp · Cron · Pitch · Notion home",
+    feels: ["Tactile", "Useful", "Modern"],
   },
   {
     slug: "c3",
-    name: "Aurora glass",
-    tag: "2026 fintech",
+    name: "Vercel dashboard",
+    tag: "Data-dense",
     summary:
-      "Dark base with animated gradient mesh aurora behind everything. Glass cards (backdrop-blur). Big display type. Brand-coloured glows on hover. Status pill with pulse dot. Activity feed in 4-up.",
-    references: "Linear · Vercel · Arc · Cron · Loom 2026 · Stripe Atlas",
-    feels: ["Futuristic", "Technical", "High-design"],
+      "Breadcrumb header, 4-metric KPI row (useful ones — not vanity), horizontal journey timeline, full task list with status pills, activity feed with monospace timestamps, business meta in key/value list. JetBrains Mono for IDs. Avatar 20px in a header chip.",
+    references: "vercel dashboard · planetscale · linear issues · pitch boards",
+    feels: ["Dense", "Technical", "Trustworthy"],
   },
 ];
 
@@ -74,13 +74,14 @@ export default function PreviewIndex() {
           <h1
             className={`${display.className} text-5xl text-stone-900 sm:text-6xl`}
           >
-            Three stunning directions.
+            Three app directions.
           </h1>
           <p className="mt-3 max-w-2xl text-base text-stone-600">
-            Each takes the concierge feel of variant C and pushes it
-            substantially harder — proper display typography, full-bleed
-            photography, bento layouts, glassmorphism. Each is a complete
-            visual identity, not a tweak.
+            Restart after the magazine-cover misfire. These are designed as{" "}
+            <strong>software</strong> — the screen you&apos;ll look at every
+            time you sign in, not a one-time hero. Polished cards, real
+            widgets, considered typography. Accountant photo demoted to an
+            avatar chip in all three.
           </p>
         </header>
 
