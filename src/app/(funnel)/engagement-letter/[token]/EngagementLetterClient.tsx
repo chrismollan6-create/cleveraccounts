@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, FileText, Printer, ShieldCheck, Globe, CheckCircle2, AlertCircle, Pen, Type, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { ChevronDown, ChevronUp, FileText, Printer, ShieldCheck, Globe, CheckCircle2, AlertCircle, Pen, Type, Loader2, Calendar } from 'lucide-react';
 import type { RenderedLetter, SectionGroup, Section } from '@/content/engagement-letter';
+import { useBrand } from '@/lib/useBrand';
 import SignaturePad from './SignaturePad';
 
 interface Signer {
@@ -29,9 +31,11 @@ interface SignSuccess {
 }
 
 export default function EngagementLetterClient({ token, letter, signer, displayIp, canSign }: Props) {
+  const brand = useBrand();
   const viewLoggedRef = useRef(false);
   const [expandAllKey, setExpandAllKey] = useState(0);
   const [forceOpen, setForceOpen] = useState<boolean | null>(null);
+  const issuedDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   // Fire view event exactly once on mount. The Salesforce side records the
   // FIRST view; subsequent views append to the audit log only.
@@ -67,22 +71,53 @@ export default function EngagementLetterClient({ token, letter, signer, displayI
 
   return (
     <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-      {/* ─── Header card ─── */}
-      <div className="mb-6 print:mb-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3 print:hidden">
-          <FileText size={13} />
-          {letter.variant === 'sole-trader' ? 'Sole Trader' : 'Limited Company'}
+      {/* ═══════════════════════════════════════════════════════════════
+           HEADER — branded "letterhead" card
+           ═══════════════════════════════════════════════════════════════ */}
+      <header className="mb-6 print:mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden print:shadow-none print:border print:border-gray-300">
+          {/* Brand bar */}
+          <div className="bg-gradient-to-r from-primary to-primary-dark px-6 sm:px-8 py-5 print:bg-primary print:py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-white rounded-lg px-3 py-2 shadow-sm">
+                  <Image
+                    src={brand.assets.logo}
+                    alt={brand.name}
+                    width={140}
+                    height={36}
+                    priority
+                    className="h-7 w-auto"
+                  />
+                </div>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-white/80 text-xs font-medium">
+                <Calendar size={13} />
+                {issuedDate}
+              </div>
+            </div>
+          </div>
+
+          {/* Letter intro */}
+          <div className="px-6 sm:px-8 py-6 sm:py-8">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wider mb-4 print:hidden">
+              <FileText size={11} />
+              {letter.variant === 'sole-trader' ? 'Sole Trader' : 'Limited Company'} engagement
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-text mb-3 leading-tight tracking-tight">
+              {letter.title}
+            </h1>
+            <p className="text-text-light text-base sm:text-lg leading-relaxed">
+              From <strong className="text-text font-semibold">{brand.legalName}</strong>
+              <span className="text-text-light/70"> to </span>
+              <strong className="text-text font-semibold">{signer.businessName}</strong>
+            </p>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-text mb-2 leading-tight">
-          {letter.title}
-        </h1>
-        <p className="text-text-light">
-          Engagement letter for <strong className="text-text">{signer.businessName}</strong>
-        </p>
-      </div>
+      </header>
 
       {/* ─── Signer panel ─── */}
-      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-xl p-5 sm:p-6 mb-6 print:bg-transparent print:border-gray-300">
+      <div className="bg-surface border border-primary/15 rounded-xl p-5 sm:p-6 mb-6 print:bg-transparent print:border-gray-300">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-xs font-semibold text-text-light uppercase tracking-wider mb-1">
@@ -133,10 +168,18 @@ export default function EngagementLetterClient({ token, letter, signer, displayI
         </button>
       </div>
 
-      {/* ─── Letter body — accordion ─── */}
-      <article className="space-y-8 mb-10 print:space-y-6">
-        {letter.groups.map((g) => (
-          <GroupBlock key={g.heading} group={g} forceOpen={forceOpen} keyTrigger={expandAllKey} />
+      {/* ═══════════════════════════════════════════════════════════════
+           LETTER BODY — paper container holding the section groups
+           ═══════════════════════════════════════════════════════════════ */}
+      <article className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-10 mb-10 space-y-10 print:shadow-none print:border print:border-gray-300 print:p-6 print:space-y-8">
+        {letter.groups.map((g, i) => (
+          <GroupBlock
+            key={g.heading}
+            group={g}
+            groupIndex={i}
+            forceOpen={forceOpen}
+            keyTrigger={expandAllKey}
+          />
         ))}
       </article>
 
@@ -180,16 +223,28 @@ export default function EngagementLetterClient({ token, letter, signer, displayI
 
 interface GroupBlockProps {
   group: SectionGroup;
+  groupIndex: number;
   forceOpen: boolean | null;
   keyTrigger: number;
 }
 
-function GroupBlock({ group, forceOpen, keyTrigger }: GroupBlockProps) {
+function GroupBlock({ group, groupIndex, forceOpen, keyTrigger }: GroupBlockProps) {
   return (
     <section>
-      <h2 className="text-lg sm:text-xl font-bold text-text mb-4 print:mb-3">
-        {group.heading}
-      </h2>
+      {/* Chapter heading — brand-coloured accent bar + roman numeral */}
+      <div className="flex items-center gap-3 mb-5 print:mb-4">
+        <span
+          className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary/70 font-mono shrink-0 print:text-gray-500"
+          aria-hidden="true"
+        >
+          {toRoman(groupIndex + 1)}
+        </span>
+        <span className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent print:from-gray-400" />
+        <h2 className="text-base sm:text-lg font-bold text-text uppercase tracking-wider shrink-0">
+          {group.heading}
+        </h2>
+        <span className="h-px flex-1 bg-gradient-to-l from-primary/40 to-transparent print:from-gray-400" />
+      </div>
       <div className="space-y-2 print:space-y-1">
         {group.sections.map((s) => (
           <SectionItem
@@ -215,25 +270,35 @@ function SectionItem({ section, forceOpen }: SectionItemProps) {
   return (
     <details
       open={open}
-      className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors print:border-gray-300 print:bg-transparent print:rounded-none"
+      className="group bg-white border border-gray-200 rounded-xl overflow-hidden transition-all hover:border-primary/30 open:border-primary/40 print:border-gray-300 print:bg-transparent print:rounded-none"
     >
-      <summary className="cursor-pointer list-none px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors print:px-0 print:py-2 print:cursor-auto print:hover:bg-transparent">
-        <span className="font-semibold text-text flex items-baseline gap-3">
-            <span className="text-text-light text-sm font-mono shrink-0 w-8">{section.number}.</span>
-            <span>{section.title}</span>
+      <summary className="cursor-pointer list-none px-4 sm:px-5 py-3.5 sm:py-4 flex items-center gap-4 hover:bg-primary/[0.02] transition-colors group-open:bg-primary/[0.03] print:px-0 print:py-2 print:cursor-auto print:hover:bg-transparent print:group-open:bg-transparent">
+        {/* Number badge — pill-style, brand-coloured */}
+        <span className="inline-flex items-center justify-center min-w-[2.5rem] h-7 px-2 rounded-md bg-gray-100 text-text-light text-xs font-bold font-mono group-open:bg-primary group-open:text-white transition-colors shrink-0 print:bg-transparent print:text-gray-700 print:group-open:bg-transparent print:group-open:text-gray-700">
+          {section.number}
+        </span>
+        <span className="font-semibold text-text text-base sm:text-[17px] flex-1 leading-snug">
+          {section.title}
         </span>
         <ChevronDown
           size={18}
-          className="text-text-light shrink-0 transition-transform group-open:rotate-180 print:hidden"
+          className="text-text-light shrink-0 transition-transform group-open:rotate-180 group-open:text-primary print:hidden"
+          aria-hidden="true"
         />
       </summary>
-      <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-1 print:px-0 print:pb-3">
-        <div className="pl-0 sm:pl-11 prose-sm max-w-none">
+      <div className="px-4 sm:px-5 pb-5 sm:pb-6 pt-2 print:px-0 print:pb-3">
+        <div className="pl-0 sm:pl-[3.25rem] max-w-none">
           <SectionBody body={section.body} />
         </div>
       </div>
     </details>
   );
+}
+
+/** Roman numerals for chapter index display (1 → I, 2 → II, 3 → III, …). */
+function toRoman(n: number): string {
+  const numerals = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+  return numerals[n] ?? String(n);
 }
 
 /**
@@ -258,7 +323,7 @@ function SectionBody({ body }: { body: string }) {
         // Bulleted list (- ...)
         if (lines.every((l) => /^\s*-\s/.test(l) || l.trim() === '')) {
           return (
-            <ul key={i} className="list-disc pl-5 space-y-1.5 mb-3 last:mb-0 text-text-light">
+            <ul key={i} className="list-disc pl-5 space-y-2 mb-4 last:mb-0 text-[15px] leading-7 text-text-light marker:text-primary/60">
               {lines
                 .filter((l) => l.trim() !== '')
                 .map((l, j) => {
@@ -277,11 +342,11 @@ function SectionBody({ body }: { body: string }) {
         // Numbered list (1. 2. 3.)
         if (lines.every((l) => /^\d+\.\s/.test(l) || l.trim() === '' || /^\s+/.test(l))) {
           return (
-            <ol key={i} className="list-decimal pl-5 space-y-1.5 mb-3 last:mb-0 text-text-light">
+            <ol key={i} className="list-decimal pl-5 space-y-2 mb-4 last:mb-0 text-[15px] leading-7 text-text-light marker:text-primary/60 marker:font-semibold">
               {lines
                 .filter((l) => l.trim() !== '')
                 .map((l, j) => (
-                  <li key={j}>
+                  <li key={j} className="pl-1">
                     <InlineFormatted text={l.replace(/^\d+\.\s/, '')} />
                   </li>
                 ))}
@@ -291,7 +356,7 @@ function SectionBody({ body }: { body: string }) {
 
         // Plain paragraph
         return (
-          <p key={i} className="text-text-light leading-relaxed mb-3 last:mb-0">
+          <p key={i} className="text-[15px] leading-7 text-text-light mb-4 last:mb-0">
             <InlineFormatted text={block} />
           </p>
         );

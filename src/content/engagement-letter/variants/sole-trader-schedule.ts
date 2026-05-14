@@ -94,7 +94,7 @@ export const SOLE_TRADER_SCHEDULE: Section[] = [
       '- record expense claims accurately based upon actual expenses claimed;\n' +
       '- record sales and purchase invoices, where relevant;\n' +
       '- if requested by your accountants, share any evidence for confirmation of sales, purchases, and expenses;\n' +
-      '- let your designated Clever Accounts accountant know when the portal is up to date for accounts, VAT, etc.;\n' +
+      '- let your designated {{brandName}} accountant know when the portal is up to date for accounts, VAT, etc.;\n' +
       '- use the wage and dividends calculation as a guide and accept that the calculation is based upon information entered into the portal, and accept that, unless reviewed by an accountant, these calculations may be inaccurate;\n' +
       '- if not using our online portal, prepare a list of debtors and creditors as at year end.',
   },

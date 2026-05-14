@@ -29,7 +29,7 @@ import {
   HeartHandshake,
   CalendarClock,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 const faqs = [
   {
@@ -226,6 +226,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function SwitchAccountantPage() {
+  const brand = useBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -255,8 +256,8 @@ export default function SwitchAccountantPage() {
                 <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
                   Switch Today — Free <ArrowRight size={20} />
                 </Link>
-                <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
-                  <Phone size={20} /> {COMPANY.freephone}
+                <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
+                  <Phone size={20} /> {brand.freephone}
                 </a>
               </div>
             </div>
@@ -494,8 +495,8 @@ export default function SwitchAccountantPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
               Switch to Clever Accounts <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
-              <Phone size={20} /> Call {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+              <Phone size={20} /> Call {brand.freephone}
             </a>
           </div>
           <p className="text-white/60 text-sm mt-6">Typically switched within 2–4 weeks · Benefits start from day one</p>

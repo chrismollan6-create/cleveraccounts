@@ -7,7 +7,7 @@ import {
   CheckCircle2, ArrowRight, Phone, Star, Shield, Sparkles,
   ChevronDown, Award, Users, TrendingUp, Headphones, Zap, Clock, AlertCircle,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 export interface WhyUsItem {
   title: string;
@@ -93,6 +93,7 @@ function LandingPageLayout({
   faq?: FAQItem[];
   children?: React.ReactNode;
 }) {
+  const brand = useBrand();
   // Hide the main site header and footer on landing pages
   useEffect(() => {
     const header = document.querySelector("header");
@@ -120,11 +121,11 @@ function LandingPageLayout({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Image src="/images/logo.png" alt="Clever Accounts" width={140} height={40} className="h-10 w-auto" />
           <a
-            href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+            href={`tel:${brand.freephone.replace(/\s/g, "")}`}
             className="flex items-center gap-2 text-sm font-bold text-dark hover:text-primary transition-colors"
           >
             <Phone size={16} className="text-secondary" />
-            Call Free: {COMPANY.freephone}
+            Call Free: {brand.freephone}
           </a>
         </div>
       </div>
@@ -392,10 +393,10 @@ function LandingPageLayout({
               Sign Up Now <ArrowRight size={18} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center gap-2 border-2 border-white/30 text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all"
             >
-              <Phone size={18} /> {COMPANY.freephone}
+              <Phone size={18} /> {brand.freephone}
             </a>
           </div>
         </div>

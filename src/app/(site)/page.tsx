@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 import { FAQPageJsonLd, PricingJsonLd } from "@/components/seo/StructuredData";
 import { getSiteSettings, getHomePage, getPricingPlans } from "@/sanity/queries";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 const DEFAULT_TITLE = "Clever Accounts | Expert Online Accountants UK — From £42.50/month";
 const DEFAULT_DESC =
@@ -56,9 +56,10 @@ const buildHomeFaqs = (freephone: string, email: string) => [
 ];
 
 export default async function HomePage() {
+  const brand = await getBrand();
   let promoBadges: Record<string, string> = {};
-  let freephone = COMPANY.freephone;
-  let email = COMPANY.email;
+  let freephone = brand.freephone;
+  let email = brand.email;
   try {
     const settings = await getSiteSettings();
     if (settings?.freephone) freephone = settings.freephone;

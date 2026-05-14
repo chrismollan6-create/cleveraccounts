@@ -7,7 +7,7 @@ import {
   ArrowLeftRight, Scale, ChevronDown, AlertTriangle, TrendingUp,
   Sparkles, BadgeCheck, XCircle, Building2, Users,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 import ContractorCalculator from "@/components/ui/ContractorCalculator";
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -42,6 +42,7 @@ const faqs = [
 ];
 
 export default function IR35Page() {
+  const brand = useBrand();
   return (
     <>
       {/* ═══════════════════════════════════
@@ -75,7 +76,7 @@ export default function IR35Page() {
                   Get IR35 Support <ArrowRight size={22} />
                 </Link>
                 <a
-                  href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                  href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                   className="inline-flex items-center justify-center gap-2 border-2 border-white/20 text-white font-semibold px-8 py-5 rounded-2xl text-lg hover:bg-white/10 transition-all"
                 >
                   <Phone size={20} /> Speak to an Expert
@@ -568,11 +569,11 @@ export default function IR35Page() {
               Get IR35 Support <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 border-2 border-border text-dark font-semibold px-8 py-5 rounded-2xl text-lg hover:border-primary hover:text-primary transition-all"
             >
               <Phone size={20} />
-              Call Free: {COMPANY.freephone}
+              Call Free: {brand.freephone}
             </a>
           </div>
         </div>

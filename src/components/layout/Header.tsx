@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ChevronDown, Phone } from "lucide-react";
-import { NAV_LINKS, COMPANY } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 import RequestCallback from "@/components/ui/RequestCallback";
 
 type NavChild = { label: string; href: string };
@@ -17,12 +18,13 @@ type NavLink = {
 };
 
 export default function Header({
-  phone = COMPANY.phone,
-  freephone = COMPANY.freephone,
+  freephone: freephoneProp,
 }: {
   phone?: string;
   freephone?: string;
 } = {}) {
+  const brand = useBrand();
+  const freephone = freephoneProp ?? brand.freephone;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);

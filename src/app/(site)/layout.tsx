@@ -10,104 +10,126 @@ import CookieConsent from "@/components/ui/CookieConsent";
 import ChatButton from "@/components/ui/ChatButton";
 import RequestCallback from "@/components/ui/RequestCallback";
 import PromoBanner from "@/components/layout/PromoBanner";
+import BrandProvider from "@/components/brand/BrandProvider";
+import { VercelMonitoring } from "@/components/VercelMonitoring";
+import { getBrand } from "@/lib/brand";
 import "../globals.css";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://cleveraccounts.com"),
-  title: {
-    default: "Clever Accounts | Expert Online Accounting Services UK",
-    template: "%s | Clever Accounts",
-  },
-  description:
-    "Online accountancy services for sole traders, limited companies, contractors & freelancers. 20+ years experience, 10,000+ businesses served. From £42.50/month.",
-  keywords: [
-    "online accountant",
-    "online accounting",
-    "UK accountant",
-    "sole trader accountant",
-    "limited company accountant",
-    "contractor accountant",
-    "freelancer accountant",
-    "IR35",
-    "tax returns",
-    "VAT returns",
-    "payroll",
-    "online accounting services",
-    "accounting for contractors",
-    "self assessment tax return",
-    "MTD accounting",
-  ],
-  authors: [{ name: "Clever Accounts Ltd" }],
-  creator: "Clever Accounts Ltd",
-  publisher: "Clever Accounts Ltd",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_GB",
-    siteName: "Clever Accounts",
-    title: "Clever Accounts | Expert Online Accounting Services UK",
-    description:
-      "Online accountancy services for sole traders, limited companies, contractors & freelancers. 20+ years experience, 10,000+ businesses served.",
-    url: "https://cleveraccounts.com",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Clever Accounts | Expert Online Accounting Services UK",
-    description:
-      "Online accountancy services for sole traders, limited companies, contractors & freelancers. From £42.50/month.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+/**
+ * Brand-aware metadata. Resolved per-request from the host header so the
+ * Workwell domain serves Workwell title/OG/canonical, and Clever serves Clever.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  const isWorkwell = brand.id === 'workwell';
+
+  const titleDefault = isWorkwell
+    ? `${brand.name} | Award-Winning Accountancy for Contractors & Small Business`
+    : `${brand.name} | Expert Online Accounting Services UK`;
+
+  const description = isWorkwell
+    ? "Award-winning accountancy services perfect for contractors & small business owners. Dedicated accountant, unlimited support, Making Tax Digital experts."
+    : "Online accountancy services for sole traders, limited companies, contractors & freelancers. 20+ years experience, 10,000+ businesses served. From £42.50/month.";
+
+  return {
+    metadataBase: new URL(`https://${brand.domain}`),
+    title: { default: titleDefault, template: `%s | ${brand.name}` },
+    description,
+    keywords: [
+      "online accountant",
+      "online accounting",
+      "UK accountant",
+      "sole trader accountant",
+      "limited company accountant",
+      "contractor accountant",
+      "freelancer accountant",
+      "IR35",
+      "tax returns",
+      "VAT returns",
+      "payroll",
+      "self assessment tax return",
+      "MTD accounting",
+    ],
+    authors: [{ name: brand.legalName }],
+    creator: brand.legalName,
+    publisher: brand.legalName,
+    formatDetection: { email: false, address: false, telephone: false },
+    openGraph: {
+      type: "website",
+      locale: "en_GB",
+      siteName: brand.name,
+      title: titleDefault,
+      description,
+      url: `https://${brand.domain}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: titleDefault,
+      description,
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  alternates: {
-    canonical: "https://cleveraccounts.com",
-  },
-  verification: {
-    // Add your verification codes here:
-    // google: "your-google-verification-code",
-    // yandex: "your-yandex-verification-code",
-  },
-};
+    alternates: { canonical: `https://${brand.domain}` },
+    icons: brand.assets.favicon ? { icon: brand.assets.favicon } : undefined,
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const brand = await getBrand();
   // Fetch site settings from Sanity; falls back to constants in Header if null
   const siteSettings = await getSiteSettings().catch(() => null);
 
+  // Build the Google Fonts URL once per brand. Inter is the default and is
+  // already imported in globals.css; loading the WW font conditionally here
+  // (rather than always-on) keeps the Clever bundle unchanged.
+  const fontFamilyParam = brand.font.family.replace(/\s+/g, '+');
+  const fontHref =
+    brand.id === 'workwell'
+      ? `https://fonts.googleapis.com/css2?family=${fontFamilyParam}:wght@${brand.font.weights}&display=swap`
+      : null;
+
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" data-brand={brand.id}>
       <head>
+        {fontHref && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+            <link rel="stylesheet" href={fontHref} />
+          </>
+        )}
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
         <GoogleTagManagerHead />
         <GoogleTagManagerBody />
         <UTMCapture />
-        <PromoBanner />
-        <Header
-          phone={siteSettings?.phone ?? undefined}
-          freephone={siteSettings?.freephone ?? undefined}
-        />
-        <TrustBar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <ChatButton />
-        <CookieConsent />
+        <BrandProvider brandId={brand.id}>
+          <PromoBanner />
+          <Header
+            phone={siteSettings?.phone ?? undefined}
+            freephone={siteSettings?.freephone ?? undefined}
+          />
+          <TrustBar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <ChatButton />
+          <CookieConsent />
+        </BrandProvider>
+        <VercelMonitoring />
       </body>
     </html>
   );

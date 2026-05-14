@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
 import {
   ArrowRight,
   UserPlus,
@@ -8,6 +7,7 @@ import {
   PartyPopper,
   CheckCircle2,
   Phone,
+  Star,
   Monitor,
   MessageCircle,
   BadgeCheck,
@@ -21,7 +21,7 @@ import {
   HeartHandshake,
   BarChart3,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "How It Works — 3 Simple Steps | Clever Accounts",
@@ -103,7 +103,29 @@ const timeline = [
   { when: "Ongoing", title: "Everything handled", desc: "Accounts, tax returns, VAT, payroll, and proactive advice — all taken care of month after month." },
 ];
 
-export default function HowItWorksPage() {
+const testimonials = [
+  {
+    name: "James Cooper",
+    role: "IT Contractor",
+    quote: "Signed up on a Monday, had an introductory call with my accountant by Wednesday. Within two weeks everything was in order. The onboarding was smoother than I expected.",
+    rating: 5,
+  },
+  {
+    name: "Sarah Mitchell",
+    role: "Sole Trader",
+    quote: "I was anxious about switching from my old accountant. Clever Accounts handled the whole transfer — I didn't have to say a word to my previous firm.",
+    rating: 5,
+  },
+  {
+    name: "Emily Watson",
+    role: "Limited Company Director",
+    quote: "The sign-up took about 8 minutes. My accountant called me the next morning. I don't know why I waited so long.",
+    rating: 5,
+  },
+];
+
+export default async function HowItWorksPage() {
+  const brand = await getBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -128,14 +150,14 @@ export default function HowItWorksPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
               Get Started <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
           </svg>
         </div>
@@ -192,28 +214,25 @@ export default function HowItWorksPage() {
             </p>
           </div>
 
-          <div className="relative md:grid md:grid-cols-[7rem_1fr] md:gap-x-6 gap-y-6 flex flex-col">
-            {/* Vertical line — centred in the 7rem badge column (3.5rem from left) */}
-            <div
-              aria-hidden="true"
-              className="hidden md:block absolute top-5 bottom-5 left-[3.5rem] -translate-x-1/2 w-0.5 bg-primary/20"
-            />
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="hidden md:block absolute left-[3.25rem] top-6 bottom-6 w-0.5 bg-border" />
 
-            {timeline.map(({ when, title, desc }, i) => (
-              <div key={i} className="contents">
-                {/* Badge column — centred horizontally and vertically aligned to card top */}
-                <div className="relative z-10 flex md:justify-center items-start pt-1">
-                  <div className="w-[104px] h-10 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center text-center leading-tight px-2 shadow-sm ring-4 ring-surface">
-                    {when}
+            <div className="space-y-6">
+              {timeline.map(({ when, title, desc }, i) => (
+                <div key={i} className="flex gap-6 items-start">
+                  <div className="shrink-0 flex flex-col items-center">
+                    <div className="w-[104px] h-[40px] rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center text-center leading-tight px-2">
+                      {when}
+                    </div>
+                  </div>
+                  <div className="bg-white border border-border rounded-2xl p-5 shadow-sm flex-1 card-hover">
+                    <div className="font-bold text-dark mb-1">{title}</div>
+                    <div className="text-text-light text-sm leading-relaxed">{desc}</div>
                   </div>
                 </div>
-                {/* Card */}
-                <div className="bg-white border border-border rounded-2xl p-5 shadow-sm card-hover">
-                  <div className="font-bold text-dark mb-1">{title}</div>
-                  <div className="text-text-light text-sm leading-relaxed">{desc}</div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -248,7 +267,7 @@ export default function HowItWorksPage() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+          <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
             <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="rgb(var(--color-surface, 248 250 252))" />
           </svg>
         </div>
@@ -261,7 +280,22 @@ export default function HowItWorksPage() {
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Real Clients</p>
             <h2 className="text-3xl font-black text-dark mb-4">Hear From People Who've Done It</h2>
           </div>
-          <GoogleReviewsWidget />
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map(({ name, role, quote, rating }) => (
+              <div key={name} className="bg-white border border-border rounded-2xl p-6 shadow-sm card-hover">
+                <div className="flex gap-0.5 mb-4">
+                  {[...Array(rating)].map((_, i) => (
+                    <Star key={i} size={16} className="text-secondary fill-secondary" />
+                  ))}
+                </div>
+                <p className="text-text-light text-sm leading-relaxed mb-4 italic">"{quote}"</p>
+                <div className="border-t border-border pt-4">
+                  <div className="font-bold text-dark text-sm">{name}</div>
+                  <div className="text-text-light text-xs">{role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -286,8 +320,8 @@ export default function HowItWorksPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
               Get Started — Free <ArrowRight size={20} />
             </Link>
-            <a href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
-              <Phone size={20} /> {COMPANY.freephone}
+            <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-white/70 text-sm">

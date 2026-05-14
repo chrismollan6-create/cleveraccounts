@@ -29,7 +29,7 @@ import {
   Sparkles,
   Tag,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 import TaxCalculator from "@/components/ui/TaxCalculator";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
@@ -148,6 +148,7 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [], freephone }: HomePageClientProps) {
+  const brand = useBrand();
   const serviceTabs = buildServiceTabs(pricingPlans);
   const defaultTab = serviceTabs.find((t) => t.id === "limited-company")?.id || serviceTabs[0]?.id;
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -565,7 +566,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
               { step: "03", icon: <Rocket size={28} />, title: "You're Sorted", desc: "Your accountant handles everything. Focus on your business, not your books." },
             ].map((item, i) => (
               <div key={i} className="text-center relative z-10">
-                <div className="w-20 h-20 rounded-3xl bg-primary-50 text-primary flex items-center justify-center mx-auto mb-6 relative card-hover">
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6 relative card-hover">
                   {item.icon}
                   <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full gradient-cta text-white text-xs font-black flex items-center justify-center">
                     {item.step}
@@ -581,10 +582,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
 
       {/* ═══════════════════════════════════════
           MEET YOUR ACCOUNTANT — Human/service focus
-          HIDDEN: re-enable by removing the `{false && (` and matching `)}` below.
-          Names/initials/photos are placeholders — finalise before re-enabling.
           ═══════════════════════════════════════ */}
-      {false && (
       <section className="gradient-warm-section py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -685,7 +683,6 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
           </div>
         </div>
       </section>
-      )}
 
       {/* ═══════════════════════════════════════
           BEFORE / AFTER — Interactive slider
@@ -695,7 +692,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
       {/* ═══════════════════════════════════════
           VALUE COMPARISON — vs doing it yourself
           ═══════════════════════════════════════ */}
-      <section className="gradient-warm-section py-20 md:py-28">
+      <section className="bg-white py-20 md:py-28">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-14">
             <span className="text-primary font-bold text-sm uppercase tracking-wider">The Smart Choice</span>
@@ -735,7 +732,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
 
             {/* Clever Accounts column */}
             <div className="bg-white rounded-3xl p-8 border-2 border-primary relative overflow-hidden shadow-lg teal-glow">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-primary-light" />
+              <div className="absolute top-0 left-0 w-full h-1.5 gradient-cta" />
               <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
                 <Shield size={24} className="text-primary" />
                 With Clever Accounts
@@ -862,14 +859,16 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
               Get Started — From £42.50/mo <ArrowRight size={22} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 bg-dark text-white font-bold px-8 py-5 rounded-2xl text-lg hover:bg-secondary transition-all"
             >
               <Phone size={20} />
-              Call {COMPANY.freephone}
+              Call {brand.freephone}
             </a>
           </div>
-
+          <p className="text-text-light text-sm mt-6">
+            Or email us at <a href={`mailto:${brand.email}`} className="text-primary font-semibold hover:text-primary-dark">{brand.email}</a>
+          </p>
         </div>
       </section>
 

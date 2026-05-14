@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import { trackEvent, getStoredUTMParams, getReferralCode, getGclid, trackEnhancedConversion, getConversionValue } from "@/components/seo/GoogleTagManager";
+import { useBrand } from "@/lib/useBrand";
 
 interface FormData {
   firstName: string;
@@ -16,6 +17,7 @@ interface FormData {
 
 export default function SignUpPage() {
   const router = useRouter();
+  const brand = useBrand();
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -114,10 +116,10 @@ export default function SignUpPage() {
               <h1 className="text-4xl md:text-5xl font-bold text-dark mb-6">
                 Get Started with
                 <br />
-                <span className="text-primary">Clever Accounts</span>
+                <span className="text-primary">{brand.name}</span>
               </h1>
               <p className="text-lg text-text-light mb-8 max-w-lg">
-                Join 10,000+ UK businesses who trust us with their accounting.
+                Join {brand.stats.businesses.toLocaleString()}+ UK businesses who trust us with their accounting.
                 Sign up in minutes.
               </p>
               <div className="space-y-4">

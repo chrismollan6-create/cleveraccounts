@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     "Latest accounting news, tax tips and business advice from Clever Accounts. Expert insights for sole traders, limited companies, contractors, and landlords.",
 };
 
+// Revalidate every 60s so new Sanity posts/images appear without a manual deploy.
+export const revalidate = 60;
+
 const posts = [
   {
     slug: "mtd-income-tax-sole-traders",
@@ -88,8 +91,6 @@ const categoryGradients: Record<string, string> = {
   "Business Tips": "from-green-500/20 to-green-500/5",
   "VAT": "from-purple-500/20 to-purple-500/5",
 };
-
-export const revalidate = 60;
 
 function normaliseCategory(raw: string | undefined): string {
   const map: Record<string, string> = {
@@ -223,11 +224,23 @@ export default async function BlogPage() {
                 className="group bg-white border border-border rounded-2xl overflow-hidden card-hover flex flex-col"
               >
                 {/* Card image */}
-                <div className={`h-40 bg-gradient-to-br ${categoryGradients[post.category] ?? "from-primary/10 to-secondary/10"} flex items-center justify-center`}>
-                  <div className={`w-12 h-12 rounded-xl ${categoryDots[post.category] ?? "bg-primary"} flex items-center justify-center text-white text-lg font-black shadow-md`}>
-                    {post.category[0]}
+                {(post as { featuredImageUrl?: string | null }).featuredImageUrl ? (
+                  <div className="relative h-40 overflow-hidden">
+                    <Image
+                      src={(post as { featuredImageUrl: string }).featuredImageUrl}
+                      alt={post.title}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div className={`h-40 bg-gradient-to-br ${categoryGradients[post.category] ?? "from-primary/10 to-secondary/10"} flex items-center justify-center`}>
+                    <div className={`w-12 h-12 rounded-xl ${categoryDots[post.category] ?? "bg-primary"} flex items-center justify-center text-white text-lg font-black shadow-md`}>
+                      {post.category[0]}
+                    </div>
+                  </div>
+                )}
                 {/* Content */}
                 <div className="p-6 flex flex-col flex-1">
                   <div className="flex items-center gap-2 mb-3">

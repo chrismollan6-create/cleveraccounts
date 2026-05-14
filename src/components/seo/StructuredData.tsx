@@ -1,6 +1,7 @@
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
-export function OrganizationJsonLd() {
+export async function OrganizationJsonLd() {
+  const brand = await getBrand();
   const data = {
     "@context": "https://schema.org",
     "@type": ["AccountingService", "ProfessionalService", "LocalBusiness"],
@@ -16,8 +17,8 @@ export function OrganizationJsonLd() {
     image: "https://cleveraccounts.com/images/logo.png",
     description:
       "Expert online accountancy services for sole traders, limited companies, contractors and freelancers across the UK. Dedicated accountant, unlimited advice, free FreeAgent software from £42.50/month.",
-    telephone: COMPANY.freephone,
-    email: COMPANY.email,
+    telephone: brand.freephone,
+    email: brand.email,
     foundingDate: "2006",
     currenciesAccepted: "GBP",
     paymentAccepted: "Credit Card, Direct Debit",
@@ -40,9 +41,9 @@ export function OrganizationJsonLd() {
       },
     ],
     sameAs: [
-      COMPANY.social.facebook,
-      COMPANY.social.twitter,
-      COMPANY.social.linkedin,
+      brand.social.facebook,
+      brand.social.twitter,
+      brand.social.linkedin,
     ],
     aggregateRating: {
       "@type": "AggregateRating",

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CheckCircle2, AlertTriangle, AlertCircle, Download } from 'lucide-react';
-import { COMPANY } from '@/lib/constants';
+import { getBrand } from '@/lib/brand';
 
 interface Props {
   title: string;
@@ -21,7 +21,8 @@ const COLORS = {
   error: 'text-rose-600 bg-rose-50',
 };
 
-export default function LetterStateMessage({ title, body, variant, downloadUrl }: Props) {
+export default async function LetterStateMessage({ title, body, variant, downloadUrl }: Props) {
+  const brand = await getBrand();
   const Icon = ICONS[variant];
 
   return (
@@ -45,12 +46,12 @@ export default function LetterStateMessage({ title, body, variant, downloadUrl }
 
         <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-text-light">
           <span>Need help?</span>
-          <a className="text-primary hover:underline" href={`mailto:${COMPANY.email}`}>
-            {COMPANY.email}
+          <a className="text-primary hover:underline" href={`mailto:${brand.email}`}>
+            {brand.email}
           </a>
           <span className="text-gray-300 hidden sm:inline">·</span>
-          <a className="text-primary hover:underline" href={`tel:${COMPANY.phone.replace(/\s/g, '')}`}>
-            {COMPANY.phone}
+          <a className="text-primary hover:underline" href={`tel:${brand.phone.replace(/\s/g, '')}`}>
+            {brand.phone}
           </a>
         </div>
 

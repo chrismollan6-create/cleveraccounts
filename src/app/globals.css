@@ -218,6 +218,50 @@ body {
   animation: shimmer 2s infinite;
 }
 
+/* Portal page-to-page transition (used by app/portal/template.tsx) */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter {
+  animation: page-enter 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Mobile drawer slide-in (from left) */
+@keyframes drawer-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.animate-drawer-slide {
+  animation: drawer-slide 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Generic fade-in (used for backdrops) */
+@keyframes fade-in-only {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in-only 0.2s ease-out forwards;
+}
+
+/* Friendly waving hand emoji animation */
+@keyframes wave-hand {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50% { transform: rotate(14deg); }
+  20%, 40% { transform: rotate(-8deg); }
+}
+.animate-wave-hand {
+  animation: wave-hand 2.4s ease-in-out 0.6s 2;
+  transform-origin: 70% 70%;
+}
+
+/* Subtle dot grid background — used as a class on a wrapper for premium feel */
+.bg-dot-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.06) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
 /* Stagger children animations */
 .stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
 .stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
@@ -380,3 +424,136 @@ body {
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #1A7A9B; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #136280; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   WORKWELL BRAND OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════
+   Applied when <html data-brand="workwell"> (set by route-group layouts
+   from the host header via src/middleware.ts → src/lib/brand.ts).
+
+   The Tailwind v4 utilities (bg-primary, text-secondary, etc.) generated
+   from the @theme inline block at the top of this file resolve to var()
+   references — so simply re-defining the --color-* and --font-sans tokens
+   here is enough to re-theme every Tailwind colour utility.
+
+   The fixed-hex blocks below (gradients, buttons, glows, scrollbar) need
+   explicit duplicates because they were authored with literal hex rather
+   than var() refs. Migrating them to vars is a future cleanup.
+
+   Canonical Workwell palette extracted from workwellaccountancy.com
+   theme CSS on 2026-05-09 — see src/lib/constants.ts BRANDS.workwell.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+[data-brand="workwell"] {
+  --color-primary: #32535a;
+  --color-primary-dark: #233a40;
+  --color-primary-light: #4d7079;
+  --color-primary-50: #f6f9f0;
+  --color-secondary: #9cbf50;
+  --color-secondary-dark: #6f8052;
+  --color-secondary-light: #bdd289;
+  --color-accent: #71c5d6;
+  --color-surface: #edf3e0;
+  --color-surface-alt: #fafbec;
+  --color-text: #32535a;
+  --color-text-light: #6a7b82;
+  --font-sans: "Montserrat Alternates", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Hero / section gradient backgrounds — re-author with WW palette */
+[data-brand="workwell"] .gradient-hero {
+  background: linear-gradient(135deg, #1a2426 0%, #233a40 40%, #32535a 100%);
+}
+[data-brand="workwell"] .gradient-hero-warm {
+  background: linear-gradient(135deg, #f6f9f0 0%, #edf3e0 30%, #bdd289 100%);
+}
+[data-brand="workwell"] .gradient-hero-subtle {
+  background: linear-gradient(135deg, #f6f9f0 0%, #fafbec 100%);
+}
+[data-brand="workwell"] .gradient-cta {
+  background: linear-gradient(135deg, #9cbf50 0%, #6f8052 100%);
+}
+[data-brand="workwell"] .gradient-dark {
+  background: linear-gradient(135deg, #1a2426 0%, #233a40 100%);
+}
+[data-brand="workwell"] .gradient-teal {
+  background: linear-gradient(135deg, #32535a 0%, #233a40 100%);
+}
+[data-brand="workwell"] .gradient-vibrant {
+  background: linear-gradient(135deg, #32535a 0%, #9cbf50 100%);
+}
+[data-brand="workwell"] .gradient-warm-section {
+  background: linear-gradient(180deg, #f6f9f0 0%, #ffffff 100%);
+}
+
+/* Card hover shadows tinted with WW primary instead of Clever teal */
+[data-brand="workwell"] .card-hover:hover {
+  box-shadow: 0 25px 50px -12px rgba(50, 83, 90, 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.07);
+}
+[data-brand="workwell"] .card-glow:hover {
+  box-shadow: 0 0 30px rgba(50, 83, 90, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons — primary CTA becomes WW lime green; secondary becomes WW teal */
+[data-brand="workwell"] .btn-primary {
+  background: linear-gradient(135deg, #9cbf50, #6f8052);
+  box-shadow: 0 4px 15px rgba(156, 191, 80, 0.3);
+}
+[data-brand="workwell"] .btn-primary:hover {
+  box-shadow: 0 8px 25px rgba(156, 191, 80, 0.4);
+}
+[data-brand="workwell"] .btn-secondary {
+  background: linear-gradient(135deg, #32535a, #233a40);
+  box-shadow: 0 4px 15px rgba(50, 83, 90, 0.2);
+}
+[data-brand="workwell"] .btn-secondary:hover {
+  box-shadow: 0 8px 25px rgba(50, 83, 90, 0.3);
+}
+
+/* Decorative glow — orange→lime, teal→WW-teal */
+[data-brand="workwell"] .orange-glow {
+  box-shadow: 0 0 60px rgba(156, 191, 80, 0.15);
+}
+[data-brand="workwell"] .teal-glow {
+  box-shadow: 0 0 60px rgba(50, 83, 90, 0.15);
+}
+
+/* Pulse-glow keyframe uses fixed orange rgba — override per brand */
+[data-brand="workwell"] .animate-pulse-glow {
+  animation: pulse-glow-ww 2s ease-in-out infinite;
+}
+@keyframes pulse-glow-ww {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(156, 191, 80, 0.4); }
+  50% { box-shadow: 0 0 0 20px rgba(156, 191, 80, 0); }
+}
+
+/* Text gradients */
+[data-brand="workwell"] .text-gradient {
+  background: linear-gradient(135deg, #9cbf50, #6f8052);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+[data-brand="workwell"] .text-gradient-teal {
+  background: linear-gradient(135deg, #32535a, #233a40);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+[data-brand="workwell"] .text-gradient-vibrant {
+  background: linear-gradient(135deg, #32535a, #9cbf50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-brand="workwell"] .border-gradient {
+  background-image: linear-gradient(white, white), linear-gradient(135deg, #9cbf50, #32535a);
+}
+[data-brand="workwell"] .pattern-dots {
+  background-image: radial-gradient(circle, #32535a 1px, transparent 1px);
+}
+
+/* Custom scrollbar tinted to WW primary */
+[data-brand="workwell"] ::-webkit-scrollbar-thumb { background: #32535a; }
+[data-brand="workwell"] ::-webkit-scrollbar-thumb:hover { background: #233a40; }

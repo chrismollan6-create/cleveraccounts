@@ -7,7 +7,7 @@ import {
   Award, Users, TrendingUp, Headphones, Zap, Shield,
   FileText, BarChart2, Building2, MessageSquare, Calculator, Tag,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 import type { ServicePageData } from "@/lib/service-page-data";
 
 const BENEFIT_ICONS = [Award, TrendingUp, Shield, Headphones, Zap, Users];
@@ -34,6 +34,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function ServicePageTemplate({ data, children, promoBadge }: { data: ServicePageData; children?: React.ReactNode; promoBadge?: string | null }) {
+  const brand = useBrand();
   const colCount = data.serviceCategories
     ? data.serviceCategories.length <= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
     : "";
@@ -467,11 +468,11 @@ export default function ServicePageTemplate({ data, children, promoBadge }: { da
               Get Started <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 border-2 border-border text-dark font-semibold px-8 py-5 rounded-2xl text-lg hover:border-primary hover:text-primary transition-all"
             >
               <Phone size={20} />
-              Call Free: {COMPANY.freephone}
+              Call Free: {brand.freephone}
             </a>
           </div>
         </div>

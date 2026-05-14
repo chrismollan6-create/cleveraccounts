@@ -35,9 +35,17 @@ import { LIMITED_COMPANY_SCHEDULE } from './variants/limited-company-schedule';
 // allowlist per version (see EngagementLetterService.sign TODO).
 // =============================================================================
 
+// VERSION HISTORY
+//   v2 (2026-05): pre-multi-tenant baseline
+//   v3 (2026-05-09): introduced {{brandName}}, {{brandLegalName}},
+//                    {{brandPrivacyUrl}} mail-merge tokens — body content is
+//                    now brand-aware, so previous SHA hashes for Clever
+//                    Accounts letters won't match. Existing signed letters
+//                    keep their v2 hash forever (legally archived); only
+//                    NEW signings use v3.
 export const VERSIONS: Record<VariantId, string> = {
-  'sole-trader': 'sole-trader-2026-05-v2',
-  'limited-company': 'limited-company-2026-05-v2',
+  'sole-trader': 'sole-trader-2026-05-v3',
+  'limited-company': 'limited-company-2026-05-v3',
 };
 
 // =============================================================================
@@ -67,6 +75,10 @@ export function mergeTokens(input: string, ctx: MergeContext): string {
     lastName: ctx.lastName,
     phoneNumber: ctx.phoneNumber,
     supportEmail: ctx.supportEmail,
+    brandName: ctx.brandName,
+    brandLegalName: ctx.brandLegalName,
+    brandPrivacyUrl: ctx.brandPrivacyUrl,
+    brandPostalAddress: ctx.brandPostalAddress,
   };
 
   const out = input.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => {

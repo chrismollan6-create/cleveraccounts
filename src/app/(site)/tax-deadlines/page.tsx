@@ -15,7 +15,7 @@ import {
   Receipt,
   Landmark,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 // ── Self Assessment deadline rows ─────────────────────────────
 const selfAssessmentDeadlines = [
@@ -231,7 +231,8 @@ function WaveDividerSurface({ fromDark }: { fromDark: boolean }) {
 }
 
 // ── Page component ────────────────────────────────────────────
-export default function TaxDeadlinesPage() {
+export default async function TaxDeadlinesPage() {
+  const brand = await getBrand();
   return (
     <>
       {/* ══════════════════════════════════════════
@@ -262,7 +263,7 @@ export default function TaxDeadlinesPage() {
               Missing an HMRC deadline costs you money — £100 on day one, escalating fast. This is your complete reference for every Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD deadline in the UK.
             </p>
             <p className="text-white/60 leading-relaxed mb-10">
-              With {COMPANY.name}, your dedicated accountant tracks every deadline for you. No surprises. No penalties. No stress.
+              With {brand.name}, your dedicated accountant tracks every deadline for you. No surprises. No penalties. No stress.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -273,10 +274,10 @@ export default function TaxDeadlinesPage() {
                 Never miss a deadline <ArrowRight size={20} />
               </Link>
               <a
-                href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+                href={`tel:${brand.freephone.replace(/\s/g, "")}`}
                 className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20"
               >
-                <Phone size={20} /> {COMPANY.freephone}
+                <Phone size={20} /> {brand.freephone}
               </a>
             </div>
           </div>
@@ -738,7 +739,7 @@ export default function TaxDeadlinesPage() {
             We Handle All of This for You
           </h2>
           <p className="text-lg text-white/90 leading-relaxed mb-4 max-w-2xl mx-auto">
-            Every deadline above — Self Assessment, Corporation Tax, VAT, PAYE, Companies House, MTD — your dedicated {COMPANY.name} accountant tracks and manages them all. You focus on your business.
+            Every deadline above — Self Assessment, Corporation Tax, VAT, PAYE, Companies House, MTD — your dedicated {brand.name} accountant tracks and manages them all. You focus on your business.
           </p>
           <p className="text-white/75 mb-10 max-w-xl mx-auto">
             No deadline surprises. No HMRC penalties. No stress. From £42.50/month with no setup fees and no minimum contract.
@@ -769,10 +770,10 @@ export default function TaxDeadlinesPage() {
               Get Started Today <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/25 transition-all border border-white/30"
             >
-              <Phone size={20} /> {COMPANY.freephone}
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>

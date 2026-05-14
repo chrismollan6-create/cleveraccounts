@@ -6,7 +6,7 @@ import {
   CheckCircle2, ArrowRight, Phone, ChevronDown, HelpCircle,
   AlertCircle, FileText, Shield, Users, BarChart2, Calculator, Building2, UserCheck,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 export const dynamic = "force-static";
 
@@ -179,6 +179,7 @@ const breadcrumbJsonLd = {
 };
 
 export default function SmallBusinessAccountantPage() {
+  const brand = useBrand();
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
@@ -504,11 +505,11 @@ export default function SmallBusinessAccountantPage() {
               Get Started <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center gap-2 border-2 border-white/40 text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white/10 transition-all"
             >
               <Phone size={20} />
-              Call Free: {COMPANY.freephone}
+              Call Free: {brand.freephone}
             </a>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { renderLetter, type VariantId, type Jurisdiction, type MergeContext } from '@/content/engagement-letter';
-import { COMPANY } from '@/lib/constants';
+import { getBrand } from '@/lib/brand';
 import EngagementLetterClient from './EngagementLetterClient';
 import LetterStateMessage from './LetterStateMessage';
 
@@ -25,11 +25,14 @@ interface ApexLetterDto {
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Engagement Letter | Clever Accounts',
-  description: "Review and sign your engagement letter with Clever Accounts.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata() {
+  const brand = await getBrand();
+  return {
+    title: `Engagement Letter | ${brand.name}`,
+    description: `Review and sign your engagement letter with ${brand.name}.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 async function fetchLetter(token: string): Promise<{ status: number; data: ApexLetterDto | { error: string } }> {
   const sfToken = await getSalesforceToken();
@@ -56,6 +59,7 @@ export default async function EngagementLetterPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
+  const brand = await getBrand();
 
   if (!token || token.length < 10) {
     notFound();
@@ -91,7 +95,7 @@ export default async function EngagementLetterPage({
     return (
       <LetterStateMessage
         title="This signing link has expired"
-        body={`For security, signing links expire after a fixed period. Please contact us at ${COMPANY.email} or ${COMPANY.phone} and we'll send you a fresh letter.`}
+        body={`For security, signing links expire after a fixed period. Please contact us at ${brand.email} or ${brand.phone} and we'll send you a fresh letter.`}
         variant="warning"
       />
     );
@@ -107,8 +111,12 @@ export default async function EngagementLetterPage({
     businessName: dto.businessName ?? '',
     firstName: dto.signerFirstName ?? '',
     lastName: dto.signerLastName ?? '',
-    phoneNumber: COMPANY.phone,
-    supportEmail: 'support@cleveraccounts.com',
+    phoneNumber: brand.phone,
+    supportEmail: brand.supportEmail,
+    brandName: brand.name,
+    brandLegalName: brand.legalName,
+    brandPrivacyUrl: `https://${brand.domain}/privacy`,
+    brandPostalAddress: brand.postalAddress,
   };
 
   // If signer name / business name aren't filled in by Salesforce we should

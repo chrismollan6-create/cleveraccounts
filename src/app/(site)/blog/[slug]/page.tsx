@@ -13,7 +13,7 @@ import {
 } from "@/components/blog/PortableTextBlocks";
 import { getBlogPost, getBlogSlugs } from "@/lib/sanity";
 import { getSiteSettings } from "@/sanity/queries";
-import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
 // ── Hardcoded fallback posts ──────────────────────────────────────────────────
 const HARDCODED: Record<string, { title: string; category: string; date: string; author: string; content: string[] }> = {
@@ -277,8 +277,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const publishedIso = new Date(post.date).toISOString();
 
-  let freephone = COMPANY.freephone;
-  let email = COMPANY.email;
+  const brand = await getBrand();
+  let freephone = brand.freephone;
+  let email = brand.email;
   try {
     const settings = await getSiteSettings();
     if (settings?.freephone) freephone = settings.freephone;
