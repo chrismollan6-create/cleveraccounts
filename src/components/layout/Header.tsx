@@ -43,7 +43,8 @@ export default function Header({
   };
 
   const handleMouseLeave = () => {
-    closeTimer.current = setTimeout(() => setOpenDropdown(null), 120);
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenDropdown(null), 400);
   };
 
   return (
@@ -94,31 +95,31 @@ export default function Header({
                     {/* Mega menu — sections */}
                     {hasSections && (
                       <div
-                        className={`absolute top-full left-0 bg-white rounded-2xl shadow-xl border border-border transition-all duration-200 ${
+                        className={`absolute top-full left-0 pt-2 transition-all duration-200 ${
                           isOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
                         }`}
                         style={{ minWidth: "520px" }}
-                        onMouseEnter={() => handleMouseEnter(link.label)}
-                        onMouseLeave={handleMouseLeave}
                       >
-                        <div className="grid grid-cols-2 gap-0 p-3">
-                          {link.sections!.map((section, si) => (
-                            <div key={section.heading} className={`p-2 ${si === 0 ? "border-r border-border" : ""}`}>
-                              <p className="text-xs font-bold uppercase tracking-widest text-text-light px-2 pb-2 pt-1">
-                                {section.heading}
-                              </p>
-                              {section.items.map((item) => (
-                                <Link
-                                  key={item.href}
-                                  href={item.href}
-                                  onClick={() => setOpenDropdown(null)}
-                                  className="block px-2 py-2 text-sm text-text hover:text-primary hover:bg-surface rounded-lg transition-colors"
-                                >
-                                  {item.label}
-                                </Link>
-                              ))}
-                            </div>
-                          ))}
+                        <div className="bg-white rounded-2xl shadow-xl border border-border">
+                          <div className="grid grid-cols-2 gap-0 p-3">
+                            {link.sections!.map((section, si) => (
+                              <div key={section.heading} className={`p-2 ${si === 0 ? "border-r border-border" : ""}`}>
+                                <p className="text-xs font-bold uppercase tracking-widest text-text-light px-2 pb-2 pt-1">
+                                  {section.heading}
+                                </p>
+                                {section.items.map((item) => (
+                                  <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setOpenDropdown(null)}
+                                    className="block px-2 py-2 text-sm text-text hover:text-primary hover:bg-surface rounded-lg transition-colors"
+                                  >
+                                    {item.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -126,22 +127,22 @@ export default function Header({
                     {/* Simple dropdown — flat children */}
                     {hasChildren && !hasSections && (
                       <div
-                        className={`absolute top-full left-0 w-56 bg-white rounded-xl shadow-xl border border-border p-2 transition-all duration-200 ${
+                        className={`absolute top-full left-0 w-56 pt-2 transition-all duration-200 ${
                           isOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
                         }`}
-                        onMouseEnter={() => handleMouseEnter(link.label)}
-                        onMouseLeave={handleMouseLeave}
                       >
-                        {link.children!.map((child) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            onClick={() => setOpenDropdown(null)}
-                            className="block px-3 py-2.5 text-sm text-text hover:text-primary hover:bg-surface rounded-lg transition-colors"
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
+                        <div className="bg-white rounded-xl shadow-xl border border-border p-2">
+                          {link.children!.map((child) => (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              onClick={() => setOpenDropdown(null)}
+                              className="block px-3 py-2.5 text-sm text-text hover:text-primary hover:bg-surface rounded-lg transition-colors"
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

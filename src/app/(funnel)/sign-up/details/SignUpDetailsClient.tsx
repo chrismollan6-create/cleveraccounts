@@ -1012,6 +1012,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
     // Step 1 — Business basics + switching
     if (s === 1) {
       if (!formData.company.trim()) errors.company = "Please enter your business name";
+      if (!formData.sector.trim()) errors.sector = "Please select your business sector";
       if (!formData.describeTheBusiness.trim()) errors.describeTheBusiness = "Please describe your business";
       if (isLtd && !formData.newCompany && !formData.companyNumber.trim()) {
         errors.companyNumber = "Enter your company number";
@@ -1597,6 +1598,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   <SectorSearch
                     value={formData.sector}
                     onChange={(v) => set("sector", v)}
+                    error={err("sector")}
                   />
 
                   <FieldWrapper label={`Briefly Describe ${isLtd ? "the Company" : "the Business"}`} required
@@ -2177,7 +2179,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
 // ─── Sector search ────────────────────────────────────────────────────────────
 
-function SectorSearch({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function SectorSearch({ value, onChange, error }: { value: string; onChange: (v: string) => void; error?: string }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -2195,7 +2197,7 @@ function SectorSearch({ value, onChange }: { value: string; onChange: (v: string
     <div>
       <div className="flex items-center gap-1.5 mb-1.5">
         <label className="block text-sm font-medium text-dark">
-          Business Sector <span className="text-text-light font-normal">(optional)</span>
+          Business Sector <span className="text-red-500 ml-0.5">*</span>
         </label>
       </div>
       <p className="text-xs text-text-light mb-1.5">Start typing to search — e.g. &ldquo;IT&rdquo;, &ldquo;construction&rdquo;, &ldquo;health&rdquo;</p>
@@ -2209,7 +2211,7 @@ function SectorSearch({ value, onChange }: { value: string; onChange: (v: string
             onFocus={() => setOpen(true)}
             onBlur={() => setTimeout(() => setOpen(false), 150)}
             placeholder="Search for your sector…"
-            className={`${inputCls} pl-9 pr-9`}
+            className={`${error ? inputErrCls : inputCls} pl-9 pr-9`}
           />
           {(query || value) && (
             <button type="button" onMouseDown={() => { setQuery(""); onChange(""); }}
@@ -2233,10 +2235,13 @@ function SectorSearch({ value, onChange }: { value: string; onChange: (v: string
           </div>
         )}
       </div>
-      {value && (
+      {value && !error && (
         <p className="text-xs text-success mt-1.5 flex items-center gap-1">
           <CheckCircle2 size={12} /> Selected: <strong>{value}</strong>
         </p>
+      )}
+      {error && (
+        <p className="text-xs text-red-500 mt-1.5 font-medium">{error}</p>
       )}
     </div>
   );
