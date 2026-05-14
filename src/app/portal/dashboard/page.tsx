@@ -212,7 +212,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         }}
         aria-hidden
       />
-      <div className="relative px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">
+      <div className="relative px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
         {children}
       </div>
     </div>
@@ -268,7 +268,7 @@ function DashboardBody({
       </div>
 
       {/* 2-COL LAYOUT */}
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT MAIN */}
         <div className="space-y-4">
           <NextStepHero
