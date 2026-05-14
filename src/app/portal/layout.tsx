@@ -45,10 +45,12 @@ export default async function PortalLayout({
   const activeHref =
     pathname && pathname.startsWith("/portal") ? pathname : "/portal/dashboard";
 
-  // Compute sidebar notification counts. Cached fetch — same call from the
-  // dashboard page won't re-hit Salesforce. Skip silently on any failure;
-  // the layout shouldn't break if the badge data isn't available.
+  // Compute sidebar notification counts + accountant + next-action all from
+  // one cached fetch — same call from the dashboard page won't re-hit
+  // Salesforce. Skip silently on any failure; the layout never breaks.
   let notifications: Partial<Record<string, number>> = {};
+  let accountant: import("@/lib/portal/types").PortalAccountantInfo | null = null;
+  let nextAction: { title: string; sub: string; href: string } | null = null;
   if (isSignedIn) {
     try {
       const result = await getOnboardingForCurrentUser();
@@ -66,6 +68,25 @@ export default async function PortalLayout({
           "/portal/documents": pendingDocs,
           "/portal/appointments": pendingAppointments,
         };
+        accountant = status.accountant ?? null;
+        // Derive a sidebar "what's next" reminder from the current stage.
+        if (!status.isComplete && status.nextActionLabel) {
+          const due = status.currentStageDue ? new Date(status.currentStageDue) : null;
+          const overdue =
+            due && due.getTime() < Date.now()
+              ? Math.floor((Date.now() - due.getTime()) / 86_400_000)
+              : 0;
+          nextAction = {
+            title: status.nextActionLabel,
+            sub:
+              overdue > 0
+                ? `${overdue} day${overdue === 1 ? "" : "s"} overdue`
+                : status.blockedOn === "client"
+                  ? "Needs you"
+                  : "In progress",
+            href: status.accountant?.calendlyUrl ?? "/portal/dashboard",
+          };
+        }
       }
     } catch {
       // Layout never breaks for badge issues.
@@ -105,6 +126,8 @@ export default async function PortalLayout({
                 activeHref={activeHref}
                 isSignedIn={isSignedIn}
                 notifications={notifications}
+                accountant={accountant}
+                nextAction={nextAction}
               >
                 {children}
               </PortalShell>
