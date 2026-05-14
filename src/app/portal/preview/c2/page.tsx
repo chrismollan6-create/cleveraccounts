@@ -27,6 +27,7 @@ import {
   Upload,
 } from "lucide-react";
 import { MOCK_STATUS, MOCK_FIRST_NAME } from "../_mock";
+import PreviewSidebar from "../_PreviewSidebar";
 
 const font = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
@@ -99,10 +100,11 @@ export default function PreviewC2() {
   const pct = Math.round((completed / s.totalStages) * 100);
 
   return (
+    <PreviewSidebar>
     <div className={`${font.className} min-h-screen bg-neutral-100`}>
       <PreviewBadge variant="C2" label="Mercury bento" next="c3" prev="c1" />
 
-      <div className="mx-auto max-w-6xl px-5 py-6">
+      <div className="mx-auto max-w-5xl px-5 py-6">
         {/* HEADER */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-baseline gap-3">
@@ -594,6 +596,7 @@ export default function PreviewC2() {
         </div>
       </div>
     </div>
+    </PreviewSidebar>
   );
 }
 

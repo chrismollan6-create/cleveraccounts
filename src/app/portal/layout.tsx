@@ -78,6 +78,11 @@ export default async function PortalLayout({
       ? `https://fonts.googleapis.com/css2?family=${fontFamilyParam}:wght@${brand.font.weights}&display=swap`
       : null;
 
+  // Design-preview routes bring their own shell so we can A/B sidebars.
+  // Skip the default PortalShell for /portal/preview/* but keep Clerk +
+  // brand + html chrome so the preview still runs in the real environment.
+  const isPreview = pathname.startsWith("/portal/preview");
+
   return (
     <ClerkProvider>
       <html lang="en" className="h-full" data-brand={brand.id}>
@@ -92,14 +97,18 @@ export default async function PortalLayout({
         </head>
         <body className="min-h-full font-sans antialiased text-text">
           <BrandProvider brandId={brand.id}>
-            <PortalShell
-              brand={brand}
-              activeHref={activeHref}
-              isSignedIn={isSignedIn}
-              notifications={notifications}
-            >
-              {children}
-            </PortalShell>
+            {isPreview ? (
+              children
+            ) : (
+              <PortalShell
+                brand={brand}
+                activeHref={activeHref}
+                isSignedIn={isSignedIn}
+                notifications={notifications}
+              >
+                {children}
+              </PortalShell>
+            )}
           </BrandProvider>
           <VercelMonitoring />
         </body>
