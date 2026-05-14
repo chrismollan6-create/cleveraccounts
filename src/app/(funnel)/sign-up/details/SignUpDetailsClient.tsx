@@ -82,6 +82,15 @@ const EMPTY_FORM: FormData = {
   stripePaymentIntentId: "", termsAccepted: false,
 };
 
+// ISO yyyy-mm-dd → DD/MM/YYYY for UK-facing summary display.
+// Returns the original string unchanged if it isn't a valid ISO date.
+function formatDobUK(iso: string): string {
+  if (!iso) return "";
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
 const SECTORS = [
   // Animals & Pets
   "Animal Behaviourist",
@@ -675,10 +684,10 @@ const STEPS = [
   { label: "Confirm", icon: <CheckCircle2 size={16} />, time: "30s" },
 ];
 
-function StepIndicator({ current }: { current: number }) {
+function StepIndicator({ current, steps = STEPS }: { current: number; steps?: typeof STEPS }) {
   return (
     <div className="flex items-center mb-6">
-      {STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const num = i + 1;
         const done = num < current;
         const active = num === current;
@@ -698,7 +707,7 @@ function StepIndicator({ current }: { current: number }) {
                 {step.label}
               </span>
             </div>
-            {i < STEPS.length - 1 && (
+            {i < steps.length - 1 && (
               <div className={`flex-1 h-0.5 mx-1 md:mx-2 mb-5 transition-colors ${done ? "bg-success" : "bg-gray-200"}`} />
             )}
           </div>
@@ -839,6 +848,12 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   const isFirstMonthFree = formData.signUpIncentive === "1st month free";
   const monthlyFee = parseFloat(formData.expectedFee || "0");
   const chargeAmount = monthlyFee > 0 ? parseFloat((monthlyFee * 0.5).toFixed(2)) : 0;
+
+  // Only Limited Companies see the Payment step (50% off first 3 months is Ltd-only).
+  // Sole traders / others go Addresses → Confirm. STEPS[3] is "Payment".
+  const visibleSteps = isLtd ? STEPS : STEPS.filter((_, i) => i !== 3);
+  const totalSteps = visibleSteps.length;
+  const displayStep = isLtd ? step : (step === 5 ? 4 : step);
   // VAT is added by Stripe automatic_tax based on customer's UK billing address.
   // We surface the gross figure in the UI so the Pay button matches what Stripe debits.
   const VAT_RATE = 0.20;
@@ -1064,11 +1079,14 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
       transferring: formData.transferringFromAccountant,
       ...getStoredUTMParams(),
     });
-    setStep((s) => s + 1);
+    setStep((s) => (s === 3 && !isLtd ? 5 : s + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function handleBack() { setStep((s) => s - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function handleBack() {
+    setStep((s) => (s === 5 && !isLtd ? 3 : s - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   function handleSkip() { setStep((s) => s + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
@@ -1433,7 +1451,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {displayStep} of {totalSteps} · ~{STEPS[step - 1]?.time}</p>
                 </div>
                 <h1 className="text-3xl xl:text-4xl font-black text-dark tracking-tight leading-[1.1]">
                   {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
@@ -1492,7 +1510,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
             <div className="lg:hidden text-center mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
+                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {displayStep} of {totalSteps} · ~{STEPS[step - 1]?.time}</p>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-dark tracking-tight leading-[1.1]">
                 {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
@@ -1513,7 +1531,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
         {/* Card — lighter chrome, more breathing room */}
         <div className="bg-white rounded-3xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
           <div className="p-6 md:p-10">
-            <StepIndicator current={step} />
+            <StepIndicator current={displayStep} steps={visibleSteps} />
 
             {/* Validation error banner */}
             {hasErrors && (
@@ -1877,7 +1895,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   </InfoBox>
                 )}
 
-                <NextUpHint title="Next: Secure your account" desc="50% off your first 3 months — fully refundable, cancel anytime." icon={<CreditCard size={14} />} />
+                {isLtd ? (
+                  <NextUpHint title="Next: Secure your account" desc="50% off your first 3 months — fully refundable, cancel anytime." icon={<CreditCard size={14} />} />
+                ) : (
+                  <NextUpHint title="Next: Review & confirm" desc="A quick check that everything looks right, then we'll get you onboarded." icon={<CheckCircle2 size={14} />} />
+                )}
               </div>
             )}
 
@@ -1939,7 +1961,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                         {[
                           "50% discount on your first 3 months",
                           "Full price applies from month 4",
-                          "Refundable if you're not happy",
+                          "This payment is refundable if you're not happy",
                           "Cancel anytime — no minimum contract",
                         ].map((item) => (
                           <div key={item} className="flex items-center gap-2 text-text">
@@ -1995,7 +2017,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   </SummaryCard>
 
                   <SummaryCard title="Personal" colour="green">
-                    <SummaryRow label="Date of Birth" value={formData.dateOfBirth} />
+                    <SummaryRow label="Date of Birth" value={formatDobUK(formData.dateOfBirth)} />
                     <SummaryRow label="Nationality" value={formData.nationality} />
                     {formData.nationalInsuranceNumber && <SummaryRow label="NI Number" value={formData.nationalInsuranceNumber} />}
                     <SummaryRow label="Home Address" value={[formData.ownerStreet, formData.ownerCity, formData.ownerPostalCode].filter(Boolean).join(", ")} />
@@ -2109,12 +2131,12 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   </div>
                   <p className="text-sm text-text">
                     I have read and accept the{" "}
-                    <a href="https://www.cleveraccounts.co.uk/terms" target="_blank" rel="noopener noreferrer"
+                    <a href="/terms" target="_blank" rel="noopener noreferrer"
                       className="text-primary underline font-medium" onClick={(e) => e.stopPropagation()}>
                       Terms and Conditions
                     </a>{" "}
                     and{" "}
-                    <a href="https://www.cleveraccounts.co.uk/privacy" target="_blank" rel="noopener noreferrer"
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer"
                       className="text-primary underline font-medium" onClick={(e) => e.stopPropagation()}>
                       Privacy Policy
                     </a>
@@ -2159,7 +2181,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
           <div className="flex items-center gap-3">
             <p className="hidden md:block text-xs text-text-light">
-              Step {step} of 5
+              Step {displayStep} of {totalSteps}
             </p>
             {step < 5 && !(step === 4 && !isFirstMonthFree) && (
               <button type="button" onClick={handleNext} disabled={isSaving}
