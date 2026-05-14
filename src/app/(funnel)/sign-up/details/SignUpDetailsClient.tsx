@@ -684,10 +684,10 @@ const STEPS = [
   { label: "Confirm", icon: <CheckCircle2 size={16} />, time: "30s" },
 ];
 
-function StepIndicator({ current, steps = STEPS }: { current: number; steps?: typeof STEPS }) {
+function StepIndicator({ current }: { current: number }) {
   return (
     <div className="flex items-center mb-6">
-      {steps.map((step, i) => {
+      {STEPS.map((step, i) => {
         const num = i + 1;
         const done = num < current;
         const active = num === current;
@@ -707,7 +707,7 @@ function StepIndicator({ current, steps = STEPS }: { current: number; steps?: ty
                 {step.label}
               </span>
             </div>
-            {i < steps.length - 1 && (
+            {i < STEPS.length - 1 && (
               <div className={`flex-1 h-0.5 mx-1 md:mx-2 mb-5 transition-colors ${done ? "bg-success" : "bg-gray-200"}`} />
             )}
           </div>
@@ -847,13 +847,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   const isCIS = formData.businessStructure === "CIS";
   const isFirstMonthFree = formData.signUpIncentive === "1st month free";
   const monthlyFee = parseFloat(formData.expectedFee || "0");
-  const chargeAmount = monthlyFee > 0 ? parseFloat((monthlyFee * 0.5).toFixed(2)) : 0;
-
-  // Only Limited Companies see the Payment step (50% off first 3 months is Ltd-only).
-  // Sole traders / others go Addresses → Confirm. STEPS[3] is "Payment".
-  const visibleSteps = isLtd ? STEPS : STEPS.filter((_, i) => i !== 3);
-  const totalSteps = visibleSteps.length;
-  const displayStep = isLtd ? step : (step === 5 ? 4 : step);
+  // 50% off first 3 months is a Limited Company offer only.
+  // Sole traders / others pay the full monthly fee upfront at step 4.
+  const chargeAmount = monthlyFee > 0
+    ? parseFloat((isLtd ? monthlyFee * 0.5 : monthlyFee).toFixed(2))
+    : 0;
   // VAT is added by Stripe automatic_tax based on customer's UK billing address.
   // We surface the gross figure in the UI so the Pay button matches what Stripe debits.
   const VAT_RATE = 0.20;
@@ -1079,14 +1077,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
       transferring: formData.transferringFromAccountant,
       ...getStoredUTMParams(),
     });
-    setStep((s) => (s === 3 && !isLtd ? 5 : s + 1));
+    setStep((s) => s + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function handleBack() {
-    setStep((s) => (s === 5 && !isLtd ? 3 : s - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  function handleBack() { setStep((s) => s - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   function handleSkip() { setStep((s) => s + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
@@ -1451,7 +1446,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {displayStep} of {totalSteps} · ~{STEPS[step - 1]?.time}</p>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
                 </div>
                 <h1 className="text-3xl xl:text-4xl font-black text-dark tracking-tight leading-[1.1]">
                   {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
@@ -1464,7 +1459,9 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   {step === 1 && "A few quick things about your business so we can match you with the right accountant."}
                   {step === 2 && "HMRC requires us to verify who you are before we can act on your behalf. Takes about 60 seconds."}
                   {step === 3 && "These addresses are used for HMRC correspondence and your statutory filings."}
-                  {step === 4 && "50% off your first 3 months. Secure your account with a small upfront payment."}
+                  {step === 4 && (isLtd
+                    ? "50% off your first 3 months. Secure your account with a small upfront payment."
+                    : "Secure your account with your first month's fee — fully refundable.")}
                   {step === 5 && "A quick check that everything looks right, then we'll get you onboarded."}
                 </p>
               </div>
@@ -1510,7 +1507,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
             <div className="lg:hidden text-center mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {displayStep} of {totalSteps} · ~{STEPS[step - 1]?.time}</p>
+                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-dark tracking-tight leading-[1.1]">
                 {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
@@ -1523,7 +1520,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                 {step === 1 && "A few quick things about your business."}
                 {step === 2 && "HMRC requires us to verify who you are. Takes about 60 seconds."}
                 {step === 3 && "Used for HMRC correspondence and your statutory filings."}
-                {step === 4 && "50% off your first 3 months."}
+                {step === 4 && (isLtd ? "50% off your first 3 months." : "Your first month upfront — fully refundable.")}
                 {step === 5 && "Quick check that everything looks right."}
               </p>
             </div>
@@ -1531,7 +1528,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
         {/* Card — lighter chrome, more breathing room */}
         <div className="bg-white rounded-3xl shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
           <div className="p-6 md:p-10">
-            <StepIndicator current={displayStep} steps={visibleSteps} />
+            <StepIndicator current={step} />
 
             {/* Validation error banner */}
             {hasErrors && (
@@ -1895,11 +1892,13 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   </InfoBox>
                 )}
 
-                {isLtd ? (
-                  <NextUpHint title="Next: Secure your account" desc="50% off your first 3 months — fully refundable, cancel anytime." icon={<CreditCard size={14} />} />
-                ) : (
-                  <NextUpHint title="Next: Review & confirm" desc="A quick check that everything looks right, then we'll get you onboarded." icon={<CheckCircle2 size={14} />} />
-                )}
+                <NextUpHint
+                  title="Next: Secure your account"
+                  desc={isLtd
+                    ? "50% off your first 3 months — fully refundable, cancel anytime."
+                    : "Your first month upfront — fully refundable, cancel anytime."}
+                  icon={<CreditCard size={14} />}
+                />
               </div>
             )}
 
@@ -1928,7 +1927,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                     </div>
                     <h3 className="text-xl font-bold text-dark mb-2">Payment Received!</h3>
                     <p className="text-text-light">
-                      <strong>£{chargeAmountInclVat.toFixed(2)}</strong> collected today (£{chargeAmount.toFixed(2)} + £{vatAmount.toFixed(2)} VAT) — that&apos;s 50% off your first 3 months.
+                      <strong>£{chargeAmountInclVat.toFixed(2)}</strong> collected today (£{chargeAmount.toFixed(2)} + £{vatAmount.toFixed(2)} VAT){isLtd ? " — that's 50% off your first 3 months." : " — your first month upfront."}
                     </p>
                   </div>
                 ) : (
@@ -1941,8 +1940,8 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                           <p className="text-2xl font-bold text-dark">£{monthlyFee.toFixed(2)}<span className="text-sm font-normal text-text-light">/month + VAT</span></p>
                         </div>
                         <div className="text-right">
-                          <div className="inline-block bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full mb-1">50% OFF</div>
-                          <p className="text-sm text-text-light">First 3 months</p>
+                          {isLtd && <div className="inline-block bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full mb-1">50% OFF</div>}
+                          <p className="text-sm text-text-light">{isLtd ? "First 3 months" : "First month"}</p>
                           <p className="text-2xl font-bold text-primary">£{chargeAmount.toFixed(2)}<span className="text-sm font-normal text-text-light"> + VAT</span></p>
                         </div>
                       </div>
@@ -1958,12 +1957,20 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                         </div>
                       </div>
                       <div className="border-t border-primary/10 pt-4 space-y-2 text-sm">
-                        {[
-                          "50% discount on your first 3 months",
-                          "Full price applies from month 4",
-                          "This payment is refundable if you're not happy",
-                          "Cancel anytime — no minimum contract",
-                        ].map((item) => (
+                        {(isLtd
+                          ? [
+                              "50% discount on your first 3 months",
+                              "Full price applies from month 4",
+                              "This payment is refundable if you're not happy",
+                              "Cancel anytime — no minimum contract",
+                            ]
+                          : [
+                              "Your first month's fee, paid upfront",
+                              "Standard monthly billing from month 2",
+                              "This payment is refundable if you're not happy",
+                              "Cancel anytime — no minimum contract",
+                            ]
+                        ).map((item) => (
                           <div key={item} className="flex items-center gap-2 text-text">
                             <CheckCircle2 size={14} className="text-success shrink-0" />
                             {item}
@@ -2043,14 +2050,19 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                         <span className="text-sm text-text">First month</span>
                         <span className="font-bold text-success">FREE</span>
                       </div>
-                    ) : (
+                    ) : isLtd ? (
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-text">Months 1–3 <span className="text-xs bg-primary text-white rounded-full px-2 py-0.5 ml-1">50% OFF</span></span>
                         <span className="font-bold text-primary">£{chargeAmount.toFixed(2)}/month + VAT</span>
                       </div>
+                    ) : (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-text">First month (paid upfront)</span>
+                        <span className="font-bold text-primary">£{chargeAmount.toFixed(2)} + VAT</span>
+                      </div>
                     )}
                     <div className="flex justify-between items-center border-t border-primary/10 pt-2">
-                      <span className="text-sm text-text">From month 4 onwards</span>
+                      <span className="text-sm text-text">{isLtd ? "From month 4 onwards" : "From month 2 onwards"}</span>
                       <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
                     </div>
                   </div>
@@ -2181,7 +2193,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
           <div className="flex items-center gap-3">
             <p className="hidden md:block text-xs text-text-light">
-              Step {displayStep} of {totalSteps}
+              Step {step} of 5
             </p>
             {step < 5 && !(step === 4 && !isFirstMonthFree) && (
               <button type="button" onClick={handleNext} disabled={isSaving}
