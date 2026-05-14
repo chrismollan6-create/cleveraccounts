@@ -201,7 +201,22 @@ export default async function DashboardPage() {
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">{children}</div>;
+  return (
+    <div className="relative">
+      {/* Soft brand-tinted page wash — replaces pure white background */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-96"
+        style={{
+          background:
+            "radial-gradient(60% 100% at 30% 0%, rgb(59 130 246 / 0.06) 0%, transparent 70%), radial-gradient(60% 100% at 80% 0%, rgb(34 197 94 / 0.04) 0%, transparent 70%)",
+        }}
+        aria-hidden
+      />
+      <div className="relative px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">
+        {children}
+      </div>
+    </div>
+  );
 }
 
 function DashboardBody({
@@ -318,16 +333,19 @@ function NextStepHero({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500" />
+    <section className="group relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/40 to-cyan-50/30 shadow-sm transition hover:shadow-md">
+      {/* Thicker brand accent stripe */}
+      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500" />
+      {/* Soft blue glow in corner */}
+      <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-400/10 blur-3xl" />
       <div className="relative p-7">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
-            <Sparkles size={12} className="text-blue-600" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+            <Sparkles size={12} className="text-amber-300" />
             Your next step · Stage {status.stageNumber}/{status.totalStages}
           </div>
           {overdueDays > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-300">
               <Clock size={11} /> {overdueDays} day{overdueDays === 1 ? "" : "s"} overdue
             </span>
           )}
@@ -343,16 +361,18 @@ function NextStepHero({
           Until this is done, the rest of onboarding stays paused.
         </p>
 
-        {/* What we'll cover */}
+        {/* What we'll cover — stronger blue tint */}
         {bullets && (
-          <div className="mt-6 rounded-xl bg-blue-50/60 p-4 ring-1 ring-blue-100">
-            <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-blue-900/70">
-              What we&apos;ll cover
+          <div className="mt-6 rounded-xl border border-blue-200 bg-blue-100/70 p-4">
+            <div className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-900">
+              <Sparkles size={11} /> What we&apos;ll cover
             </div>
             <ul className="grid gap-2 sm:grid-cols-2">
               {bullets.map((row, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-text">
-                  <row.icon size={14} className="text-blue-600" strokeWidth={2.2} />
+                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-white text-blue-600 ring-1 ring-blue-200">
+                    <row.icon size={13} strokeWidth={2.2} />
+                  </div>
                   <span>{row.label}</span>
                 </li>
               ))}
@@ -408,8 +428,8 @@ function StagesCard({
   const completed = stages.filter((s) => s.state === "complete").length;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-5 py-3">
+    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md">
+      <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-blue-50/40 via-white to-emerald-50/40 px-5 py-3">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-text">Your six stages</span>
           <span className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-text-light">
@@ -429,20 +449,34 @@ function StagesCard({
           return (
             <div
               key={st.key}
-              className={`relative flex gap-4 border-b border-gray-100 px-5 py-4 last:border-b-0 ${
-                isCurrent ? "bg-blue-50/40" : ""
+              className={`relative flex gap-4 border-b border-gray-100 px-5 py-4 last:border-b-0 transition ${
+                isCurrent
+                  ? "bg-gradient-to-r from-blue-50/70 to-transparent"
+                  : isComplete
+                    ? "bg-emerald-50/20"
+                    : ""
               }`}
             >
+              {/* Current-stage left accent bar */}
+              {isCurrent && (
+                <span className="absolute left-0 top-4 h-12 w-1 rounded-r-full bg-blue-500" />
+              )}
               <div
-                className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ring-1 ${
+                className={`relative flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ring-1 transition ${
                   isComplete
-                    ? "bg-emerald-500 text-white ring-emerald-600"
+                    ? "bg-emerald-500 text-white ring-emerald-600 shadow-sm"
                     : isCurrent
-                      ? `${tint.bg} ${tint.text} ${tint.ring}`
-                      : "bg-gray-50 text-gray-300 ring-gray-200"
+                      ? `${tint.bg} ${tint.text} ${tint.ring} shadow-sm`
+                      : `${tint.bg}/40 ${tint.text}/40 ring-gray-200`
                 }`}
               >
                 {isComplete ? <Check size={20} strokeWidth={3} /> : <Icon size={20} />}
+                {isCurrent && (
+                  <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500 ring-2 ring-white" />
+                  </span>
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -517,7 +551,7 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   if (rows.length === 0) return null;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <span className="text-sm font-semibold text-text">Recent activity</span>
       </div>
@@ -556,10 +590,13 @@ function ProgressRing({
   const offset = c - (pct / 100) * c;
 
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/30 p-5 shadow-sm transition hover:shadow-md">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wider text-text-light">
           Onboarding progress
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-1.5 py-0.5 text-xs font-semibold text-emerald-800">
+          <TrendingUp size={10} /> +1 this week
         </span>
       </div>
       <div className="mt-3 flex items-center justify-center">
@@ -625,8 +662,8 @@ function ProgressRing({
 // ─── ACCOUNTANT WIDGET ────────────────────────────────────────────────────
 function AccountantWidget({ accountant }: { accountant: PortalAccountantInfo }) {
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-400" />
+    <section className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/30 p-5 shadow-sm transition hover:shadow-md">
+      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-500 to-cyan-400" />
       <div className="mb-4 flex items-center gap-3">
         <div className="relative">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-light to-primary text-xs font-bold text-white">
@@ -685,7 +722,7 @@ function TasksWidget({ tasks }: { tasks: PortalTask[] }) {
   const needsYou = active.filter((t) => t.state !== "awaiting_us").length;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/20 shadow-sm transition hover:shadow-md">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <span className="text-sm font-semibold text-text">Tasks</span>
         {needsYou > 0 && (
@@ -731,7 +768,7 @@ function TasksWidget({ tasks }: { tasks: PortalTask[] }) {
 // ─── DOCUMENTS COMING UP (Phase 2 teaser) ────────────────────────────────
 function DocumentsComingUp() {
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-violet-100 bg-gradient-to-br from-white to-violet-50/20 shadow-sm transition hover:shadow-md">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <div className="flex items-center gap-2">
           <Upload size={13} className="text-violet-500" />

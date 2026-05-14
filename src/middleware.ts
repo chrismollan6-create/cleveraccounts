@@ -176,6 +176,11 @@ export default clerkMiddleware(async (auth, req) => {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-brand', brandId);
   requestHeaders.set('x-portal', isPortal ? '1' : '0');
+  // Stamp the request pathname so server components / layouts can read it
+  // via headers(). Next.js doesn't expose this reliably otherwise — needed
+  // for layout-level conditional rendering (e.g. skip PortalShell for
+  // /portal/preview/* design previews so they don't get a double sidebar).
+  requestHeaders.set('x-pathname', url.pathname);
 
   // ───────────────────────────────────────────────────────────────────────
   // 2. Portal routing.
