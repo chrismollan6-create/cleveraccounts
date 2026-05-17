@@ -6,7 +6,7 @@ import { Eraser } from 'lucide-react';
 interface Props {
   /** Called with a PNG data URL whenever the signature changes (or null when cleared). */
   onChange: (dataUrl: string | null) => void;
-  width?: number;
+  /** Fixed height in CSS pixels. Width is driven by the container (full width). */
   height?: number;
 }
 
@@ -25,32 +25,53 @@ interface Props {
  * matters legally is the audit trail (IP, UA, hash, consent flags), and that
  * the signer expressed intent — both fully covered.
  */
-export default function SignaturePad({ onChange, width = 600, height = 200 }: Props) {
+export default function SignaturePad({ onChange, height = 200 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
   const lastPtRef = useRef<{ x: number; y: number } | null>(null);
   const isEmptyRef = useRef(true);
   const [isEmpty, setIsEmpty] = useState(true);
 
-  // Set up canvas at devicePixelRatio so strokes are crisp.
+  // Resize-aware canvas init. The canvas's CSS width is driven by className
+  // "w-full" (fluid), but the canvas's internal pixel dimensions are fixed
+  // and need to be recomputed whenever the rendered size changes — otherwise
+  // pointer coords map to a region narrower than the visible canvas (which
+  // is exactly the "drawing isn't full width" symptom).
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    const init = () => {
+      const dpr = Math.max(window.devicePixelRatio || 1, 1);
+      const cssWidth = canvas.clientWidth;
+      if (cssWidth === 0) return; // layout not ready yet — ResizeObserver will retry
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#0f172a';
-  }, [width, height]);
+      canvas.width = cssWidth * dpr;
+      canvas.height = height * dpr;
+      canvas.style.height = `${height}px`;
+      // Note: NOT setting canvas.style.width — let className="w-full" drive
+      // the CSS width so the pad fills its container.
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.scale(dpr, dpr);
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#0f172a';
+    };
+
+    init();
+
+    // If the user resizes the window or the layout shifts (e.g. accordion
+    // expands), only re-init when the canvas is empty so we don't wipe a
+    // partial signature mid-stroke.
+    const ro = new ResizeObserver(() => {
+      if (isEmptyRef.current) init();
+    });
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, [height]);
 
   const getPoint = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current!.getBoundingClientRect();
