@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import { ChevronDown, ChevronUp, FileText, Printer, ShieldCheck, Globe, CheckCircle2, AlertCircle, Pen, Type, Loader2, Calendar } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText, Printer, ShieldCheck, Globe, CheckCircle2, AlertCircle, Pen, Type, Loader2 } from 'lucide-react';
 import type { RenderedLetter, SectionGroup, Section } from '@/content/engagement-letter';
 import { useBrand } from '@/lib/useBrand';
 import SignaturePad from './SignaturePad';
@@ -72,48 +71,23 @@ export default function EngagementLetterClient({ token, letter, signer, displayI
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* ═══════════════════════════════════════════════════════════════
-           HEADER — branded "letterhead" card
+           HEADER — variant + parties (no brand bar; funnel header above
+           already carries the logo)
            ═══════════════════════════════════════════════════════════════ */}
       <header className="mb-6 print:mb-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden print:shadow-none print:border print:border-gray-300">
-          {/* Brand bar */}
-          <div className="bg-gradient-to-r from-primary to-primary-dark px-6 sm:px-8 py-5 print:bg-primary print:py-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-white rounded-lg px-3 py-2 shadow-sm">
-                  <Image
-                    src={brand.assets.logo}
-                    alt={brand.name}
-                    width={140}
-                    height={36}
-                    priority
-                    className="h-7 w-auto"
-                  />
-                </div>
-              </div>
-              <div className="hidden sm:flex items-center gap-2 text-white/80 text-xs font-medium">
-                <Calendar size={13} />
-                {issuedDate}
-              </div>
-            </div>
-          </div>
-
-          {/* Letter intro */}
-          <div className="px-6 sm:px-8 py-6 sm:py-8">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wider mb-4 print:hidden">
-              <FileText size={11} />
-              {letter.variant === 'sole-trader' ? 'Sole Trader' : 'Limited Company'} engagement
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-text mb-3 leading-tight tracking-tight">
-              {letter.title}
-            </h1>
-            <p className="text-text-light text-base sm:text-lg leading-relaxed">
-              From <strong className="text-text font-semibold">{brand.legalName}</strong>
-              <span className="text-text-light/70"> to </span>
-              <strong className="text-text font-semibold">{signer.businessName}</strong>
-            </p>
-          </div>
+        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wider mb-4 print:hidden">
+          <FileText size={11} />
+          {letter.variant === 'sole-trader' ? 'Sole Trader' : 'Limited Company'} engagement
         </div>
+        <h1 className="text-3xl sm:text-4xl font-bold text-text mb-3 leading-tight tracking-tight">
+          {letter.title}
+        </h1>
+        <p className="text-text-light text-base sm:text-lg leading-relaxed">
+          From <strong className="text-text font-semibold">{brand.legalName}</strong>
+          <span className="text-text-light/70"> to </span>
+          <strong className="text-text font-semibold">{signer.businessName}</strong>
+          <span className="hidden sm:inline text-text-light/60"> · Issued {issuedDate}</span>
+        </p>
       </header>
 
       {/* ─── Signer panel ─── */}
