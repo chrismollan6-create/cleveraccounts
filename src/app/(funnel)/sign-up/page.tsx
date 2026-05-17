@@ -245,15 +245,7 @@ export default function SignUpPage() {
                   Cancel anytime.
                 </div>
               </form>
-              <p className="text-xs text-text-light mt-4 text-center">
-                Already have an account?{" "}
-                <Link
-                  href="/log-in"
-                  className="text-primary font-medium hover:text-primary-dark"
-                >
-                  Log in
-                </Link>
-              </p>
+
             </div>
           </div>
         </div>
