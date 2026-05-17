@@ -221,10 +221,7 @@ export default function SignUpPage() {
                     <option value="Sole Trader">Sole Trader</option>
                     <option value="Limited Company">Limited Company</option>
                     <option value="CIS">CIS (Construction)</option>
-                    <option value="Contractor">Contractor</option>
-                    <option value="Freelancer">Freelancer</option>
-                    <option value="Landlord">Landlord</option>
-                    <option value="Startup">Startup</option>
+
                   </select>
                 </div>
                 <button

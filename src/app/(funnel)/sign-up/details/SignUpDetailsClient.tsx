@@ -1083,7 +1083,6 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
   function handleBack() { setStep((s) => s - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
-  function handleSkip() { setStep((s) => s + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   // ── Stripe ─────────────────────────────────────────────────────────────────
 
@@ -1113,8 +1112,17 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
     if (!formData.termsAccepted) { setPageError("Please accept the Terms and Conditions to continue."); return; }
     setIsSubmitting(true); setPageError("");
     try {
+      // Derive the sign-up incentive from the business type if it isn't already
+      // set on the Lead. The front-end charges Limited Companies half-price via
+      // Stripe (see chargeAmount), but without persisting "3 month 50% discount"
+      // to Lead.Sign_up_incentive__c, the post-signup conversion status reports
+      // the full monthly fee on the "Welcome aboard" page instead of what the
+      // user actually paid.
+      const derivedIncentive = formData.signUpIncentive
+        || (isLtd ? "3 month 50% discount" : "");
+      const submitBody = { ...formData, signUpIncentive: derivedIncentive };
       const res = await fetch(`/api/signup/submit?t=${encodeURIComponent(token)}`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(submitBody),
       });
       const data = await res.json();
       if (!res.ok || !data.success) { setPageError(data.error || data.message || "Submission failed. Please try again."); return; }
@@ -2182,20 +2190,17 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                 <ChevronLeft size={18} /> Back
               </button>
             ) : <div />}
-            {/* DEV ONLY: skip button — visible on every editable step including payment */}
-            {step < 5 && (
-              <button type="button" onClick={handleSkip}
-                className="inline-flex text-[11px] text-gray-400 hover:text-gray-600 border border-dashed border-gray-300 px-2.5 py-1 rounded-md transition-colors">
-                Skip (dev)
-              </button>
-            )}
           </div>
 
           <div className="flex items-center gap-3">
             <p className="hidden md:block text-xs text-text-light">
               Step {step} of 5
             </p>
-            {step < 5 && !(step === 4 && !isFirstMonthFree) && (
+            {/* Hide Continue on the payment step until either: it's a 1st-month-free
+                signup (no payment required), OR the user has already paid (intent
+                stored). Without the payment-intent check, a back-then-forward
+                navigation after a successful charge traps the user on step 4. */}
+            {step < 5 && !(step === 4 && !isFirstMonthFree && !formData.stripePaymentIntentId) && (
               <button type="button" onClick={handleNext} disabled={isSaving}
                 className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors disabled:opacity-70 shadow-md">
                 {isSaving

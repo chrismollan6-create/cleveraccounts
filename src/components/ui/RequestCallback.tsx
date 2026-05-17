@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Phone, X, CheckCircle2, ChevronDown, Loader2 } from "lucide-react";
 
 const timeSlots = [
@@ -41,9 +42,12 @@ export default function RequestCallback({
   className,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => { setMounted(true); }, []);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -261,7 +265,7 @@ export default function RequestCallback({
   return (
     <>
       {triggerBtn}
-      {modal}
+      {mounted && modal && createPortal(modal, document.body)}
     </>
   );
 }
