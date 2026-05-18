@@ -75,7 +75,7 @@ export const LIMITED_COMPANY_SCHEDULE: Section[] = [
       'The signatory agrees to check that returns we have prepared for the company are complete before he or she approves and signs them.\n\n' +
       'To enable us to carry out our work the directors agree:\n\n' +
       '- that all returns are to be made based on full disclosure of all sources of income, charges, allowances, and capital transactions;\n' +
-      '- to ensure the expenses claimed via the company are wholly and exclusively for the purpose of the business. Where this is not the case, we will add these back to profit for corporation tax. You must ensure where expenses are paid to employees or directors that you consider the tax implication of each payment. Expenses can be reimbursed to employees or directors without the operation of PAYE where they have been incurred wholly and exclusively for business;\n' +
+      '- to ensure the expenses claimed via the company are wholly and exclusively for the purpose of the business. Where this is not the case, we will add these back to profit for corporation tax. You must ensure that, where expenses are paid to employees or directors, you consider the tax implication of each payment. Expenses can be reimbursed to employees or directors without the operation of PAYE where they have been incurred wholly and exclusively for business;\n' +
       "- to provide full information necessary for dealing with the company's affairs; we will rely on the information and documents being true, correct, and complete and will not audit the information or those documents;\n" +
       "- to authorise us to approach such third parties as may be appropriate for information that we consider necessary to deal with the company's affairs;\n" +
       "- to provide us with information in sufficient time for the company's CTSA return to be completed and submitted 9 months following the end of the tax year. In order that we can do this we need to receive all relevant information 3 months before the above date. Where feasible we may agree to complete your return within a shorter period but may apply an additional charge for so doing;\n" +
@@ -140,7 +140,9 @@ export const LIMITED_COMPANY_SCHEDULE: Section[] = [
       '- We will prepare your VAT return from the information provided.\n' +
       '- We will send you a VAT return summary for you to check and approve prior to us filing it with HMRC via our online portal.\n' +
       '- You authorise us to file the return online as your agent, but only once we have received approval from you.\n' +
-      '- We will let you know how much VAT is due for a quarter and how to pay and when.',
+      '- We will let you know how much VAT is due for a quarter and how to pay and when.\n\n' +
+      '**Making Tax Digital for VAT**\n\n' +
+      "Since 1 April 2022 all VAT-registered businesses are required to keep their VAT records digitally and submit returns to HMRC via MTD-compatible software. By engaging us you confirm that the company's VAT records are (or will be) kept digitally and that any digital links between systems comply with HMRC's MTD for VAT requirements.",
   },
   {
     id: 'lc-sched-07-portal',
@@ -166,7 +168,7 @@ export const LIMITED_COMPANY_SCHEDULE: Section[] = [
       'If self-assessment information is received late, we shall endeavour to process the self-assessment return to meet the deadlines but will not be liable for any costs or other losses arising from late filing of the return.\n\n' +
       "We will process your (directors') self-assessment return based on information provided to us. We will rely on information and documents to be true, correct, and complete and will not carry out an audit of this information.\n\n" +
       'Once the self-assessment return has been approved and signed by you, we will file it via our tax software to HMRC.\n\n' +
-      'All our fee packages include 1 self-assessment return. For any additional returns to be processed, please get in touch for a fee quotation.\n\n' +
+      'All our fee packages include one self-assessment return. For any additional returns to be processed, please get in touch for a fee quotation.\n\n' +
       'If you have property income, foreign income, or other complex tax affairs, we may still be able to help process and file your tax return. These would be subject to additional fees depending on the complexity of the issue.',
   },
   {
@@ -176,7 +178,9 @@ export const LIMITED_COMPANY_SCHEDULE: Section[] = [
     body:
       'We will provide a professional opinion on whether the company is subject to the IR35 regulations on a contract-by-contract basis. If you are a contractor working via your own limited company, you are advised to submit each contract to us for review to ensure compliance with IR35 regulations.\n\n' +
       'We will review the contract information and advise if your contract falls inside or outside IR35 regulations, but accept no responsibility if actual working practices differ and this would change our opinion.\n\n' +
-      'Contract reviews are included in all our packages, and we do not charge any fees for reasonable reviews in a calendar year. Where there is no request for an IR35 review, we will assume that your contract is outside IR35 regulations or that you have sourced an opinion elsewhere.',
+      'Contract reviews are included in all our packages, and we do not charge fees for a reasonable number of reviews in a calendar year. Where there is no request for an IR35 review, we will assume that your contract is outside IR35 regulations or that you have sourced an opinion elsewhere.\n\n' +
+      '**Off-payroll working rules (Chapter 10 ITEPA 2003)**\n\n' +
+      "Where your end client is a medium or large business in the private sector, or any public sector body, the statutory responsibility for determining the IR35 status of your engagement sits with the end client (or the fee-payer in the labour supply chain), not with your limited company. We do not advise on the application of the off-payroll working rules from the end client's perspective. Our IR35 opinion is provided on the basis of the contract and working practices as described to us, and is for your own commercial use only; it does not bind the end client, the fee-payer or HMRC.",
   },
   {
     id: 'lc-sched-10-bookkeeping',
@@ -206,6 +210,20 @@ export const LIMITED_COMPANY_SCHEDULE: Section[] = [
       '- PAYE\n' +
       '- VAT\n\n' +
       'This would enable us to speak to HMRC on your behalf and help to resolve any tax issues that may arise during our professional relationship. It is your responsibility to forward the appropriate verification code to us as soon as it is received from HMRC.\n\n' +
-      'HMRC will treat this as authority to speak to us and there will not correspond with the company except to the extent that they are formally required to do so. However, this authority does not apply to all HMRC correspondence, and even when it does, HMRC has been known to overlook or ignore it. Therefore, it is advised that you send all correspondence (copies or originals) to us.',
+      'HMRC will treat this as authority to speak to us and they will not correspond with the company except to the extent that they are formally required to do so. However, this authority does not apply to all HMRC correspondence, and even when it does, HMRC has been known to overlook or ignore it. Therefore, it is advised that you send all correspondence (copies or originals) to us.',
+  },
+  {
+    id: 'lc-sched-13-confirmation-statement',
+    number: 'S13',
+    title: 'Confirmation Statement (CS01) and Statutory Registers',
+    body:
+      'We will prepare and file your annual Confirmation Statement (CS01) at Companies House by reference to the company\'s confirmation date. The annual Companies House filing fee (currently £34) is not included in our fees and will be recharged to you separately.\n\n' +
+      'You are responsible for notifying us of any of the following in good time before each confirmation date so that the statement is accurate:\n\n' +
+      '- changes to the registered office address or single alternative inspection location (SAIL);\n' +
+      '- appointments, resignations or changes to particulars of directors;\n' +
+      '- changes to the company\'s SIC codes (principal business activities);\n' +
+      '- changes to shareholdings, share capital, or classes of shares;\n' +
+      '- changes to persons with significant control (PSCs) or their particulars.\n\n' +
+      'We will not file the Confirmation Statement until you have approved its content. Maintenance of the company\'s statutory registers (members, directors, PSCs, charges) remains your responsibility as directors; we can provide this as an additional service at an agreed fee on request.',
   },
 ];

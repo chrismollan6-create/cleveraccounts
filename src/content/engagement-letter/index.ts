@@ -43,9 +43,34 @@ import { LIMITED_COMPANY_SCHEDULE } from './variants/limited-company-schedule';
 //                    Accounts letters won't match. Existing signed letters
 //                    keep their v2 hash forever (legally archived); only
 //                    NEW signings use v3.
+//   v4 (2026-05-18): content review fixes — "and there will not correspond"
+//                    typo in both schedules (S7 / S12) → "and they will not
+//                    correspond"; §9 Data Protection "your company" →
+//                    "your business" (works for both variants); §10 bullet 6
+//                    "company accounts and tax return" → "accounts and tax
+//                    return". No functional/legal meaning change, but new
+//                    SHA hash means v4 is incompatible with v3.
+//   v5 (2026-05-18): substantive coverage additions per Chris's content
+//                    review. §4 AML: PEPs / beneficial owners (>25%) /
+//                    ongoing monitoring; explicit 10-year retention consent.
+//                    §10 Termination: rewritten opener clarifying one-month
+//                    written notice + immediate-termination grounds. NEW
+//                    §16 Regulated Investment Activities (not FCA-authorised,
+//                    referral promise). NEW §17 Bribery Act 2010 / Criminal
+//                    Finances Act 2017 mutual undertaking. NEW §18 Right to
+//                    Cancel (Consumer Contracts Regs 2013) with express
+//                    request to begin work + pro-rata payment on cancel.
+//                    NEW §19 Tax Advice scope/timing + DOTAS/GAAR/POTAS +
+//                    legal-advice scope-out. Sole Trader S1: MTD for ITSA
+//                    wording (billed separately). VAT (ST S3 / LC S6): MTD
+//                    for VAT digital-records confirmation. LC S9 IR35:
+//                    off-payroll working scope-out for medium/large end
+//                    clients. NEW LC S13: Confirmation Statement filing
+//                    (CH filing fee recharged) + PSC/registers responsibility.
+//                    Material content change — new SHA hash.
 export const VERSIONS: Record<VariantId, string> = {
-  'sole-trader': 'sole-trader-2026-05-v3',
-  'limited-company': 'limited-company-2026-05-v3',
+  'sole-trader': 'sole-trader-2026-05-v5',
+  'limited-company': 'limited-company-2026-05-v5',
 };
 
 // =============================================================================

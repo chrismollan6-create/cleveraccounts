@@ -24,7 +24,9 @@ export const SOLE_TRADER_SCHEDULE: Section[] = [
       'We will prepare your business accounts in accordance with generally accepted accounting practice and the rules associated with the cash accounting regime, from the books, accounting records and other information and explanations provided to us on your behalf.\n\n' +
       'We will calculate your income tax, national insurance contributions (NIC) and any capital gains tax liabilities, and tell you how much you should pay and when. Where instructed by you we will advise on the interest and penalty implications if tax or NIC is paid late. We will also check HMRC\'s calculation of your tax and NIC liabilities, and initiate repayment claims if tax or NIC has been overpaid.\n\n' +
       'Other than as regards tax credits and universal credit (see below), we will advise you as to possible tax-return-related claims and elections arising from information supplied by you. Where instructed by you, we will make such claims and elections in the form and manner required by HMRC.\n\n' +
-      'We will review PAYE notices of coding provided to us and advise accordingly.',
+      'We will review PAYE notices of coding provided to us and advise accordingly.\n\n' +
+      '**Making Tax Digital for Income Tax (MTD for ITSA)**\n\n' +
+      'If your qualifying income from self-employment and/or property exceeds the threshold set by HMRC (currently £50,000 per annum from 6 April 2026, reducing to £30,000 from 6 April 2027), you will be required to keep digital records and submit quarterly updates to HMRC under MTD for ITSA. You are responsible for ensuring your records are kept in MTD-compliant form. Quarterly updates and the year-end finalisation submission under MTD for ITSA are not included in our standard package and will be billed as an additional service at an agreed fee.',
   },
   {
     id: 'st-sched-02-payroll',
@@ -81,7 +83,9 @@ export const SOLE_TRADER_SCHEDULE: Section[] = [
       '- We will prepare your VAT return from the information provided.\n' +
       '- We will send you a VAT return summary for you to check and approve prior to us filing it with HMRC via our online portal.\n' +
       '- You authorise us to file the return online as your agent, but only once we have received approval from you.\n' +
-      '- We will let you know how much VAT is due for a quarter and how to pay and when.',
+      '- We will let you know how much VAT is due for a quarter and how to pay and when.\n\n' +
+      '**Making Tax Digital for VAT**\n\n' +
+      "Since 1 April 2022 all VAT-registered businesses are required to keep their VAT records digitally and submit returns to HMRC via MTD-compatible software. By engaging us you confirm that your VAT records are (or will be) kept digitally and that any digital links between systems comply with HMRC's MTD for VAT requirements.",
   },
   {
     id: 'st-sched-04-portal',
@@ -126,7 +130,7 @@ export const SOLE_TRADER_SCHEDULE: Section[] = [
       '- PAYE\n' +
       '- VAT\n\n' +
       'This would enable us to speak to HMRC on your behalf and help to resolve any tax issues that may arise during our professional relationship. It is your responsibility to forward the appropriate verification code to us as soon as it is received from HMRC.\n\n' +
-      'HMRC will treat this as authority to speak to us and there will not correspond with you except to the extent that they are formally required to do so. However, this authority does not apply to all HMRC correspondence, and even when it does, HMRC has been known to overlook or ignore it. Therefore, it is advised that you send all correspondence (copies or originals) to us.',
+      'HMRC will treat this as authority to speak to us and they will not correspond with you except to the extent that they are formally required to do so. However, this authority does not apply to all HMRC correspondence, and even when it does, HMRC has been known to overlook or ignore it. Therefore, it is advised that you send all correspondence (copies or originals) to us.',
   },
   {
     id: 'st-sched-08-your-responsibilities',

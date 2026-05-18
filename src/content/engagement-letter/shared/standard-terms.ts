@@ -11,7 +11,8 @@
  *   {{supportEmail}}     — replaces same
  *   {{brandName}}        — short brand name, e.g. "Clever Accounts" / "Workwell Accountancy"
  *   {{brandLegalName}}   — registered name, e.g. "Clever Accounts Ltd"
- *   {{brandPrivacyUrl}}  — privacy notice URL referenced in §10
+ *   {{brandPrivacyUrl}}  — privacy notice URL referenced in §9
+ *   {{brandPostalAddress}} — registered postal address (used in complaints procedure)
  */
 
 import type { Section } from '../types';
@@ -54,7 +55,9 @@ export const STANDARD_TERMS: Section[] = [
     title: 'Money Laundering Regulations 2017, Client Identification and Verification',
     body:
       'As with other professional services firms, we are required to have appropriate risk-based policies and procedures for assessing and managing money laundering risks. It applies at the start of any business relationship and through the lifetime of the relationship. It includes undertaking appropriate client due diligence. We may request from you, and retain, such information and documentation as we require for these purposes and/or make searches of appropriate databases. If we are not able to obtain satisfactory evidence of your identity, we will not be able to proceed with the engagement.\n\n' +
-      'Copies of such records created as part of the client due diligence process, including any non-engagement documents relating to the client relationship and ongoing monitoring of it, will be retained by us for a period of six years after we cease to act for the business unless we are required to retain them under statutory obligation, or to retain them for legal proceedings, or you consented to the retention in which case the records will be retained for not more than 10 years.\n\n' +
+      'Where you are a body corporate, we are also required to identify and verify your beneficial owners — generally, any individual who ultimately owns or controls more than 25% of the shares or voting rights, or otherwise exercises significant control over the entity. We are required to apply enhanced due diligence in higher-risk circumstances, including where you, or any of your beneficial owners, are a Politically Exposed Person (PEP), a family member of a PEP, or a known close associate of a PEP.\n\n' +
+      'Our client due diligence is not a one-off process. We are required to apply ongoing monitoring throughout our relationship with you, which may include periodic re-verification of identity, source of funds enquiries, and review of the consistency of your business activity with the information we hold.\n\n' +
+      'Copies of such records created as part of the client due diligence process, including any non-engagement documents relating to the client relationship and ongoing monitoring of it, will be retained by us for a period of six years after we cease to act for the business unless we are required to retain them under statutory obligation, or to retain them for legal proceedings. **By signing this engagement you consent to the retention of your due diligence records by us for up to ten years following the end of our engagement, in accordance with the Money Laundering Regulations 2017.**\n\n' +
       'In accordance with the Proceeds of Crime Act, the Terrorism Act, the Money Laundering Regulations 2017 and the Money Laundering, Terrorist Financing and Transfer of Funds (Information on the Payer) Regulations 2017 you agree to waive your right to confidentiality to the extent of any report made, document provided, or information disclosed to the National Crime Agency (NCA).\n\n' +
       'You also acknowledge that we are required to report directly to the NCA without prior reference to you or your representatives if during undertaking any assignment the person undertaking the role of Money Laundering Reporting Officer becomes suspicious of money laundering.',
   },
@@ -94,7 +97,7 @@ export const STANDARD_TERMS: Section[] = [
     number: '9',
     title: 'Data Protection',
     body:
-      'We confirm that we will comply with the provisions of the UK General Data Protection Regulation (UK GDPR) when processing personal data about you and connected entities. These may include your company, your family, and your business partners.\n\n' +
+      'We confirm that we will comply with the provisions of the UK General Data Protection Regulation (UK GDPR) when processing personal data about you and connected entities. These may include your business, your family, and your business partners.\n\n' +
       'Processing means:\n\n' +
       '- obtaining, recording, or holding personal data; or\n' +
       '- carrying out any operation or set of operations on personal data, including collecting and storing, organising, adapting, altering, using, disclosure (by any means) or removing (by any means) from the records, manual and digital.\n\n' +
@@ -110,13 +113,12 @@ export const STANDARD_TERMS: Section[] = [
     number: '10',
     title: 'Period of Engagement & Disengagement',
     body:
-      "This engagement will commence on {{joiningDate}} and will end when either party terminates the engagement, giving one month's notice.\n\n" +
+      "This engagement will commence on {{joiningDate}} and will continue until terminated by either party. Either party may terminate this engagement on **one month's written notice**, which may be given by email, letter, or other written communication. We may terminate this engagement immediately, without notice, where you fail to cooperate with us, or where we have reason to believe that you have provided us or HMRC with misleading information.\n\n" +
       '- We will not be held responsible for any prior work or deadlines unless agreed by us in advance.\n' +
       '- Should we resign or be requested to resign, we will normally issue a disengagement letter to ensure that our respective responsibilities are clear.\n' +
-      '- Each of us may terminate this agreement by letting the other party know via email, phone call or letter (paper or electronic), except where you fail to cooperate with us, or we have reason to believe that you have provided us or HMRC with misleading information, in which case we may terminate this agreement immediately.\n' +
       '- Termination will be without prejudice to any rights that may have accrued to either of us prior to termination.\n' +
       '- In the event of termination of this contract, we will endeavour to agree with you the arrangements for the completion of work in progress at that time, unless we are required for legal or regulatory reasons to cease work immediately. In this case, we will not be required to carry out further work and will not be responsible or liable for any consequences arising from termination.\n' +
-      '- If you engage us for a one-off piece of work (for example, advice on a one-off transaction, or company accounts and tax return for one year only) the engagement ceases as soon as that work is completed, unless otherwise agreed.\n' +
+      '- If you engage us for a one-off piece of work (for example, advice on a one-off transaction, or accounts and tax return for one year only) the engagement ceases as soon as that work is completed, unless otherwise agreed.\n' +
       '- The date of completion of the work is taken to be the termination date and we owe you no duties beyond that date, unless otherwise agreed.\n' +
       '- Where recurring work is provided (for example ongoing compliance work such as the completion of annual tax returns) the engagement ceases on the relevant date in relation to the termination as set out above. Unless immediate termination applies, in practice this means that the relevant termination date is (a) when you cease to pay us, or (b) a later mutually agreed date. We owe you no duties beyond the date of termination and will not undertake any further work. Should we have no contact with you for a period of 6 months or more, we may issue to your last known address a disengagement letter and thereafter cease to act.\n' +
       '- We reserve the right following termination, for any reason, to destroy any of your documents that we have not been able to return to you after a period of six months unless other laws or regulations require otherwise.',
@@ -169,5 +171,42 @@ export const STANDARD_TERMS: Section[] = [
       'This exclusion shall not apply where such misrepresentation, withholding or concealment is, or should (in carrying out the procedures which we have agreed to perform with reasonable care and skill) have been, evident to us without further enquiry.\n\n' +
       '**Indemnity for unauthorised disclosure.** You agree to indemnify us and our agents in respect of any claim (including any claim for negligence) arising out of any unauthorised disclosure by you, or by any person for whom you are responsible, of our advice and opinions, whether in writing or otherwise. This indemnity will extend to the cost of defending any such claim, including payment at our usual rates for the time that we spend in defending it.\n\n' +
       '**Reliance on advice.** We will endeavour to record all advice on important matters in writing. Advice given orally is not intended to be relied upon unless confirmed in writing. Therefore, if we provide oral advice (for example during a meeting or a telephone conversation) and you wish to be able to rely on that advice, you must ask for the advice to be confirmed by us in writing.',
+  },
+  {
+    id: 'std-16-investment-business',
+    number: '16',
+    title: 'Regulated Investment Activities',
+    body:
+      'We are not authorised by the Financial Conduct Authority under the Financial Services and Markets Act 2000. We do not provide investment advice. If during this engagement you require advice on investments (including any insurance products that are investments, pension transfers, or other regulated financial products), we will refer you to a firm authorised by the Financial Conduct Authority.',
+  },
+  {
+    id: 'std-17-bribery-cfa',
+    number: '17',
+    title: 'Bribery and the Prevention of the Facilitation of Tax Evasion',
+    body:
+      'Each of us undertakes that, in connection with this engagement, we will:\n\n' +
+      '- comply with all applicable laws relating to anti-bribery and anti-corruption, including the Bribery Act 2010;\n' +
+      '- not engage in any activity, practice or conduct which would constitute the facilitation of tax evasion within the meaning of Part 3 of the Criminal Finances Act 2017; and\n' +
+      '- have in place reasonable procedures designed to prevent the facilitation of tax evasion by persons acting on our behalf.\n\n' +
+      'Breach of this clause by you will entitle us to terminate this engagement immediately.',
+  },
+  {
+    id: 'std-18-right-to-cancel',
+    number: '18',
+    title: 'Right to Cancel (Consumer Clients)',
+    body:
+      'Where you are a consumer entering into this engagement at a distance (for example, online or by telephone), you have the right under the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013 to cancel this engagement within 14 days of the date you sign this letter, without giving a reason.\n\n' +
+      '**By signing this engagement you expressly request that we begin work immediately**, and you acknowledge that if you cancel within the 14-day period after we have begun work, you will pay us a reasonable amount in respect of the work performed up to the point you communicate cancellation to us.\n\n' +
+      'To cancel, please email us at {{supportEmail}} or write to us at {{brandPostalAddress}}.\n\n' +
+      'This right does not apply where you are entering into this engagement in the course of a trade, business, craft or profession (which will generally be the case for limited companies and most sole traders).',
+  },
+  {
+    id: 'std-19-tax-advice',
+    number: '19',
+    title: 'Scope and Timing of Tax Advice',
+    body:
+      'Our advice is based on tax legislation, case law and published HMRC practice as at the date our advice is given. We do not undertake to monitor changes in law, regulation or HMRC practice after the date of our advice unless you engage us specifically to do so, and we will not be liable for any consequences arising from changes that take effect after the date of our advice.\n\n' +
+      'Where any advice falls within the scope of the Disclosure of Tax Avoidance Schemes (DOTAS), General Anti-Abuse Rule (GAAR), or Promoters of Tax Avoidance Schemes (POTAS) regimes, we will inform you of any disclosure or reporting requirements that apply.\n\n' +
+      'We do not provide legal advice. If a matter requires legal input (for example employment law, contract drafting, or property law) we will refer you to a solicitor.',
   },
 ];
