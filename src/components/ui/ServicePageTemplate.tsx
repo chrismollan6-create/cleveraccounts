@@ -155,7 +155,7 @@ export default function ServicePageTemplate({ data, children, promoBadge }: { da
               { value: "10,000+", label: "Businesses Trust Us" },
               { value: "20+", label: "Years Experience" },
               { value: "£0", label: "Setup Fees" },
-              { value: "5.0★", label: "Average Rating" },
+              { value: "Excellent", label: "Average Rating" },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <span className="text-3xl font-black text-gradient">{s.value}</span>

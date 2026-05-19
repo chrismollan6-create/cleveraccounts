@@ -238,7 +238,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                 <div className="space-y-4">
                   {[
                     { name: "Charlie McAuley", role: "Your Dedicated Accountant", speciality: "Sole Trader Specialist", initials: "CM", color: "from-primary to-primary-light" },
-                    { name: "Mark White", role: "Tax Planning Expert", speciality: "Limited Company & IR35", initials: "MC", color: "from-accent to-purple-400" },
+                    { name: "Mark White", role: "Tax Planning Expert", speciality: "Limited Company & IR35", initials: "MW", color: "from-accent to-purple-400" },
                     { name: "Anne-Marie", role: "Payroll & VAT Manager", speciality: "Contractor Specialist", initials: "AM", color: "from-emerald-500 to-teal-400" },
                   ].map((person, i) => (
                     <div key={i} className="flex items-center gap-4 bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-all">

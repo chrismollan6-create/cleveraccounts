@@ -111,7 +111,7 @@ export default async function AboutPage() {
                 {[
                   { value: "20+", label: "Years experience", colour: "text-primary-light", bg: "bg-primary/20" },
                   { value: "10,000+", label: "Businesses served", colour: "text-secondary", bg: "bg-secondary/20" },
-                  { value: "5★", label: "Customer rating", colour: "text-green-400", bg: "bg-green-500/20" },
+                  { value: "Excellent", label: "Customer rating", colour: "text-green-400", bg: "bg-green-500/20" },
                   { value: "£0", label: "Setup fees", colour: "text-purple-400", bg: "bg-purple-500/20" },
                 ].map(({ value, label, colour, bg }) => (
                   <div key={label} className={`${bg} rounded-2xl p-5 text-center`}>
