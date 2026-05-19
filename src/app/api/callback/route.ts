@@ -4,18 +4,18 @@ import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, phone, businessType, bestTime, branding } = body;
+    const { firstName, lastName, email, phone, businessType, bestTime, branding } = body;
 
-    if (!firstName || !lastName || !phone) {
+    if (!firstName || !lastName || !email || !phone) {
       return NextResponse.json(
-        { error: 'Name and phone number are required' },
+        { error: 'Name, email and phone number are required' },
         { status: 400 }
       );
     }
 
     const token = await getSalesforceToken();
 
-    const sfRes = await fetch(sfApex('/CallbackRequest'), {
+    const sfRes = await fetch(sfApex('/WebEnquiry'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         firstName,
         lastName,
+        email,
         phone,
         businessType: businessType || '',
         bestTime: bestTime || '',

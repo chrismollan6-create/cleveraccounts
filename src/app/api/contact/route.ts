@@ -4,7 +4,7 @@ import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, phone, businessType, message } = body;
+    const { firstName, lastName, email, phone, businessType, message, branding } = body;
 
     if (!firstName || !lastName || !email || !message) {
       return NextResponse.json(
@@ -15,10 +15,7 @@ export async function POST(request: NextRequest) {
 
     const token = await getSalesforceToken();
 
-    // Apex appends `contactMessage` at the top of Lead.Description, with the
-    // UTM attribution block below. utmSource = 'contact-form' lets Salesforce
-    // reporting distinguish contact-form Leads from sign-up / callback Leads.
-    const sfRes = await fetch(sfApex('/SignupLead'), {
+    const sfRes = await fetch(sfApex('/WebEnquiry'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -30,16 +27,16 @@ export async function POST(request: NextRequest) {
         email,
         phone: phone || '',
         businessType: businessType || '',
-        contactMessage: message,
+        message,
+        branding: branding || '',
         utmSource: 'contact-form',
-        utmMedium: 'website',
+        utmMedium: '',
         utmCampaign: '',
         utmTerm: '',
         utmContent: '',
         gclid: '',
         fbclid: '',
         msclkid: '',
-        referralCode: '',
       }),
     });
 
