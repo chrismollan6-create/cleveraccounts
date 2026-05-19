@@ -1,6 +1,7 @@
 import {
   Body,
   Button,
+  Column,
   Container,
   Head,
   Heading,
@@ -9,6 +10,7 @@ import {
   Img,
   Link,
   Preview,
+  Row,
   Section,
   Text,
 } from "@react-email/components";
@@ -17,13 +19,15 @@ import type { BrandConfig } from "@/lib/constants";
 /**
  * Portal invitation email — sent when a client first gets access.
  *
- * Renders as HTML compatible with Gmail, Outlook (incl. OWA), Apple Mail,
- * mobile clients. React Email handles the cross-client quirks (Outlook
- * desktop in particular). Inline CSS is required for email — React Email
- * does the inlining automatically at render time.
+ * Design language inspired by Stripe / Mercury / Linear transactional emails:
+ * generous whitespace, a visually-distinct hero with the headline inside it,
+ * icon-led feature rows, a single prominent CTA, restrained footer. All
+ * email-client safe: inline CSS, table-based layout (handled by React Email),
+ * no flex/grid, no SVG (uses unicode tile labels for icons).
  *
- * Brand-aware: every visible style is derived from the `brand` prop, so the
- * same template renders correctly for Clever and Workwell.
+ * Brand-aware: header band uses brand.colors.primary, supportEmail used as
+ * Reply-To at the mailer level, accountant name optional but personalises
+ * the body when provided.
  */
 
 export interface PortalInvitationEmailProps {
@@ -31,7 +35,7 @@ export interface PortalInvitationEmailProps {
   firstName: string | null;
   /** The redemption URL — already includes __clerk_ticket. */
   inviteUrl: string;
-  /** Optional accountant name to make it feel personal ("Charlie has set up your access"). */
+  /** Optional accountant name to make it personal. */
   accountantName?: string | null;
 }
 
@@ -42,9 +46,6 @@ export default function PortalInvitationEmail({
   accountantName,
 }: PortalInvitationEmailProps) {
   const greetingName = firstName ?? "there";
-  const setupBy = accountantName
-    ? `${accountantName} has set up your access to`
-    : "Your accountant has set up your access to";
 
   return (
     <Html lang="en">
@@ -53,101 +54,230 @@ export default function PortalInvitationEmail({
         Your {brand.name} portal is ready — finish setup in 90 seconds.
       </Preview>
       <Body style={styles.body}>
-        <Container style={styles.container}>
-          {/* ── Header — logo on brand colour ─────────────────── */}
+        <Container style={styles.outer}>
+          {/* ─── HERO ─────────────────────────────────────────── */}
           <Section
             style={{
-              ...styles.header,
-              backgroundColor: brand.colors.primary,
+              ...styles.hero,
+              background: `linear-gradient(135deg, ${brand.colors.primaryDark} 0%, ${brand.colors.primary} 100%)`,
             }}
           >
             <Img
               src={`https://${brand.appDomain}${brand.assets.logo}`}
-              width="140"
-              height="36"
+              width="120"
+              height="32"
               alt={brand.name}
-              style={styles.logo}
+              style={styles.heroLogo}
             />
+            <Text style={styles.heroEyebrow}>YOUR CLIENT PORTAL</Text>
+            <Heading style={styles.heroHeading}>
+              Welcome, {greetingName}.
+            </Heading>
+            <Text style={styles.heroSub}>
+              Your {brand.name} access is ready. Setup takes about 90 seconds.
+            </Text>
           </Section>
 
-          {/* ── Body ──────────────────────────────────────────── */}
-          <Section style={styles.contentSection}>
-            <Text style={styles.eyebrow}>YOUR CLIENT PORTAL</Text>
-            <Heading style={styles.h1}>Welcome, {greetingName}.</Heading>
+          {/* ─── BODY ─────────────────────────────────────────── */}
+          <Section style={styles.bodyPad}>
+            {/* Accountant credit */}
+            {accountantName && (
+              <Section
+                style={{
+                  ...styles.accountantChip,
+                  borderLeftColor: brand.colors.primary,
+                }}
+              >
+                <Row>
+                  <Column style={styles.accountantInitials}>
+                    <Text
+                      style={{
+                        ...styles.accountantInitialsText,
+                        backgroundColor: brand.colors.primary,
+                      }}
+                    >
+                      {initialsOf(accountantName)}
+                    </Text>
+                  </Column>
+                  <Column>
+                    <Text style={styles.accountantLabel}>YOUR ACCOUNTANT</Text>
+                    <Text style={styles.accountantName}>{accountantName}</Text>
+                  </Column>
+                </Row>
+              </Section>
+            )}
 
-            <Text style={styles.paragraph}>
-              {setupBy} the{" "}
-              <strong>{brand.name}</strong>
-              {" "}client portal — the place where you&apos;ll see where you
-              are in onboarding, book calls with us, sign documents, and
-              message us. All in one place.
+            {/* Intro */}
+            <Text style={styles.bodyPara}>
+              {accountantName ? `${accountantName} has` : "Your accountant has"}{" "}
+              set up your access to the{" "}
+              <strong style={{ color: brand.colors.primary }}>
+                {brand.name}
+              </strong>{" "}
+              client portal — the place where you&apos;ll see where you are in
+              onboarding, book calls, sign documents, and message us. All in
+              one place.
             </Text>
 
-            <Text style={styles.paragraph}>
-              Setup takes about 90 seconds. Click below to get started — no
-              password needed.
+            <Text style={styles.bodyPara}>
+              Click below to get started — no password needed.
             </Text>
 
-            {/* CTA button */}
-            <Section style={styles.buttonWrap}>
+            {/* CTA — big, centred, prominent */}
+            <Section style={styles.ctaWrap}>
               <Button
                 href={inviteUrl}
                 style={{
-                  ...styles.button,
-                  backgroundColor: brand.colors.primary,
+                  ...styles.cta,
+                  background: `linear-gradient(135deg, ${brand.colors.primary} 0%, ${brand.colors.primaryDark} 100%)`,
                 }}
               >
-                Set up my access
+                Set up my access →
               </Button>
             </Section>
 
-            <Text style={styles.helperText}>
-              Trouble with the button? Copy and paste this link into your
-              browser:
-              <br />
-              <Link href={inviteUrl} style={styles.fallbackLink}>
-                {inviteUrl}
-              </Link>
+            {/* Time + security pills row */}
+            <Row style={styles.metaRow}>
+              <Column align="center">
+                <Text style={styles.metaPill}>
+                  ⏱  About 90 seconds
+                </Text>
+              </Column>
+              <Column align="center">
+                <Text style={styles.metaPill}>
+                  🔒  Secure passwordless sign-in
+                </Text>
+              </Column>
+            </Row>
+
+            <Hr style={styles.divider} />
+
+            {/* What's inside — icon-led tiles */}
+            <Text style={styles.sectionLabel}>ONCE YOU&apos;RE IN</Text>
+
+            <Row style={{ marginBottom: "10px" }}>
+              <Column style={styles.iconCell}>
+                <div
+                  style={{
+                    ...styles.iconTile,
+                    backgroundColor: `${brand.colors.primary}15`,
+                    color: brand.colors.primary,
+                  }}
+                >
+                  📅
+                </div>
+              </Column>
+              <Column style={styles.featureTextCell}>
+                <Text style={styles.featureTitle}>Book calls directly</Text>
+                <Text style={styles.featureSub}>
+                  Pick a time with your accountant — no email back-and-forth.
+                </Text>
+              </Column>
+            </Row>
+
+            <Row style={{ marginBottom: "10px" }}>
+              <Column style={styles.iconCell}>
+                <div
+                  style={{
+                    ...styles.iconTile,
+                    backgroundColor: `${brand.colors.primary}15`,
+                    color: brand.colors.primary,
+                  }}
+                >
+                  ✍️
+                </div>
+              </Column>
+              <Column style={styles.featureTextCell}>
+                <Text style={styles.featureTitle}>
+                  Sign documents in-app
+                </Text>
+                <Text style={styles.featureSub}>
+                  Engagement letter, ID verification, all paperless.
+                </Text>
+              </Column>
+            </Row>
+
+            <Row style={{ marginBottom: "10px" }}>
+              <Column style={styles.iconCell}>
+                <div
+                  style={{
+                    ...styles.iconTile,
+                    backgroundColor: `${brand.colors.primary}15`,
+                    color: brand.colors.primary,
+                  }}
+                >
+                  💬
+                </div>
+              </Column>
+              <Column style={styles.featureTextCell}>
+                <Text style={styles.featureTitle}>
+                  Message us anytime
+                </Text>
+                <Text style={styles.featureSub}>
+                  Threads stay neat — your accountant always has context.
+                </Text>
+              </Column>
+            </Row>
+
+            <Row>
+              <Column style={styles.iconCell}>
+                <div
+                  style={{
+                    ...styles.iconTile,
+                    backgroundColor: `${brand.colors.primary}15`,
+                    color: brand.colors.primary,
+                  }}
+                >
+                  📱
+                </div>
+              </Column>
+              <Column style={styles.featureTextCell}>
+                <Text style={styles.featureTitle}>Works on any device</Text>
+                <Text style={styles.featureSub}>
+                  Desktop, tablet, phone — sign in once, stay signed in.
+                </Text>
+              </Column>
+            </Row>
+
+            <Hr style={styles.divider} />
+
+            {/* Fallback link */}
+            <Text style={styles.fallbackTitle}>
+              Trouble with the button?
             </Text>
-
-            <Hr style={styles.hr} />
-
-            {/* What's inside */}
-            <Text style={styles.subHeading}>Once you&apos;re in</Text>
-            <ul style={styles.list}>
-              <li style={styles.listItem}>
-                Meet your accountant and see their availability
-              </li>
-              <li style={styles.listItem}>
-                Book your first call directly — no email back-and-forth
-              </li>
-              <li style={styles.listItem}>
-                Sign your engagement letter and verify your identity
-              </li>
-              <li style={styles.listItem}>
-                See everything in one place, on any device
-              </li>
-            </ul>
+            <Text style={styles.fallbackText}>
+              Copy and paste this link into your browser:
+            </Text>
+            <Link href={inviteUrl} style={styles.fallbackLink}>
+              {inviteUrl}
+            </Link>
           </Section>
 
-          {/* ── Footer ────────────────────────────────────────── */}
+          {/* ─── FOOTER ───────────────────────────────────────── */}
           <Section style={styles.footer}>
-            <Text style={styles.footerText}>
-              This link works for the next 7 days and can only be used once.
-              If you weren&apos;t expecting this email, you can safely ignore
-              it — no account will be created.
+            <Text style={styles.footerSec}>
+              This link works for the next <strong>7 days</strong> and can only
+              be used once. If you weren&apos;t expecting this email, you can
+              safely ignore it — no account will be created.
             </Text>
             <Hr style={styles.footerHr} />
-            <Text style={styles.footerSmall}>
+            <Text style={styles.footerOrg}>
               <strong>{brand.legalName}</strong>
               <br />
               {brand.postalAddress}
-              <br />
-              <Link href={`mailto:${brand.supportEmail}`} style={styles.footerLink}>
+            </Text>
+            <Text style={styles.footerLinks}>
+              <Link
+                href={`mailto:${brand.supportEmail}`}
+                style={styles.footerLink}
+              >
                 {brand.supportEmail}
               </Link>
-              {" · "}
-              <Link href={`https://${brand.domain}`} style={styles.footerLink}>
+              {"  ·  "}
+              <Link
+                href={`https://${brand.domain}`}
+                style={styles.footerLink}
+              >
                 {brand.domain}
               </Link>
             </Text>
@@ -158,118 +288,213 @@ export default function PortalInvitationEmail({
   );
 }
 
+function initialsOf(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 // ─── Styles ────────────────────────────────────────────────────────────────
-// Inline styles required for email clients. React Email handles inlining.
 
 const styles = {
   body: {
-    backgroundColor: "#f4f6fa",
+    backgroundColor: "#f1f5f9",
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     margin: 0,
-    padding: "40px 16px",
+    padding: "32px 16px",
   },
-  container: {
+  outer: {
     backgroundColor: "#ffffff",
-    borderRadius: "12px",
+    borderRadius: "16px",
     margin: "0 auto",
-    maxWidth: "600px",
+    maxWidth: "560px",
     overflow: "hidden" as const,
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
+    boxShadow:
+      "0 10px 25px -10px rgba(15, 23, 42, 0.10), 0 4px 10px -4px rgba(15, 23, 42, 0.05)",
   },
-  header: {
-    padding: "32px 40px",
+
+  // Hero
+  hero: {
+    padding: "44px 40px 48px",
     textAlign: "center" as const,
   },
-  logo: {
-    height: "36px",
+  heroLogo: {
+    height: "32px",
     width: "auto",
-    margin: "0 auto",
-    // White-ish via brightness filter — for email clients we can't apply
-    // CSS filters, so the logo asset itself should be the white version.
-    // The Clever brand falls back to the regular logo on dark — it'll look
-    // a bit muddy until a transparent-PNG white logo is added at
-    // /public/brand/clever/logo-white.png. Workwell has one already.
+    margin: "0 auto 36px",
+    filter: "brightness(0) invert(1)" as const, // forces logo to white (root colour is teal)
   },
-  contentSection: {
-    padding: "40px 40px 24px",
-  },
-  eyebrow: {
-    color: "#64748b",
-    fontSize: "11px",
+  heroEyebrow: {
+    color: "rgba(255, 255, 255, 0.75)",
+    fontSize: "10px",
     fontWeight: 700,
-    letterSpacing: "0.1em",
-    margin: "0 0 8px",
+    letterSpacing: "0.18em",
+    margin: "0 0 12px",
     textTransform: "uppercase" as const,
   },
-  h1: {
-    color: "#0f172a",
-    fontSize: "28px",
+  heroHeading: {
+    color: "#ffffff",
+    fontSize: "32px",
     fontWeight: 700,
-    lineHeight: 1.2,
-    margin: "0 0 16px",
+    letterSpacing: "-0.02em",
+    lineHeight: 1.15,
+    margin: "0 0 12px",
   },
-  paragraph: {
-    color: "#334155",
+  heroSub: {
+    color: "rgba(255, 255, 255, 0.82)",
     fontSize: "15px",
     lineHeight: 1.55,
-    margin: "0 0 14px",
+    margin: 0,
+    maxWidth: "420px",
+    marginLeft: "auto",
+    marginRight: "auto",
   },
-  buttonWrap: {
-    margin: "28px 0",
+
+  // Body
+  bodyPad: { padding: "36px 40px 24px" },
+
+  // Accountant chip
+  accountantChip: {
+    backgroundColor: "#f8fafc",
+    border: "1px solid #e2e8f0",
+    borderLeft: "3px solid",
+    borderRadius: "8px",
+    marginBottom: "24px",
+    padding: "12px 16px",
+  },
+  accountantInitials: { width: "44px" },
+  accountantInitialsText: {
+    borderRadius: "999px",
+    color: "#ffffff",
+    display: "inline-block",
+    fontSize: "12px",
+    fontWeight: 700,
+    height: "32px",
+    lineHeight: "32px",
+    margin: 0,
+    textAlign: "center" as const,
+    width: "32px",
+  },
+  accountantLabel: {
+    color: "#64748b",
+    fontSize: "9px",
+    fontWeight: 700,
+    letterSpacing: "0.12em",
+    margin: 0,
+    textTransform: "uppercase" as const,
+  },
+  accountantName: {
+    color: "#0f172a",
+    fontSize: "14px",
+    fontWeight: 600,
+    margin: "2px 0 0",
+  },
+
+  bodyPara: {
+    color: "#334155",
+    fontSize: "15px",
+    lineHeight: 1.6,
+    margin: "0 0 16px",
+  },
+
+  // CTA
+  ctaWrap: {
+    margin: "32px 0 18px",
     textAlign: "center" as const,
   },
-  button: {
+  cta: {
     borderRadius: "10px",
     color: "#ffffff",
     display: "inline-block",
     fontSize: "15px",
     fontWeight: 600,
-    padding: "14px 32px",
+    letterSpacing: "0.01em",
+    padding: "15px 36px",
     textDecoration: "none",
+    boxShadow: "0 4px 12px -2px rgba(15, 23, 42, 0.2)",
   },
-  helperText: {
-    color: "#94a3b8",
+
+  // Meta row under CTA
+  metaRow: { margin: "0 0 8px" },
+  metaPill: {
+    color: "#64748b",
     fontSize: "12px",
+    margin: 0,
+    padding: "4px 0",
+  },
+
+  divider: {
+    border: "none",
+    borderTop: "1px solid #e2e8f0",
+    margin: "28px 0",
+  },
+
+  // Section labels
+  sectionLabel: {
+    color: "#0f172a",
+    fontSize: "11px",
+    fontWeight: 700,
+    letterSpacing: "0.12em",
+    margin: "0 0 18px",
+    textTransform: "uppercase" as const,
+  },
+
+  // Feature rows
+  iconCell: { width: "48px", verticalAlign: "top" as const, paddingTop: "2px" },
+  iconTile: {
+    borderRadius: "8px",
+    fontSize: "18px",
+    height: "36px",
+    lineHeight: "36px",
+    textAlign: "center" as const,
+    width: "36px",
+  },
+  featureTextCell: { paddingLeft: "4px", verticalAlign: "top" as const },
+  featureTitle: {
+    color: "#0f172a",
+    fontSize: "14px",
+    fontWeight: 600,
+    lineHeight: 1.4,
+    margin: "0 0 2px",
+  },
+  featureSub: {
+    color: "#64748b",
+    fontSize: "13px",
     lineHeight: 1.5,
-    margin: "0 0 24px",
+    margin: 0,
+  },
+
+  // Fallback link
+  fallbackTitle: {
+    color: "#0f172a",
+    fontSize: "12px",
+    fontWeight: 600,
+    margin: "0 0 4px",
+  },
+  fallbackText: {
+    color: "#64748b",
+    fontSize: "12px",
+    margin: "0 0 8px",
   },
   fallbackLink: {
     color: "#64748b",
     fontSize: "11px",
     wordBreak: "break-all" as const,
   },
-  hr: {
-    border: "none",
-    borderTop: "1px solid #e2e8f0",
-    margin: "24px 0",
-  },
-  subHeading: {
-    color: "#0f172a",
-    fontSize: "13px",
-    fontWeight: 700,
-    letterSpacing: "0.05em",
-    margin: "0 0 12px",
-    textTransform: "uppercase" as const,
-  },
-  list: {
-    color: "#334155",
-    fontSize: "14px",
-    lineHeight: 1.7,
-    margin: 0,
-    paddingLeft: "20px",
-  },
-  listItem: {
-    marginBottom: "6px",
-  },
+
+  // Footer
   footer: {
     backgroundColor: "#f8fafc",
-    padding: "24px 40px",
+    padding: "28px 40px",
   },
-  footerText: {
+  footerSec: {
     color: "#64748b",
     fontSize: "12px",
-    lineHeight: 1.55,
+    lineHeight: 1.6,
     margin: "0 0 16px",
   },
   footerHr: {
@@ -277,7 +502,13 @@ const styles = {
     borderTop: "1px solid #e2e8f0",
     margin: "16px 0",
   },
-  footerSmall: {
+  footerOrg: {
+    color: "#475569",
+    fontSize: "11px",
+    lineHeight: 1.55,
+    margin: "0 0 6px",
+  },
+  footerLinks: {
     color: "#94a3b8",
     fontSize: "11px",
     lineHeight: 1.55,
