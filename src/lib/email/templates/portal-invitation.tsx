@@ -84,9 +84,16 @@ export default function PortalInvitationEmail({
         Your {brand.name} portal is ready — finish setup in 90 seconds.
       </Preview>
       <Body style={s.body}>
-        {/* Explicit <table> with HTML width attribute — the only thing Outlook
-            on Windows reliably respects. Wrapping the React Email Section
-            components in this gives us the 600px constraint everywhere. */}
+        {/* Outlook-on-Windows-specific wrapper. The <!--[if mso]--> conditional
+            is honoured by Word's renderer ONLY — every other email client
+            ignores it as a regular HTML comment. This guarantees Outlook
+            respects the 600px width even when nested inside React Email's
+            Body wrapper table. */}
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `<!--[if mso | IE]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600" style="width:600px"><tr><td><![endif]-->`,
+          }}
+        />
         <table
           role="presentation"
           align="center"
@@ -286,6 +293,11 @@ export default function PortalInvitationEmail({
             </tr>
           </tbody>
         </table>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `<!--[if mso | IE]></td></tr></table><![endif]-->`,
+          }}
+        />
       </Body>
     </Html>
   );
