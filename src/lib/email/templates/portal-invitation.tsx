@@ -76,9 +76,11 @@ export default function PortalInvitationEmail({
             <Heading style={styles.h1}>Welcome, {greetingName}.</Heading>
 
             <Text style={styles.paragraph}>
-              {setupBy} the <strong>{brand.name}</strong> client portal — the
-              place where you&apos;ll see where you are in onboarding, book
-              calls with us, sign documents, and message us. All in one place.
+              {setupBy} the{" "}
+              <strong>{brand.name}</strong>
+              {" "}client portal — the place where you&apos;ll see where you
+              are in onboarding, book calls with us, sign documents, and
+              message us. All in one place.
             </Text>
 
             <Text style={styles.paragraph}>
