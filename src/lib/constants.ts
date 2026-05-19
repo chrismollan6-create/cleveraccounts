@@ -130,6 +130,7 @@ export const BRANDS = {
     assets: {
       logo: '/brand/clever/logo.png',
       logoWhite: '/brand/clever/logo-white.jpg',
+      favicon: '/brand/clever/favicon.ico',
     },
     colors: {
       primary: '#1A7A9B',
