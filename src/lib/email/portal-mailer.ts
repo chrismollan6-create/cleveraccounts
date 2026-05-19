@@ -198,7 +198,7 @@ async function send(args: RawSendArgs): Promise<SendResult> {
  * Modern clients (Gmail, Apple Mail, Outlook web, new Outlook, iOS Mail)
  * treat the MSO comments as ordinary HTML comments and ignore them.
  */
-function wrapOutlookMsoConditional(html: string): string {
+export function wrapOutlookMsoConditional(html: string): string {
   const opener = `<!--[if mso | IE]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600" style="width:600px"><tr><td><![endif]-->`;
   const closer = `<!--[if mso | IE]></td></tr></table><![endif]-->`;
 

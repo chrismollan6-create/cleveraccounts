@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { render } from "@react-email/components";
 import { BRANDS } from "@/lib/constants";
 import PortalInvitationEmail from "@/lib/email/templates/portal-invitation";
+import { wrapOutlookMsoConditional } from "@/lib/email/portal-mailer";
 
 /**
  * Diagnostic-only route. Renders the portal invitation email template to
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
 
   const brand = BRANDS[brandId] ?? BRANDS.clever;
 
-  const html = await render(
+  const rendered = await render(
     PortalInvitationEmail({
       brand,
       firstName,
@@ -33,6 +34,9 @@ export async function GET(request: Request) {
       accountantName: accountant,
     }),
   );
+  // Apply the same MSO post-process the mailer uses, so this preview shows
+  // exactly what gets sent.
+  const html = wrapOutlookMsoConditional(rendered);
 
   return new NextResponse(html, {
     status: 200,
