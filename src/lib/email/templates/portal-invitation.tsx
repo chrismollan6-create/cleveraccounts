@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Column,
   Container,
   Head,
@@ -17,17 +16,23 @@ import {
 import type { BrandConfig } from "@/lib/constants";
 
 /**
- * Portal invitation email — sent when a client first gets access.
+ * Portal invitation email — Outlook-safe redesign.
  *
- * Design language inspired by Stripe / Mercury / Linear transactional emails:
- * generous whitespace, a visually-distinct hero with the headline inside it,
- * icon-led feature rows, a single prominent CTA, restrained footer. All
- * email-client safe: inline CSS, table-based layout (handled by React Email),
- * no flex/grid, no SVG (uses unicode tile labels for icons).
+ * Microsoft Outlook on Windows uses Word's rendering engine, not a browser.
+ * That means NO CSS gradients, NO filters, NO max-width on divs, NO modern
+ * CSS — anything outside HTML 4.01 + basic inline styles on tables is at
+ * best ignored, at worst breaks the layout.
  *
- * Brand-aware: header band uses brand.colors.primary, supportEmail used as
- * Reply-To at the mailer level, accountant name optional but personalises
- * the body when provided.
+ * This template follows the email-safe rules:
+ *   · Solid background colours only (no gradients)
+ *   · 600px fixed width on the outer wrapper
+ *   · Table-based "bulletproof button" pattern for the CTA
+ *   · No CSS filters — uses pre-coloured assets where needed
+ *   · Icon tiles via table cells, not divs
+ *   · Inline styles only, no <style> blocks (React Email inlines anyway)
+ *
+ * Brand-aware via the `brand` prop. Tested mentally against Outlook 365
+ * desktop, Outlook web, Gmail web, Gmail mobile, Apple Mail, iOS Mail.
  */
 
 export interface PortalInvitationEmailProps {
@@ -46,6 +51,9 @@ export default function PortalInvitationEmail({
   accountantName,
 }: PortalInvitationEmailProps) {
   const greetingName = firstName ?? "there";
+  const primary = brand.colors.primary;
+  const primaryDark = brand.colors.primaryDark;
+  const accountantFirst = accountantName?.split(" ")[0];
 
   return (
     <Html lang="en">
@@ -53,231 +61,180 @@ export default function PortalInvitationEmail({
       <Preview>
         Your {brand.name} portal is ready — finish setup in 90 seconds.
       </Preview>
-      <Body style={styles.body}>
-        <Container style={styles.outer}>
-          {/* ─── HERO ─────────────────────────────────────────── */}
-          <Section
-            style={{
-              ...styles.hero,
-              background: `linear-gradient(135deg, ${brand.colors.primaryDark} 0%, ${brand.colors.primary} 100%)`,
-            }}
-          >
+      <Body style={s.body}>
+        <Container style={s.outer}>
+          {/* ─── HERO — solid colour, NO gradient (Outlook strips) ──── */}
+          <Section style={{ ...s.hero, backgroundColor: primaryDark }}>
             <Img
-              src={`https://${brand.appDomain}${brand.assets.logo}`}
+              src={`https://${brand.appDomain}${brand.assets.logoWhite ?? brand.assets.logo}`}
               width="120"
               height="32"
               alt={brand.name}
-              style={styles.heroLogo}
+              style={s.heroLogo}
             />
-            <Text style={styles.heroEyebrow}>YOUR CLIENT PORTAL</Text>
-            <Heading style={styles.heroHeading}>
-              Welcome, {greetingName}.
-            </Heading>
-            <Text style={styles.heroSub}>
-              Your {brand.name} access is ready. Setup takes about 90 seconds.
+            <Text style={s.heroEyebrow}>YOUR CLIENT PORTAL</Text>
+            <Heading style={s.heroHeading}>Welcome, {greetingName}.</Heading>
+            <Text style={s.heroSub}>
+              Your {brand.name} access is ready.
+              <br />
+              Setup takes about 90 seconds.
             </Text>
           </Section>
 
-          {/* ─── BODY ─────────────────────────────────────────── */}
-          <Section style={styles.bodyPad}>
-            {/* Accountant credit */}
+          {/* ─── BODY ────────────────────────────────────────────── */}
+          <Section style={s.bodyPad}>
+            {/* Accountant chip — uses table cells, not flexbox */}
             {accountantName && (
               <Section
-                style={{
-                  ...styles.accountantChip,
-                  borderLeftColor: brand.colors.primary,
-                }}
+                style={{ ...s.acctChip, borderLeftColor: primary }}
               >
                 <Row>
-                  <Column style={styles.accountantInitials}>
-                    <Text
-                      style={{
-                        ...styles.accountantInitialsText,
-                        backgroundColor: brand.colors.primary,
-                      }}
+                  <Column width="44" style={{ verticalAlign: "middle" }}>
+                    <Section
+                      style={{ ...s.acctBadge, backgroundColor: primary }}
                     >
-                      {initialsOf(accountantName)}
-                    </Text>
+                      <Text style={s.acctBadgeText}>{initialsOf(accountantName)}</Text>
+                    </Section>
                   </Column>
-                  <Column>
-                    <Text style={styles.accountantLabel}>YOUR ACCOUNTANT</Text>
-                    <Text style={styles.accountantName}>{accountantName}</Text>
+                  <Column style={{ verticalAlign: "middle", paddingLeft: "12px" }}>
+                    <Text style={s.acctLabel}>YOUR ACCOUNTANT</Text>
+                    <Text style={s.acctName}>{accountantName}</Text>
                   </Column>
                 </Row>
               </Section>
             )}
 
             {/* Intro */}
-            <Text style={styles.bodyPara}>
-              {accountantName ? `${accountantName} has` : "Your accountant has"}{" "}
-              set up your access to the{" "}
-              <strong style={{ color: brand.colors.primary }}>
-                {brand.name}
-              </strong>{" "}
-              client portal — the place where you&apos;ll see where you are in
-              onboarding, book calls, sign documents, and message us. All in
-              one place.
+            <Text style={s.bodyPara}>
+              Hi {greetingName},
             </Text>
-
-            <Text style={styles.bodyPara}>
+            <Text style={s.bodyPara}>
+              {accountantFirst ?? "Your accountant"} has set up your access to
+              the {brand.name} client portal. It&apos;s where you&apos;ll see
+              your onboarding progress, book calls, sign documents, and message
+              us — all in one place.
+            </Text>
+            <Text style={s.bodyPara}>
               Click below to get started — no password needed.
             </Text>
 
-            {/* CTA — big, centred, prominent */}
-            <Section style={styles.ctaWrap}>
-              <Button
-                href={inviteUrl}
-                style={{
-                  ...styles.cta,
-                  background: `linear-gradient(135deg, ${brand.colors.primary} 0%, ${brand.colors.primaryDark} 100%)`,
-                }}
-              >
-                Set up my access →
-              </Button>
-            </Section>
+            {/* ─── BULLETPROOF CTA BUTTON ────────────────────────
+                Table-based pattern that Outlook renders correctly.
+                NO gradients, just solid background colour. ─── */}
+            <table
+              role="presentation"
+              cellSpacing="0"
+              cellPadding="0"
+              border={0}
+              align="center"
+              style={{ margin: "28px auto 12px" }}
+            >
+              <tbody>
+                <tr>
+                  <td
+                    align="center"
+                    // Legacy bgcolor attribute is needed for Outlook desktop,
+                    // which ignores CSS background on table cells. TS types
+                    // dropped it years ago — spread bypasses the check.
+                    {...({ bgcolor: primary } as Record<string, string>)}
+                    style={{
+                      backgroundColor: primary,
+                      borderRadius: "8px",
+                      padding: "14px 36px",
+                    }}
+                  >
+                    <a
+                      href={inviteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: "#ffffff",
+                        display: "inline-block",
+                        fontFamily:
+                          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        lineHeight: "1.2",
+                        textDecoration: "none",
+                      }}
+                    >
+                      Set up my access
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-            {/* Time + security pills row */}
-            <Row style={styles.metaRow}>
-              <Column align="center">
-                <Text style={styles.metaPill}>
-                  ⏱  About 90 seconds
-                </Text>
-              </Column>
-              <Column align="center">
-                <Text style={styles.metaPill}>
-                  🔒  Secure passwordless sign-in
-                </Text>
-              </Column>
-            </Row>
-
-            <Hr style={styles.divider} />
-
-            {/* What's inside — icon-led tiles */}
-            <Text style={styles.sectionLabel}>ONCE YOU&apos;RE IN</Text>
-
-            <Row style={{ marginBottom: "10px" }}>
-              <Column style={styles.iconCell}>
-                <div
-                  style={{
-                    ...styles.iconTile,
-                    backgroundColor: `${brand.colors.primary}15`,
-                    color: brand.colors.primary,
-                  }}
-                >
-                  📅
-                </div>
-              </Column>
-              <Column style={styles.featureTextCell}>
-                <Text style={styles.featureTitle}>Book calls directly</Text>
-                <Text style={styles.featureSub}>
-                  Pick a time with your accountant — no email back-and-forth.
-                </Text>
-              </Column>
-            </Row>
-
-            <Row style={{ marginBottom: "10px" }}>
-              <Column style={styles.iconCell}>
-                <div
-                  style={{
-                    ...styles.iconTile,
-                    backgroundColor: `${brand.colors.primary}15`,
-                    color: brand.colors.primary,
-                  }}
-                >
-                  ✍️
-                </div>
-              </Column>
-              <Column style={styles.featureTextCell}>
-                <Text style={styles.featureTitle}>
-                  Sign documents in-app
-                </Text>
-                <Text style={styles.featureSub}>
-                  Engagement letter, ID verification, all paperless.
-                </Text>
-              </Column>
-            </Row>
-
-            <Row style={{ marginBottom: "10px" }}>
-              <Column style={styles.iconCell}>
-                <div
-                  style={{
-                    ...styles.iconTile,
-                    backgroundColor: `${brand.colors.primary}15`,
-                    color: brand.colors.primary,
-                  }}
-                >
-                  💬
-                </div>
-              </Column>
-              <Column style={styles.featureTextCell}>
-                <Text style={styles.featureTitle}>
-                  Message us anytime
-                </Text>
-                <Text style={styles.featureSub}>
-                  Threads stay neat — your accountant always has context.
-                </Text>
-              </Column>
-            </Row>
-
-            <Row>
-              <Column style={styles.iconCell}>
-                <div
-                  style={{
-                    ...styles.iconTile,
-                    backgroundColor: `${brand.colors.primary}15`,
-                    color: brand.colors.primary,
-                  }}
-                >
-                  📱
-                </div>
-              </Column>
-              <Column style={styles.featureTextCell}>
-                <Text style={styles.featureTitle}>Works on any device</Text>
-                <Text style={styles.featureSub}>
-                  Desktop, tablet, phone — sign in once, stay signed in.
-                </Text>
-              </Column>
-            </Row>
-
-            <Hr style={styles.divider} />
-
-            {/* Fallback link */}
-            <Text style={styles.fallbackTitle}>
-              Trouble with the button?
+            {/* Meta info under CTA */}
+            <Text style={s.metaText}>
+              ⏱ About 90 seconds &nbsp;·&nbsp; 🔒 Secure passwordless sign-in
             </Text>
-            <Text style={styles.fallbackText}>
+
+            <Hr style={s.divider} />
+
+            {/* What's inside */}
+            <Text style={s.sectionLabel}>ONCE YOU&apos;RE IN</Text>
+
+            <FeatureRow
+              emoji="📅"
+              primary={primary}
+              title="Book calls directly"
+              sub="Pick a time with your accountant — no email back-and-forth."
+            />
+            <FeatureRow
+              emoji="✍️"
+              primary={primary}
+              title="Sign documents in-app"
+              sub="Engagement letter, ID verification, all paperless."
+            />
+            <FeatureRow
+              emoji="💬"
+              primary={primary}
+              title="Message us anytime"
+              sub="Threads stay neat — your accountant always has context."
+            />
+            <FeatureRow
+              emoji="📱"
+              primary={primary}
+              title="Works on any device"
+              sub="Desktop, tablet, phone — sign in once, stay signed in."
+            />
+
+            <Hr style={s.divider} />
+
+            <Text style={s.fallbackTitle}>Trouble with the button?</Text>
+            <Text style={s.fallbackText}>
               Copy and paste this link into your browser:
             </Text>
-            <Link href={inviteUrl} style={styles.fallbackLink}>
+            <Link href={inviteUrl} style={s.fallbackLink}>
               {inviteUrl}
             </Link>
           </Section>
 
-          {/* ─── FOOTER ───────────────────────────────────────── */}
-          <Section style={styles.footer}>
-            <Text style={styles.footerSec}>
-              This link works for the next <strong>7 days</strong> and can only
-              be used once. If you weren&apos;t expecting this email, you can
-              safely ignore it — no account will be created.
+          {/* ─── FOOTER ──────────────────────────────────────────── */}
+          <Section style={s.footer}>
+            <Text style={s.footerSec}>
+              This link works for the next{" "}
+              <strong>7 days</strong>
+              {" "}and can only be used once. If you weren&apos;t expecting
+              this email, you can safely ignore it — no account will be
+              created.
             </Text>
-            <Hr style={styles.footerHr} />
-            <Text style={styles.footerOrg}>
+            <Hr style={s.footerHr} />
+            <Text style={s.footerOrg}>
               <strong>{brand.legalName}</strong>
               <br />
               {brand.postalAddress}
             </Text>
-            <Text style={styles.footerLinks}>
+            <Text style={s.footerLinks}>
               <Link
                 href={`mailto:${brand.supportEmail}`}
-                style={styles.footerLink}
+                style={s.footerLink}
               >
                 {brand.supportEmail}
               </Link>
               {"  ·  "}
-              <Link
-                href={`https://${brand.domain}`}
-                style={styles.footerLink}
-              >
+              <Link href={`https://${brand.domain}`} style={s.footerLink}>
                 {brand.domain}
               </Link>
             </Text>
@@ -285,6 +242,58 @@ export default function PortalInvitationEmail({
         </Container>
       </Body>
     </Html>
+  );
+}
+
+/** Feature row — emoji tile + title + sub. Uses Row/Column so Outlook
+ *  renders it as a table, not flexbox. */
+function FeatureRow({
+  emoji,
+  primary,
+  title,
+  sub,
+}: {
+  emoji: string;
+  primary: string;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <Section style={{ marginBottom: "14px" }}>
+      <Row>
+        <Column width="44" style={{ verticalAlign: "top", paddingTop: "2px" }}>
+          <table
+            role="presentation"
+            cellSpacing="0"
+            cellPadding="0"
+            border={0}
+          >
+            <tbody>
+              <tr>
+                <td
+                  align="center"
+                  {...({ bgcolor: `${primary}15` } as Record<string, string>)}
+                  style={{
+                    backgroundColor: `${primary}15`,
+                    borderRadius: "8px",
+                    height: "36px",
+                    width: "36px",
+                    fontSize: "18px",
+                    lineHeight: "36px",
+                  }}
+                >
+                  {emoji}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </Column>
+        <Column style={{ verticalAlign: "top", paddingLeft: "12px" }}>
+          <Text style={s.featTitle}>{title}</Text>
+          <Text style={s.featSub}>{sub}</Text>
+        </Column>
+      </Row>
+    </Section>
   );
 }
 
@@ -298,88 +307,88 @@ function initialsOf(name: string): string {
 }
 
 // ─── Styles ────────────────────────────────────────────────────────────────
+// Email-safe: no gradients, no filters, no flexbox/grid, no CSS variables,
+// no max-width on divs (use explicit width on tables instead).
 
-const styles = {
+const s = {
   body: {
     backgroundColor: "#f1f5f9",
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     margin: 0,
     padding: "32px 16px",
+    width: "100%",
   },
   outer: {
     backgroundColor: "#ffffff",
-    borderRadius: "16px",
+    borderRadius: "12px",
     margin: "0 auto",
-    maxWidth: "560px",
-    overflow: "hidden" as const,
-    boxShadow:
-      "0 10px 25px -10px rgba(15, 23, 42, 0.10), 0 4px 10px -4px rgba(15, 23, 42, 0.05)",
+    width: "600px",
+    maxWidth: "600px",
   },
 
-  // Hero
+  // Hero — solid colour, padding via the section itself
   hero: {
-    padding: "44px 40px 48px",
+    padding: "44px 40px 44px",
     textAlign: "center" as const,
+    // backgroundColor set inline from brand.colors.primaryDark
   },
   heroLogo: {
     height: "32px",
     width: "auto",
     margin: "0 auto 36px",
-    filter: "brightness(0) invert(1)" as const, // forces logo to white (root colour is teal)
+    // No CSS filter — relies on logoWhite asset being a proper transparent PNG
   },
   heroEyebrow: {
-    color: "rgba(255, 255, 255, 0.75)",
+    color: "#ffffff",
     fontSize: "10px",
     fontWeight: 700,
     letterSpacing: "0.18em",
-    margin: "0 0 12px",
-    textTransform: "uppercase" as const,
+    margin: "0 0 10px",
+    opacity: 0.75,
   },
   heroHeading: {
     color: "#ffffff",
-    fontSize: "32px",
+    fontSize: "30px",
     fontWeight: 700,
-    letterSpacing: "-0.02em",
     lineHeight: 1.15,
     margin: "0 0 12px",
   },
   heroSub: {
-    color: "rgba(255, 255, 255, 0.82)",
-    fontSize: "15px",
+    color: "#ffffff",
+    fontSize: "14px",
     lineHeight: 1.55,
     margin: 0,
-    maxWidth: "420px",
-    marginLeft: "auto",
-    marginRight: "auto",
+    opacity: 0.85,
   },
 
-  // Body
-  bodyPad: { padding: "36px 40px 24px" },
+  bodyPad: { padding: "32px 40px 24px" },
 
   // Accountant chip
-  accountantChip: {
+  acctChip: {
     backgroundColor: "#f8fafc",
     border: "1px solid #e2e8f0",
     borderLeft: "3px solid",
     borderRadius: "8px",
-    marginBottom: "24px",
-    padding: "12px 16px",
+    marginBottom: "20px",
+    padding: "10px 14px",
   },
-  accountantInitials: { width: "44px" },
-  accountantInitialsText: {
+  acctBadge: {
     borderRadius: "999px",
+    height: "32px",
+    width: "32px",
+    textAlign: "center" as const,
+    lineHeight: "32px",
+  },
+  acctBadgeText: {
     color: "#ffffff",
-    display: "inline-block",
     fontSize: "12px",
     fontWeight: 700,
-    height: "32px",
-    lineHeight: "32px",
     margin: 0,
     textAlign: "center" as const,
-    width: "32px",
+    lineHeight: "32px",
   },
-  accountantLabel: {
+  acctLabel: {
     color: "#64748b",
     fontSize: "9px",
     fontWeight: 700,
@@ -387,7 +396,7 @@ const styles = {
     margin: 0,
     textTransform: "uppercase" as const,
   },
-  accountantName: {
+  acctName: {
     color: "#0f172a",
     fontSize: "14px",
     fontWeight: 600,
@@ -397,78 +406,46 @@ const styles = {
   bodyPara: {
     color: "#334155",
     fontSize: "15px",
-    lineHeight: 1.6,
-    margin: "0 0 16px",
+    lineHeight: 1.55,
+    margin: "0 0 14px",
   },
 
-  // CTA
-  ctaWrap: {
-    margin: "32px 0 18px",
-    textAlign: "center" as const,
-  },
-  cta: {
-    borderRadius: "10px",
-    color: "#ffffff",
-    display: "inline-block",
-    fontSize: "15px",
-    fontWeight: 600,
-    letterSpacing: "0.01em",
-    padding: "15px 36px",
-    textDecoration: "none",
-    boxShadow: "0 4px 12px -2px rgba(15, 23, 42, 0.2)",
-  },
-
-  // Meta row under CTA
-  metaRow: { margin: "0 0 8px" },
-  metaPill: {
+  metaText: {
     color: "#64748b",
     fontSize: "12px",
-    margin: 0,
-    padding: "4px 0",
+    margin: "4px 0 0",
+    textAlign: "center" as const,
   },
 
   divider: {
     border: "none",
     borderTop: "1px solid #e2e8f0",
-    margin: "28px 0",
+    margin: "26px 0",
   },
 
-  // Section labels
   sectionLabel: {
     color: "#0f172a",
     fontSize: "11px",
     fontWeight: 700,
     letterSpacing: "0.12em",
-    margin: "0 0 18px",
+    margin: "0 0 14px",
     textTransform: "uppercase" as const,
   },
 
-  // Feature rows
-  iconCell: { width: "48px", verticalAlign: "top" as const, paddingTop: "2px" },
-  iconTile: {
-    borderRadius: "8px",
-    fontSize: "18px",
-    height: "36px",
-    lineHeight: "36px",
-    textAlign: "center" as const,
-    width: "36px",
-  },
-  featureTextCell: { paddingLeft: "4px", verticalAlign: "top" as const },
-  featureTitle: {
+  featTitle: {
     color: "#0f172a",
     fontSize: "14px",
     fontWeight: 600,
     lineHeight: 1.4,
     margin: "0 0 2px",
   },
-  featureSub: {
+  featSub: {
     color: "#64748b",
     fontSize: "13px",
     lineHeight: 1.5,
     margin: 0,
   },
 
-  // Fallback link
   fallbackTitle: {
     color: "#0f172a",
     fontSize: "12px",
@@ -478,7 +455,7 @@ const styles = {
   fallbackText: {
     color: "#64748b",
     fontSize: "12px",
-    margin: "0 0 8px",
+    margin: "0 0 6px",
   },
   fallbackLink: {
     color: "#64748b",
@@ -486,21 +463,20 @@ const styles = {
     wordBreak: "break-all" as const,
   },
 
-  // Footer
   footer: {
     backgroundColor: "#f8fafc",
-    padding: "28px 40px",
+    padding: "24px 40px",
   },
   footerSec: {
     color: "#64748b",
     fontSize: "12px",
-    lineHeight: 1.6,
-    margin: "0 0 16px",
+    lineHeight: 1.55,
+    margin: "0 0 14px",
   },
   footerHr: {
     border: "none",
     borderTop: "1px solid #e2e8f0",
-    margin: "16px 0",
+    margin: "14px 0",
   },
   footerOrg: {
     color: "#475569",
