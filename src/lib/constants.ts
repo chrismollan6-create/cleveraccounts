@@ -151,7 +151,6 @@ export const BRANDS = {
     },
     offices: [
       { city: 'Leeds', address: 'Leeds, West Yorkshire, UK' },
-      { city: 'Watford', address: 'Watford, Hertfordshire, UK' },
     ],
     stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },
     social: {
