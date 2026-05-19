@@ -179,6 +179,7 @@ export const BRANDS = {
     assets: {
       logo: '/brand/workwell/logo.png',
       logoWhite: '/brand/workwell/logo-white.png',
+      favicon: '/brand/clever/favicon.ico', 
     },
     // Canonical palette extracted from workwellaccountancy.com theme CSS (2026-05-09).
     // Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488) are

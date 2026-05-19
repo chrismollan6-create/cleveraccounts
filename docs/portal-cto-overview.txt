@@ -1,0 +1,347 @@
+CLIENT PORTAL — SYSTEM AND INFRASTRUCTURE OVERVIEW
+==================================================
+
+Status: Phase 1 live on a test web address (May 2026). Switching
+the real customer-facing addresses across this week. Designed to
+pass an external pentest.
+
+
+
+IN ONE PARAGRAPH
+----------------
+
+A web app that gives every Clever Accounts and Workwell Accountancy
+client a personal home page for everything to do with their account.
+Built once, serves both brands — the app decides which brand to show
+based on which web address the visitor used. Hosted on Vercel in
+London. The database is Postgres on Supabase, also in London.
+Salesforce stays in charge of all client records; the Supabase
+database is a fast read copy that stays in sync with Salesforce
+within seconds.
+
+
+
+HIGH-LEVEL ARCHITECTURE
+-----------------------
+
+    cleveraccounts.com  /  workwellaccountancy.com   (marketing)
+    my.cleveraccounts.com / my.workwellaccountancy.com (portal)
+                              |
+                              v
+                       Vercel (London)
+                       - Locks down security headers
+                       - Decides which brand to show
+                       - Refuses unauthenticated requests
+                       - Falls through to the Next.js app
+                              |
+            +-----------------+-------------------+
+            |                 |                   |
+            v                 v                   v
+         Clerk           Supabase            Salesforce
+         (login,         (Postgres,          (the firm's
+         passkey,        EU, used as         CRM — the
+         MFA)            a fast read         source of
+                         copy)               truth)
+                              ^                   |
+                              |                   |
+                              +----- sync --------+
+                                signed messages,
+                                ~2-5 sec latency
+
+Reads (which happen a lot, need to be fast): Supabase, ~10ms.
+Writes (rare, need to be validated): Salesforce REST endpoints.
+Sync from Salesforce to Supabase: a Salesforce event fires, a
+queued job sends a signed HTTP message to the portal, the portal
+updates Supabase. Idempotent, retried on failure, drops into a
+dead-letter table if it fails three times.
+
+
+
+WHAT'S IN THE STACK
+-------------------
+
+Hosting: Vercel Pro, London region. Picked because it's built
+specifically for Next.js, has EU data residency, free SSL, and
+includes a feature called Skew Protection that prevents the
+"page-half-loaded-on-old-version" problem when we deploy while a
+client has the portal open.
+
+Framework: Next.js 16 with the App Router. The current standard
+for React-based web apps. Pages render on the server (so they
+appear fast) and update on the client (so navigations feel
+instant).
+
+Database: Postgres on Supabase, eu-west-2 (London). Managed
+Postgres with row-level security as a second line of defence
+against unauthorised reads.
+
+ORM: Drizzle. Type-safe queries, plain-SQL migrations in the
+repo (reviewable like any other code change).
+
+Login: Clerk. A specialist auth provider that handles passwords,
+passkeys, magic links, two-factor sign-in, and lifecycle events.
+SOC 2 Type II certified. Means we never see or store passwords.
+
+Rate limiting: Upstash Redis. Stops abuse of the portal API
+(per-IP and per-user limits).
+
+File storage: Vercel Blob, London region. Where client documents
+will live in Phase 2. Replaces Salesforce Files which is much
+more expensive per gigabyte.
+
+Content for the blog and marketing pages: Sanity (a managed CMS).
+
+Email: Resend for newer flows, SendGrid for legacy. Both with
+hard-bounce tracking.
+
+Observability: Vercel Analytics (page views, no personal data) and
+Speed Insights (how fast pages actually load for real users).
+
+
+
+SECURITY — HOW IT'S BUILT
+-------------------------
+
+We've assumed any single security layer might fail, so multiple
+checks happen at different layers.
+
+1. Encrypted in transit. TLS 1.3 throughout. HTTPS only — HTTP
+   redirects to HTTPS.
+
+2. Edge protection. Vercel sits between the public internet and
+   the app. Bad bots, known-bad IPs, and obviously abusive traffic
+   gets filtered there before it ever reaches our code.
+
+3. Browser security headers. The portal pages tell the browser
+   exactly what they're allowed to do — only load scripts from
+   known providers (Clerk, Calendly, Supabase, Cloudflare),
+   never let the page be embedded in someone else's site, never
+   leak which page you came from.
+
+4. Login cookies. Tied to the portal subdomain only. Cannot be
+   read by JavaScript. Cannot be sent in a cross-site request.
+
+5. Login itself. Clerk. Clients sign in with a passkey (the modern
+   alternative to passwords — uses the device's secure enclave) or
+   a one-tap email link. Two-factor sign-in is enforceable and
+   will be required at launch.
+
+6. The IDOR check. (IDOR = "Insecure Direct Object Reference" —
+   the bug class where you can see someone else's data by changing
+   a URL parameter.) Every place in the code that fetches client
+   data calls one specific function. That function works out who's
+   signed in from the verified session, looks up which Salesforce
+   account they're tied to, and ONLY returns data for that
+   account. No code path accepts an account ID from the URL or
+   request body. It's structurally impossible to get another
+   client's data — even with a misconfigured page.
+
+7. Database-level check, as a second line. Postgres row-level
+   security is on. Even if the function above is somehow
+   bypassed, the database itself rejects queries that aren't
+   scoped to the signed-in user.
+
+8. Form forgery protection. Every form submission verifies the
+   request came from the portal itself, not a malicious page on
+   another site.
+
+9. Signed sync messages. When Salesforce sends data to the
+   portal, the message is signed with a secret that only
+   Salesforce and the portal know. The portal rejects anything
+   unsigned or signed with the wrong secret. Replays are blocked
+   by checking the timestamp.
+
+10. Secrets management. All passwords/keys/tokens live in Vercel's
+    encrypted environment variable store. Nothing in the repo.
+    Rotation schedule documented.
+
+11. Two Salesforce API keys, not one. The marketing site uses a
+    general key (creates leads). The portal uses a separate,
+    restricted key tied to a dedicated Salesforce user account.
+    That user account has a permission set limited to ONLY the
+    objects and fields the portal needs to read. So even if the
+    portal's key leaks, the blast radius is small — no salaries,
+    no notes, no other client types.
+
+12. Audit log. Every login, every page view, every action gets
+    written to an append-only log with timestamp, IP address,
+    browser, and what was viewed/changed. Records cannot be
+    edited or deleted. Shipped to BetterStack for retention.
+
+13. Skew protection. If we deploy a new version while a client
+    has the portal open, their tab keeps talking to the version
+    they originally loaded. No half-loaded broken pages.
+
+14. Bot protection on sign-up. Cloudflare Turnstile widget on the
+    sign-up form (replaces the old CAPTCHA approach).
+
+Where the data lives: every piece of infrastructure that holds
+client data is in the UK or EU. Postgres (London), Vercel functions
+(London), Vercel Blob (London), Clerk EU region, Salesforce UK org.
+
+
+
+INTEGRATIONS
+------------
+
+The portal connects to eleven external services. Each one does a
+specific job:
+
+Salesforce — the firm's CRM. The portal reads from a local cache
+and writes back via REST endpoints. Source of truth for every
+client record.
+
+Clerk — login. Passkey, magic link, two-factor. Calls back to the
+portal when a new client signs up or updates their email.
+
+Stripe — monthly subscription billing. Hosted checkout flow plus
+webhook events for subscription changes.
+
+Calendly — onboarding call bookings (welcome call, main call,
+portal training, catch-up). Embedded in the portal; webhook fires
+back when a booking is made.
+
+Credas — UK regulated ID verification (anti-money-laundering).
+The portal hands the client off to Credas's hosted flow and gets a
+signed result back.
+
+Companies House — looks up company details during sign-up so the
+client doesn't have to type their address, company number, etc.
+
+HMRC — Making Tax Digital quarterly submissions. Existing pipeline,
+the portal doesn't change this.
+
+Resend and SendGrid — transactional email (welcome emails, sign
+confirmations, referral notifications). Resend for newer flows,
+SendGrid for legacy.
+
+Sanity — managed CMS for the blog and marketing content. Content
+team edits it directly, the portal/marketing site reads it.
+
+Cloudflare Turnstile — bot protection on the sign-up form. Less
+intrusive than reCAPTCHA.
+
+Upstash Redis — rate limiting and ephemeral state (e.g. one-time
+codes).
+
+
+
+WHAT'S DONE
+-----------
+
+- Migration from Netlify to Vercel complete. Marketing site live
+  on cleveraccounts.com.
+- Both brands wired up in the multi-tenant foundation (one
+  codebase, brand resolved from the request hostname).
+- Salesforce-to-Supabase sync pipeline complete and running.
+- The IDOR chokepoint function (the "one place all data fetches
+  go through") is in place. Every portal page already uses it.
+- Login via Clerk live, including the lifecycle webhook that
+  creates the link record between Clerk users and Salesforce
+  contacts.
+- Onboarding dashboard live with the redesigned layout (modeled
+  on Mercury Bank / Linear): progress ring, six-stage timeline,
+  accountant card, tasks panel, activity feed, persistent
+  "what's next" reminder.
+- Vercel Analytics and Speed Insights collecting real-user data.
+- Stage 1 of the security hardening plan (the dedicated
+  Salesforce integration user with restricted permissions) is
+  shipped to sandbox.
+- Audit log writes on every page view and data fetch.
+
+
+
+WHAT'S NEXT (IN ORDER)
+----------------------
+
+1. Switch DNS for my.cleveraccounts.com and
+   my.workwellaccountancy.com over to Vercel. In progress this
+   week.
+
+2. Roll out the restricted Salesforce integration user to
+   production. The manual Salesforce Setup-UI steps are
+   documented in a runbook.
+
+3. Stages 2 through 5 of the hardening plan. The big one is
+   moving to a nonce-based CSP — currently the portal allows
+   inline scripts (with strict origin restrictions), and we want
+   to remove that allowance entirely. Also: ship audit logs off
+   to BetterStack for long-term retention, tighten the rate
+   limits per route, document the secret rotation schedule.
+
+4. Foundation 6: move from the development Clerk app to the
+   production Clerk app and enforce two-factor sign-in for all
+   clients.
+
+5. External CREST-accredited pentest. Five days, full report,
+   retest after we fix anything found. Budget ~£5–8k.
+
+6. Pilot with 5–10 friendly existing clients to find issues we
+   wouldn't catch internally.
+
+7. Then open it up to the full 6,500-strong existing client base.
+
+
+
+PHASE 2 (PLANNED, AFTER PENTEST)
+--------------------------------
+
+- Client document uploads. Vercel Blob (London) is already set
+  up. Will replace the much more expensive Salesforce Files for
+  files clients upload themselves.
+
+- Engagement letter signing inside the portal. Currently it's a
+  standalone URL — folding it into the portal experience.
+
+- Real-time messaging between client and accountant.
+
+- Web push notifications.
+
+- Mobile app. One codebase wrapped with Capacitor, two App Store
+  listings (one per brand). Same React codebase, no rewrite.
+
+- An optional AI assistant that drafts replies to client messages
+  for accountants to review and send. Saves accountant time on
+  routine acknowledgements. Built on the Vercel AI SDK with
+  Anthropic Claude underneath. Accountants always review and
+  click send — the AI never speaks for them.
+
+
+
+WHAT WE CHOSE NOT TO BUILD
+--------------------------
+
+In-house authentication. Clerk handles password hashing, breach
+detection, two-factor, and recovery. We never see a password. The
+cost of doing this ourselves (and getting it wrong) outweighs the
+Clerk subscription fee many times over.
+
+Direct Salesforce calls from the browser. Every Salesforce call
+goes through our server. The client never has Salesforce
+credentials, never even knows our Salesforce instance URL.
+
+A microservices architecture. The portal is one Next.js app and
+one Postgres database. Fewer moving parts means fewer attack
+surfaces and a simpler operational story. We'll refactor only if
+scale forces it.
+
+A custom email-sending infrastructure. Resend and SendGrid do this
+better and SPF/DKIM/DMARC is already configured at the domain
+level.
+
+
+
+RELATED DOCUMENTS
+-----------------
+
+- Phase 1 full plan:
+  docs/lucky-frolicking-porcupine.md
+
+- Security hardening stages 1-6:
+  docs/portal-security-hardening.md
+
+- Stage 1 manual rollout runbook:
+  docs/portal-stage-1-dedicated-integration-user.md
+
+- Engagement letter implementation:
+  docs/engagement-letter-implementation-plan.md

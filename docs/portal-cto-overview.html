@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Portal — System & Infrastructure Overview</title>
+<style>
+  /* ── A4 page setup for clean print/PDF export ────────────────────── */
+  @page { size: A4; margin: 18mm 16mm; }
+  @media print {
+    body { font-size: 10.5pt; }
+    h1, h2, h3 { page-break-after: avoid; }
+    table, pre, .ascii { page-break-inside: avoid; }
+    a { color: #1a4477; text-decoration: none; }
+  }
+
+  /* ── Typography ─────────────────────────────────────────────────── */
+  :root {
+    --ink: #1c2331;
+    --ink-dim: #5a6477;
+    --rule: #d8dde6;
+    --rule-soft: #ebeef3;
+    --bg-soft: #f7f8fb;
+    --accent: #1a4477;
+    --accent-soft: #eaf1f9;
+    --ok: #1d7a4e;
+    --warn: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Charter", "Iowan Old Style", Cambria, Georgia, serif;
+    color: var(--ink);
+    background: #fff;
+    margin: 0;
+    padding: 36px 56px;
+    max-width: 880px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.55;
+    font-size: 11pt;
+  }
+  h1, h2, h3, h4 {
+    font-family: -apple-system, "Segoe UI", "Inter", system-ui, sans-serif;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-top: 1.6em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+  }
+  h1 { font-size: 26pt; margin-top: 0; letter-spacing: -0.5px; }
+  h2 { font-size: 16pt; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+  h3 { font-size: 12.5pt; color: var(--accent); }
+  h4 { font-size: 11pt; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+  p { margin: 0.4em 0 0.9em; }
+  em.subtitle {
+    display: block;
+    color: var(--ink-dim);
+    font-style: normal;
+    font-size: 10.5pt;
+    margin-top: -4px;
+    margin-bottom: 28px;
+  }
+
+  /* ── Links + emphasis ───────────────────────────────────────────── */
+  a { color: var(--accent); }
+  strong { color: var(--ink); }
+  code, .mono {
+    font-family: "JetBrains Mono", "SF Mono", Consolas, Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--bg-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--rule-soft);
+  }
+
+  /* ── Tables ─────────────────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.8em 0 1.2em;
+    font-size: 10.5pt;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    background: var(--bg-soft);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 10pt;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  td:first-child { font-weight: 600; }
+
+  /* ── ASCII diagram ──────────────────────────────────────────────── */
+  pre.ascii {
+    font-family: "JetBrains Mono", "SF Mono", Consolas, Menlo, monospace;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    background: var(--bg-soft);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── Lists ──────────────────────────────────────────────────────── */
+  ul, ol { padding-left: 1.3em; margin: 0.4em 0 1em; }
+  li { margin-bottom: 0.35em; }
+
+  /* ── Tags / chips ───────────────────────────────────────────────── */
+  .pill {
+    display: inline-block;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 9pt;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .pill-ok { background: #e4f5ec; color: var(--ok); }
+  .pill-pending { background: #fff4e2; color: var(--warn); }
+
+  /* ── Section card (used for "what's done" / "what's next") ─────── */
+  .card {
+    background: var(--bg-soft);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin: 0.6em 0 1em;
+  }
+  .card.warn { border-left-color: var(--warn); }
+  .card h3 { margin-top: 0; }
+
+  /* ── Header block ───────────────────────────────────────────────── */
+  .header-meta {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 9.5pt;
+    color: var(--ink-dim);
+    margin-top: 8px;
+    margin-bottom: 28px;
+    padding: 12px 16px;
+    background: var(--bg-soft);
+    border-radius: 4px;
+    border: 1px solid var(--rule);
+  }
+  .header-meta strong { color: var(--ink); }
+
+  /* ── Two-column at print width for some lists ───────────────────── */
+  .two-col { columns: 2; column-gap: 30px; }
+  .two-col li { break-inside: avoid; }
+
+  /* ── Footer ─────────────────────────────────────────────────────── */
+  footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 9pt;
+    color: var(--ink-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1>Client Portal</h1>
+<em class="subtitle">System & infrastructure overview · For CTO review</em>
+
+<div class="header-meta">
+  <strong>Status:</strong> Phase 1 live on test address. Customer-facing DNS cutover in progress this week.<br>
+  <strong>Built for:</strong> Clever Accounts &amp; Workwell Accountancy — one codebase, two brands.<br>
+  <strong>Pentest:</strong> External CREST-accredited engagement booked pre-broad-launch.
+</div>
+
+<h2>In one paragraph</h2>
+<p>A web app that gives every accountancy client a personal home page for everything to do with their account — where they are in onboarding, who their accountant is, how to book calls, where to sign documents, how to message us. <strong>One codebase serves both Clever Accounts and Workwell Accountancy</strong> — the app picks the right brand automatically based on which web address the client typed in. Hosted on <strong>Vercel</strong> in London. Backed by <strong>Salesforce as the source of truth</strong>, with a <strong>Supabase Postgres copy in London</strong> for fast reads. <strong>Clerk</strong> handles sign-in so we never see passwords. Built from day one to be tested by an outside security firm.</p>
+
+<h2>How it fits together</h2>
+<pre class="ascii">       cleveraccounts.com   /  workwellaccountancy.com       (marketing sites)
+       my.cleveraccounts.com / my.workwellaccountancy.com    (client portal)
+                              │
+                              ▼
+                  ┌────────────────────────┐
+                  │   Vercel (London)      │  Security headers, login gate,
+                  │                        │  brand decided by web address
+                  └────────────┬───────────┘
+                               │
+                  ┌────────────▼───────────┐
+                  │    Next.js app         │  Every data fetch goes through
+                  │   (one codebase)       │  one function that enforces
+                  │                        │  "only your own data"
+                  └────────────┬───────────┘
+                               │
+        ┌──────────────────────┼──────────────────────┐
+        │                      │                      │
+   ┌────▼────┐         ┌──────▼──────┐        ┌──────▼──────┐
+   │ Clerk   │         │  Postgres   │        │ Salesforce  │
+   │ Sign-in │         │  (London)   │        │  (where the │
+   │ + MFA   │         │  Fast copy  │        │   real data │
+   │         │         │  of SF data │        │    lives)   │
+   └─────────┘         └──────▲──────┘        └──────┬──────┘
+                              │                      │
+                              │  Within 2-5 seconds  │
+                              └──────────────────────┘
+                              Cryptographically signed
+                              updates flow this way</pre>
+
+<p><strong>Reads</strong> (clients viewing their dashboard) hit the Postgres copy — fast.<br>
+<strong>Writes</strong> (Phase 2: clients uploading docs, sending messages) go straight to Salesforce.<br>
+<strong>Sync</strong> (Salesforce → Postgres): Salesforce broadcasts a change → our server picks it up → upserts into Postgres. Signed, idempotent, with a dead-letter queue if anything fails.</p>
+
+<h2>The tech, in plain terms</h2>
+<table>
+  <thead><tr><th>Layer</th><th>What we use</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Hosting</td><td>Vercel Pro, London region</td><td>Built by the team behind Next.js. Automatic rollbacks, free TLS, UK residency for GDPR</td></tr>
+    <tr><td>Web framework</td><td>Next.js 16 (latest)</td><td>Industry standard for React apps. Server components, edge middleware, server-side rendering</td></tr>
+    <tr><td>Database</td><td>Supabase Postgres, London</td><td>Managed Postgres. Same kind of SQL database every serious app uses. UK region for GDPR</td></tr>
+    <tr><td>DB queries</td><td>Drizzle ORM</td><td>Type-safe queries. Wrong column names fail at build time, not in production</td></tr>
+    <tr><td>Sign-in</td><td>Clerk</td><td>Specialist auth. Passkey + magic-link. We never handle passwords. SOC 2 Type II</td></tr>
+    <tr><td>Rate limiting</td><td>Upstash Redis</td><td>Stops automated abuse. Fast, cheap, EU region</td></tr>
+    <tr><td>File storage (Phase 2)</td><td>Vercel Blob, London</td><td>Cheaper than Salesforce Files (~£0.10/GB vs ~£20/GB). UK-resident for GDPR</td></tr>
+    <tr><td>Email</td><td>Resend (new), SendGrid (legacy)</td><td>Reliable delivery with bounce tracking</td></tr>
+    <tr><td>Observability</td><td>Vercel Analytics + Speed Insights</td><td>Real-user performance, no personal data</td></tr>
+    <tr><td>Marketing CMS</td><td>Sanity</td><td>Existing blog/content pipeline</td></tr>
+  </tbody>
+</table>
+
+<h2>Security — designed for an outside pentest</h2>
+<p>We expect a CREST-accredited UK security firm to attack this before broad launch. Every layer below assumes the others might fail.</p>
+
+<h3>How clients are authenticated</h3>
+<ul>
+  <li>Clients sign in with a <strong>passkey</strong> (Touch ID, Face ID, Windows Hello) or a <strong>magic link</strong> emailed to them</li>
+  <li>No passwords stored anywhere</li>
+  <li>Two-factor sign-in is optional now and will be required from broad launch</li>
+  <li>Sign-in handled by <strong>Clerk</strong> — they specialise in this so we don't have to roll our own password code</li>
+  <li>Sign-in cookies are HTTP-only, Secure-only, SameSite=Strict, and scoped to the portal subdomain only</li>
+</ul>
+
+<h3>How we prevent cross-account data leaks</h3>
+<p>This is the most important piece. Every data fetch in the app goes through <strong>one function called <code>withPortalScope()</code></strong>. It:</p>
+<ol>
+  <li>Reads the verified Clerk session</li>
+  <li>Looks up which Salesforce Account that signed-in client belongs to</li>
+  <li>Calls the rest of the code, passing only <em>that</em> Account's ID</li>
+</ol>
+<p>It is <strong>structurally impossible</strong> for a route handler to accept a client-supplied "give me account X" parameter, because every data-fetching function only ever receives the Account ID derived from the verified session. Even a sloppily-written future page can't accidentally show one client's data to another.</p>
+<p>As a second line of defence, the <strong>Postgres database has row-level security enabled</strong> — even if <code>withPortalScope()</code> were somehow bypassed, the database itself refuses to return rows that don't belong to the signed-in client.</p>
+
+<h3>How Salesforce and the portal trust each other</h3>
+<ul>
+  <li>The portal uses an <strong>OAuth client-credentials flow</strong> to authenticate to Salesforce</li>
+  <li><strong>Two separate Salesforce Connected Apps:</strong> one for the marketing site (creates Leads, low privilege), and a separate <strong>least-privilege</strong> one for the portal — it can only see records the portal needs. No salaries, no internal notes, no records belonging to clients other than the one being viewed</li>
+  <li><strong>Messages from Salesforce to the portal are signed</strong> with an HMAC-SHA256 shared secret. Anything unsigned, with a bad signature, or with an old timestamp is rejected</li>
+  <li>The shared secret lives in Salesforce custom metadata and Vercel environment variables — never in the codebase</li>
+</ul>
+
+<h3>Browser and network defence</h3>
+<ul>
+  <li><strong>HTTPS only</strong>, with HSTS preload eligibility on the customer domain</li>
+  <li><strong>Strict Content Security Policy</strong> on portal pages — locked-down allowlist of which third-party scripts can run (Clerk, Calendly, Supabase, Cloudflare Turnstile)</li>
+  <li><code>X-Frame-Options: DENY</code> on portal — can't be embedded in another site (prevents click-jacking)</li>
+  <li><code>Referrer-Policy: same-origin</code> — won't leak page URLs externally</li>
+</ul>
+
+<h3>Service abuse defence</h3>
+<ul>
+  <li><strong>Rate limits</strong> on every portal API endpoint via Upstash (30 req/min/user by default, tighter on sign-in)</li>
+  <li><strong>Origin / Referer check</strong> on all POST endpoints — stops a malicious site posting on behalf of a signed-in user</li>
+  <li><strong>Cloudflare Turnstile</strong> on the sign-up form before broad launch — invisible CAPTCHA that blocks bots without bothering humans</li>
+</ul>
+
+<h3>Audit trail</h3>
+<ul>
+  <li>Every login, page view, action, and data fetch writes to a <code>portal.audit_log</code> table — actor, target, action, IP, user agent, timestamp</li>
+  <li>The table is <strong>append-only</strong> at the database level — no UPDATE or DELETE permissions for the portal service account</li>
+  <li>Will be shipped to a separate log aggregator (BetterStack or Axiom) for tamper-evident retention before broad launch</li>
+</ul>
+
+<h3>Operational hygiene</h3>
+<ul>
+  <li>Production secrets stored only in Vercel encrypted environment variables — never in the codebase</li>
+  <li><code>.env.local</code> is gitignored</li>
+  <li>Vercel <strong>Skew Protection</strong> is on — clients with warm tabs always hit their original deployment during rolling deploys</li>
+  <li>Vercel Firewall in front of every request — bot filtering, geographic rules, per-IP rate limits</li>
+</ul>
+
+<h3>Where data lives</h3>
+<p>All systems that hold client data are in <strong>UK or EU regions</strong>, confirmed at provisioning:</p>
+<ul class="two-col">
+  <li>Vercel functions: London (lhr1)</li>
+  <li>Postgres: eu-west-2 (London)</li>
+  <li>File storage: London (lhr1)</li>
+  <li>Clerk: EU data residency confirmed</li>
+  <li>Salesforce: existing UK org</li>
+</ul>
+
+<h2>External integrations</h2>
+<p>The portal talks to eleven external services. Each is the standard choice for its purpose.</p>
+<table>
+  <thead><tr><th>Service</th><th>What it does</th><th>Why this one</th></tr></thead>
+  <tbody>
+    <tr><td>Salesforce</td><td>System of record — every piece of client data lives here ultimately</td><td>Already the firm's CRM. The portal sits in front of it, doesn't replace it</td></tr>
+    <tr><td>Clerk</td><td>Login and account management</td><td>Specialist auth so we don't write password code. Passkey-first</td></tr>
+    <tr><td>Stripe</td><td>Card billing — monthly subscriptions, sign-up checkout</td><td>Industry standard. PCI compliance handled by them</td></tr>
+    <tr><td>Calendly</td><td>Onboarding call booking</td><td>Already in use by the firm</td></tr>
+    <tr><td>Credas</td><td>Regulated UK identity verification for AML checks</td><td>Required by regulation; FCA-recognised provider</td></tr>
+    <tr><td>Companies House</td><td>Company-data lookup during sign-up</td><td>Free UK government API</td></tr>
+    <tr><td>HMRC</td><td>Tax submissions (Making Tax Digital)</td><td>Required for filing; existing firm pipeline reuses</td></tr>
+    <tr><td>Resend</td><td>Branded transactional emails</td><td>Modern, EU-friendly, deliverability-focused</td></tr>
+    <tr><td>SendGrid</td><td>Legacy transactional emails</td><td>Existing pipeline; being phased to Resend</td></tr>
+    <tr><td>Sanity</td><td>Marketing site CMS (blog, FAQ)</td><td>Editor-friendly, real-time preview</td></tr>
+    <tr><td>Cloudflare Turnstile</td><td>Bot defence on sign-up form</td><td>Free, privacy-preserving CAPTCHA alternative</td></tr>
+  </tbody>
+</table>
+
+<h2>What's done</h2>
+<div class="card">
+  <ul>
+    <li>Migration from Netlify to Vercel — production live on <code>cleveraccounts.com</code></li>
+    <li>Multi-tenant brand resolution wired up — both Clever and Workwell brands serve from one codebase</li>
+    <li>Postgres read cache running, kept in sync with Salesforce via signed Platform Events</li>
+    <li><code>withPortalScope()</code> chokepoint built and used by every portal data fetch</li>
+    <li>Clerk sign-in, dashboard, onboarding view, accountant card, tasks panel, activity feed</li>
+    <li>Dashboard redesign shipped this month — modelled on modern app patterns (Mercury Bank, Linear)</li>
+    <li>Vercel Analytics + Speed Insights live</li>
+    <li>Stage 1 of the hardening plan (locked-down Salesforce integration user + permission set) — sandbox deployed, production pending</li>
+    <li>Audit log writing on every page view and data fetch</li>
+  </ul>
+</div>
+
+<h2>What's next — in order</h2>
+<div class="card warn">
+  <ol>
+    <li><strong>Switch the customer-facing addresses</strong> (<code>my.cleveraccounts.com</code>, <code>my.workwellaccountancy.com</code>) over to Vercel — in progress this week</li>
+    <li><strong>Stage 1 production rollout</strong> — promote the locked-down Salesforce integration user from sandbox to production</li>
+    <li><strong>Stages 2–5 hardening</strong> — tighten the last security header (nonce-based CSP), ship audit logs to a separate aggregator, document secrets-rotation cadence</li>
+    <li><strong>Foundation 6</strong> — production Clerk app with two-factor sign-in required + branded sign-in domain</li>
+    <li><strong>External pentest</strong> — 5-day CREST-accredited engagement (~£5–8k). Full report + retest after fixes</li>
+    <li><strong>Pilot</strong> — 5–10 friendly clients use it for a fortnight</li>
+    <li><strong>Broad launch</strong> — open it to the full 6,500-client base</li>
+  </ol>
+</div>
+
+<h3>Phase 2 (after launch is stable)</h3>
+<ul>
+  <li>Clients uploading their own documents (ID, P60s, bank statements) — stored in Vercel Blob, London</li>
+  <li>In-portal real-time messaging</li>
+  <li>Web push notifications</li>
+  <li>Mobile app via Capacitor (same codebase, App Store + Play Store listings per brand)</li>
+  <li>Optional AI assistant — drafts replies to client messages for accountants to review before sending</li>
+</ul>
+
+<h2>What we deliberately chose NOT to build</h2>
+<ul>
+  <li><strong>In-house login.</strong> Clerk handles password hashing, breach detection, two-factor, recovery. We never see a password.</li>
+  <li><strong>Browser-side Salesforce calls.</strong> Every Salesforce call goes through our server. The client browser never knows Salesforce credentials or that Salesforce is involved.</li>
+  <li><strong>Microservices.</strong> Single Next.js app + Postgres. Fewer moving parts, fewer attack surfaces.</li>
+  <li><strong>Custom email infrastructure.</strong> Resend + SendGrid handle delivery. SPF/DKIM/DMARC at the domain level.</li>
+  <li><strong>Mobile app first.</strong> Web first, with a path to mobile via Capacitor reusing 100% of the backend.</li>
+</ul>
+
+<h2>Risks we've already engineered around</h2>
+<ol>
+  <li><strong>Vendor lock-in.</strong> Salesforce stays canonical. The Postgres cache is rebuildable from Salesforce in minutes via the same sync pipeline that keeps it warm.</li>
+  <li><strong>GDPR data residency.</strong> Every system that touches client data is in UK or EU regions, verified at provisioning.</li>
+  <li><strong>GDPR right-to-erasure.</strong> Deleting a client in Salesforce cascades to the Postgres cache within seconds.</li>
+  <li><strong>Mobile future.</strong> Backend is API-first. A Capacitor wrap reuses 100% of the backend.</li>
+  <li><strong>Scale.</strong> The read-cache means we don't hit Salesforce's 100k/day API limit even with 6,500+ active clients.</li>
+</ol>
+
+<footer>
+  Client Portal · Engineering Overview · May 2026 · Internal · Clever Accounts Ltd / Workwell Accountancy Solutions Ltd
+</footer>
+
+</body>
+</html>
