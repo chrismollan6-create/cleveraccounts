@@ -99,10 +99,15 @@ export default async function PortalLayout({
       ? `https://fonts.googleapis.com/css2?family=${fontFamilyParam}:wght@${brand.font.weights}&display=swap`
       : null;
 
-  // Design-preview routes bring their own shell so we can A/B sidebars.
-  // Skip the default PortalShell for /portal/preview/* but keep Clerk +
-  // brand + html chrome so the preview still runs in the real environment.
-  const isPreview = pathname.startsWith("/portal/preview");
+  // Routes that bring their own full-screen layout — bypass PortalShell so
+  // the sidebar isn't shown when it'd be useless or confusing:
+  //   /portal/preview/*  — design playground, owns its own shell
+  //   /portal/sign-in/*  — auth pages, no nav to show before login
+  //   /portal/sign-up/*  — auth pages, no nav to show before signup
+  const isBareLayout =
+    pathname.startsWith("/portal/preview") ||
+    pathname.startsWith("/portal/sign-in") ||
+    pathname.startsWith("/portal/sign-up");
 
   return (
     <ClerkProvider>
@@ -118,7 +123,7 @@ export default async function PortalLayout({
         </head>
         <body className="min-h-full font-sans antialiased text-text">
           <BrandProvider brandId={brand.id}>
-            {isPreview ? (
+            {isBareLayout ? (
               children
             ) : (
               <PortalShell
