@@ -72,6 +72,7 @@ export async function sendPortalInvitation(
   return send({
     to: args.to,
     from: `${args.fromName ?? brand.name} <${brand.senderEmail}>`,
+    replyTo: brand.supportEmail,
     subject,
     html,
     text,
@@ -101,6 +102,7 @@ export async function sendPortalMagicLink(
   return send({
     to: args.to,
     from: `${args.fromName ?? brand.name} <${brand.senderEmail}>`,
+    replyTo: brand.supportEmail,
     subject,
     html,
     text,
@@ -129,6 +131,7 @@ export async function sendPortalOtp(
   return send({
     to: args.to,
     from: `${args.fromName ?? brand.name} <${brand.senderEmail}>`,
+    replyTo: brand.supportEmail,
     subject,
     html,
     text,
@@ -144,6 +147,7 @@ export async function sendPortalOtp(
 interface RawSendArgs {
   to: string;
   from: string;
+  replyTo: string;
   subject: string;
   html: string;
   text: string;
@@ -155,6 +159,7 @@ async function send(args: RawSendArgs): Promise<SendResult> {
     const result = await getResendClient().emails.send({
       to: args.to,
       from: args.from,
+      replyTo: args.replyTo,
       subject: args.subject,
       html: args.html,
       text: args.text,

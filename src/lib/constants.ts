@@ -122,7 +122,10 @@ export const BRANDS = {
     phone: '0113 518 8800',
     freephone: '0113 515 8800',
     email: 'info@cleveraccounts.com',
-    senderEmail: 'support@cleveraccounts.com',
+    // senderEmail = the Resend-verified domain used as From. Must be on a
+    // domain we've verified DKIM/SPF for in Resend (currently mail.cleveraccounts.com).
+    // supportEmail = the human-monitored inbox where replies go (Reply-To).
+    senderEmail: 'support@mail.cleveraccounts.com',
     supportEmail: 'support@cleveraccounts.com',
     postalAddress: 'Brookfield Court, Selby Road, Leeds, LS25 1NB',
     salesforceLeadValue: 'Clever Accounts Ltd',
