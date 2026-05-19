@@ -9,6 +9,7 @@ import {
   Lock,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
+import { getPortalClerkAppearance } from "@/lib/clerk-appearance";
 
 /**
  * Portal sign-in — split-screen layout.
@@ -141,44 +142,7 @@ export default async function PortalSignInPage() {
           </div>
 
           <SignIn
-            appearance={{
-              variables: {
-                colorPrimary: brand.colors.primary,
-                colorText: brand.colors.text,
-                colorTextSecondary: brand.colors.textLight,
-                colorBackground: "#ffffff",
-                colorInputBackground: "#ffffff",
-                colorInputText: brand.colors.text,
-                borderRadius: "0.75rem",
-                fontFamily: brand.font.family + ", system-ui, sans-serif",
-              },
-              elements: {
-                rootBox: "w-full",
-                card: "shadow-xl border border-neutral-200 rounded-2xl bg-white",
-                headerTitle: "hidden",
-                headerSubtitle: "hidden",
-                socialButtonsBlockButton:
-                  "border border-neutral-200 rounded-xl hover:border-neutral-400 transition shadow-none",
-                socialButtonsBlockButtonText: "font-semibold",
-                dividerLine: "bg-neutral-200",
-                dividerText: "text-xs uppercase tracking-wider text-neutral-500",
-                formFieldLabel: "text-xs font-semibold uppercase tracking-wider text-neutral-600",
-                formFieldInput:
-                  "rounded-xl border border-neutral-200 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition",
-                formButtonPrimary:
-                  "rounded-xl bg-primary hover:bg-primary-dark text-white font-semibold py-3 shadow-sm transition",
-                footerActionText: "text-sm text-neutral-600",
-                footerActionLink:
-                  "text-sm font-semibold text-primary hover:text-primary-dark",
-                identityPreviewEditButtonIcon: "text-primary",
-                formResendCodeLink:
-                  "text-sm font-medium text-primary hover:text-primary-dark",
-              },
-              layout: {
-                socialButtonsPlacement: "top",
-                socialButtonsVariant: "blockButton",
-              },
-            }}
+            appearance={getPortalClerkAppearance(brand)}
             forceRedirectUrl="/portal/dashboard"
             signUpUrl="/portal/sign-up"
           />

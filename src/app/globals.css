@@ -557,3 +557,26 @@ body {
 /* Custom scrollbar tinted to WW primary */
 [data-brand="workwell"] ::-webkit-scrollbar-thumb { background: #32535a; }
 [data-brand="workwell"] ::-webkit-scrollbar-thumb:hover { background: #233a40; }
+
+/* ───────────────────────────────────────────────────────────────────────
+   Browser autofill — override the lavender/pale-yellow Chrome default
+   that overrides Tailwind on form fields. Without these rules, autofilled
+   inputs in Clerk's sign-in/up forms look mismatched against the rest of
+   the UI. The transition + delay trick keeps the styling stable.
+   ─────────────────────────────────────────────────────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #1E293B !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  caret-color: #1E293B;
+  transition: background-color 9999s ease-out, color 9999s ease-out;
+}
+[data-brand="workwell"] input:-webkit-autofill,
+[data-brand="workwell"] input:-webkit-autofill:hover,
+[data-brand="workwell"] input:-webkit-autofill:focus,
+[data-brand="workwell"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #32535a !important;
+  caret-color: #32535a;
+}
