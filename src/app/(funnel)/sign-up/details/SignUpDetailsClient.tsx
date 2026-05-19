@@ -357,6 +357,19 @@ const VALIDATORS: Record<string, (v: string) => boolean> = {
   required: (v) => v.trim().length > 0,
   longText: (v) => v.trim().length >= 10,
   ukPhone: (v) => /^(\+?44|0)\s?\d(\s?\d){8,9}$/.test(v.replace(/\s/g, "")),
+  // YYYY-MM-DD (HTML date input format). Must be a real date, 4-digit year
+  // between 1900 and today, and at least 18 years ago (HMRC + director rules).
+  dob: (v) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return false;
+    const [y, m, day] = v.split("-").map(Number);
+    if (d.getFullYear() !== y || d.getMonth() + 1 !== m || d.getDate() !== day) return false;
+    if (y < 1900) return false;
+    const today = new Date();
+    const eighteen = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    return d <= eighteen;
+  },
 };
 
 // Returns "valid" | "invalid" | "empty"
@@ -1036,7 +1049,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
     }
     // Step 2 — Identity
     if (s === 2) {
-      if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
+      if (!formData.dateOfBirth) {
+        errors.dateOfBirth = "Date of birth is required";
+      } else if (!VALIDATORS.dob(formData.dateOfBirth)) {
+        errors.dateOfBirth = "Enter a valid date of birth (must be 18 or over)";
+      }
       if (!formData.nationality) errors.nationality = "Please select your nationality";
       if (isLtd) {
         if (!formData.directorFirstName.trim()) errors.directorFirstName = "Director first name is required";
@@ -1703,9 +1720,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                     <FieldWrapper label="Date of Birth" required
                       hint="Used by HMRC to confirm your identity."
                       error={err("dateOfBirth")}
-                      validState={validateField(formData.dateOfBirth, "required")}>
+                      validState={validateField(formData.dateOfBirth, "dob")}>
                       <input type="date" value={formData.dateOfBirth}
                         onChange={(e) => set("dateOfBirth", e.target.value)}
+                        min="1900-01-01"
+                        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().slice(0, 10)}
                         className={err("dateOfBirth") ? inputErrCls : inputCls} />
                     </FieldWrapper>
 
