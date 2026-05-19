@@ -50,15 +50,18 @@ export default async function PortalSignInPage() {
         />
 
         <div className="relative flex h-full min-h-screen flex-col px-8 py-10 lg:px-14 lg:py-16">
-          {/* Logo */}
+          {/* Logo — uses CSS filter to white-out the standard logo on the
+              dark rail (Clever's logoWhite.jpg has a baked-in white background
+              that renders as an opaque white box; cheap fix until a proper
+              transparent PNG is added). */}
           <Link href="/" className="inline-flex w-fit">
             <Image
-              src={brand.assets.logoWhite ?? brand.assets.logo}
+              src={brand.assets.logo}
               alt={brand.name}
               width={180}
               height={48}
               priority
-              className="h-10 w-auto"
+              className="h-10 w-auto brightness-0 invert"
             />
           </Link>
 
