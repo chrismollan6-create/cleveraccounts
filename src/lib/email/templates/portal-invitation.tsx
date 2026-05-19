@@ -1,7 +1,6 @@
 import {
   Body,
   Column,
-  Container,
   Head,
   Heading,
   Hr,
@@ -57,14 +56,55 @@ export default function PortalInvitationEmail({
 
   return (
     <Html lang="en">
-      <Head />
+      <Head>
+        {/* Mobile-friendly viewport + responsive scale-up.
+            iOS Mail and Gmail mobile honour these. */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="x-apple-disable-message-reformatting" />
+        {/* eslint-disable-next-line react/no-danger */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @media only screen and (max-width: 600px) {
+                .email-outer { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
+                .email-hero { padding: 36px 24px !important; }
+                .email-hero-heading { font-size: 26px !important; }
+                .email-body { padding: 24px 20px !important; font-size: 16px !important; }
+                .email-para { font-size: 16px !important; line-height: 1.55 !important; }
+                .email-feat-title { font-size: 15px !important; }
+                .email-feat-sub { font-size: 14px !important; }
+                .email-footer { padding: 20px !important; }
+                .email-cta-link { font-size: 16px !important; }
+              }
+            `,
+          }}
+        />
+      </Head>
       <Preview>
         Your {brand.name} portal is ready — finish setup in 90 seconds.
       </Preview>
       <Body style={s.body}>
-        <Container style={s.outer}>
+        {/* Explicit <table> with HTML width attribute — the only thing Outlook
+            on Windows reliably respects. Wrapping the React Email Section
+            components in this gives us the 600px constraint everywhere. */}
+        <table
+          role="presentation"
+          align="center"
+          width="600"
+          cellPadding="0"
+          cellSpacing="0"
+          border={0}
+          className="email-outer"
+          style={s.outer}
+        >
+          <tbody>
+            <tr>
+              <td style={{ padding: 0 }}>
           {/* ─── HERO — solid colour, NO gradient (Outlook strips) ──── */}
-          <Section style={{ ...s.hero, backgroundColor: primaryDark }}>
+          <Section
+            className="email-hero"
+            style={{ ...s.hero, backgroundColor: primaryDark }}
+          >
             <Img
               src={`https://${brand.appDomain}${brand.assets.logoWhite ?? brand.assets.logo}`}
               width="120"
@@ -73,7 +113,9 @@ export default function PortalInvitationEmail({
               style={s.heroLogo}
             />
             <Text style={s.heroEyebrow}>YOUR CLIENT PORTAL</Text>
-            <Heading style={s.heroHeading}>Welcome, {greetingName}.</Heading>
+            <Heading className="email-hero-heading" style={s.heroHeading}>
+              Welcome, {greetingName}.
+            </Heading>
             <Text style={s.heroSub}>
               Your {brand.name} access is ready.
               <br />
@@ -82,7 +124,7 @@ export default function PortalInvitationEmail({
           </Section>
 
           {/* ─── BODY ────────────────────────────────────────────── */}
-          <Section style={s.bodyPad}>
+          <Section className="email-body" style={s.bodyPad}>
             {/* Accountant chip — uses table cells, not flexbox */}
             {accountantName && (
               <Section
@@ -105,16 +147,16 @@ export default function PortalInvitationEmail({
             )}
 
             {/* Intro */}
-            <Text style={s.bodyPara}>
+            <Text className="email-para" style={s.bodyPara}>
               Hi {greetingName},
             </Text>
-            <Text style={s.bodyPara}>
+            <Text className="email-para" style={s.bodyPara}>
               {accountantFirst ?? "Your accountant"} has set up your access to
               the {brand.name} client portal. It&apos;s where you&apos;ll see
               your onboarding progress, book calls, sign documents, and message
               us — all in one place.
             </Text>
-            <Text style={s.bodyPara}>
+            <Text className="email-para" style={s.bodyPara}>
               Click below to get started — no password needed.
             </Text>
 
@@ -147,6 +189,7 @@ export default function PortalInvitationEmail({
                       href={inviteUrl}
                       target="_blank"
                       rel="noreferrer"
+                      className="email-cta-link"
                       style={{
                         color: "#ffffff",
                         display: "inline-block",
@@ -212,7 +255,7 @@ export default function PortalInvitationEmail({
           </Section>
 
           {/* ─── FOOTER ──────────────────────────────────────────── */}
-          <Section style={s.footer}>
+          <Section className="email-footer" style={s.footer}>
             <Text style={s.footerSec}>
               This link works for the next{" "}
               <strong>7 days</strong>
@@ -239,7 +282,10 @@ export default function PortalInvitationEmail({
               </Link>
             </Text>
           </Section>
-        </Container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </Body>
     </Html>
   );
@@ -289,8 +335,8 @@ function FeatureRow({
           </table>
         </Column>
         <Column style={{ verticalAlign: "top", paddingLeft: "12px" }}>
-          <Text style={s.featTitle}>{title}</Text>
-          <Text style={s.featSub}>{sub}</Text>
+          <Text className="email-feat-title" style={s.featTitle}>{title}</Text>
+          <Text className="email-feat-sub" style={s.featSub}>{sub}</Text>
         </Column>
       </Row>
     </Section>
@@ -325,6 +371,8 @@ const s = {
     margin: "0 auto",
     width: "600px",
     maxWidth: "600px",
+    // The `width="600"` HTML attribute on the <table> is what Outlook
+    // respects — CSS width here is for Webmail/Apple Mail.
   },
 
   // Hero — solid colour, padding via the section itself
@@ -405,8 +453,8 @@ const s = {
 
   bodyPara: {
     color: "#334155",
-    fontSize: "15px",
-    lineHeight: 1.55,
+    fontSize: "16px",
+    lineHeight: 1.6,
     margin: "0 0 14px",
   },
 
