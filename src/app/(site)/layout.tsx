@@ -7,8 +7,6 @@ import { OrganizationJsonLd } from "@/components/seo/StructuredData";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/GoogleTagManager";
 import UTMCapture from "@/components/seo/UTMCapture";
 import CookieConsent from "@/components/ui/CookieConsent";
-import ChatButton from "@/components/ui/ChatButton";
-import RequestCallback from "@/components/ui/RequestCallback";
 import PromoBanner from "@/components/layout/PromoBanner";
 import BrandProvider from "@/components/brand/BrandProvider";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
@@ -126,7 +124,6 @@ export default async function RootLayout({
           <TrustBar />
           <main className="flex-1">{children}</main>
           <Footer />
-          <ChatButton />
           <CookieConsent />
         </BrandProvider>
         <VercelMonitoring />

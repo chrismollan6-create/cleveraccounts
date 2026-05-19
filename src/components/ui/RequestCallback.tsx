@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Phone, X, CheckCircle2, ChevronDown, Loader2 } from "lucide-react";
+import { useBrand } from "@/lib/useBrand";
 
 const timeSlots = [
   "As soon as possible",
@@ -41,6 +42,7 @@ export default function RequestCallback({
   label = "Request a Callback",
   className,
 }: Props) {
+  const brand = useBrand();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -78,7 +80,7 @@ export default function RequestCallback({
       const res = await fetch("/api/callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, branding: brand.id }),
       });
       const data = await res.json();
       if (!res.ok) {

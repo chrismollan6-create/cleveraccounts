@@ -4,7 +4,7 @@ import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, phone, businessType, bestTime } = body;
+    const { firstName, lastName, phone, businessType, bestTime, branding } = body;
 
     if (!firstName || !lastName || !phone) {
       return NextResponse.json(
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     const token = await getSalesforceToken();
 
-    const sfRes = await fetch(sfApex('/SignupLead'), {
+    const sfRes = await fetch(sfApex('/CallbackRequest'), {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,17 +25,17 @@ export async function POST(request: NextRequest) {
         firstName,
         lastName,
         phone,
-        email: '',
         businessType: businessType || '',
+        bestTime: bestTime || '',
+        branding: branding || '',
         utmSource: 'callback-widget',
-        utmMedium: 'website',
+        utmMedium: '',
         utmCampaign: '',
         utmTerm: '',
-        utmContent: bestTime ? `Best time: ${bestTime}` : '',
+        utmContent: '',
         gclid: '',
         fbclid: '',
         msclkid: '',
-        referralCode: '',
       }),
     });
 
