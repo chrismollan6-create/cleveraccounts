@@ -139,7 +139,7 @@ export default async function PortalSignInPage() {
                 href="/portal/sign-up"
                 className="font-semibold text-primary hover:text-primary-dark"
               >
-                Need access?
+                New here?
               </Link>
             </p>
           </div>
