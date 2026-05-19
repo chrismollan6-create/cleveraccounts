@@ -84,16 +84,10 @@ export default function PortalInvitationEmail({
         Your {brand.name} portal is ready — finish setup in 90 seconds.
       </Preview>
       <Body style={s.body}>
-        {/* Outlook-on-Windows-specific wrapper. The <!--[if mso]--> conditional
-            is honoured by Word's renderer ONLY — every other email client
-            ignores it as a regular HTML comment. This guarantees Outlook
-            respects the 600px width even when nested inside React Email's
-            Body wrapper table. */}
-        <div
-          dangerouslySetInnerHTML={{
-            __html: `<!--[if mso | IE]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600" style="width:600px"><tr><td><![endif]-->`,
-          }}
-        />
+        {/* MSO conditional comments are injected post-render in portal-mailer.ts.
+            They CAN'T live inside a <div> here because Word's renderer would
+            then nest the conditional table tags inside the div, breaking the
+            layout. The mailer's string replace places them as direct siblings. */}
         <table
           role="presentation"
           align="center"
@@ -293,11 +287,6 @@ export default function PortalInvitationEmail({
             </tr>
           </tbody>
         </table>
-        <div
-          dangerouslySetInnerHTML={{
-            __html: `<!--[if mso | IE]></td></tr></table><![endif]-->`,
-          }}
-        />
       </Body>
     </Html>
   );

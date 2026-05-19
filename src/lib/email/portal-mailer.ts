@@ -60,7 +60,7 @@ export async function sendPortalInvitation(
 ): Promise<SendResult> {  // explicit return type so discriminated union narrows in callers
   const brand = BRANDS[args.brandId];
   const subject = `You're invited to your ${brand.name} portal`;
-  const html = await render(
+  const rendered = await render(
     PortalInvitationEmail({
       brand,
       firstName: args.firstName,
@@ -68,6 +68,11 @@ export async function sendPortalInvitation(
       accountantName: args.accountantName,
     }),
   );
+  // Inject MSO conditional comments at the body level (sibling of the 600px
+  // table, not nested inside any element). This is the only way Outlook for
+  // Windows respects the width constraint. React JSX can't render bare
+  // comments at sibling level, so we patch after render.
+  const html = wrapOutlookMsoConditional(rendered);
   const text = plaintextInvitation(brand.name, args.firstName, args.inviteUrl);
   return send({
     to: args.to,
@@ -177,6 +182,60 @@ async function send(args: RawSendArgs): Promise<SendResult> {
       error: err instanceof Error ? err.message : "unknown send failure",
     };
   }
+}
+
+// ─── Outlook MSO post-process ──────────────────────────────────────────────
+
+/**
+ * Wraps the 600px `<table class="email-outer">` in MSO conditional comments
+ * so Outlook for Windows (Word renderer) respects the width constraint.
+ *
+ * Why post-process instead of in JSX: React doesn't render bare HTML comments
+ * at sibling level — comments inside JSX have to be wrapped in an element,
+ * which then nests the conditional table tags inside that element, breaking
+ * Outlook's structure. Injecting after render gives clean sibling placement.
+ *
+ * Modern clients (Gmail, Apple Mail, Outlook web, new Outlook, iOS Mail)
+ * treat the MSO comments as ordinary HTML comments and ignore them.
+ */
+function wrapOutlookMsoConditional(html: string): string {
+  const opener = `<!--[if mso | IE]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600" style="width:600px"><tr><td><![endif]-->`;
+  const closer = `<!--[if mso | IE]></td></tr></table><![endif]-->`;
+
+  // Match the outer 600px table and inject before + after it.
+  // Class "email-outer" is unique to that table — set in the template.
+  const tableOpenPattern = /<table\b[^>]*class="email-outer"[^>]*>/;
+  const m = html.match(tableOpenPattern);
+  if (!m) return html;
+  const beforeIdx = m.index!;
+  // Find the matching closing </table> by depth-counting (the outer-table
+  // contains nested tables, so naive close-match would catch the wrong one).
+  const startScan = beforeIdx + m[0].length;
+  let depth = 1;
+  const re = /<table\b|<\/table>/g;
+  re.lastIndex = startScan;
+  let outerClose = -1;
+  let mm: RegExpExecArray | null;
+  while ((mm = re.exec(html)) !== null) {
+    if (mm[0] === "</table>") {
+      depth--;
+      if (depth === 0) {
+        outerClose = mm.index + mm[0].length;
+        break;
+      }
+    } else {
+      depth++;
+    }
+  }
+  if (outerClose < 0) return html; // safety: bail if structure unexpected
+
+  return (
+    html.slice(0, beforeIdx) +
+    opener +
+    html.slice(beforeIdx, outerClose) +
+    closer +
+    html.slice(outerClose)
+  );
 }
 
 // ─── Plain-text fallbacks ──────────────────────────────────────────────────
