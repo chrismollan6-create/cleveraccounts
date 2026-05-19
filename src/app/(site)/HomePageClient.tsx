@@ -237,9 +237,9 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                 {/* Accountant profiles */}
                 <div className="space-y-4">
                   {[
-                    { name: "Charlie McAuley", role: "Your Dedicated Accountant", speciality: "Sole Trader Specialist", initials: "SJ", color: "from-primary to-primary-light" },
+                    { name: "Charlie McAuley", role: "Your Dedicated Accountant", speciality: "Sole Trader Specialist", initials: "CM", color: "from-primary to-primary-light" },
                     { name: "Mark White", role: "Tax Planning Expert", speciality: "Limited Company & IR35", initials: "MC", color: "from-accent to-purple-400" },
-                    { name: "Anne-Marie", role: "Payroll & VAT Manager", speciality: "Contractor Specialist", initials: "EW", color: "from-emerald-500 to-teal-400" },
+                    { name: "Anne-Marie", role: "Payroll & VAT Manager", speciality: "Contractor Specialist", initials: "AM", color: "from-emerald-500 to-teal-400" },
                   ].map((person, i) => (
                     <div key={i} className="flex items-center gap-4 bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-all">
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${person.color} flex items-center justify-center text-white font-bold text-lg shrink-0`}>
