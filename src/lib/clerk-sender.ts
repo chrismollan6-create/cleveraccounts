@@ -30,8 +30,10 @@ interface InvitationInput {
   accountSfId?: string;
   /** SF Contact id of the invitee — for the same reason. */
   contactSfId?: string;
-  /** Where to land the client after they accept. Defaults to /portal/sign-up
-   *  which renders the journey + Clerk SignUp component once a ticket is present. */
+  /** Where to land the client after they accept. Defaults to /portal/activate
+   *  which renders the journey + Clerk SignUp component once a ticket is present.
+   *  Callers should pass an ABSOLUTE URL — a relative path resolves against
+   *  Clerk's own FAPI domain and 404s. */
   redirectUrl?: string;
 }
 
@@ -45,7 +47,7 @@ export interface CreatedInvitation {
   brand: "clever" | "workwell";
 }
 
-const DEFAULT_REDIRECT = "/portal/sign-up";
+const DEFAULT_REDIRECT = "/portal/activate";
 
 /**
  * Create a Clerk invitation, suppress Clerk's email, return the redemption URL.
@@ -62,7 +64,7 @@ export async function createPortalInvitation(
     // Critical: tells Clerk to NOT send its own email. We send our own
     // brand-correct email via Resend after this returns.
     notify: false,
-    // Bind to our redirect target so the link lands on /portal/sign-up
+    // Bind to our redirect target so the link lands on /portal/activate
     // with the __clerk_ticket query param.
     redirectUrl: input.redirectUrl ?? DEFAULT_REDIRECT,
     // Public metadata is readable by the user's Clerk session — fine for

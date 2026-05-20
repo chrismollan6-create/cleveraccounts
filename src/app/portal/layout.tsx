@@ -101,13 +101,13 @@ export default async function PortalLayout({
 
   // Routes that bring their own full-screen layout — bypass PortalShell so
   // the sidebar isn't shown when it'd be useless or confusing:
-  //   /portal/preview/*  — design playground, owns its own shell
-  //   /portal/sign-in/*  — auth pages, no nav to show before login
-  //   /portal/sign-up/*  — auth pages, no nav to show before signup
+  //   /portal/preview/*   — design playground, owns its own shell
+  //   /portal/sign-in/*   — auth pages, no nav to show before login
+  //   /portal/activate/*  — invite redemption, no nav before account exists
   const isBareLayout =
     pathname.startsWith("/portal/preview") ||
     pathname.startsWith("/portal/sign-in") ||
-    pathname.startsWith("/portal/sign-up");
+    pathname.startsWith("/portal/activate");
 
   return (
     <ClerkProvider>

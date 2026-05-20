@@ -136,10 +136,10 @@ export default async function PortalSignInPage() {
             <p className="mt-1 text-sm text-text-light">
               Use your passkey, or we&apos;ll email you a sign-in link.{" "}
               <Link
-                href="/portal/sign-up"
+                href="/portal/activate"
                 className="font-semibold text-primary hover:text-primary-dark"
               >
-                New here?
+                Got an invite?
               </Link>
             </p>
           </div>
@@ -147,7 +147,7 @@ export default async function PortalSignInPage() {
           <SignIn
             appearance={getPortalClerkAppearance(brand)}
             forceRedirectUrl="/portal/dashboard"
-            signUpUrl="/portal/sign-up"
+            signUpUrl="/portal/activate"
           />
 
           <p className="mt-6 text-center text-xs text-neutral-500">

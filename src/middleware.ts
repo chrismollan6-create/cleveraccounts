@@ -37,7 +37,7 @@ const BRAND_OVERRIDE_PARAM = '_brand';
 /** Portal paths that don't require authentication (matched after /portal prefix is added). */
 const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
   /^\/portal\/sign-in(\/.*)?$/,
-  /^\/portal\/sign-up(\/.*)?$/,
+  /^\/portal\/activate(\/.*)?$/, // invite redemption — invitee isn't signed in yet
   /^\/portal\/?$/, // bare /portal — landing page can be public
 ];
 
@@ -55,6 +55,10 @@ const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
  */
 const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   /^\/engagement-letter(\/.*)?$/,
+  // New-client registration funnel. The portal's own invite-redemption page
+  // lives at /activate (not /sign-up) precisely so this passthrough doesn't
+  // collide with it.
+  /^\/sign-up(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {

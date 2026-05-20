@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   // Derive the origin from this request so it always points back at the same
   // deployment SF called (Vercel prod, branch alias, or my.* once DNS cuts).
   const origin = new URL(request.url).origin;
-  const redirectUrl = `${origin}/portal/sign-up`;
+  const redirectUrl = `${origin}/portal/activate`;
 
   let invitation;
   try {
