@@ -169,7 +169,10 @@ export const BRANDS = {
     legalName: 'Workwell Accountancy Solutions Ltd',
     tagline: 'Accountancy Service Experts',
     domain: 'workwellaccountancy.com',
-    appDomain: 'app.workwellaccountancy.com',
+    // Funnel/app surfaces (sign-up, engagement letter) are served from the
+    // portal subdomain — a single domain hosts both the authenticated portal
+    // and the public funnel passthrough. There is no separate app.* subdomain.
+    appDomain: 'my.workwellaccountancy.com',
     portalDomain: 'my.workwellaccountancy.com',
     portalUrl: 'https://my.workwellaccountancy.com',
     phone: '01923 257257',
