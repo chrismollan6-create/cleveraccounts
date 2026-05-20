@@ -60,6 +60,13 @@ export async function POST(request: NextRequest) {
   }
 
   // ── Create Clerk invitation (no email) ────────────────────────────────
+  // Clerk's invitation redirectUrl MUST be absolute — a relative path gets
+  // resolved against Clerk's own FAPI domain (clerk.accounts.dev) and 404s.
+  // Derive the origin from this request so it always points back at the same
+  // deployment SF called (Vercel prod, branch alias, or my.* once DNS cuts).
+  const origin = new URL(request.url).origin;
+  const redirectUrl = `${origin}/portal/sign-up`;
+
   let invitation;
   try {
     invitation = await createPortalInvitation({
@@ -69,6 +76,7 @@ export async function POST(request: NextRequest) {
       lastName: body.lastName,
       accountSfId: body.accountSfId,
       contactSfId: body.contactSfId,
+      redirectUrl,
     });
   } catch (err) {
     console.error("[/api/portal/invite] Clerk createInvitation failed", err);

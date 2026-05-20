@@ -50,7 +50,6 @@ export default function PortalInvitationEmail({
 }: PortalInvitationEmailProps) {
   const greetingName = firstName ?? "there";
   const primary = brand.colors.primary;
-  const primaryDark = brand.colors.primaryDark;
   const accountantFirst = accountantName?.split(" ")[0];
 
   return (
@@ -106,50 +105,53 @@ export default function PortalInvitationEmail({
                   parent <td> has a fixed pixel width. Without this, every
                   inner Section table blows out to full window width. */}
               <td width="600" style={{ width: "600px", padding: 0 }}>
-          {/* ─── HERO — solid colour, NO gradient (Outlook strips) ──── */}
-          <Section
-            className="email-hero"
-            style={{ ...s.hero, backgroundColor: primaryDark }}
-          >
+          {/* ─── HEADER — white, standard full-colour logo ──────────── */}
+          <Section className="email-hero" style={s.hero}>
             <Img
-              src={`https://${brand.appDomain}${brand.assets.logoWhite ?? brand.assets.logo}`}
-              width="120"
-              height="32"
+              src={`https://${brand.appDomain}${brand.assets.logo}`}
+              width="150"
+              height="40"
               alt={brand.name}
               style={s.heroLogo}
             />
-            <Text style={s.heroEyebrow}>YOUR CLIENT PORTAL</Text>
-            <Heading className="email-hero-heading" style={s.heroHeading}>
-              Welcome, {greetingName}.
-            </Heading>
-            <Text style={s.heroSub}>
-              Your {brand.name} access is ready.
-              <br />
-              Setup takes about 90 seconds.
-            </Text>
           </Section>
 
           {/* ─── BODY ────────────────────────────────────────────── */}
           <Section className="email-body" style={s.bodyPad}>
-            {/* Accountant chip — uses table cells, not flexbox */}
+            {/* Title block */}
+            <Text style={{ ...s.eyebrow, color: primary }}>
+              YOUR CLIENT PORTAL
+            </Text>
+            <Heading className="email-hero-heading" style={s.heading}>
+              Welcome, {greetingName}.
+            </Heading>
+
+            {/* Accountant line — clean, no initials badge (border-radius
+                doesn't render in Outlook, so a circular badge becomes an
+                awkward square). Brand-coloured left rule keeps it distinct. */}
             {accountantName && (
-              <Section
-                style={{ ...s.acctChip, borderLeftColor: primary }}
+              <table
+                role="presentation"
+                width="100%"
+                cellPadding="0"
+                cellSpacing="0"
+                border={0}
+                style={{ margin: "16px 0 4px" }}
               >
-                <Row>
-                  <Column width="44" style={{ verticalAlign: "middle" }}>
-                    <Section
-                      style={{ ...s.acctBadge, backgroundColor: primary }}
+                <tbody>
+                  <tr>
+                    <td
+                      style={{
+                        borderLeft: `3px solid ${primary}`,
+                        paddingLeft: "12px",
+                      }}
                     >
-                      <Text style={s.acctBadgeText}>{initialsOf(accountantName)}</Text>
-                    </Section>
-                  </Column>
-                  <Column style={{ verticalAlign: "middle", paddingLeft: "12px" }}>
-                    <Text style={s.acctLabel}>YOUR ACCOUNTANT</Text>
-                    <Text style={s.acctName}>{accountantName}</Text>
-                  </Column>
-                </Row>
-              </Section>
+                      <Text style={s.acctLabel}>YOUR ACCOUNTANT</Text>
+                      <Text style={s.acctName}>{accountantName}</Text>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             )}
 
             {/* Intro */}
@@ -354,15 +356,6 @@ function FeatureRow({
   );
 }
 
-function initialsOf(name: string): string {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
 // ─── Styles ────────────────────────────────────────────────────────────────
 // Email-safe: no gradients, no filters, no flexbox/grid, no CSS variables,
 // no max-width on divs (use explicit width on tables instead).
@@ -386,70 +379,41 @@ const s = {
     // respects — CSS width here is for Webmail/Apple Mail.
   },
 
-  // Hero — solid colour, padding via the section itself
+  // Header — white, standard full-colour logo, subtle bottom rule
   hero: {
-    padding: "44px 40px 44px",
+    padding: "32px 40px 28px",
     textAlign: "center" as const,
-    // backgroundColor set inline from brand.colors.primaryDark
+    borderBottom: "1px solid #eef1f5",
   },
   heroLogo: {
-    height: "32px",
+    height: "40px",
     width: "auto",
-    margin: "0 auto 36px",
-    // No CSS filter — relies on logoWhite asset being a proper transparent PNG
-  },
-  heroEyebrow: {
-    color: "#ffffff",
-    fontSize: "10px",
-    fontWeight: 700,
-    letterSpacing: "0.18em",
-    margin: "0 0 10px",
-    opacity: 0.75,
-  },
-  heroHeading: {
-    color: "#ffffff",
-    fontSize: "30px",
-    fontWeight: 700,
-    lineHeight: 1.15,
-    margin: "0 0 12px",
-  },
-  heroSub: {
-    color: "#ffffff",
-    fontSize: "14px",
-    lineHeight: 1.55,
-    margin: 0,
-    opacity: 0.85,
+    margin: "0 auto",
   },
 
   bodyPad: { padding: "32px 40px 24px" },
 
-  // Accountant chip
-  acctChip: {
-    backgroundColor: "#f8fafc",
-    border: "1px solid #e2e8f0",
-    borderLeft: "3px solid",
-    borderRadius: "8px",
-    marginBottom: "20px",
-    padding: "10px 14px",
-  },
-  acctBadge: {
-    borderRadius: "999px",
-    height: "32px",
-    width: "32px",
-    textAlign: "center" as const,
-    lineHeight: "32px",
-  },
-  acctBadgeText: {
-    color: "#ffffff",
-    fontSize: "12px",
+  // Title block
+  eyebrow: {
+    fontSize: "11px",
     fontWeight: 700,
-    margin: 0,
-    textAlign: "center" as const,
-    lineHeight: "32px",
+    letterSpacing: "0.14em",
+    margin: "0 0 8px",
+    textTransform: "uppercase" as const,
+    // color set inline from brand.colors.primary
   },
+  heading: {
+    color: "#0f172a",
+    fontSize: "28px",
+    fontWeight: 700,
+    lineHeight: 1.15,
+    margin: "0 0 4px",
+  },
+
+  // Accountant line (brand-coloured left rule, no badge)
   acctLabel: {
     color: "#64748b",
-    fontSize: "9px",
+    fontSize: "10px",
     fontWeight: 700,
     letterSpacing: "0.12em",
     margin: 0,
@@ -457,7 +421,7 @@ const s = {
   },
   acctName: {
     color: "#0f172a",
-    fontSize: "14px",
+    fontSize: "15px",
     fontWeight: 600,
     margin: "2px 0 0",
   },
