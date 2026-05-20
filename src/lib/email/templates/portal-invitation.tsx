@@ -101,7 +101,11 @@ export default function PortalInvitationEmail({
         >
           <tbody>
             <tr>
-              <td style={{ padding: 0 }}>
+              {/* Explicit width="600" is critical: Word's renderer interprets
+                  a nested width="100%" table as 100% OF THE PAGE unless its
+                  parent <td> has a fixed pixel width. Without this, every
+                  inner Section table blows out to full window width. */}
+              <td width="600" style={{ width: "600px", padding: 0 }}>
           {/* ─── HERO — solid colour, NO gradient (Outlook strips) ──── */}
           <Section
             className="email-hero"
