@@ -95,13 +95,15 @@ export async function sendPortalMagicLink(
 ): Promise<SendResult> {
   const brand = BRANDS[args.brandId];
   const subject = `Sign in to your ${brand.name} portal`;
-  const html = await render(
-    PortalMagicLinkEmail({
-      brand,
-      firstName: args.firstName,
-      signInUrl: args.signInUrl,
-      requestContext: args.requestContext,
-    }),
+  const html = wrapOutlookMsoConditional(
+    await render(
+      PortalMagicLinkEmail({
+        brand,
+        firstName: args.firstName,
+        signInUrl: args.signInUrl,
+        requestContext: args.requestContext,
+      }),
+    ),
   );
   const text = plaintextMagicLink(brand.name, args.firstName, args.signInUrl);
   return send({
@@ -125,12 +127,14 @@ export async function sendPortalOtp(
 ): Promise<SendResult> {
   const brand = BRANDS[args.brandId];
   const subject = `Your ${brand.name} sign-in code: ${args.code}`;
-  const html = await render(
-    PortalOtpEmail({
-      brand,
-      firstName: args.firstName,
-      code: args.code,
-    }),
+  const html = wrapOutlookMsoConditional(
+    await render(
+      PortalOtpEmail({
+        brand,
+        firstName: args.firstName,
+        code: args.code,
+      }),
+    ),
   );
   const text = plaintextOtp(brand.name, args.firstName, args.code);
   return send({
