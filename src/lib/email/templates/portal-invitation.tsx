@@ -162,7 +162,7 @@ export default function PortalInvitationEmail({
               </table>
             )}
 
-            <Text className="email-para" style={s.bodyPara}>
+            <Text className="email-para" style={s.bodyParaFirst}>
               Setting up takes about 90 seconds — no password needed.
             </Text>
 
