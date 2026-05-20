@@ -251,13 +251,18 @@ export default function PortalInvitationEmail({
 
             <Hr style={s.divider} />
 
-            <Text style={s.fallbackTitle}>Trouble with the button?</Text>
+            {/* Fallback link — the visible TEXT must stay short. The invite
+                URL contains a 600+ char Clerk JWT; rendering it as visible
+                text forces Outlook's Word renderer (no word-break support)
+                to blow the whole email out to full window width. Short link
+                text keeps the long URL safely in the href only. */}
             <Text style={s.fallbackText}>
-              Copy and paste this link into your browser:
+              Button not working?{" "}
+              <Link href={inviteUrl} style={s.fallbackLink}>
+                Click here to set up your access
+              </Link>
+              .
             </Text>
-            <Link href={inviteUrl} style={s.fallbackLink}>
-              {inviteUrl}
-            </Link>
           </Section>
 
           {/* ─── FOOTER ──────────────────────────────────────────── */}
@@ -500,21 +505,17 @@ const s = {
     margin: 0,
   },
 
-  fallbackTitle: {
-    color: "#0f172a",
-    fontSize: "12px",
-    fontWeight: 600,
-    margin: "0 0 4px",
-  },
   fallbackText: {
     color: "#64748b",
-    fontSize: "12px",
-    margin: "0 0 6px",
+    fontSize: "13px",
+    lineHeight: 1.5,
+    margin: "0",
   },
   fallbackLink: {
-    color: "#64748b",
-    fontSize: "11px",
-    wordBreak: "break-all" as const,
+    color: "#1A7A9B",
+    fontSize: "13px",
+    fontWeight: 600,
+    textDecoration: "underline",
   },
 
   footer: {
