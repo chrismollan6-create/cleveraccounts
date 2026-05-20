@@ -1,5 +1,4 @@
 import {
-  Column,
   Head,
   Heading,
   Hr,
@@ -7,7 +6,6 @@ import {
   Img,
   Link,
   Preview,
-  Row,
   Section,
   Text,
 } from "@react-email/components";
@@ -126,9 +124,19 @@ export default function PortalInvitationEmail({
               Welcome, {greetingName}.
             </Heading>
 
+            {/* Intro */}
+            <Text className="email-para" style={s.bodyParaFirst}>
+              Hi {greetingName},
+            </Text>
+            <Text className="email-para" style={s.bodyPara}>
+              {accountantFirst ?? "Your accountant"} has set up your access to
+              the {`${brand.name} client portal`}. It&apos;s where you&apos;ll
+              see your onboarding progress, book calls, sign documents, and
+              message us — all in one place.
+            </Text>
+
             {/* Accountant line — clean, no initials badge (border-radius
-                doesn't render in Outlook, so a circular badge becomes an
-                awkward square). Brand-coloured left rule keeps it distinct. */}
+                doesn't render in Outlook). Brand-coloured left rule. */}
             {accountantName && (
               <table
                 role="presentation"
@@ -136,14 +144,14 @@ export default function PortalInvitationEmail({
                 cellPadding="0"
                 cellSpacing="0"
                 border={0}
-                style={{ margin: "16px 0 4px" }}
+                style={{ margin: "20px 0" }}
               >
                 <tbody>
                   <tr>
                     <td
                       style={{
                         borderLeft: `3px solid ${primary}`,
-                        paddingLeft: "12px",
+                        paddingLeft: "14px",
                       }}
                     >
                       <Text style={s.acctLabel}>YOUR ACCOUNTANT</Text>
@@ -154,18 +162,8 @@ export default function PortalInvitationEmail({
               </table>
             )}
 
-            {/* Intro */}
             <Text className="email-para" style={s.bodyPara}>
-              Hi {greetingName},
-            </Text>
-            <Text className="email-para" style={s.bodyPara}>
-              {accountantFirst ?? "Your accountant"} has set up your access to
-              the {brand.name} client portal. It&apos;s where you&apos;ll see
-              your onboarding progress, book calls, sign documents, and message
-              us — all in one place.
-            </Text>
-            <Text className="email-para" style={s.bodyPara}>
-              Click below to get started — no password needed.
+              Setting up takes about 90 seconds — no password needed.
             </Text>
 
             {/* ─── BULLETPROOF CTA BUTTON ────────────────────────
@@ -216,39 +214,32 @@ export default function PortalInvitationEmail({
               </tbody>
             </table>
 
-            {/* Meta info under CTA */}
-            <Text style={s.metaText}>
-              ⏱ About 90 seconds &nbsp;·&nbsp; 🔒 Secure passwordless sign-in
-            </Text>
-
             <Hr style={s.divider} />
 
-            {/* What's inside */}
+            {/* What's inside — clean list, no emoji. Each row is a bold
+                title + grey sub, separated by thin rules. */}
             <Text style={s.sectionLabel}>ONCE YOU&apos;RE IN</Text>
 
             <FeatureRow
-              emoji="📅"
               primary={primary}
               title="Book calls directly"
               sub="Pick a time with your accountant — no email back-and-forth."
             />
             <FeatureRow
-              emoji="✍️"
               primary={primary}
               title="Sign documents in-app"
               sub="Engagement letter, ID verification, all paperless."
             />
             <FeatureRow
-              emoji="💬"
               primary={primary}
               title="Message us anytime"
               sub="Threads stay neat — your accountant always has context."
             />
             <FeatureRow
-              emoji="📱"
               primary={primary}
               title="Works on any device"
               sub="Desktop, tablet, phone — sign in once, stay signed in."
+              last
             />
 
             <Hr style={s.divider} />
@@ -304,55 +295,75 @@ export default function PortalInvitationEmail({
   );
 }
 
-/** Feature row — emoji tile + title + sub. Uses Row/Column so Outlook
- *  renders it as a table, not flexbox. */
+/** Feature row — clean text row: brand-coloured marker cell + title + sub.
+ *  No emoji (renders inconsistently across clients and looks amateur). Thin
+ *  rule between rows via borderBottom, suppressed on the last row. */
 function FeatureRow({
-  emoji,
   primary,
   title,
   sub,
+  last,
 }: {
-  emoji: string;
   primary: string;
   title: string;
   sub: string;
+  last?: boolean;
 }) {
   return (
-    <Section style={{ marginBottom: "14px" }}>
-      <Row>
-        <Column width="44" style={{ verticalAlign: "top", paddingTop: "2px" }}>
-          <table
-            role="presentation"
-            cellSpacing="0"
-            cellPadding="0"
-            border={0}
+    <table
+      role="presentation"
+      width="100%"
+      cellSpacing="0"
+      cellPadding="0"
+      border={0}
+    >
+      <tbody>
+        <tr>
+          {/* Marker cell — a short brand-coloured vertical bar */}
+          <td
+            width="20"
+            style={{
+              verticalAlign: "top",
+              paddingTop: "5px",
+              paddingBottom: last ? "0" : "14px",
+            }}
           >
-            <tbody>
-              <tr>
-                <td
-                  align="center"
-                  {...({ bgcolor: `${primary}15` } as Record<string, string>)}
-                  style={{
-                    backgroundColor: `${primary}15`,
-                    borderRadius: "8px",
-                    height: "36px",
-                    width: "36px",
-                    fontSize: "18px",
-                    lineHeight: "36px",
-                  }}
-                >
-                  {emoji}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </Column>
-        <Column style={{ verticalAlign: "top", paddingLeft: "12px" }}>
-          <Text className="email-feat-title" style={s.featTitle}>{title}</Text>
-          <Text className="email-feat-sub" style={s.featSub}>{sub}</Text>
-        </Column>
-      </Row>
-    </Section>
+            <table role="presentation" cellSpacing="0" cellPadding="0" border={0}>
+              <tbody>
+                <tr>
+                  <td
+                    {...({ bgcolor: primary } as Record<string, string>)}
+                    style={{
+                      backgroundColor: primary,
+                      width: "8px",
+                      height: "8px",
+                      fontSize: "0",
+                      lineHeight: "0",
+                    }}
+                  >
+                    &nbsp;
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td
+            style={{
+              verticalAlign: "top",
+              paddingBottom: last ? "0" : "14px",
+              borderBottom: last ? "none" : "1px solid #eef1f5",
+            }}
+          >
+            <Text className="email-feat-title" style={s.featTitle}>
+              {title}
+            </Text>
+            <Text className="email-feat-sub" style={s.featSub}>
+              {sub}
+            </Text>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -432,12 +443,12 @@ const s = {
     lineHeight: 1.6,
     margin: "0 0 14px",
   },
-
-  metaText: {
-    color: "#64748b",
-    fontSize: "12px",
-    margin: "4px 0 0",
-    textAlign: "center" as const,
+  // First paragraph after the heading — extra top margin for breathing room.
+  bodyParaFirst: {
+    color: "#334155",
+    fontSize: "16px",
+    lineHeight: 1.6,
+    margin: "20px 0 14px",
   },
 
   divider: {
