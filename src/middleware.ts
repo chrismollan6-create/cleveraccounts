@@ -41,6 +41,26 @@ const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
   /^\/portal\/?$/, // bare /portal — landing page can be public
 ];
 
+/**
+ * Public funnel/marketing paths that, even on a portal hostname, serve the
+ * public route directly — NO `/portal` rewrite, NO auth gate, marketing CSP.
+ *
+ * This lets a single domain (e.g. my.workwellaccountancy.com) host BOTH the
+ * authenticated client portal AND public forms like the engagement-letter
+ * e-sign page — instead of needing a second `app.*` subdomain.
+ *
+ * Only add paths here that genuinely have a public funnel/marketing route
+ * AND do NOT collide with a portal route. `/sign-up` is deliberately NOT
+ * here — on a portal host it must stay the portal's invite-redemption page.
+ */
+const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
+  /^\/engagement-letter(\/.*)?$/,
+];
+
+function isPortalPublicPassthrough(pathname: string): boolean {
+  return PORTAL_PUBLIC_PASSTHROUGH.some((p) => p.test(pathname));
+}
+
 /** Brand override (?_brand=) is allowed everywhere except strict prod. */
 function isOverrideAllowed(host: string): boolean {
   return !isStrictProduction(host);
@@ -186,8 +206,18 @@ export default clerkMiddleware(async (auth, req) => {
   // 2. Portal routing.
   // ───────────────────────────────────────────────────────────────────────
 
-  if (isPortal) {
-    // On a portal hostname every URL must resolve under /portal/*.
+  // Tracks whether a portal-host request is a public funnel passthrough —
+  // affects which CSP applies (marketing, not the strict portal CSP).
+  let isPublicPassthrough = false;
+
+  if (isPortal && isPortalPublicPassthrough(url.pathname)) {
+    // Public funnel form on a portal host (e.g. /engagement-letter on
+    // my.workwellaccountancy.com). Skip the /portal rewrite + auth gate
+    // entirely — let it fall through to the default response so Next.js
+    // serves the (funnel) route. Marketing CSP applies (see below).
+    isPublicPassthrough = true;
+  } else if (isPortal) {
+    // On a portal hostname every other URL must resolve under /portal/*.
     // Determine the equivalent `/portal/...` path so we can auth-gate it
     // before issuing the internal rewrite.
     const portalPath = url.pathname.startsWith('/portal')
@@ -259,8 +289,11 @@ export default clerkMiddleware(async (auth, req) => {
 
   // The "is this response portal-bound?" decision: hostname is portal, OR
   // path is /portal/* (catches dev/preview branch-deploy access at the same
-  // URL as marketing routes).
-  const isPortalBound = isPortal || url.pathname.startsWith('/portal');
+  // URL as marketing routes). Public funnel passthroughs (e.g.
+  // /engagement-letter on a portal host) are NOT portal-bound — they get the
+  // looser marketing CSP so the form's third-party scripts work.
+  const isPortalBound =
+    !isPublicPassthrough && (isPortal || url.pathname.startsWith('/portal'));
   return applySecurityHeaders(res, { host, isPortalBound });
 });
 
