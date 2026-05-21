@@ -111,7 +111,10 @@ export async function getFeaturedCaseStudy() {
 export async function getSiteSettings() {
   return client.fetch(`*[_type == "siteSettings"][0] {
     phone, freephone, email, tagline, offices, stats, social,
-    promo { enabled, discountPercent, durationMonths, badgeText, appliesTo, endDate }
+    promo {
+      enabled, discountPercent, durationMonths, badgeText, endDate,
+      appliesTo[]->{ _id, name }
+    }
   }`);
 }
 

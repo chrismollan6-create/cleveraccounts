@@ -6,6 +6,7 @@ import {
   BadgePoundSterling, Monitor, FileCheck, Tag,
 } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
+import { promoBadgesByPlanName } from "@/lib/promo";
 
 export const metadata: Metadata = {
   title: "Online Accounting Services UK — All Packages | Clever Accounts",
@@ -112,12 +113,7 @@ export default async function ServicesPage() {
   let promoBadges: Record<string, string> = {};
   try {
     const settings = await getSiteSettings();
-    const p = settings?.promo;
-    if (p?.enabled && p.appliesTo?.length) {
-      const text = (p.badgeText ||
-        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim()) || null;
-      if (text) for (const plan of p.appliesTo) promoBadges[plan] = text;
-    }
+    promoBadges = promoBadgesByPlanName(settings?.promo);
   } catch { /* use empty */ }
 
   return (

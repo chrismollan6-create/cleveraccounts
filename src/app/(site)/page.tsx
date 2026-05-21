@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 import { FAQPageJsonLd, PricingJsonLd } from "@/components/seo/StructuredData";
 import { getSiteSettings, getHomePage, getPricingPlans } from "@/sanity/queries";
+import { promoBadgesByPlanName } from "@/lib/promo";
 import { getBrand } from "@/lib/brand";
 
 const DEFAULT_TITLE = "Clever Accounts | Expert Online Accountants UK — From £42.50/month";
@@ -64,12 +65,7 @@ export default async function HomePage() {
     const settings = await getSiteSettings();
     if (settings?.freephone) freephone = settings.freephone;
     if (settings?.email) email = settings.email;
-    const p = settings?.promo;
-    if (p?.enabled && p.appliesTo?.length) {
-      const text = (p.badgeText ||
-        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim()) || null;
-      if (text) for (const plan of p.appliesTo) promoBadges[plan] = text;
-    }
+    promoBadges = promoBadgesByPlanName(settings?.promo);
   } catch { /* use defaults */ }
 
   let pricingPlans: any[] = [];

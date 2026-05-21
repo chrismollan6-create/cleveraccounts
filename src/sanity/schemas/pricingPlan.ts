@@ -99,7 +99,10 @@ export default defineType({
       name: "homepageLearnMore",
       title: "Homepage 'Learn More' Link",
       type: "string",
-      description: "Page the 'Learn more' link points to, e.g. '/limited-company'",
+      description:
+        "Page the homepage 'Learn more' link points to, e.g. '/limited-company'. " +
+        "Also links this plan to its service page — so a promo discount on this " +
+        "plan shows its badge on that page (e.g. /limited-company, /contractor-accountancy).",
     }),
   ],
   orderings: [

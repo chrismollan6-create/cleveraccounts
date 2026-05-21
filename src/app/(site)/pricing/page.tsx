@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getPricingPlans, getFAQs, getSiteSettings } from "@/sanity/queries";
+import { type Promo, promoBadgeForPlanId } from "@/lib/promo";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 
 export const metadata: Metadata = {
@@ -113,29 +114,6 @@ const universalFeatures = [
 
 export const revalidate = 60;
 
-type Promo = {
-  enabled: boolean;
-  discountPercent?: number;
-  durationMonths?: number;
-  badgeText?: string;
-  appliesTo?: string[];
-  endDate?: string;
-} | null;
-
-function getPromoBadgeText(promo: Promo): string {
-  if (!promo?.enabled) return "";
-  if (promo.badgeText) return promo.badgeText;
-  const pct = promo.discountPercent ? `${promo.discountPercent}% off` : "";
-  const dur = promo.durationMonths ? ` for ${promo.durationMonths} months` : "";
-  return pct + dur;
-}
-
-function planHasPromo(planName: string, promo: Promo): boolean {
-  if (!promo?.enabled) return false;
-  if (!promo.appliesTo || promo.appliesTo.length === 0) return false;
-  return promo.appliesTo.includes(planName);
-}
-
 export default async function PricingPage() {
   const brand = await getBrand();
   let plans = fallbackPlans;
@@ -208,8 +186,8 @@ export default async function PricingPage() {
                 ? <Briefcase size={22} />
                 : <Building2 size={22} />;
 
-              const hasPromo = planHasPromo(plan.name, promo);
-              const promoBadge = hasPromo ? getPromoBadgeText(promo) : "";
+              const promoBadge = promoBadgeForPlanId(plan._id, promo);
+              const hasPromo = !!promoBadge;
 
               return (
                 <div

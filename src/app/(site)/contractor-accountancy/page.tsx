@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
 import ContractorCalculator from "@/components/ui/ContractorCalculator";
 import { servicePages } from "@/lib/service-page-data";
-import { getSiteSettings } from "@/sanity/queries";
+import { getSiteSettings, getPricingPlans } from "@/sanity/queries";
+import { promoBadgeForPage } from "@/lib/promo";
 import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 
 const data = servicePages["contractor-accountancy"];
@@ -17,12 +18,8 @@ export const revalidate = 60;
 export default async function ContractorAccountancyPage() {
   let promoBadge: string | null = null;
   try {
-    const settings = await getSiteSettings();
-    const p = settings?.promo;
-    if (p?.enabled && p.appliesTo?.includes("Contractor")) {
-      promoBadge = p.badgeText ||
-        `${p.discountPercent ? `${p.discountPercent}% off` : ""}${p.durationMonths ? ` for ${p.durationMonths} months` : ""}`.trim() || null;
-    }
+    const [settings, plans] = await Promise.all([getSiteSettings(), getPricingPlans()]);
+    promoBadge = promoBadgeForPage(plans, "/contractor-accountancy", settings?.promo) || null;
   } catch { /* use null */ }
 
   return (

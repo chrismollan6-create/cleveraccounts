@@ -99,15 +99,11 @@ export default defineType({
           name: "appliesTo",
           title: "Applies to plans",
           type: "array",
-          of: [{ type: "string" }],
-          options: {
-            list: [
-              { title: "Sole Trader", value: "Sole Trader" },
-              { title: "Limited Company", value: "Limited Company" },
-              { title: "Contractor", value: "Contractor" },
-            ],
-          },
-          description: "Which pricing plans show the badge",
+          of: [{ type: "reference", to: [{ type: "pricingPlan" }] }],
+          description:
+            "Tick the pricing plans that should show this discount badge. " +
+            "The list is driven by your actual Pricing Plan documents, so it " +
+            "stays in sync automatically when a plan is renamed.",
         },
         {
           name: "endDate",
