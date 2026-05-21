@@ -88,11 +88,20 @@ export default async function FunnelLayout({
                   <ShieldCheck size={13} className="text-primary" />
                   FCSA accredited
                 </span>
-                <span className="text-gray-300">·</span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Star size={13} className="fill-amber-400 text-amber-400" />
-                  4.7 on Trustpilot
-                </span>
+                {brand.trustpilot?.rating && (
+                  <>
+                    <span className="text-gray-300">·</span>
+                    <a
+                      href={brand.trustpilot.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+                    >
+                      <Star size={13} className="fill-amber-400 text-amber-400" />
+                      {brand.trustpilot.rating} on Trustpilot
+                    </a>
+                  </>
+                )}
               </div>
 
               {/* Help phone — always visible */}
@@ -116,9 +125,15 @@ export default async function FunnelLayout({
               <div className="flex items-center gap-4">
                 <span>© {new Date().getFullYear()} {brand.legalName}</span>
                 <span className="text-gray-300">·</span>
-                <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
-                <span className="text-gray-300">·</span>
-                <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
+                {/* Legal links are <a> not <Link>: a brand's pages may be
+                    externally hosted (e.g. Workwell's on WordPress). */}
+                <a href={brand.legal.privacyUrl} className="hover:text-primary transition-colors">Privacy</a>
+                {brand.legal.termsUrl && (
+                  <>
+                    <span className="text-gray-300">·</span>
+                    <a href={brand.legal.termsUrl} className="hover:text-primary transition-colors">Terms</a>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <span className="inline-flex items-center gap-1.5">

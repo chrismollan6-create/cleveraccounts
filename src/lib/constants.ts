@@ -107,6 +107,29 @@ export interface BrandConfig {
     gtmId?: string;
     ga4Id?: string;
   };
+  /**
+   * Trustpilot profile — score shown in funnel/marketing trust pills, url for
+   * the "read our reviews" link. Optional: omit for a brand with no Trustpilot
+   * presence and the trust-pill segment is hidden rather than showing a score.
+   */
+  trustpilot?: {
+    /** Display score as a string, e.g. "4.7" — string keeps formatting exact. */
+    rating: string;
+    /** Public Trustpilot profile URL. */
+    url: string;
+    /** Optional review-count blurb, e.g. "700+". */
+    reviewCount?: string;
+  };
+  /**
+   * Legal page URLs shown in footers. Use relative paths ("/terms") for pages
+   * the brand's own Next site serves, or absolute URLs for externally-hosted
+   * pages (e.g. Workwell's live on its WordPress marketing site).
+   */
+  legal: {
+    privacyUrl: string;
+    /** Optional — some brands have no standalone terms page. */
+    termsUrl?: string;
+  };
 }
 
 export const BRANDS = {
@@ -162,11 +185,20 @@ export const BRANDS = {
       twitter: 'https://twitter.com/cleveraccounts',
       linkedin: 'https://www.linkedin.com/company/clever-accounts',
     },
+    trustpilot: {
+      rating: '4.7',
+      url: 'https://uk.trustpilot.com/review/cleveraccounts.com',
+      reviewCount: '700+',
+    },
+    legal: {
+      privacyUrl: '/privacy',
+      termsUrl: '/terms',
+    },
   },
   workwell: {
     id: 'workwell',
     name: 'Workwell Accountancy',
-    legalName: 'Workwell Accountancy',
+    legalName: 'Workwell People Solutions Ltd ',
     tagline: 'Accountancy Service Experts',
     domain: 'workwellaccountancy.com',
     // Funnel/app surfaces (sign-up, engagement letter) are served from the
@@ -217,6 +249,19 @@ export const BRANDS = {
     ],
     stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },
     social: {},
+    // TODO: add Workwell's Trustpilot score + review count once confirmed —
+    // Trustpilot blocks automated lookup. Profile URL is known; fill in the
+    // rating and the funnel trust pill will show the Trustpilot segment.
+    trustpilot: {
+      rating: '',
+      url: 'https://uk.trustpilot.com/review/workwellaccountancy.com',
+    },
+    legal: {
+      // Workwell's legal pages live on its WordPress marketing site.
+      privacyUrl: 'https://workwellaccountancy.com/privacy-data-cookie-policy/',
+      // No standalone Workwell terms page exists — termsUrl intentionally
+      // omitted, so the footer renders Privacy only for Workwell.
+    },
   },
 } as const satisfies Record<BrandId, BrandConfig>;
 

@@ -106,12 +106,7 @@ export default function EngagementLetterClient({ token, letter, signer, displayI
               )}
             </p>
           </div>
-          <a
-            href="/contact"
-            className="text-sm text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1.5 print:hidden"
-          >
-            Not you? Contact us
-          </a>
+
         </div>
       </div>
 
