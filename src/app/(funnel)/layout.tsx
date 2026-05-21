@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
 import { Phone, ShieldCheck, Star, Lock } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
@@ -66,7 +65,14 @@ export default async function FunnelLayout({
           {/* ── Funnel header — clean, focused, no nav distractions ── */}
           <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-              <Link href="/" aria-label={`${brand.name} — back to home`} className="flex items-center shrink-0">
+              {/* Logo links to the brand's marketing site, not "/" — these
+                  funnel pages are served on the my.* portal host, so an
+                  internal "/" would land on the portal root. */}
+              <a
+                href={`https://${brand.domain}`}
+                aria-label={`${brand.name} — visit ${brand.domain}`}
+                className="flex items-center shrink-0"
+              >
                 <Image
                   src={brand.assets.logo}
                   alt={brand.name}
@@ -75,7 +81,7 @@ export default async function FunnelLayout({
                   priority
                   className="h-9 w-auto"
                 />
-              </Link>
+              </a>
 
               {/* Inline trust pill — desktop only */}
               <div className="hidden md:flex items-center gap-4 text-xs text-text-light">
