@@ -39,7 +39,7 @@ export const STANDARD_TERMS: Section[] = [
     title: 'Who are we acting for?',
     variantOnly: 'sole-trader',
     body:
-      'We are acting for you and your business only. Where you would like us to act for anyone else (such as your spouse, a partnership, or a limited company) we will issue a separate engagement letter.',
+      'We are acting for you and your business only. Where you would like us to act for anyone else (such as your spouse, a partnership, or a limited company) we will issue a separate engagement letter, where relevant.',
   },
   {
     id: 'std-03-acting-for-lc',
