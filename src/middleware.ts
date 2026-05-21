@@ -55,10 +55,25 @@ const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
  */
 const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   /^\/engagement-letter(\/.*)?$/,
+  // The engagement-letter page's own API routes (view / sign / pdf). These
+  // MUST pass through too — the signer has no Clerk session, so without this
+  // the sign/view POSTs get auth-gated and 307-redirected to /sign-in, and
+  // the client's res.json() then fails on the sign-in HTML ("Network error").
+  // Scoped to /api/engagement-letter so it can't match /api/portal/* routes.
+  /^\/api\/engagement-letter(\/.*)?$/,
   // New-client registration funnel. The portal's own invite-redemption page
   // lives at /activate (not /sign-up) precisely so this passthrough doesn't
   // collide with it.
   /^\/sign-up(\/.*)?$/,
+  // The sign-up funnel's API routes. Same reasoning as the engagement-letter
+  // APIs above: the prospect has no Clerk session, so without these the
+  // funnel's fetches get auth-gated and 307-redirected to /sign-in and the
+  // client's res.json() fails on HTML. All portal API routes live under
+  // /api/portal/* so none of these patterns can match a gated portal route.
+  /^\/api\/signup(\/.*)?$/,
+  /^\/api\/leads(\/.*)?$/,
+  /^\/api\/address(\/.*)?$/,
+  /^\/api\/analytics(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {
