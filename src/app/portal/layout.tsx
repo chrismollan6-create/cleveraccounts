@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: `Your ${brand.name} client portal — track onboarding progress and book appointments with your accountant.`,
     robots: { index: false, follow: false },
     formatDetection: { email: false, address: false, telephone: false },
-    icons: brand.assets.favicon ? { icon: brand.assets.favicon } : undefined,
+    icons: brand.assets.favicon,
   };
 }
 

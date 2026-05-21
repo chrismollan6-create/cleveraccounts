@@ -77,7 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     alternates: { canonical: `https://${brand.domain}` },
-    icons: brand.assets.favicon ? { icon: brand.assets.favicon } : undefined,
+    icons: brand.assets.favicon,
   };
 }
 

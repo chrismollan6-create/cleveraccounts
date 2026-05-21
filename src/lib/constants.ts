@@ -64,7 +64,15 @@ export interface BrandConfig {
   assets: {
     logo: string;
     logoWhite: string;
-    favicon?: string;
+    /**
+     * Favicon set — shaped to drop straight into Next.js `Metadata.icons`.
+     * `icon` is the standard favicon(s) (any number of sizes); `apple` is
+     * the iOS home-screen touch icon.
+     */
+    favicon?: {
+      icon: { url: string; sizes?: string; type?: string }[];
+      apple?: string;
+    };
     ogImage?: string;
   };
   /** Tailwind v4 token overrides (applied via [data-brand="{id}"] in globals.css). */
@@ -156,7 +164,7 @@ export const BRANDS = {
     assets: {
       logo: '/brand/clever/logo.png',
       logoWhite: '/brand/clever/logo-white.jpg',
-      favicon: '/brand/clever/favicon.ico',
+      favicon: { icon: [{ url: '/brand/clever/favicon.ico' }] },
     },
     colors: {
       primary: '#1A7A9B',
@@ -198,7 +206,7 @@ export const BRANDS = {
   workwell: {
     id: 'workwell',
     name: 'Workwell Accountancy',
-    legalName: 'Workwell People Solutions Ltd ',
+    legalName: 'Workwell Accountancy',
     tagline: 'Accountancy Service Experts',
     domain: 'workwellaccountancy.com',
     // Funnel/app surfaces (sign-up, engagement letter) are served from the
@@ -218,7 +226,13 @@ export const BRANDS = {
     assets: {
       logo: '/brand/workwell/logo.png',
       logoWhite: '/brand/workwell/logo-white.png',
-      favicon: '/brand/clever/favicon.ico', 
+      favicon: {
+        icon: [
+          { url: '/brand/workwell/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+          { url: '/brand/workwell/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+        ],
+        apple: '/brand/workwell/apple-touch-icon.png',
+      },
     },
     // Canonical palette extracted from workwellaccountancy.com theme CSS (2026-05-09).
     // Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488) are
@@ -253,8 +267,8 @@ export const BRANDS = {
     // Trustpilot blocks automated lookup. Profile URL is known; fill in the
     // rating and the funnel trust pill will show the Trustpilot segment.
     trustpilot: {
-      rating: '',
-      url: 'https://uk.trustpilot.com/review/workwellaccountancy.com',
+      rating: '4.6',
+      url: 'https://uk.trustpilot.com/review/workwellsolutions.com',
     },
     legal: {
       // Workwell's legal pages live on its WordPress marketing site.

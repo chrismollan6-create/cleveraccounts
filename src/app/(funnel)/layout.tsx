@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: `Set up your ${brand.name} service in minutes. One monthly fee, unlimited support, dedicated UK accountant.`,
     robots: { index: false, follow: true },
     formatDetection: { email: false, address: false, telephone: false },
-    icons: brand.assets.favicon ? { icon: brand.assets.favicon } : undefined,
+    icons: brand.assets.favicon,
   };
 }
 
