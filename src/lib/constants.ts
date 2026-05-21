@@ -166,7 +166,7 @@ export const BRANDS = {
   workwell: {
     id: 'workwell',
     name: 'Workwell Accountancy',
-    legalName: 'Workwell Accountancy Solutions Ltd',
+    legalName: 'Workwell Accountancy',
     tagline: 'Accountancy Service Experts',
     domain: 'workwellaccountancy.com',
     // Funnel/app surfaces (sign-up, engagement letter) are served from the
@@ -175,9 +175,9 @@ export const BRANDS = {
     appDomain: 'my.workwellaccountancy.com',
     portalDomain: 'my.workwellaccountancy.com',
     portalUrl: 'https://my.workwellaccountancy.com',
-    phone: '01923 257257',
-    freephone: '01923 257257',
-    email: 'accountancy@workwellsolutions.com',
+    phone: '01923 257 300',
+    freephone: '01923 257 300',
+    email: 'clientsupport@workwellsolutions.com',
     senderEmail: 'clientsupport@workwellsolutions.com',
     supportEmail: 'clientsupport@workwellsolutions.com',
     postalAddress: 'Radius House, 51 Clarendon Road, Watford, Hertfordshire, WD17 1HP',
