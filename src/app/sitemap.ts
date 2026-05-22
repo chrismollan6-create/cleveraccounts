@@ -29,6 +29,7 @@ const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRo
   { url: "/making-tax-digital",                priority: 0.7, changeFrequency: "monthly" },
   { url: "/take-home-calculator",              priority: 0.7, changeFrequency: "monthly" },
   { url: "/integrations",                      priority: 0.6, changeFrequency: "monthly" },
+  { url: "/freeagent",                         priority: 0.7, changeFrequency: "monthly" },
   { url: "/about-us",                          priority: 0.6, changeFrequency: "monthly" },
   { url: "/reviews",                           priority: 0.6, changeFrequency: "weekly" },
   { url: "/contact",                           priority: 0.6, changeFrequency: "monthly" },
