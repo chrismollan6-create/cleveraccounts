@@ -2,15 +2,14 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title:
-    "FreeAgent Accountants — Exclusive Co-Pilot Offer from £84.50+VAT | Clever Accounts",
+    "FreeAgent Accountants — Sole Trader & Limited Company | Clever Accounts",
   description:
-    "Clever Accounts is a FreeAgent Platinum Partner and a member of FreeAgent's Co-Pilot panel — one of the longest-serving accountancy partners FreeAgent works with, trusted by 5,000+ FreeAgent businesses. Exclusive limited company accounting from £84.50+VAT a month for FreeAgent users.",
+    "Clever Accounts is a FreeAgent Platinum Partner and a member of FreeAgent's Co-Pilot panel — one of the longest-serving accountancy partners FreeAgent works with, trusted by 5,000+ FreeAgent businesses. All-inclusive accounting for sole traders from £42.50+VAT and limited companies from £84.50+VAT a month.",
   alternates: { canonical: "/freeagent" },
   openGraph: {
-    title:
-      "FreeAgent Accountants — Exclusive Co-Pilot Offer from £84.50+VAT",
+    title: "FreeAgent Accountants — Sole Trader & Limited Company",
     description:
-      "FreeAgent Platinum Partner and Co-Pilot panel member. All-inclusive limited company accounting from £84.50+VAT a month for FreeAgent users — keep your FreeAgent data, switch in minutes.",
+      "FreeAgent Platinum Partner and Co-Pilot panel member. All-inclusive accounting for sole traders from £42.50+VAT and limited companies from £84.50+VAT a month — keep your FreeAgent data, switch in minutes.",
     url: "/freeagent",
     type: "website",
   },

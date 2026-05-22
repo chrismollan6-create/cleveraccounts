@@ -3,20 +3,17 @@ import {
   ArrowRight,
   Award,
   BadgeCheck,
-  BarChart3,
   Building2,
-  Calculator,
   CheckCircle2,
   Clock,
-  FileText,
   Handshake,
   MessageSquare,
   Phone,
   Quote,
-  Receipt,
   ShieldCheck,
   Sparkles,
   Star,
+  User,
   Users,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
@@ -24,38 +21,26 @@ import { getBrand } from "@/lib/brand";
 // FreeAgent's own Co-Pilot programme page — used for the "what is Co-Pilot" link.
 const COPILOT_URL = "https://www.freeagent.com/features/copilot/";
 
-// ── What's included in the FreeAgent offer ───────────────────────
-const included = [
-  {
-    icon: Users,
-    title: "Dedicated Accountant",
-    desc: "Your own named accountant who knows your business — not a call centre. Unlimited phone and email support, no extra charges.",
-  },
-  {
-    icon: FileText,
-    title: "Year-End Accounts & CT600",
-    desc: "Statutory year-end accounts prepared and filed with Companies House, plus your corporation tax return submitted to HMRC.",
-  },
-  {
-    icon: Building2,
-    title: "Companies House Filings",
-    desc: "Confirmation statement and all statutory filings handled for you, so your company stays compliant without you lifting a finger.",
-  },
-  {
-    icon: Receipt,
-    title: "Payroll for Directors",
-    desc: "Monthly payroll processing with RTI submissions to HMRC, and advice on the most tax-efficient salary for you.",
-  },
-  {
-    icon: Calculator,
-    title: "Director Self Assessment",
-    desc: "Your personal self assessment tax return prepared and filed — dividends, salary and any other income, all taken care of.",
-  },
-  {
-    icon: BarChart3,
-    title: "Proactive Tax Planning",
-    desc: "Optimal salary/dividend split, allowable expenses and reliefs — advice that actively reduces your tax bill, not just reports it.",
-  },
+// Pricing — kept as constants so a rate change is a single edit.
+const SOLE_TRADER_PRICE = "42.50";
+const LTD_PRICE = "84.50";
+const LTD_STANDARD_PRICE = "104.50";
+
+// ── What each package includes ───────────────────────────────────
+const soleTraderIncludes = [
+  "Your own dedicated accountant",
+  "Year-end sole trader accounts prepared & filed",
+  "Self Assessment tax return filed with HMRC",
+  "Bookkeeping reviews and proactive tax advice",
+  "Free FreeAgent software included",
+];
+
+const limitedCompanyIncludes = [
+  "Your own dedicated accountant",
+  "Year-end accounts & corporation tax (CT600)",
+  "Companies House confirmation statement filed",
+  "Director payroll & Self Assessment included",
+  "Free FreeAgent software included",
 ];
 
 // ── Why FreeAgent users choose Clever Accounts ───────────────────
@@ -78,7 +63,7 @@ const whyUs = [
   {
     icon: Users,
     title: "5,000+ FreeAgent Businesses",
-    desc: "More than 5,000 businesses already run their accounting on FreeAgent with Clever Accounts. You'd be in good company.",
+    desc: "More than 5,000 sole traders and limited companies already run their accounting on FreeAgent with Clever Accounts.",
   },
 ];
 
@@ -88,13 +73,13 @@ const steps = [
     num: "1",
     icon: Sparkles,
     title: "Choose Us in FreeAgent",
-    desc: "Select Clever Accounts from the Co-Pilot panel inside your FreeAgent account. That's the only step you need to take.",
+    desc: "Select Clever Accounts from the Co-Pilot panel inside your FreeAgent account and start an enquiry. That's the only step you need to take.",
   },
   {
     num: "2",
     icon: Handshake,
     title: "We Take Over Your Accounting",
-    desc: "We become your accountant and link to your existing FreeAgent account as your Practice. We notify HMRC and contact your previous accountant if you have one.",
+    desc: "We become your accountant and link to your existing FreeAgent account as your Practice. We notify HMRC and, if you already have an accountant, handle a smooth handover for you.",
   },
   {
     num: "3",
@@ -107,12 +92,16 @@ const steps = [
 // ── FAQ ──────────────────────────────────────────────────────────
 const faqs = [
   {
-    q: "Who is the £84.50+VAT offer for?",
+    q: "I'm a sole trader — what's included for £42.50+VAT?",
+    a: "Everything a sole trader needs: your own dedicated accountant, year-end sole trader accounts, your Self Assessment tax return prepared and filed with HMRC, bookkeeping reviews, proactive tax advice, and FreeAgent software included free. One fixed monthly fee, with no setup costs.",
+  },
+  {
+    q: "Who is the £84.50+VAT limited company rate for?",
     a: "It's an exclusive rate for non-VAT-registered limited companies who join Clever Accounts through FreeAgent. The vast majority of FreeAgent businesses we speak to aren't VAT registered, so we've built a package that reflects that — all the limited company accounting you need, without paying for VAT return work you don't.",
   },
   {
     q: "What if I'm VAT registered, or register later?",
-    a: "If your business is VAT registered we'll quote our standard all-inclusive limited company rate, which includes quarterly Making Tax Digital VAT returns. If you register for VAT after joining, we'll simply add VAT returns and move you to the standard rate — there are no penalties for switching, and no minimum contract.",
+    a: "If your business is VAT registered we'll quote our standard all-inclusive rate, which includes quarterly Making Tax Digital VAT returns. If you register for VAT after joining, we'll simply add VAT returns then — there are no penalties for switching, and no minimum contract.",
   },
   {
     q: "Will I lose my FreeAgent data if I switch to Clever Accounts?",
@@ -128,7 +117,7 @@ const faqs = [
   },
   {
     q: "How do I get started?",
-    a: "If you use FreeAgent, you'll find Clever Accounts in the Co-Pilot panel inside your account — choose us there and we'll take it from there. If you'd like to talk it through first, call our team and we'll happily answer any questions.",
+    a: "If you use FreeAgent, you'll find Clever Accounts in the Co-Pilot panel inside your account — choose us there to start an enquiry. If you'd like to talk it through first, call our team and we'll happily answer any questions.",
   },
 ];
 
@@ -164,8 +153,9 @@ export default async function FreeAgentPage() {
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
                 Over 5,000 businesses already run their books on FreeAgent with
-                us. As a FreeAgent user, you get an exclusive rate when we take
-                over your accounting.
+                us, from sole traders to limited companies. Whichever way you
+                work, we&apos;ll take over your accounting for one simple
+                monthly fee.
               </p>
               <div className="flex flex-wrap gap-6 text-sm">
                 {[
@@ -183,49 +173,62 @@ export default async function FreeAgentPage() {
               </div>
             </div>
 
-            {/* Right: offer card */}
-            <div className="bg-white rounded-3xl p-8 shadow-2xl border border-border">
+            {/* Right: pricing card */}
+            <div className="bg-white rounded-3xl p-7 md:p-8 shadow-2xl border border-border">
               <div className="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary rounded-full px-3 py-1 text-xs font-bold mb-4">
                 <Sparkles size={12} />
-                Exclusive FreeAgent Co-Pilot Offer
+                FreeAgent Co-Pilot Pricing
               </div>
               <h2 className="text-xl font-black text-dark mb-1">
-                Limited Company Accounting
+                All-Inclusive Accounting
               </h2>
               <p className="text-sm text-text-light mb-5">
-                For non-VAT-registered FreeAgent businesses
+                One fixed monthly fee, whichever way you work
               </p>
 
-              <div className="flex items-end gap-3 mb-1">
-                <span className="text-2xl font-bold text-text-light/60 line-through decoration-2">
-                  £104.50
-                </span>
-                <span className="text-5xl font-black text-dark leading-none">
-                  £84.50
-                </span>
-                <span className="text-base text-text-light mb-1">
-                  +VAT /mo
-                </span>
+              {/* Sole trader tier */}
+              <div className="flex items-center justify-between border border-border rounded-xl px-4 py-3 mb-3">
+                <div>
+                  <p className="font-bold text-dark text-sm">Sole Trader</p>
+                  <p className="text-xs text-text-light">
+                    All-inclusive accounting
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-2xl font-black text-dark">
+                    £{SOLE_TRADER_PRICE}
+                  </span>
+                  <span className="text-xs text-text-light"> +VAT/mo</span>
+                </div>
               </div>
-              <p className="text-xs text-text-light/70 mb-4">
-                Standard limited company rate £104.50+VAT a month
-              </p>
 
-              <div className="bg-secondary/10 border border-secondary/30 rounded-xl px-4 py-3 mb-5">
-                <p className="text-sm font-bold text-secondary-dark">
-                  Save £240 a year
-                </p>
-                <p className="text-xs text-text-light">
-                  Exclusive to businesses who join us through FreeAgent
-                </p>
+              {/* Limited company tier — highlighted */}
+              <div className="flex items-center justify-between bg-surface border border-secondary/40 rounded-xl px-4 py-3 mb-5">
+                <div>
+                  <p className="font-bold text-dark text-sm">
+                    Limited Company
+                  </p>
+                  <p className="text-xs text-secondary-dark font-semibold">
+                    Exclusive FreeAgent rate
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-sm text-text-light/60 line-through mr-1">
+                    £{LTD_STANDARD_PRICE}
+                  </span>
+                  <span className="text-2xl font-black text-dark">
+                    £{LTD_PRICE}
+                  </span>
+                  <span className="text-xs text-text-light"> +VAT/mo</span>
+                </div>
               </div>
 
               <div className="space-y-2 mb-5">
                 {[
-                  "All-inclusive — no hidden extras",
+                  "No setup fees — ever",
                   "FreeAgent software included free",
                   "Dedicated accountant from day one",
-                  "No setup fees, no minimum contract",
+                  "No minimum contract",
                 ].map((point) => (
                   <div
                     key={point}
@@ -275,7 +278,7 @@ export default async function FreeAgentPage() {
                 A Genuine FreeAgent Partnership
               </p>
               <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-                Not Just a FreeAgent Accountant — One FreeAgent Chose
+                Not Just a FreeAgent Accountant — One That FreeAgent Chose
               </h2>
               <p className="text-text/70 leading-relaxed mb-4">
                 Plenty of accountants offer FreeAgent. Very few have the
@@ -359,81 +362,117 @@ export default async function FreeAgentPage() {
         </svg>
       </div>
 
-      {/* ── THE OFFER ────────────────────────────────────────── */}
+      {/* ── PRICING / THE OFFER ──────────────────────────────── */}
       <section className="bg-surface py-16 md:py-24">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-              Your Exclusive FreeAgent Rate
+              Simple Pricing for FreeAgent Users
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              All-Inclusive Limited Company Accounting — £84.50+VAT
+              Sole Trader or Limited Company — One Fixed Monthly Fee
             </h2>
             <p className="text-lg text-text/70 max-w-2xl mx-auto">
-              Most FreeAgent businesses we speak to aren&apos;t VAT registered.
-              So we built a package around that — everything a non-VAT-registered
-              limited company needs, without paying for VAT return work you
-              don&apos;t use.
+              Whichever way you work, we look after everything for one
+              all-inclusive monthly fee. And because most FreeAgent businesses
+              we speak to aren&apos;t VAT registered, limited companies get an
+              exclusive rate built around exactly that.
             </p>
           </div>
 
-          {/* Price comparison */}
-          <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto mb-12">
-            <div className="bg-white border border-border rounded-2xl p-7 text-center">
-              <p className="text-sm font-semibold text-text-light mb-2">
-                Standard Limited Company
-              </p>
-              <p className="text-4xl font-black text-text-light/60 line-through decoration-2 mb-1">
-                £104.50
-              </p>
-              <p className="text-xs text-text-light">+VAT per month</p>
-            </div>
-            <div className="bg-dark rounded-2xl p-7 text-center relative overflow-hidden">
-              <div className="absolute top-3 right-3 bg-secondary text-white text-[10px] font-black px-2.5 py-1 rounded-full">
-                FREEAGENT RATE
+          {/* Pricing tiers */}
+          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
+            {/* Sole Trader */}
+            <div className="bg-white border border-border rounded-3xl p-7 shadow-sm flex flex-col">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <User size={24} />
               </div>
-              <p className="text-sm font-semibold text-white/60 mb-2">
-                Co-Pilot Exclusive
+              <h3 className="text-xl font-black text-dark mb-1">Sole Trader</h3>
+              <p className="text-sm text-text-light mb-5">
+                All-inclusive accounting for sole traders
               </p>
-              <p className="text-4xl font-black text-white mb-1">£84.50</p>
-              <p className="text-xs text-white/50">
-                +VAT per month · save £240 a year
+              <div className="flex items-end gap-2 mb-1">
+                <span className="text-5xl font-black text-dark leading-none">
+                  £{SOLE_TRADER_PRICE}
+                </span>
+                <span className="text-base text-text-light mb-1">
+                  +VAT /mo
+                </span>
+              </div>
+              <p className="text-xs text-text-light/70 mb-6">
+                One fixed monthly fee, no setup costs
               </p>
+              <ul className="space-y-2.5">
+                {soleTraderIncludes.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm text-text/80"
+                  >
+                    <CheckCircle2
+                      size={16}
+                      className="text-success shrink-0 mt-0.5"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Limited Company — highlighted */}
+            <div className="relative bg-white border-2 border-secondary rounded-3xl p-7 shadow-lg flex flex-col">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-white text-[11px] font-black px-3 py-1 rounded-full whitespace-nowrap">
+                EXCLUSIVE FREEAGENT RATE
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-4">
+                <Building2 size={24} />
+              </div>
+              <h3 className="text-xl font-black text-dark mb-1">
+                Limited Company
+              </h3>
+              <p className="text-sm text-text-light mb-5">
+                All-inclusive accounting for non-VAT-registered limited
+                companies
+              </p>
+              <div className="flex items-end gap-2 mb-1">
+                <span className="text-2xl font-bold text-text-light/60 line-through decoration-2 mb-1">
+                  £{LTD_STANDARD_PRICE}
+                </span>
+                <span className="text-5xl font-black text-dark leading-none">
+                  £{LTD_PRICE}
+                </span>
+                <span className="text-base text-text-light mb-1">
+                  +VAT /mo
+                </span>
+              </div>
+              <p className="text-xs text-secondary-dark font-semibold mb-6">
+                Save £240 a year vs our standard rate
+              </p>
+              <ul className="space-y-2.5">
+                {limitedCompanyIncludes.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm text-text/80"
+                  >
+                    <CheckCircle2
+                      size={16}
+                      className="text-success shrink-0 mt-0.5"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          {/* What's included */}
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-black text-dark mb-2">
-              Everything Included for £84.50+VAT
-            </h3>
-            <p className="text-text/70 max-w-xl mx-auto">
-              One fixed monthly fee. No setup costs, no surprise extras.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {included.map(({ icon: Icon, title, desc }) => (
-              <div
-                key={title}
-                className="bg-white border border-border rounded-2xl shadow-sm card-hover p-5"
-              >
-                <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                  <Icon size={20} />
-                </div>
-                <h4 className="font-bold text-dark mb-1">{title}</h4>
-                <p className="text-text/70 text-sm leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 bg-primary/5 border border-primary/20 rounded-2xl p-5 flex items-start gap-3 max-w-3xl mx-auto">
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex items-start gap-3 max-w-3xl mx-auto">
             <ShieldCheck size={20} className="text-primary shrink-0 mt-0.5" />
             <p className="text-sm text-text/70 leading-relaxed">
               <span className="font-semibold text-dark">VAT registered?</span>{" "}
-              We&apos;ll quote our standard all-inclusive rate, which adds
-              quarterly Making Tax Digital VAT returns. And if you register for
-              VAT later, we simply add VAT returns then — no penalties, no
-              minimum contract.
+              The £{LTD_PRICE}+VAT limited company rate is for non-VAT-registered
+              businesses. If you&apos;re VAT registered we&apos;ll quote our
+              standard all-inclusive rate, which adds quarterly Making Tax
+              Digital VAT returns — and if you register for VAT later, we simply
+              add VAT returns then. No penalties, no minimum contract.
             </p>
           </div>
         </div>
@@ -596,7 +635,7 @@ export default async function FreeAgentPage() {
                 key={q}
                 className="group bg-white border border-border rounded-xl overflow-hidden"
               >
-                <summary className="flex items-center justify-between gap-3 px-5 py-4 cursor-pointer font-semibold text-dark hover:bg-surface transition-colors list-none">
+                <summary className="flex items-center justify-between gap-3 px-5 py-4 cursor-pointer font-semibold text-dark hover:bg-surface transition-colors list-none [&::-webkit-details-marker]:hidden">
                   {q}
                   <ArrowRight
                     size={18}
@@ -624,16 +663,22 @@ export default async function FreeAgentPage() {
               Ready to Put a Real Accountant Behind Your FreeAgent?
             </h2>
             <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-              If you use FreeAgent, choose Clever Accounts from the{" "}
+              Sole trader or limited company, if you use FreeAgent you&apos;ll
+              find Clever Accounts in the{" "}
               <span className="font-bold">Co-Pilot panel</span> inside your
-              account to get started — at your exclusive £84.50+VAT rate. Got a
-              question first? Our team is happy to help.
+              account — start an enquiry there to get going. Got a question
+              first? Our team is happy to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <div className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold px-6 py-4 rounded-xl border border-white/30">
+              <a
+                href={COPILOT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-6 py-4 rounded-xl border border-white/30 hover:bg-white/25 transition-all"
+              >
                 <MessageSquare size={20} />
-                Find us in the FreeAgent Co-Pilot panel
-              </div>
+                How FreeAgent Co-Pilot works
+              </a>
               <a
                 href={telHref}
                 className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/90 transition-all shadow-lg"
