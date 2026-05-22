@@ -74,6 +74,12 @@ const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   /^\/api\/leads(\/.*)?$/,
   /^\/api\/address(\/.*)?$/,
   /^\/api\/analytics(\/.*)?$/,
+  // Public client forms (UTR capture, VAT decisions, complaints, etc.) under
+  // src/app/(site)/forms/*. They embed third-party tfaforms.net iframes and
+  // have no Clerk session — recipients open them from emails — so they must
+  // serve directly on portal hosts without the auth gate. No /api/forms/*
+  // counterpart: every form posts to tfaforms.net, not our backend.
+  /^\/forms(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {
