@@ -152,7 +152,7 @@ export const BRANDS = {
     portalUrl: 'https://my.cleveraccounts.com',
     phone: '0113 518 8800',
     freephone: '0113 515 8800',
-    email: 'info@cleveraccounts.com',
+    email: 'support@cleveraccounts.com',
     // senderEmail = the Resend-verified domain used as From. Must be on a
     // domain we've verified DKIM/SPF for in Resend (currently mail.cleveraccounts.com).
     // supportEmail = the human-monitored inbox where replies go (Reply-To).
