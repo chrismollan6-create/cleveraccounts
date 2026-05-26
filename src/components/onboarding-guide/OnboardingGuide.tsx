@@ -27,6 +27,7 @@ import {
   ArrowRight,
   Quote,
   Lightbulb,
+  CalendarPlus,
   type LucideIcon,
 } from 'lucide-react';
 import { BRANDS } from '@/lib/constants';
@@ -205,6 +206,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         <SectionHeader num="01" eyebrow="Step by step" title="What happens next" />
         <ol className="mt-8">
           {JOURNEY_STAGES.map((stage, i) => {
+            // Inner-row pill handling is below; the prominent banner that
+            // calls attention to an unbooked intro call sits after </ol>.
             const date = data.dates[stage.key];
             const isLast = i === JOURNEY_STAGES.length - 1;
             return (
@@ -247,6 +250,37 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             );
           })}
         </ol>
+
+        {/* Prominent booking CTA — only when the intro call hasn't yet been
+            booked. Sits inside the journey section so it reads as the next
+            action on top of the timeline above. */}
+        {!data.dates.welcomeCall && (
+          <div className="mt-8 flex break-inside-avoid items-center gap-5 rounded-2xl border-2 border-dashed border-secondary bg-secondary/[0.09] px-6 py-5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-secondary to-secondary-dark text-white shadow-md">
+              <CalendarPlus size={22} strokeWidth={2} />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-secondary-dark">
+                Your next step
+              </p>
+              <h3 className="mt-1 text-[16px] font-extrabold text-text">
+                Let&rsquo;s get your introductory call booked
+              </h3>
+              <p className="mt-1 text-[12.5px] leading-[1.55] text-text-light">
+                {data.calendlyUrl
+                  ? `Pick a time that suits — most clients are booked in within a couple of days.`
+                  : `Drop ${data.accountant.name.split(' ')[0]} a quick reply with the times that suit you, and we'll get it in the diary.`}
+              </p>
+            </div>
+            <a
+              href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-br from-secondary to-secondary-dark px-5 py-3 text-[12.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-md"
+            >
+              {data.calendlyUrl ? 'Book your call' : 'Reply to book'}
+              <ArrowRight size={14} />
+            </a>
+          </div>
+        )}
       </section>
 
       {/* 02 — Essentials (white, 2-up grid) */}
