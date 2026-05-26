@@ -42,6 +42,18 @@ import {
 } from '@/content/onboarding-guide';
 import GuideDownloadButton from './GuideDownloadButton';
 
+/** Hex (#RRGGBB) → rgba(...) with the given alpha. Used for translucent
+ *  brand-colour fills via inline style — Tailwind's `bg-secondary/55` style
+ *  utilities don't reliably pick up the data-brand cascade with @theme inline,
+ *  so brand-coloured surfaces are set inline from BRANDS[brandId].colors. */
+function hexAlpha(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 const SECTION_ICON: Record<SectionIconKey, LucideIcon> = {
   director: ShieldCheck,
   formation: Building2,
@@ -63,16 +75,28 @@ function SectionHeader({
   num,
   eyebrow,
   title,
+  primaryColor,
 }: {
   num: string;
   eyebrow: string;
   title: string;
+  primaryColor: string;
 }) {
   return (
     <div className="flex items-start gap-4 break-after-avoid">
-      <span className="text-[46px] font-extrabold leading-[0.8] text-primary/15">{num}</span>
+      <span
+        className="text-[46px] font-extrabold leading-[0.8]"
+        style={{ color: primaryColor, opacity: 0.15 }}
+      >
+        {num}
+      </span>
       <div className="pt-1">
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary">{eyebrow}</p>
+        <p
+          className="text-[11px] font-bold uppercase tracking-[0.22em]"
+          style={{ color: primaryColor }}
+        >
+          {eyebrow}
+        </p>
         <h2 className="mt-1.5 text-[24px] font-extrabold tracking-tight text-text">{title}</h2>
       </div>
     </div>
@@ -92,6 +116,21 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
     .join('')
     .toUpperCase();
 
+  // Brand palette — referenced inline for any surface that picks up a brand
+  // colour. Driving these from BRANDS[brandId].colors directly (rather than
+  // through Tailwind utilities like `bg-secondary`) guarantees the right
+  // palette flows through; the data-brand cascade isn't reliable for every
+  // Tailwind utility under @theme inline.
+  const isWorkwell = data.brandId === 'workwell';
+  const c = brand.colors;
+  const coverGradient = isWorkwell
+    ? `linear-gradient(to bottom right, ${c.primary}, ${c.primaryDark}, ${c.secondary})`
+    : `linear-gradient(to bottom right, ${c.primary}, ${c.primary}, ${c.primaryDark})`;
+  const footerGradient = `linear-gradient(to bottom right, ${c.primaryDark}, ${c.primary})`;
+  const packageGradient = `linear-gradient(to bottom right, ${c.primary}, ${c.primaryDark})`;
+  const iconTileGradient = `linear-gradient(to bottom right, ${c.primary}, ${c.primaryDark})`;
+  const secondaryButtonGradient = `linear-gradient(to bottom right, ${c.secondary}, ${c.secondaryDark})`;
+
   const stats = [
     { value: `${brand.stats.years}+`, label: "Years' experience" },
     { value: `${brand.stats.businesses.toLocaleString()}+`, label: 'Businesses supported' },
@@ -102,15 +141,40 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
     <div
       data-brand={data.brandId}
       className="onboarding-guide mx-auto bg-white font-sans text-text"
-      style={{ width: '210mm' }}
+      style={
+        {
+          width: '210mm',
+          // Inline CSS variable overrides so Tailwind utilities that DO use
+          // `var(--color-*)` pick up the brand palette. The literal inline
+          // styles below cover anything @theme inline may have baked.
+          '--color-primary': c.primary,
+          '--color-primary-dark': c.primaryDark,
+          '--color-primary-light': c.primaryLight,
+          '--color-primary-50': c.primary50,
+          '--color-secondary': c.secondary,
+          '--color-secondary-dark': c.secondaryDark,
+          '--color-secondary-light': c.secondaryLight,
+          '--color-accent': c.accent,
+          '--color-surface': c.surface,
+          '--color-surface-alt': c.surfaceAlt,
+          '--color-text': c.text,
+          '--color-text-light': c.textLight,
+        } as React.CSSProperties
+      }
     >
       {/* ═══════════════ COVER (page 1) ═══════════════ */}
-      <section className="relative flex min-h-[297mm] flex-col overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-dark text-white">
-        <span className="h-[7px] w-full shrink-0 bg-secondary" />
+      <section
+        className="relative flex min-h-[297mm] flex-col overflow-hidden text-white"
+        style={{ backgroundImage: coverGradient }}
+      >
+        <span className="h-[7px] w-full shrink-0" style={{ backgroundColor: c.secondary }} />
         {/* decorative shapes */}
         <span className="absolute -right-32 -top-28 h-[380px] w-[380px] rounded-full bg-white/[0.13]" />
         <span className="absolute right-16 top-60 h-48 w-48 rounded-full border-2 border-white/20" />
-        <span className="absolute -bottom-36 -left-28 h-[360px] w-[360px] rounded-full bg-secondary/30" />
+        <span
+          className="absolute -bottom-36 -left-28 h-[360px] w-[360px] rounded-full"
+          style={{ backgroundColor: hexAlpha(c.secondary, isWorkwell ? 0.55 : 0.3) }}
+        />
         <span className="absolute bottom-44 left-24 h-24 w-24 rounded-full border-2 border-white/15" />
 
         {/* logo */}
@@ -131,7 +195,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             <br />
             {data.clientFirstName}.
           </h1>
-          <div className="mt-7 h-[6px] w-28 rounded-full bg-secondary" />
+          <div className="mt-7 h-[6px] w-28 rounded-full" style={{ backgroundColor: c.secondary }} />
           <p className="mt-7 max-w-[132mm] text-[17px] leading-relaxed text-white/85">
             Everything you need for a confident start with {data.brandName} — your next
             steps, the essentials, and how to reach us whenever you need.
@@ -172,7 +236,10 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       {/* Accountant personal note */}
       <section className="px-[20mm] pt-[11mm]">
         <div className="relative flex break-inside-avoid gap-6 overflow-hidden rounded-2xl border border-border bg-surface p-6">
-          <span className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/[0.06]" />
+          <span
+            className="absolute -right-10 -top-10 h-32 w-32 rounded-full"
+            style={{ backgroundColor: hexAlpha(c.primary, 0.06) }}
+          />
           {data.accountant.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -181,12 +248,15 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
               className="relative h-[92px] w-[92px] shrink-0 rounded-2xl object-cover shadow-md"
             />
           ) : (
-            <div className="relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-dark text-[28px] font-extrabold text-white shadow-md">
+            <div
+              className="relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-2xl text-[28px] font-extrabold text-white shadow-md"
+              style={{ backgroundImage: iconTileGradient }}
+            >
               {accInitials}
             </div>
           )}
           <div className="relative">
-            <Quote size={22} className="text-primary/25" />
+            <Quote size={22} style={{ color: c.primary, opacity: 0.25 }} />
             <p className="mt-1 text-[13.5px] italic leading-[1.7] text-text">
               Hi {data.clientFirstName}, I&rsquo;m {accFirstName} — I&rsquo;ll be your
               dedicated accountant. I&rsquo;m here whenever you need me, so please
@@ -203,7 +273,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
 
       {/* 01 — Journey (tinted band) */}
       <section className="mt-[12mm] bg-surface px-[20mm] py-[14mm]">
-        <SectionHeader num="01" eyebrow="Step by step" title="What happens next" />
+        <SectionHeader num="01" eyebrow="Step by step" title="What happens next" primaryColor={c.primary} />
         <ol className="mt-8">
           {JOURNEY_STAGES.map((stage, i) => {
             // Inner-row pill handling is below; the prominent banner that
@@ -213,16 +283,27 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             return (
               <li key={stage.key} className="relative flex break-inside-avoid gap-5 pb-4 last:pb-0">
                 {!isLast && (
-                  <span className="absolute bottom-1 left-[22px] top-12 w-[3px] rounded-full bg-gradient-to-b from-primary to-primary/15" />
+                  <span
+                    className="absolute bottom-1 left-[22px] top-12 w-[3px] rounded-full"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom, ${c.primary}, ${hexAlpha(c.primary, 0.15)})`,
+                    }}
+                  />
                 )}
-                <span className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark text-[16px] font-extrabold text-white shadow-md">
+                <span
+                  className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[16px] font-extrabold text-white shadow-md"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
                   {i + 1}
                 </span>
                 <div className="flex-1 rounded-2xl border border-border bg-white px-5 py-4 shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-[15px] font-extrabold text-text">{stage.label}</h3>
                     {date ? (
-                      <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white">
+                      <span
+                        className="rounded-full px-3 py-1 text-[11px] font-bold text-white"
+                        style={{ backgroundColor: c.primary }}
+                      >
                         {date}
                       </span>
                     ) : stage.key === 'welcomeCall' ? (
@@ -232,7 +313,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                       // <a href> as a live clickable link.
                       <a
                         href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
-                        className="rounded-full bg-secondary px-3 py-1 text-[11px] font-bold text-white no-underline"
+                        className="rounded-full px-3 py-1 text-[11px] font-bold text-white no-underline"
+                        style={{ backgroundColor: c.secondary }}
                       >
                         {data.calendlyUrl ? 'Book your call →' : 'Reply to book →'}
                       </a>
@@ -255,12 +337,24 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             booked. Sits inside the journey section so it reads as the next
             action on top of the timeline above. */}
         {!data.dates.welcomeCall && (
-          <div className="mt-8 flex break-inside-avoid items-center gap-5 rounded-2xl border-2 border-dashed border-secondary bg-secondary/[0.09] px-6 py-5">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-secondary to-secondary-dark text-white shadow-md">
+          <div
+            className="mt-8 flex break-inside-avoid items-center gap-5 rounded-2xl border-2 border-dashed px-6 py-5"
+            style={{
+              borderColor: c.secondary,
+              backgroundColor: hexAlpha(c.secondary, 0.09),
+            }}
+          >
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+              style={{ backgroundImage: secondaryButtonGradient }}
+            >
               <CalendarPlus size={22} strokeWidth={2} />
             </div>
             <div className="flex-1">
-              <p className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-secondary-dark">
+              <p
+                className="text-[10.5px] font-bold uppercase tracking-[0.18em]"
+                style={{ color: c.secondaryDark }}
+              >
                 Your next step
               </p>
               <h3 className="mt-1 text-[16px] font-extrabold text-text">
@@ -274,7 +368,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             </div>
             <a
               href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-br from-secondary to-secondary-dark px-5 py-3 text-[12.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-md"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-3 text-[12.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-md"
+              style={{ backgroundImage: secondaryButtonGradient }}
             >
               {data.calendlyUrl ? 'Book your call' : 'Reply to book'}
               <ArrowRight size={14} />
@@ -285,7 +380,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
 
       {/* 02 — Essentials (white, 2-up grid) */}
       <section className="px-[20mm] py-[14mm]">
-        <SectionHeader num="02" eyebrow="The essentials" title="Getting set up the right way" />
+        <SectionHeader num="02" eyebrow="The essentials" title="Getting set up the right way" primaryColor={c.primary} />
         <div className="mt-8 grid grid-cols-2 gap-4">
           {sections.map((sec) => {
             const Icon = SECTION_ICON[sec.icon];
@@ -297,7 +392,10 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 key={sec.id}
                 className="flex break-inside-avoid flex-col rounded-2xl border border-border bg-white p-5 shadow-[0_3px_16px_rgba(15,23,42,0.07)]"
               >
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-white shadow-md">
+                <div
+                  className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
                   <Icon size={22} strokeWidth={2} />
                 </div>
                 <h3 className="text-[15px] font-extrabold leading-snug text-text">{sectionTitle(sec, data)}</h3>
@@ -322,11 +420,23 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
           {tips.map((tip) => (
             <div
               key={tip}
-              className="flex break-inside-avoid gap-3 rounded-xl border-l-[5px] border-secondary bg-secondary/[0.09] px-5 py-4"
+              className="flex break-inside-avoid gap-3 rounded-xl border-l-[5px] px-5 py-4"
+              style={{
+                borderColor: c.secondary,
+                backgroundColor: hexAlpha(c.secondary, 0.09),
+              }}
             >
-              <Lightbulb size={18} strokeWidth={2} className="mt-0.5 shrink-0 text-secondary-dark" />
+              <Lightbulb
+                size={18}
+                strokeWidth={2}
+                className="mt-0.5 shrink-0"
+                style={{ color: c.secondaryDark }}
+              />
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-secondary-dark">
+                <p
+                  className="text-[10px] font-bold uppercase tracking-[0.16em]"
+                  style={{ color: c.secondaryDark }}
+                >
                   Good to know
                 </p>
                 <p className="mt-1 text-[12.5px] leading-[1.6] text-text">{tip}</p>
@@ -338,7 +448,10 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
 
       {/* What's included (tinted band) */}
       <section className="break-inside-avoid bg-surface px-[20mm] py-[13mm]">
-        <p className="text-center text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
+        <p
+          className="text-center text-[11px] font-bold uppercase tracking-[0.22em]"
+          style={{ color: c.primary }}
+        >
           Included as standard
         </p>
         <h2 className="mt-2 text-center text-[22px] font-extrabold tracking-tight text-text">
@@ -352,7 +465,10 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 key={f.label}
                 className="flex flex-col items-center rounded-2xl border border-border bg-white px-4 py-6 text-center shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark text-white shadow-md">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-full text-white shadow-md"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
                   <Icon size={21} strokeWidth={2} />
                 </div>
                 <p className="mt-3 text-[12px] font-bold leading-tight text-text">{f.label}</p>
@@ -363,7 +479,10 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* Contact footer */}
-      <footer className="relative flex break-inside-avoid flex-col overflow-hidden bg-gradient-to-br from-primary-dark to-primary px-[20mm] py-[16mm] text-white">
+      <footer
+        className="relative flex break-inside-avoid flex-col overflow-hidden px-[20mm] py-[16mm] text-white"
+        style={{ backgroundImage: footerGradient }}
+      >
         <span className="absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-white/[0.07]" />
         <span className="absolute -right-16 -top-16 h-52 w-52 rounded-full border-2 border-white/10" />
         <div className="relative">
@@ -377,17 +496,17 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             </div>
             <div className="shrink-0 space-y-2 text-right text-[13px]">
               <p className="flex items-center justify-end gap-2">
-                <Mail size={15} className="text-secondary" />
+                <Mail size={15} style={{ color: c.secondary }} />
                 {data.accountant.email}
               </p>
               <p className="flex items-center justify-end gap-2">
-                <Phone size={15} className="text-secondary" />
+                <Phone size={15} style={{ color: c.secondary }} />
                 {data.accountant.phone}
               </p>
             </div>
           </div>
           <p className="mt-6 flex items-center gap-2 border-t border-white/15 pt-5 text-[12px] leading-[1.6] text-white/70">
-            <ArrowRight size={14} className="shrink-0 text-secondary" />
+            <ArrowRight size={14} className="shrink-0" style={{ color: c.secondary }} />
             Call or email as often as you need — unlimited advice is part of your package.
             General enquiries: {data.support.email} · {data.support.phone}
           </p>
