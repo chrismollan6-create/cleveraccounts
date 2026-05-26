@@ -513,7 +513,12 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         </div>
       </footer>
 
-      <GuideDownloadButton />
+      <GuideDownloadButton
+        brandId={data.brandId}
+        variant={data.variant}
+        brandColor={c.primary}
+        brandColorDark={c.primaryDark}
+      />
     </div>
   );
 }
