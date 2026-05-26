@@ -25,7 +25,10 @@ async function pdfResponse(origin: string, query: string): Promise<Response> {
     status: 200,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'inline; filename="onboarding-guide.pdf"',
+      // attachment so direct-link clicks (with no JS handler) also download
+      // cleanly. The in-page Download button uses a JS blob handler so this
+      // header doesn't strictly matter to it, but it's the right default.
+      'Content-Disposition': 'attachment; filename="onboarding-guide.pdf"',
       'Cache-Control': 'no-store',
     },
   });
