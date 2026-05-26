@@ -14,7 +14,9 @@ import {
   ShieldCheck,
   Building2,
   ReceiptText,
-  Wallet,
+  Coins,
+  Landmark,
+  Briefcase,
   MonitorSmartphone,
   UserCheck,
   MessageCircle,
@@ -31,6 +33,7 @@ import { BRANDS } from '@/lib/constants';
 import {
   getSections,
   getTips,
+  sectionTitle,
   welcomeIntro,
   JOURNEY_STAGES,
   type OnboardingGuideData,
@@ -41,8 +44,10 @@ import GuideDownloadButton from './GuideDownloadButton';
 const SECTION_ICON: Record<SectionIconKey, LucideIcon> = {
   director: ShieldCheck,
   formation: Building2,
+  bank: Landmark,
   vat: ReceiptText,
-  wages: Wallet,
+  paye: Coins,
+  ir35: Briefcase,
   freeagent: MonitorSmartphone,
 };
 
@@ -74,7 +79,7 @@ function SectionHeader({
 }
 
 export default function OnboardingGuide({ data }: { data: OnboardingGuideData }) {
-  const sections = getSections(data.variant);
+  const sections = getSections(data);
   const tips = getTips(data.variant);
   const brand = BRANDS[data.brandId];
   const logo = `/brand/${data.brandId}/logo.png`;
@@ -213,15 +218,26 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 <div className="flex-1 rounded-2xl border border-border bg-white px-5 py-4 shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-[15px] font-extrabold text-text">{stage.label}</h3>
-                    <span
-                      className={
-                        date
-                          ? 'rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white'
-                          : 'rounded-full bg-border px-3 py-1 text-[11px] font-semibold text-text-light'
-                      }
-                    >
-                      {date ?? 'To be confirmed'}
-                    </span>
+                    {date ? (
+                      <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-white">
+                        {date}
+                      </span>
+                    ) : stage.key === 'welcomeCall' ? (
+                      // No date yet for the intro call — offer a booking
+                      // shortcut. Calendly link when the accountant has one
+                      // configured; mailto fallback otherwise. PDF preserves
+                      // <a href> as a live clickable link.
+                      <a
+                        href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
+                        className="rounded-full bg-secondary px-3 py-1 text-[11px] font-bold text-white no-underline"
+                      >
+                        {data.calendlyUrl ? 'Book your call →' : 'Reply to book →'}
+                      </a>
+                    ) : (
+                      <span className="rounded-full bg-border px-3 py-1 text-[11px] font-semibold text-text-light">
+                        To be confirmed
+                      </span>
+                    )}
                   </div>
                   <p className="mt-1.5 text-[12.5px] leading-[1.6] text-text-light">
                     {stage.blurb}
@@ -239,6 +255,9 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         <div className="mt-8 grid grid-cols-2 gap-4">
           {sections.map((sec) => {
             const Icon = SECTION_ICON[sec.icon];
+            // Body may contain double-newlines for sub-topic paragraphs
+            // (e.g. VAT + Flat Rate addendum for PSC contractors).
+            const paragraphs = sec.body(data).split('\n\n');
             return (
               <article
                 key={sec.id}
@@ -247,8 +266,18 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-white shadow-md">
                   <Icon size={22} strokeWidth={2} />
                 </div>
-                <h3 className="text-[15px] font-extrabold leading-snug text-text">{sec.title}</h3>
-                <p className="mt-1.5 text-[12px] leading-[1.6] text-text-light">{sec.body(data)}</p>
+                <h3 className="text-[15px] font-extrabold leading-snug text-text">{sectionTitle(sec, data)}</h3>
+                {paragraphs.map((para, i) => (
+                  <p
+                    key={i}
+                    className={
+                      (i === 0 ? 'mt-1.5' : 'mt-2.5') +
+                      ' text-[12px] leading-[1.6] text-text-light'
+                    }
+                  >
+                    {para}
+                  </p>
+                ))}
               </article>
             );
           })}
