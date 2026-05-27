@@ -463,52 +463,58 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         </section>
       )}
 
-      {/* ── Quick answers / FAQ ────────────────────────────────────────── */}
+      {/* ── Quick answers / FAQ (dark, matches pricing FAQ pattern) ──────── */}
       {quickAnswers.length > 0 && (
-        <section className="bg-white border-t border-border py-12">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="flex items-center gap-2 mb-1">
-              <div className={`h-0.5 w-8 ${accent.bg}`} />
-              <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Quick answers</p>
+        <section className="relative overflow-hidden bg-dark py-20 md:py-24">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-primary/10 blur-3xl" />
+          </div>
+          <div className="relative max-w-5xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">
+                Quick answers
+              </p>
+              <h2 className="text-3xl md:text-4xl font-black text-white">
+                {data.name} FAQs
+              </h2>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-dark mb-8">
-              {data.name} FAQs
-            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
               {quickAnswers.map((qa, i) => (
                 <details
                   key={`qa-${i}`}
-                  className="group bg-white border border-border rounded-xl open:shadow-md open:border-primary/40 transition-shadow"
+                  className="group bg-white/5 backdrop-blur border border-white/10 rounded-xl open:bg-white/10 open:border-white/20 transition-colors"
                 >
                   <summary className="cursor-pointer list-none p-5 flex items-start gap-3 select-none">
                     <HelpCircle
-                      className={`flex-shrink-0 mt-0.5 ${accent.text} transition-transform group-open:rotate-180`}
+                      className="flex-shrink-0 mt-0.5 text-primary-light transition-transform group-open:rotate-180"
                       size={18}
                     />
-                    <span className="font-semibold text-dark flex-1 leading-snug">{qa.q}</span>
+                    <span className="font-semibold text-white flex-1 leading-snug">{qa.q}</span>
                   </summary>
-                  <div className="px-5 pb-5 pl-14 text-text leading-relaxed">{qa.a}</div>
+                  <div className="px-5 pb-5 pl-14 text-white/75 leading-relaxed">{qa.a}</div>
                 </details>
               ))}
             </div>
           </div>
+
+          <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
+            <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+              <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
+            </svg>
+          </div>
         </section>
       )}
 
-      {/* ── CTA (matches pricing dark-CTA pattern) ─────────────────────── */}
-      <section className="relative overflow-hidden bg-dark py-16 md:py-20">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute -bottom-20 left-1/4 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">
+      {/* ── CTA (white — gives the dark footer a clean break, matches pricing) ─ */}
+      <section className="bg-white py-16">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
             Need help with {data.name.toLowerCase()}?
           </p>
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
             Speak to a qualified accountant
           </h2>
-          <p className="text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
+          <p className="text-text-light mb-8 max-w-xl mx-auto leading-relaxed">
             Our team specialises in {data.name.toLowerCase()} for UK small businesses, contractors and landlords.
             No obligation, no sales pitch — just a clear answer to your specific situation.
           </p>
@@ -521,7 +527,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
             </Link>
             <Link
               href="/learn"
-              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-colors border border-white/20"
+              className="inline-flex items-center justify-center gap-2 bg-white text-dark font-semibold px-8 py-4 rounded-xl text-lg hover:bg-surface transition-colors border border-border shadow-sm"
             >
               Browse all topics
             </Link>

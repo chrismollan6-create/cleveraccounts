@@ -480,20 +480,16 @@ export default async function LearnIndexPage() {
         </>
       )}
 
-      {/* ── Final CTA (matches pricing dark-CTA pattern) ───────────────────── */}
-      <section className="relative overflow-hidden bg-dark py-16 md:py-20">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute -bottom-20 left-1/4 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">
+      {/* ── Final CTA (white — matches pricing's bottom CTA so the dark footer has a clean break) ─ */}
+      <section className="bg-white py-16">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
             Can&apos;t find it?
           </p>
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
             Ask one of our accountants
           </h2>
-          <p className="text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
+          <p className="text-text-light mb-8 max-w-xl mx-auto leading-relaxed">
             Our team will answer any UK tax or accounting question — no obligation, no sales pitch.
           </p>
           <Link
