@@ -27,6 +27,13 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "featured",
+      title: "Featured on Learning Centre hero",
+      type: "boolean",
+      description: "Set true to feature this article at the top of /learn. Only the first featured article is used.",
+      initialValue: false,
+    }),
+    defineField({
       name: "canonicalQuestion",
       title: "Canonical question",
       type: "string",

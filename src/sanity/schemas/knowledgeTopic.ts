@@ -49,6 +49,81 @@ export default defineType({
       initialValue: 100,
     }),
     defineField({
+      name: "keyFacts",
+      title: "Key facts",
+      type: "array",
+      description: "Headline numbers and rules for this topic. Shown as cards on the topic page.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "label", type: "string", title: "Label", validation: (r) => r.required() },
+            { name: "value", type: "string", title: "Value", validation: (r) => r.required() },
+            { name: "context", type: "string", title: "Context (optional)", description: "e.g. \"2025/26\", \"Standard rate\"" },
+            { name: "icon", type: "string", title: "Icon (lucide-react name, optional)" },
+          ],
+          preview: {
+            select: { title: "label", subtitle: "value" },
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: "timeline",
+      title: "Annual cycle / key dates",
+      type: "array",
+      description: "Ordered timeline of key dates and events. Shown as a visual timeline on the topic page.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "period", type: "string", title: "Period / Date", description: "e.g. \"5 October\", \"Every quarter\", \"12 months after year-end\"", validation: (r) => r.required() },
+            { name: "label", type: "string", title: "Event / Action", validation: (r) => r.required() },
+            { name: "description", type: "text", rows: 2, title: "Description (optional)" },
+          ],
+          preview: {
+            select: { title: "label", subtitle: "period" },
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: "usefulLinks",
+      title: "Useful external links",
+      type: "array",
+      description: "Curated links to gov.uk, HMRC tools, calculators etc.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "label", type: "string", title: "Label", validation: (r) => r.required() },
+            { name: "url", type: "url", title: "URL", validation: (r) => r.required() },
+            { name: "description", type: "text", rows: 2, title: "Description (optional)" },
+            { name: "source", type: "string", title: "Source", description: "e.g. \"gov.uk\", \"HMRC\", \"Companies House\"" },
+          ],
+          preview: {
+            select: { title: "label", subtitle: "url" },
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: "quickAnswers",
+      title: "Quick answers (FAQ)",
+      type: "array",
+      description: "Short Q&A pairs shown as an FAQ section on the topic page.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "q", type: "string", title: "Question", validation: (r) => r.required() },
+            { name: "a", type: "text", rows: 3, title: "Answer", validation: (r) => r.required() },
+          ],
+          preview: { select: { title: "q" } },
+        },
+      ],
+    }),
+    defineField({
       name: "metaTitle",
       title: "SEO Title",
       type: "string",

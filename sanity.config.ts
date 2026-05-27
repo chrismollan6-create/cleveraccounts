@@ -75,6 +75,9 @@ export default defineConfig({
             S.listItem()
               .title("📚 Learning Centre — Articles")
               .child(S.documentTypeList("knowledgeArticle").title("Knowledge Articles")),
+            S.listItem()
+              .title("💬 Learning Centre — Reader Feedback")
+              .child(S.documentTypeList("knowledgeArticleFeedback").title("Reader Feedback")),
 
             S.divider(),
 

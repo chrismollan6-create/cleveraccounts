@@ -11,6 +11,7 @@ import siteSettings from "./siteSettings";
 import landingPage from "./landingPage";
 import knowledgeTopic from "./knowledgeTopic";
 import knowledgeArticle from "./knowledgeArticle";
+import knowledgeArticleFeedback from "./knowledgeArticleFeedback";
 
 import {
   pageSchemas,
@@ -46,6 +47,7 @@ export const schemaTypes = [
   landingPage,
   knowledgeTopic,
   knowledgeArticle,
+  knowledgeArticleFeedback,
   // structured-data objects
   pageSchemas,
   breadcrumbSchema,

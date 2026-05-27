@@ -148,11 +148,39 @@ export async function getKnowledgeTopics() {
   }`);
 }
 
+// Single combined fetch for the /learn index page — topics with their top-3
+// articles, the featured article (or latest if none flagged), the latest 6,
+// and a slim list of every article for client-side search.
+export async function getLearnIndexData() {
+  return client.fetch(`{
+    "topics": *[_type == "knowledgeTopic"] | order(order asc, name asc) {
+      _id, name, slug, shortDescription, icon,
+      "articles": *[_type == "knowledgeArticle" && references(^._id)] | order(lastReviewed desc) [0...3] {
+        _id, title, slug, canonicalQuestion
+      },
+      "articleCount": count(*[_type == "knowledgeArticle" && references(^._id)])
+    },
+    "featured": *[_type == "knowledgeArticle" && featured == true] | order(lastReviewed desc) [0] {
+      _id, title, slug, canonicalQuestion, excerpt, lastReviewed, appliesTo,
+      "topic": topic->{ name, slug }
+    },
+    "latest": *[_type == "knowledgeArticle"] | order(lastReviewed desc) [0...6] {
+      _id, title, slug, canonicalQuestion, excerpt, lastReviewed, appliesTo,
+      "topic": topic->{ name, slug }
+    },
+    "allArticles": *[_type == "knowledgeArticle"] {
+      _id, title, "slug": slug.current, canonicalQuestion, excerpt, appliesTo,
+      "topicName": topic->name, "topicSlug": topic->slug.current
+    }
+  }`);
+}
+
 export async function getKnowledgeTopic(slug: string) {
   return client.fetch(
     `*[_type == "knowledgeTopic" && slug.current == $slug][0] {
       _id, name, slug, shortDescription, intro, icon,
       metaTitle, metaDescription,
+      keyFacts, timeline, usefulLinks, quickAnswers,
       "articles": *[_type == "knowledgeArticle" && references(^._id)] | order(lastReviewed desc) {
         _id, title, slug, canonicalQuestion, excerpt, appliesTo, lastReviewed
       }

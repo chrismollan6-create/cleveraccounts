@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ShieldCheck, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck, Clock } from "lucide-react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { SchemaRenderer, type PageSchemaItem } from "@/components/seo/SchemaRenderer";
@@ -12,11 +12,11 @@ import {
   CtaBlockRenderer,
 } from "@/components/blog/PortableTextBlocks";
 import { getKnowledgeArticle, getKnowledgeArticleSlugs } from "@/sanity/queries";
+import ArticleToc from "@/components/learn/ArticleToc";
+import ReadingProgressBar from "@/components/learn/ReadingProgressBar";
+import WasThisHelpful from "@/components/learn/WasThisHelpful";
+import { extractHeadings, estimateReadingTimeMinutes, slugifyHeading } from "@/components/learn/bodyUtils";
 
-// The (site) layout calls headers() via getBrand(). Mixing that with ISR
-// (revalidate=N) triggers DYNAMIC_SERVER_USAGE on Vercel for not-yet-cached
-// slugs. force-dynamic = SSR every request, which is the right pick for a
-// low-write knowledge base where freshness matters more than micro-perf.
 export const dynamic = "force-dynamic";
 
 const APPLIES_TO_LABELS: Record<string, string> = {
@@ -54,14 +54,32 @@ type Article = {
   }>;
 };
 
+/** Extract plain text from a PortableText block's children — used for heading anchors. */
+function blockText(value: { children?: Array<{ _type?: string; text?: string }> } | undefined): string {
+  return (value?.children ?? [])
+    .filter((c) => c?._type === "span" && typeof c.text === "string")
+    .map((c) => c.text!)
+    .join("");
+}
+
 const ptComponents: PortableTextComponents = {
   block: {
-    h2: ({ children }) => (
-      <h2 className="text-2xl md:text-3xl font-bold text-dark mt-10 mb-4 leading-tight">{children}</h2>
-    ),
-    h3: ({ children }) => (
-      <h3 className="text-xl md:text-2xl font-bold text-dark mt-8 mb-3 leading-tight">{children}</h3>
-    ),
+    h2: ({ children, value }) => {
+      const id = slugifyHeading(blockText(value as { children?: Array<{ _type?: string; text?: string }> }));
+      return (
+        <h2 id={id} className="text-2xl md:text-3xl font-bold text-dark mt-10 mb-4 leading-tight scroll-mt-24">
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children, value }) => {
+      const id = slugifyHeading(blockText(value as { children?: Array<{ _type?: string; text?: string }> }));
+      return (
+        <h3 id={id} className="text-xl md:text-2xl font-bold text-dark mt-8 mb-3 leading-tight scroll-mt-24">
+          {children}
+        </h3>
+      );
+    },
     h4: ({ children }) => <h4 className="text-lg font-semibold text-dark mt-6 mb-2">{children}</h4>,
     blockquote: ({ children }) => (
       <blockquote className="border-l-4 border-primary pl-4 italic text-text-light my-6">{children}</blockquote>
@@ -160,9 +178,14 @@ export default async function KnowledgeArticlePage({
   if (!article) notFound();
 
   const lastReviewed = formatDate(article.lastReviewed);
+  const headings = extractHeadings(article.body);
+  const readingTime = estimateReadingTimeMinutes(article.body);
+  const hasBody = Array.isArray(article.body) && article.body.length > 0;
 
   return (
     <>
+      <ReadingProgressBar />
+
       <BlogPostingJsonLd
         title={article.title}
         description={article.excerpt}
@@ -187,7 +210,8 @@ export default async function KnowledgeArticlePage({
         fallbackUrl={`/learn/${article.topic.slug.current}/${article.slug.current}`}
       />
 
-      <section className="gradient-hero-subtle py-16 md:py-20">
+      {/* ── Hero ───────────────────────────────────────────────────────── */}
+      <section className="gradient-hero-subtle py-12 md:py-16">
         <div className="max-w-3xl mx-auto px-4">
           <Link
             href={`/learn/${article.topic.slug.current}`}
@@ -208,33 +232,50 @@ export default async function KnowledgeArticlePage({
           </div>
 
           <h1 className="text-3xl md:text-5xl font-bold text-dark mb-4 leading-tight">{article.title}</h1>
-          <p className="text-lg text-text-light leading-relaxed mb-6">{article.excerpt}</p>
+          {article.excerpt && (
+            <p className="text-lg text-text-light leading-relaxed mb-6">{article.excerpt}</p>
+          )}
 
-          {lastReviewed && (
-            <div className="inline-flex items-center gap-2 text-sm bg-green-500/10 text-green-700 px-3 py-1.5 rounded-full">
-              <ShieldCheck size={14} />
-              <span>
-                Last reviewed by an accountant on {lastReviewed}
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            {lastReviewed && (
+              <span className="inline-flex items-center gap-2 bg-green-500/10 text-green-700 px-3 py-1.5 rounded-full">
+                <ShieldCheck size={14} />
+                Reviewed by an accountant on {lastReviewed}
                 {article.reviewedBy ? ` (${article.reviewedBy})` : ""}
               </span>
-            </div>
-          )}
+            )}
+            <span className="inline-flex items-center gap-1.5 text-text-light">
+              <Clock size={14} /> {readingTime} min read
+            </span>
+          </div>
         </div>
       </section>
 
+      {/* ── Article body + TOC ─────────────────────────────────────────── */}
       <article className="bg-white py-12 md:py-16">
-        <div className="max-w-3xl mx-auto px-4">
-          {article.body && (article.body as unknown[]).length > 0 ? (
-            <PortableText
-              value={article.body as Parameters<typeof PortableText>[0]["value"]}
-              components={ptComponents}
-            />
-          ) : (
-            <p className="text-text-light italic">Content coming soon.</p>
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-[1fr,16rem] gap-12">
+          <div className="min-w-0">
+            {hasBody ? (
+              <PortableText
+                value={article.body as Parameters<typeof PortableText>[0]["value"]}
+                components={ptComponents}
+              />
+            ) : (
+              <p className="text-text-light italic">Content coming soon.</p>
+            )}
+
+            <WasThisHelpful articleId={article._id} />
+          </div>
+
+          {headings.length >= 2 && (
+            <aside className="hidden lg:block">
+              <ArticleToc headings={headings} />
+            </aside>
           )}
         </div>
       </article>
 
+      {/* ── Related ────────────────────────────────────────────────────── */}
       {article.relatedArticles && article.relatedArticles.length > 0 && (
         <section className="bg-surface py-12">
           <div className="max-w-3xl mx-auto px-4">
@@ -258,9 +299,9 @@ export default async function KnowledgeArticlePage({
         </section>
       )}
 
+      {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="bg-primary/5 py-12">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <Calendar className="mx-auto text-primary mb-3" size={32} />
           <h2 className="text-2xl font-bold text-dark mb-4">Want this handled for you?</h2>
           <p className="text-text-light mb-6">
             Our accountants do the work, file with HMRC and keep you compliant — from £24.50/month.
