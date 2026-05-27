@@ -64,24 +64,28 @@ type Accent = {
   hoverBorder: string;
   gradient: string;
 };
+// Brand-coherent palette only: teals/blues/sky/cyan from the primary family,
+// oranges/ambers/yellow from the secondary family, plus slate as a neutral.
+// No indigo/purple/rose/pink — those don't connect to anything else on
+// cleveraccounts.com.
 const ACCENTS: Record<string, Accent> = {
   "self-assessment": {
-    iconBg: "bg-indigo-100", iconText: "text-indigo-600", ring: "ring-indigo-100",
-    bg: "bg-indigo-500", bgSoft: "bg-indigo-50", text: "text-indigo-600",
-    hoverBorder: "hover:border-indigo-400",
-    gradient: "from-indigo-500 to-indigo-700",
+    iconBg: "bg-blue-100", iconText: "text-blue-600", ring: "ring-blue-100",
+    bg: "bg-blue-500", bgSoft: "bg-blue-50", text: "text-blue-600",
+    hoverBorder: "hover:border-blue-400",
+    gradient: "from-blue-500 to-blue-700",
   },
   "companies-house": {
-    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
-    bg: "bg-emerald-500", bgSoft: "bg-emerald-50", text: "text-emerald-600",
-    hoverBorder: "hover:border-emerald-400",
-    gradient: "from-emerald-500 to-emerald-700",
+    iconBg: "bg-teal-100", iconText: "text-teal-600", ring: "ring-teal-100",
+    bg: "bg-teal-500", bgSoft: "bg-teal-50", text: "text-teal-600",
+    hoverBorder: "hover:border-teal-400",
+    gradient: "from-teal-500 to-teal-700",
   },
   vat: {
-    iconBg: "bg-purple-100", iconText: "text-purple-600", ring: "ring-purple-100",
-    bg: "bg-purple-500", bgSoft: "bg-purple-50", text: "text-purple-600",
-    hoverBorder: "hover:border-purple-400",
-    gradient: "from-purple-500 to-purple-700",
+    iconBg: "bg-orange-100", iconText: "text-orange-600", ring: "ring-orange-100",
+    bg: "bg-orange-500", bgSoft: "bg-orange-50", text: "text-orange-600",
+    hoverBorder: "hover:border-orange-400",
+    gradient: "from-orange-500 to-orange-700",
   },
   "corporation-tax": {
     iconBg: "bg-amber-100", iconText: "text-amber-600", ring: "ring-amber-100",
@@ -90,40 +94,40 @@ const ACCENTS: Record<string, Accent> = {
     gradient: "from-amber-500 to-amber-700",
   },
   dividends: {
-    iconBg: "bg-rose-100", iconText: "text-rose-600", ring: "ring-rose-100",
-    bg: "bg-rose-500", bgSoft: "bg-rose-50", text: "text-rose-600",
-    hoverBorder: "hover:border-rose-400",
-    gradient: "from-rose-500 to-rose-700",
+    iconBg: "bg-slate-100", iconText: "text-slate-700", ring: "ring-slate-100",
+    bg: "bg-slate-500", bgSoft: "bg-slate-50", text: "text-slate-700",
+    hoverBorder: "hover:border-slate-400",
+    gradient: "from-slate-500 to-slate-700",
   },
   expenses: {
-    iconBg: "bg-cyan-100", iconText: "text-cyan-600", ring: "ring-cyan-100",
-    bg: "bg-cyan-500", bgSoft: "bg-cyan-50", text: "text-cyan-600",
-    hoverBorder: "hover:border-cyan-400",
-    gradient: "from-cyan-500 to-cyan-700",
+    iconBg: "bg-sky-100", iconText: "text-sky-600", ring: "ring-sky-100",
+    bg: "bg-sky-500", bgSoft: "bg-sky-50", text: "text-sky-600",
+    hoverBorder: "hover:border-sky-400",
+    gradient: "from-sky-500 to-sky-700",
   },
   paye: {
-    iconBg: "bg-pink-100", iconText: "text-pink-600", ring: "ring-pink-100",
-    bg: "bg-pink-500", bgSoft: "bg-pink-50", text: "text-pink-600",
-    hoverBorder: "hover:border-pink-400",
-    gradient: "from-pink-500 to-pink-700",
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-100",
+    bg: "bg-yellow-500", bgSoft: "bg-yellow-50", text: "text-yellow-700",
+    hoverBorder: "hover:border-yellow-400",
+    gradient: "from-yellow-500 to-yellow-700",
   },
   payroll: {
-    iconBg: "bg-pink-100", iconText: "text-pink-600", ring: "ring-pink-100",
-    bg: "bg-pink-500", bgSoft: "bg-pink-50", text: "text-pink-600",
-    hoverBorder: "hover:border-pink-400",
-    gradient: "from-pink-500 to-pink-700",
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-100",
+    bg: "bg-yellow-500", bgSoft: "bg-yellow-50", text: "text-yellow-700",
+    hoverBorder: "hover:border-yellow-400",
+    gradient: "from-yellow-500 to-yellow-700",
   },
   bookkeeping: {
-    iconBg: "bg-teal-100", iconText: "text-teal-600", ring: "ring-teal-100",
-    bg: "bg-teal-500", bgSoft: "bg-teal-50", text: "text-teal-600",
-    hoverBorder: "hover:border-teal-400",
-    gradient: "from-teal-500 to-teal-700",
+    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
+    bg: "bg-emerald-500", bgSoft: "bg-emerald-50", text: "text-emerald-600",
+    hoverBorder: "hover:border-emerald-400",
+    gradient: "from-emerald-500 to-emerald-700",
   },
   ir35: {
-    iconBg: "bg-orange-100", iconText: "text-orange-600", ring: "ring-orange-100",
-    bg: "bg-orange-500", bgSoft: "bg-orange-50", text: "text-orange-600",
-    hoverBorder: "hover:border-orange-400",
-    gradient: "from-orange-500 to-orange-700",
+    iconBg: "bg-red-100", iconText: "text-red-600", ring: "ring-red-100",
+    bg: "bg-red-500", bgSoft: "bg-red-50", text: "text-red-600",
+    hoverBorder: "hover:border-red-400",
+    gradient: "from-red-500 to-red-700",
   },
 };
 const DEFAULT_ACCENT: Accent = {
