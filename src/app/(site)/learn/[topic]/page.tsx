@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { getKnowledgeTopic, getKnowledgeTopicSlugs } from "@/sanity/queries";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type TopicWithArticles = {
   _id: string;

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Clear, no-jargon guides on VAT, Self-Assessment, PAYE, Corporation Tax, expenses, dividends and more — written and reviewed by qualified UK accountants.",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type Topic = {
   _id: string;

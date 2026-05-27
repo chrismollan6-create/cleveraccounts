@@ -13,7 +13,11 @@ import {
 } from "@/components/blog/PortableTextBlocks";
 import { getKnowledgeArticle, getKnowledgeArticleSlugs } from "@/sanity/queries";
 
-export const revalidate = 60;
+// The (site) layout calls headers() via getBrand(). Mixing that with ISR
+// (revalidate=N) triggers DYNAMIC_SERVER_USAGE on Vercel for not-yet-cached
+// slugs. force-dynamic = SSR every request, which is the right pick for a
+// low-write knowledge base where freshness matters more than micro-perf.
+export const dynamic = "force-dynamic";
 
 const APPLIES_TO_LABELS: Record<string, string> = {
   "sole-trader": "Sole trader",

@@ -180,7 +180,7 @@ Write the article now. Return JSON only, matching the schema.`;
     contents: [{ role: "user", parts: [{ text: userPrompt }] }],
     generationConfig: {
       temperature: 0.4,
-      maxOutputTokens: 8000,
+      maxOutputTokens: 32000,
       responseMimeType: "application/json",
       responseSchema,
     },
