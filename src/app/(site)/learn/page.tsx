@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   RefreshCw,
   MessageSquare,
+  Search,
 } from "lucide-react";
 import { getLearnIndexData } from "@/sanity/queries";
 import LearnSearch, { type SearchableArticle } from "@/components/learn/LearnSearch";
@@ -190,27 +191,23 @@ export default async function LearnIndexPage() {
 
   return (
     <>
-      {/* ── Hero with search ─────────────────────────────────────────────── */}
-      <section className="gradient-hero-subtle relative pt-16 md:pt-24 pb-12 overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none opacity-70"
-          style={HERO_PATTERN_STYLE}
-        />
-        {/* soft blurred accent blob */}
-        <div
-          aria-hidden
-          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[60rem] h-[20rem] rounded-full bg-primary/10 blur-3xl pointer-events-none"
-        />
+      {/* ── Hero (matches pricing/marketing dark-hero pattern) ──────────── */}
+      <section className="relative overflow-hidden bg-dark py-20 md:py-28">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-3xl animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
+        </div>
 
         <div className="relative max-w-5xl mx-auto px-4 text-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-white/80 backdrop-blur px-3 py-1 rounded-full mb-4 border border-primary/20">
-            <Sparkles size={12} /> Learning Centre
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4">
-            Plain-English answers to the UK tax questions that actually come up
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/80 rounded-full px-4 py-2 text-sm font-semibold mb-6">
+            <Sparkles size={14} className="text-secondary" />
+            Learning Centre
+          </div>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+            Plain-English answers to the<br />
+            <span className="text-gradient">UK tax questions</span> that actually come up
           </h1>
-          <p className="text-lg text-text-light max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-white/75 max-w-2xl mx-auto mb-10">
             Guides written and reviewed by qualified accountants — kept up to date so you can trust what you read.
           </p>
 
@@ -219,12 +216,12 @@ export default async function LearnIndexPage() {
           {/* Popular searches */}
           {popular.length > 0 && (
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm">
-              <span className="text-text-light">Popular:</span>
+              <span className="text-white/60 inline-flex items-center gap-1.5"><Search size={12} /> Popular:</span>
               {popular.map((a) => (
                 <Link
                   key={a._id}
                   href={`/learn/${a.topic?.slug.current}/${a.slug.current}`}
-                  className="inline-flex items-center bg-white/80 backdrop-blur border border-border hover:border-primary hover:text-primary text-text-light hover:bg-white px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                  className="inline-flex items-center bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30 text-white/80 hover:text-white px-3 py-1.5 rounded-full text-xs font-medium transition-all"
                 >
                   {a.topic?.name}: {(a.canonicalQuestion || a.title).replace(/\?+$/, "")
                     .split(" ")
@@ -235,6 +232,12 @@ export default async function LearnIndexPage() {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+            <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
+          </svg>
         </div>
       </section>
 
@@ -477,27 +480,27 @@ export default async function LearnIndexPage() {
         </>
       )}
 
-      {/* ── Final CTA ──────────────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-primary to-primary-dark text-white py-16 overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.4) 1px, transparent 0)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-        <div className="relative max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">Can&apos;t find what you&apos;re looking for?</h2>
-          <p className="text-white/80 mb-6 max-w-xl mx-auto">
-            Our accountants are happy to answer any UK tax or accounting question — no obligation, no sales pitch.
+      {/* ── Final CTA (matches pricing dark-CTA pattern) ───────────────────── */}
+      <section className="relative overflow-hidden bg-dark py-16 md:py-20">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-20 left-1/4 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">
+            Can&apos;t find it?
+          </p>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+            Ask one of our accountants
+          </h2>
+          <p className="text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
+            Our team will answer any UK tax or accounting question — no obligation, no sales pitch.
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 bg-white text-primary hover:bg-white/90 font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-lg"
+            className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary-dark transition-colors shadow-lg"
           >
-            Ask an accountant <ArrowRight size={18} />
+            Ask an accountant <ArrowRight size={20} />
           </Link>
         </div>
       </section>

@@ -50,85 +50,87 @@ type TopicWithExtras = {
   articles: Article[];
 };
 
-// ── Topic accent colours (full-string Tailwind classes for JIT) ────────────
+// Per-topic accent palettes. Topic-coloured chrome (hero tint, accent strips,
+// key-fact values, timeline chips) gives each topic its own identity. Primary
+// CTAs (Book a consultation buttons) stay brand primary — that's the
+// throughline back to the brand.
 type Accent = {
+  iconBg: string;
+  iconText: string;
+  ring: string;
   bg: string;
   bgSoft: string;
-  iconBg: string;
   text: string;
   hoverBorder: string;
-  ring: string;
   gradient: string;
-  buttonBg: string;
-  buttonHover: string;
 };
 const ACCENTS: Record<string, Accent> = {
   "self-assessment": {
-    bg: "bg-indigo-500", bgSoft: "bg-indigo-50", iconBg: "bg-indigo-100", text: "text-indigo-600",
-    hoverBorder: "hover:border-indigo-400", ring: "ring-indigo-200",
-    gradient: "from-indigo-500 via-indigo-400 to-purple-500",
-    buttonBg: "bg-indigo-600", buttonHover: "hover:bg-indigo-700",
+    iconBg: "bg-indigo-100", iconText: "text-indigo-600", ring: "ring-indigo-100",
+    bg: "bg-indigo-500", bgSoft: "bg-indigo-50", text: "text-indigo-600",
+    hoverBorder: "hover:border-indigo-400",
+    gradient: "from-indigo-500 to-indigo-700",
   },
   "companies-house": {
-    bg: "bg-emerald-500", bgSoft: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600",
-    hoverBorder: "hover:border-emerald-400", ring: "ring-emerald-200",
-    gradient: "from-emerald-500 via-emerald-400 to-teal-500",
-    buttonBg: "bg-emerald-600", buttonHover: "hover:bg-emerald-700",
+    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
+    bg: "bg-emerald-500", bgSoft: "bg-emerald-50", text: "text-emerald-600",
+    hoverBorder: "hover:border-emerald-400",
+    gradient: "from-emerald-500 to-emerald-700",
   },
   vat: {
-    bg: "bg-purple-500", bgSoft: "bg-purple-50", iconBg: "bg-purple-100", text: "text-purple-600",
-    hoverBorder: "hover:border-purple-400", ring: "ring-purple-200",
-    gradient: "from-purple-500 via-purple-400 to-fuchsia-500",
-    buttonBg: "bg-purple-600", buttonHover: "hover:bg-purple-700",
+    iconBg: "bg-purple-100", iconText: "text-purple-600", ring: "ring-purple-100",
+    bg: "bg-purple-500", bgSoft: "bg-purple-50", text: "text-purple-600",
+    hoverBorder: "hover:border-purple-400",
+    gradient: "from-purple-500 to-purple-700",
   },
   "corporation-tax": {
-    bg: "bg-amber-500", bgSoft: "bg-amber-50", iconBg: "bg-amber-100", text: "text-amber-600",
-    hoverBorder: "hover:border-amber-400", ring: "ring-amber-200",
-    gradient: "from-amber-500 via-orange-400 to-rose-500",
-    buttonBg: "bg-amber-600", buttonHover: "hover:bg-amber-700",
+    iconBg: "bg-amber-100", iconText: "text-amber-600", ring: "ring-amber-100",
+    bg: "bg-amber-500", bgSoft: "bg-amber-50", text: "text-amber-600",
+    hoverBorder: "hover:border-amber-400",
+    gradient: "from-amber-500 to-amber-700",
   },
   dividends: {
-    bg: "bg-rose-500", bgSoft: "bg-rose-50", iconBg: "bg-rose-100", text: "text-rose-600",
-    hoverBorder: "hover:border-rose-400", ring: "ring-rose-200",
-    gradient: "from-rose-500 via-pink-400 to-fuchsia-500",
-    buttonBg: "bg-rose-600", buttonHover: "hover:bg-rose-700",
+    iconBg: "bg-rose-100", iconText: "text-rose-600", ring: "ring-rose-100",
+    bg: "bg-rose-500", bgSoft: "bg-rose-50", text: "text-rose-600",
+    hoverBorder: "hover:border-rose-400",
+    gradient: "from-rose-500 to-rose-700",
   },
   expenses: {
-    bg: "bg-cyan-500", bgSoft: "bg-cyan-50", iconBg: "bg-cyan-100", text: "text-cyan-600",
-    hoverBorder: "hover:border-cyan-400", ring: "ring-cyan-200",
-    gradient: "from-cyan-500 via-sky-400 to-blue-500",
-    buttonBg: "bg-cyan-600", buttonHover: "hover:bg-cyan-700",
+    iconBg: "bg-cyan-100", iconText: "text-cyan-600", ring: "ring-cyan-100",
+    bg: "bg-cyan-500", bgSoft: "bg-cyan-50", text: "text-cyan-600",
+    hoverBorder: "hover:border-cyan-400",
+    gradient: "from-cyan-500 to-cyan-700",
   },
   paye: {
-    bg: "bg-pink-500", bgSoft: "bg-pink-50", iconBg: "bg-pink-100", text: "text-pink-600",
-    hoverBorder: "hover:border-pink-400", ring: "ring-pink-200",
-    gradient: "from-pink-500 via-rose-400 to-red-500",
-    buttonBg: "bg-pink-600", buttonHover: "hover:bg-pink-700",
+    iconBg: "bg-pink-100", iconText: "text-pink-600", ring: "ring-pink-100",
+    bg: "bg-pink-500", bgSoft: "bg-pink-50", text: "text-pink-600",
+    hoverBorder: "hover:border-pink-400",
+    gradient: "from-pink-500 to-pink-700",
   },
   payroll: {
-    bg: "bg-pink-500", bgSoft: "bg-pink-50", iconBg: "bg-pink-100", text: "text-pink-600",
-    hoverBorder: "hover:border-pink-400", ring: "ring-pink-200",
-    gradient: "from-pink-500 via-rose-400 to-red-500",
-    buttonBg: "bg-pink-600", buttonHover: "hover:bg-pink-700",
+    iconBg: "bg-pink-100", iconText: "text-pink-600", ring: "ring-pink-100",
+    bg: "bg-pink-500", bgSoft: "bg-pink-50", text: "text-pink-600",
+    hoverBorder: "hover:border-pink-400",
+    gradient: "from-pink-500 to-pink-700",
   },
   bookkeeping: {
-    bg: "bg-teal-500", bgSoft: "bg-teal-50", iconBg: "bg-teal-100", text: "text-teal-600",
-    hoverBorder: "hover:border-teal-400", ring: "ring-teal-200",
-    gradient: "from-teal-500 via-emerald-400 to-cyan-500",
-    buttonBg: "bg-teal-600", buttonHover: "hover:bg-teal-700",
+    iconBg: "bg-teal-100", iconText: "text-teal-600", ring: "ring-teal-100",
+    bg: "bg-teal-500", bgSoft: "bg-teal-50", text: "text-teal-600",
+    hoverBorder: "hover:border-teal-400",
+    gradient: "from-teal-500 to-teal-700",
   },
   ir35: {
-    bg: "bg-orange-500", bgSoft: "bg-orange-50", iconBg: "bg-orange-100", text: "text-orange-600",
-    hoverBorder: "hover:border-orange-400", ring: "ring-orange-200",
-    gradient: "from-orange-500 via-amber-400 to-red-500",
-    buttonBg: "bg-orange-600", buttonHover: "hover:bg-orange-700",
+    iconBg: "bg-orange-100", iconText: "text-orange-600", ring: "ring-orange-100",
+    bg: "bg-orange-500", bgSoft: "bg-orange-50", text: "text-orange-600",
+    hoverBorder: "hover:border-orange-400",
+    gradient: "from-orange-500 to-orange-700",
   },
 };
 const DEFAULT_ACCENT: Accent = {
-  bg: "bg-primary", bgSoft: "bg-primary/5", iconBg: "bg-primary/10", text: "text-primary",
-  hoverBorder: "hover:border-primary", ring: "ring-primary/20",
-  gradient: "from-primary via-primary to-primary-dark",
-  buttonBg: "bg-primary", buttonHover: "hover:bg-primary-dark",
+  iconBg: "bg-primary/10", iconText: "text-primary", ring: "ring-primary/20",
+  bg: "bg-primary", bgSoft: "bg-primary/5", text: "text-primary",
+  hoverBorder: "hover:border-primary",
+  gradient: "from-primary to-primary-dark",
 };
 function accentFor(slug: string): Accent {
   return ACCENTS[slug] || DEFAULT_ACCENT;
@@ -200,66 +202,56 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         ]}
       />
 
-      {/* ── Hero ───────────────────────────────────────────────────────── */}
-      <section className={`relative ${accent.bgSoft} border-b border-border py-12 md:py-16 overflow-hidden`}>
-        {/* very subtle dot grid */}
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-50 pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.06) 1px, transparent 0)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-        {/* faint giant icon — much lower opacity than before */}
-        <div
-          aria-hidden
-          className={`absolute -right-10 -bottom-10 ${accent.text} opacity-[0.08] pointer-events-none select-none`}
-        >
-          <LucideByName name={data.icon} size={300} className="rotate-12" />
+      {/* ── Hero (matches pricing/marketing dark-hero pattern) ─────────── */}
+      <section className="relative overflow-hidden bg-dark py-20 md:py-28">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-3xl animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
         </div>
 
         <div className="relative max-w-5xl mx-auto px-4">
           <Link
             href="/learn"
-            className="inline-flex items-center gap-1.5 text-sm text-text-light hover:text-primary mb-6"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white mb-6"
           >
             <ArrowLeft size={16} /> Learning Centre
           </Link>
 
-          <div className="flex items-start gap-5 mb-5">
-            <div className={`hidden sm:flex flex-shrink-0 w-14 h-14 rounded-2xl ${accent.iconBg} ring-4 ${accent.ring} items-center justify-center`}>
-              <LucideByName name={data.icon} size={28} className={accent.text} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold bg-white ${accent.text} px-2.5 py-1 rounded-full mb-3 border border-border`}>
-                <Sparkles size={12} /> Learning Centre · Topic
-              </span>
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight text-dark">{data.name}</h1>
-            </div>
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/80 rounded-full px-4 py-2 text-sm font-semibold mb-6">
+            <Sparkles size={14} className="text-secondary" />
+            Learning Centre · {data.name}
           </div>
 
-          <p className="text-lg text-text-light leading-relaxed max-w-3xl">{data.intro}</p>
+          <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
+            <span className="text-gradient">{data.name}</span>
+          </h1>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
-            <span className="inline-flex items-center gap-1.5 bg-white border border-border text-text px-3 py-1.5 rounded-full">
-              <BookOpen size={14} className={accent.text} /> {articles.length} {articles.length === 1 ? "guide" : "guides"}
+          <p className="text-lg text-white/75 leading-relaxed max-w-3xl mb-8">{data.intro}</p>
+
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
+              <BookOpen size={14} className="text-primary-light" /> {articles.length} {articles.length === 1 ? "guide" : "guides"}
             </span>
             {keyFacts.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 bg-white border border-border text-text px-3 py-1.5 rounded-full">
-                <ListChecks size={14} className={accent.text} /> {keyFacts.length} key facts
+              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
+                <ListChecks size={14} className="text-primary-light" /> {keyFacts.length} key facts
               </span>
             )}
             {timeline.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 bg-white border border-border text-text px-3 py-1.5 rounded-full">
-                <Calendar size={14} className={accent.text} /> Annual cycle covered
+              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
+                <Calendar size={14} className="text-primary-light" /> Annual cycle covered
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 bg-white border border-border text-text px-3 py-1.5 rounded-full">
-              <ShieldCheck size={14} className="text-green-600" /> Reviewed by qualified accountants
+            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
+              <ShieldCheck size={14} className="text-green-400" /> Reviewed by qualified accountants
             </span>
           </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
+            <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
+          </svg>
         </div>
       </section>
 
@@ -272,27 +264,24 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
               <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Key facts</p>
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-dark mb-8">The headline figures</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* Flex-wrap so a row of 5 facts fits on one line on lg+, wraps cleanly below. */}
+            <div className="flex flex-wrap gap-3">
               {keyFacts.map((f, i) => (
                 <div
                   key={`fact-${i}`}
-                  className={`relative ${accent.bgSoft} border border-border rounded-2xl p-5 overflow-hidden`}
+                  className="relative flex-1 min-w-[170px] bg-white border border-border rounded-2xl p-4 hover:shadow-md transition-shadow"
                 >
-                  <div
-                    aria-hidden
-                    className={`absolute -top-8 -right-8 w-24 h-24 rounded-full ${accent.bg} opacity-10`}
-                  />
                   {f.icon && (
-                    <div className={`relative inline-flex w-10 h-10 rounded-lg ${accent.iconBg} ring-4 ${accent.ring} items-center justify-center mb-3`}>
-                      <LucideByName name={f.icon} className={accent.text} size={20} />
+                    <div className={`inline-flex w-9 h-9 rounded-lg ${accent.iconBg} items-center justify-center mb-2.5`}>
+                      <LucideByName name={f.icon} className={accent.iconText} size={18} />
                     </div>
                   )}
-                  <p className={`relative text-2xl md:text-3xl font-bold text-dark mb-1 leading-none`}>
+                  <p className={`text-xl md:text-2xl font-bold ${accent.text} mb-1 leading-tight`}>
                     {f.value}
                   </p>
-                  <p className="relative text-sm font-medium text-dark mb-1">{f.label}</p>
+                  <p className="text-sm font-medium text-dark leading-snug mb-1">{f.label}</p>
                   {f.context && (
-                    <p className="relative text-xs text-text-light">{f.context}</p>
+                    <p className="text-xs text-text-light leading-snug">{f.context}</p>
                   )}
                 </div>
               ))}
@@ -303,8 +292,17 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
 
       {/* ── Timeline ───────────────────────────────────────────────────── */}
       {timeline.length > 0 && (
-        <section className="bg-surface/40 py-12">
-          <div className="max-w-5xl mx-auto px-4">
+        <section className="relative bg-surface/40 border-t border-border py-12 overflow-hidden">
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-50 pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.04) 1px, transparent 0)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+          <div className="relative max-w-5xl mx-auto px-4">
             <div className="flex items-center gap-2 mb-1">
               <div className={`h-0.5 w-8 ${accent.bg}`} />
               <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Annual cycle</p>
@@ -332,57 +330,81 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
       )}
 
       {/* ── Articles ───────────────────────────────────────────────────── */}
-      <section className="bg-white py-12">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex items-center gap-2 mb-1">
-            <div className={`h-0.5 w-8 ${accent.bg}`} />
-            <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Guides</p>
+      <section className={`relative ${accent.bgSoft} border-y border-border py-14 overflow-hidden`}>
+        {/* one subtle decorative blob (down from two) */}
+        <div
+          aria-hidden
+          className={`absolute -bottom-24 -right-24 w-72 h-72 rounded-full ${accent.bg} opacity-[0.06] blur-3xl pointer-events-none`}
+        />
+
+        <div className="relative max-w-5xl mx-auto px-4">
+          <div className="flex items-start justify-between gap-4 mb-8">
+            <div className="flex-1 min-w-0">
+              <div className={`inline-flex items-center gap-2 bg-primary/10 ${accent.text} text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3`}>
+                <BookOpen size={12} />
+                {articles.length === 0 ? "Coming soon" : `${articles.length} ${articles.length === 1 ? "guide" : "guides"} ready to read`}
+              </div>
+              <h2 className="text-2xl md:text-4xl font-bold text-dark leading-tight">
+                {articles.length === 0 ? `${data.name} guides` : `Read our ${data.name} guides`}
+              </h2>
+              <p className="text-text-light text-base mt-2 max-w-2xl">
+                {articles.length === 0
+                  ? "We're writing these next. In the meantime, the key facts and resources should cover most needs."
+                  : "Plain-English walkthroughs of the most common questions clients ask."}
+              </p>
+            </div>
+            {/* Only show the big icon panel once we have a reasonable number of guides — otherwise it dwarfs the content */}
+            {articles.length >= 3 && (
+              <div className={`hidden md:flex flex-shrink-0 w-16 h-16 rounded-2xl ${accent.iconBg} items-center justify-center`}>
+                <BookOpen className={accent.iconText} size={28} />
+              </div>
+            )}
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
-            {articles.length === 0 ? `${data.name} guides — coming soon` : `Read our ${data.name} guides`}
-          </h2>
-          <p className="text-text-light mb-8">
-            {articles.length === 0
-              ? "We're writing these next. In the meantime, the key facts and resources above should cover most needs."
-              : "Plain-English walkthroughs of the most common questions clients ask."}
-          </p>
 
           {articles.length > 0 ? (
             <ul className="space-y-3">
-              {articles.map((a) => (
+              {articles.map((a, idx) => (
                 <li key={a._id}>
                   <Link
                     href={`/learn/${data.slug.current}/${a.slug.current}`}
-                    className={`group block bg-white border border-border rounded-2xl p-5 ${accent.hoverBorder} hover:shadow-lg hover:-translate-y-0.5 transition-all`}
+                    className={`group flex items-start gap-5 bg-white border-2 border-transparent ring-1 ring-border rounded-2xl p-6 ${accent.hoverBorder} hover:shadow-2xl hover:-translate-y-1 transition-all`}
                   >
-                    <h3 className="text-lg font-semibold text-dark mb-1.5 group-hover:text-primary transition-colors">
-                      {a.canonicalQuestion || a.title}
-                    </h3>
-                    {a.excerpt && <p className="text-text-light leading-relaxed mb-3">{a.excerpt}</p>}
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
-                      {(a.appliesTo ?? []).map((tag) => (
-                        <span
-                          key={tag}
-                          className={`inline-block ${accent.bgSoft} ${accent.text} text-xs font-medium px-2 py-1 rounded-full`}
-                        >
-                          {APPLIES_TO_LABELS[tag] || tag}
-                        </span>
-                      ))}
-                      <span className={`ml-auto font-medium ${accent.text} flex items-center gap-1 group-hover:gap-2 transition-all`}>
-                        Read <ArrowRight size={14} />
-                      </span>
+                    <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${accent.iconBg} flex items-center justify-center font-bold ${accent.text} text-lg`}>
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                        {(a.appliesTo ?? []).map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-block bg-surface text-text text-xs font-medium px-2 py-0.5 rounded-full"
+                          >
+                            {APPLIES_TO_LABELS[tag] || tag}
+                          </span>
+                        ))}
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-bold text-dark mb-1.5 group-hover:text-primary transition-colors leading-snug">
+                        {a.canonicalQuestion || a.title}
+                      </h3>
+                      {a.excerpt && (
+                        <p className="text-text-light leading-relaxed line-clamp-2">{a.excerpt}</p>
+                      )}
+                    </div>
+                    <div className={`hidden sm:flex flex-shrink-0 self-center w-12 h-12 rounded-xl bg-white ring-1 ring-border items-center justify-center transition-all group-hover:${accent.iconBg} group-hover:ring-0 group-hover:scale-110`}>
+                      <ArrowRight className={`${accent.text}`} size={20} />
                     </div>
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <div className={`${accent.bgSoft} border border-border rounded-2xl p-8 text-center`}>
-              <BookOpen className={`mx-auto ${accent.text} mb-3`} size={32} />
-              <p className="text-text-light max-w-md mx-auto">
-                In the meantime, the key facts above + the links below should help. If you need a specific
-                answer, our accountants are happy to help.
-              </p>
+            <div className="bg-white border border-border rounded-xl p-5 text-center text-sm text-text-light">
+              No guides yet for {data.name}. In the meantime, the key facts above and the resources below
+              should cover most needs — or{" "}
+              <Link href="/contact" className={`font-medium ${accent.text} underline`}>
+                ask an accountant
+              </Link>
+              .
             </div>
           )}
         </div>
@@ -390,14 +412,23 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
 
       {/* ── Useful links ───────────────────────────────────────────────── */}
       {usefulLinks.length > 0 && (
-        <section className="bg-surface/40 py-12">
-          <div className="max-w-5xl mx-auto px-4">
+        <section className="relative bg-surface/40 border-t border-border py-12 overflow-hidden">
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-50 pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.04) 1px, transparent 0)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+          <div className="relative max-w-5xl mx-auto px-4">
             <div className="flex items-center gap-2 mb-1">
               <div className={`h-0.5 w-8 ${accent.bg}`} />
               <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Useful resources</p>
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-dark mb-8">Official tools and references</h2>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {usefulLinks.map((l, i) => (
                 <li key={`link-${i}`}>
                   <a
@@ -434,8 +465,8 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
 
       {/* ── Quick answers / FAQ ────────────────────────────────────────── */}
       {quickAnswers.length > 0 && (
-        <section className="bg-white py-12">
-          <div className="max-w-3xl mx-auto px-4">
+        <section className="bg-white border-t border-border py-12">
+          <div className="max-w-5xl mx-auto px-4">
             <div className="flex items-center gap-2 mb-1">
               <div className={`h-0.5 w-8 ${accent.bg}`} />
               <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Quick answers</p>
@@ -443,7 +474,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
             <h2 className="text-2xl md:text-3xl font-bold text-dark mb-8">
               {data.name} FAQs
             </h2>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
               {quickAnswers.map((qa, i) => (
                 <details
                   key={`qa-${i}`}
@@ -464,23 +495,37 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         </section>
       )}
 
-      {/* ── CTA ────────────────────────────────────────────────────────── */}
-      <section className={`${accent.bgSoft} border-t border-border py-12`}>
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <div className={`inline-flex w-12 h-12 rounded-xl ${accent.iconBg} ring-4 ${accent.ring} items-center justify-center mb-4`}>
-            <LucideByName name={data.icon} size={24} className={accent.text} />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-dark mb-3">Still got a question about {data.name}?</h2>
-          <p className="text-text-light mb-6 max-w-xl mx-auto">
-            Our team specialises in {data.name.toLowerCase()} for UK small businesses, contractors and landlords.
-            No obligation, no sales pitch.
+      {/* ── CTA (matches pricing dark-CTA pattern) ─────────────────────── */}
+      <section className="relative overflow-hidden bg-dark py-16 md:py-20">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-20 left-1/4 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">
+            Need help with {data.name.toLowerCase()}?
           </p>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-3.5 rounded-xl transition-colors shadow-md"
-          >
-            Speak to an accountant <ArrowRight size={18} />
-          </Link>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+            Speak to a qualified accountant
+          </h2>
+          <p className="text-white/70 mb-8 max-w-xl mx-auto leading-relaxed">
+            Our team specialises in {data.name.toLowerCase()} for UK small businesses, contractors and landlords.
+            No obligation, no sales pitch — just a clear answer to your specific situation.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary-dark transition-colors shadow-lg"
+            >
+              Speak to an accountant <ArrowRight size={20} />
+            </Link>
+            <Link
+              href="/learn"
+              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-colors border border-white/20"
+            >
+              Browse all topics
+            </Link>
+          </div>
         </div>
       </section>
     </>
