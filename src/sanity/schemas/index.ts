@@ -9,6 +9,8 @@ import promoBanner from "./promoBanner";
 import caseStudy from "./caseStudy";
 import siteSettings from "./siteSettings";
 import landingPage from "./landingPage";
+import knowledgeTopic from "./knowledgeTopic";
+import knowledgeArticle from "./knowledgeArticle";
 
 import {
   pageSchemas,
@@ -42,6 +44,8 @@ export const schemaTypes = [
   caseStudy,
   siteSettings,
   landingPage,
+  knowledgeTopic,
+  knowledgeArticle,
   // structured-data objects
   pageSchemas,
   breadcrumbSchema,

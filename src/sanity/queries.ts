@@ -139,3 +139,52 @@ export async function getLandingPages() {
     _id, title, slug, headline, price, targetAudience, noIndex, _createdAt
   }`);
 }
+
+// Knowledge centre
+export async function getKnowledgeTopics() {
+  return client.fetch(`*[_type == "knowledgeTopic"] | order(order asc, name asc) {
+    _id, name, slug, shortDescription, intro, icon, order,
+    "articleCount": count(*[_type == "knowledgeArticle" && references(^._id)])
+  }`);
+}
+
+export async function getKnowledgeTopic(slug: string) {
+  return client.fetch(
+    `*[_type == "knowledgeTopic" && slug.current == $slug][0] {
+      _id, name, slug, shortDescription, intro, icon,
+      metaTitle, metaDescription,
+      "articles": *[_type == "knowledgeArticle" && references(^._id)] | order(lastReviewed desc) {
+        _id, title, slug, canonicalQuestion, excerpt, appliesTo, lastReviewed
+      }
+    }`,
+    { slug }
+  );
+}
+
+export async function getKnowledgeArticle(topicSlug: string, articleSlug: string) {
+  return client.fetch(
+    `*[_type == "knowledgeArticle" && slug.current == $articleSlug && topic->slug.current == $topicSlug][0] {
+      _id, title, slug, canonicalQuestion, excerpt, appliesTo,
+      lastReviewed, reviewDue, reviewedBy,
+      featuredImage { alt, asset->{ url } },
+      body, metaTitle, metaDescription, pageSchemas,
+      "topic": topic->{ _id, name, slug },
+      "relatedArticles": relatedArticles[]->{
+        _id, title, slug, canonicalQuestion, excerpt,
+        "topic": topic->{ name, slug }
+      }
+    }`,
+    { topicSlug, articleSlug }
+  );
+}
+
+export async function getKnowledgeArticleSlugs() {
+  return client.fetch(`*[_type == "knowledgeArticle" && defined(slug.current) && defined(topic->slug.current)] {
+    "articleSlug": slug.current,
+    "topicSlug": topic->slug.current
+  }`);
+}
+
+export async function getKnowledgeTopicSlugs() {
+  return client.fetch(`*[_type == "knowledgeTopic"].slug.current`);
+}

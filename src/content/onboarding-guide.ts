@@ -1,16 +1,18 @@
 /**
  * Onboarding Guide — content + data model.
  *
- * A per-client welcome guide rendered as a branded page and turned into a PDF
- * by headless Chrome. Content is dynamic on several axes:
+ * A welcome pack rendered as a branded page and turned into a PDF by headless
+ * Chrome. Content is dynamic on several axes:
  *   • variant      — Limited Company (new/existing) vs Sole Trader
- *   • vatStatus    — Account.VAT_Status__c picklist (drives the VAT body/title)
- *   • payeStatus   — Account.PAYE_Status__c picklist (drives the PAYE body/title)
- *   • clientType   — Account.Client_type__c (e.g. 'PSC' surfaces the IR35 section)
+ *   • vatStatus    — Account.VAT_Status__c picklist
+ *   • payeStatus   — Account.PAYE_Status__c picklist
+ *   • clientType   — Account.Client_type__c ('PSC' surfaces IR35)
+ *   • dates.*      — onboarding call dates from the NCW
+ *   • calendlyUrl  — surfaced when the accountant has Calendly enabled
  *
- * ⚠️ The tax/technical copy (director duties, VAT, PAYE, IR35) is a Claude
- * draft and still needs an accountant accuracy/compliance review — see
- * docs/onboarding-guide-content-brief.md.
+ * ⚠️ The tax/technical copy (deadlines, FAQs, quick wins, VAT, PAYE, IR35,
+ * director duties) is a Claude draft and still needs an accountant accuracy/
+ * compliance review before going to clients.
  */
 
 import { BRANDS } from '@/lib/constants';
@@ -37,63 +39,190 @@ export interface OnboardingGuideData {
   accountant: { name: string; email: string; phone: string; photoUrl?: string };
   dates: JourneyDate;
   support: { email: string; phone: string };
-  /** Account.VAT_Status__c picklist value, or undefined if blank. */
   vatStatus?: string;
-  /** Account.PAYE_Status__c picklist value, or undefined if blank. */
   payeStatus?: string;
-  /** Account.Client_type__c picklist value, or undefined. 'PSC' surfaces IR35. */
   clientType?: string;
-  /**
-   * Accountant's Calendly URL when one is configured (Account.Calendar_UserId__c
-   * = true). Surfaced in the journey timeline as a "Book your call →" link on
-   * the introductory call stage when no welcome-call date is yet on file.
-   */
   calendlyUrl?: string;
 }
 
 export interface GuideSection {
   id: string;
   icon: SectionIconKey;
-  /** Title can be a fixed string or a function of the data (status-aware). */
   title: string | ((d: OnboardingGuideData) => string);
   body: (d: OnboardingGuideData) => string;
-  /** Predicate deciding whether the section appears for a given client. */
   shouldShow: (d: OnboardingGuideData) => boolean;
 }
 
 const isLtd = (d: OnboardingGuideData) =>
   d.variant === 'ltd-new' || d.variant === 'ltd-existing';
 
-/** Static onboarding journey stages — only the dates are per-client. */
-export const JOURNEY_STAGES: {
-  key: keyof JourneyDate;
-  label: string;
-  blurb: string;
-}[] = [
+// ─────────────────────────────────────────────────────────────────────────
+// Welcome paragraph + accountant strip
+// ─────────────────────────────────────────────────────────────────────────
+
+export function welcomeIntro(d: OnboardingGuideData): string {
+  return (
+    `Welcome to ${d.brandName}, ${d.clientFirstName}. We're really glad you've ` +
+    `chosen us, and we'll do our utmost to make this the easiest accountancy ` +
+    `switch you've made. This is your welcome pack — it walks you through ` +
+    `what happens next, what you can expect from us, and the things that ` +
+    `matter most as we get started together.`
+  );
+}
+
+export const ACCOUNTANT_BIO =
+  'Your day-to-day point of contact for everything — calls, emails, questions, ' +
+  'advice — and the person who will guide you through each of the phases below.';
+
+// ─────────────────────────────────────────────────────────────────────────
+// Get started — your first three actions
+// ─────────────────────────────────────────────────────────────────────────
+
+export const ENGAGEMENT_LETTER_EXPLANATION =
+  "Before we can act for you, we need a signed engagement letter. It's the " +
+  "legal agreement that sets out exactly what we'll do for you, what we'll " +
+  "need from you, and how we work together — it protects both sides and is " +
+  "required by professional accounting standards. Your letter is on its way " +
+  "by email; please review and sign as soon as you can.";
+
+export function credasExplanation(d: OnboardingGuideData): string {
+  if (d.variant === 'sole') {
+    return (
+      "As the owner of the business, you need to complete an identity check. " +
+      "This is a legal requirement under HMRC's anti-money-laundering rules — " +
+      "we can't begin work for you until it's done. You'll receive an SMS or " +
+      "email from Credas with a unique link; it takes about five minutes."
+    );
+  }
+  return (
+    `Every officer of ${d.companyName} — all directors and shareholders with ` +
+    `significant control — must complete an identity check. This is a legal ` +
+    `requirement under HMRC's anti-money-laundering rules; we can't begin work ` +
+    `for the company until each person is verified. Each will receive an SMS ` +
+    `or email from Credas with a unique link; it takes about five minutes each.`
+  );
+}
+
+export function introCallExplanation(d: OnboardingGuideData): string {
+  return d.dates.welcomeCall
+    ? `Your introductory call is booked for ${d.dates.welcomeCall}. We'll talk through your business, answer any questions, and agree the next steps.`
+    : "We'll talk through your business, answer any questions, and agree the next steps. Most clients are booked in within a couple of days of signing up — pick a time that suits.";
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 01 — How we'll work with you (three phases)
+// ─────────────────────────────────────────────────────────────────────────
+
+export const WORKING_PHASES: { num: string; title: string; body: string }[] = [
   {
-    key: 'welcomeCall',
-    label: 'Introductory call',
-    blurb: 'A quick hello to confirm your details and answer any first questions.',
+    num: '01',
+    title: 'Understand',
+    body:
+      "We start by getting to know your business inside out — what you do, how " +
+      "you trade, your goals for the next year and beyond. Our introductory and " +
+      "main onboarding calls are where we build the picture: you, your " +
+      "circumstances, and what success looks like for you.",
   },
   {
-    key: 'mainCall',
-    label: 'Main onboarding call',
-    blurb: 'We walk through your business, your goals and how we will work together.',
+    num: '02',
+    title: 'Why you need us',
+    body:
+      "We identify the things that matter most — tax efficiency, compliance with " +
+      "HMRC and Companies House, freeing up your time, planning for growth. " +
+      "We're not just here to file your accounts; we help you understand where " +
+      "you stand today and where we can take you next.",
   },
   {
-    key: 'portalTraining',
-    label: 'Portal & software training',
-    blurb: 'We set up FreeAgent and show you how to use it day to day.',
-  },
-  {
-    key: 'catchUp',
-    label: 'Catch-up',
-    blurb: 'A follow-up to make sure everything is running smoothly and nothing is outstanding.',
+    num: '03',
+    title: 'Where we can deliver value',
+    body:
+      "The proactive work that makes the difference: year-round advice, tax " +
+      "savings spotted before they're missed, real-time visibility on your " +
+      "numbers, and a phone call away whenever questions come up. The " +
+      "relationship doesn't stop when the accounts are filed.",
   },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
-// Dynamic title / body helpers
+// 02 — What you can expect from us
+// ─────────────────────────────────────────────────────────────────────────
+
+export const WHAT_TO_EXPECT: { title: string; body: string }[] = [
+  {
+    title: 'Replies within 24 working hours',
+    body: 'Most emails get a same-day answer — we treat them as work, not interruptions.',
+  },
+  {
+    title: 'Unlimited advice — no clock ticking',
+    body:
+      'Call or email as often as you need. No per-question fees, no "billable time" ' +
+      'creeping into your invoice.',
+  },
+  {
+    title: 'Proactive deadline reminders',
+    body:
+      'We chase you for what we need well before HMRC or Companies House does. ' +
+      'No surprise letters, no last-minute rushes.',
+  },
+  {
+    title: 'An annual review meeting',
+    body:
+      "Once a year we sit down (or video) to look ahead — at your numbers, your " +
+      "tax position, and what we can do better.",
+  },
+  {
+    title: 'Real-time visibility on FreeAgent',
+    body:
+      'You see what we see — your figures, your tax estimate, your VAT due — ' +
+      'refreshed daily and always accessible.',
+  },
+  {
+    title: 'Plain-English explanations',
+    body:
+      "We won't bury you in jargon. If something matters, we'll explain it like " +
+      "a friend would.",
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────
+// 03 — How and when to reach us
+// ─────────────────────────────────────────────────────────────────────────
+
+export type ContactChannelIcon = 'mail' | 'phone' | 'monitor' | 'calendar';
+
+export const CONTACT_CHANNELS: {
+  iconKey: ContactChannelIcon;
+  label: string;
+  description: string;
+}[] = [
+  {
+    iconKey: 'mail',
+    label: 'Email your accountant',
+    description: "Quick questions or day-to-day items — your accountant's direct email is your first port of call.",
+  },
+  {
+    iconKey: 'phone',
+    label: 'Phone the office',
+    description: "For longer conversations or anything time-sensitive. We'll route you or take a message.",
+  },
+  {
+    iconKey: 'monitor',
+    label: 'Log in to FreeAgent',
+    description: 'Numbers, receipts, invoices, dashboards — the single source of truth for your finances.',
+  },
+  {
+    iconKey: 'calendar',
+    label: 'Book a Calendly slot',
+    description: "Anything that needs a scheduled call — pick a slot directly from your accountant's calendar.",
+  },
+];
+
+export const OFFICE_HOURS =
+  'Office hours: Monday to Friday, 8:30 am – 5:30 pm. If your accountant is on ' +
+  "leave, the team picks up — you'll never be without someone who knows your account.";
+
+// ─────────────────────────────────────────────────────────────────────────
+// 04 — Getting set up the right way (educational essentials)
 // ─────────────────────────────────────────────────────────────────────────
 
 function vatTitle(status: string | undefined): string {
@@ -143,17 +272,13 @@ function vatBody(d: OnboardingGuideData): string {
         "your customers, which doesn't suit everyone. We will look at your numbers and " +
         "customers and advise what makes sense.";
   }
-
-  // PSC contractors — append a paragraph on the Flat Rate VAT scheme. Two
-  // paragraphs are rendered as separate <p> elements by the component
-  // (split on \n\n) so the flat-rate angle reads as a distinct sub-topic.
   if (d.clientType === 'PSC') {
     base +=
       '\n\n' +
       "As a contractor working through a personal service company, the Flat Rate VAT " +
       "scheme is worth considering. You charge clients VAT at the standard rate but pay " +
       "HMRC a lower fixed percentage of your gross turnover, keeping the difference. " +
-      "It has been popular with many contractors, though ‘limited-cost’ " +
+      "It has been popular with many contractors, though 'limited-cost' " +
       "businesses face a higher rate that often makes it less attractive — so it " +
       "isn't always the right fit. We will review whether the Flat Rate scheme would " +
       "benefit you when we look at your VAT position.";
@@ -200,7 +325,6 @@ function payeBody(d: OnboardingGuideData): string {
         );
     }
   }
-  // Limited Company branch
   switch (d.payeStatus) {
     case 'Existing PAYE registration':
       return (
@@ -236,10 +360,6 @@ function payeBody(d: OnboardingGuideData): string {
       );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────
-// Section library
-// ─────────────────────────────────────────────────────────────────────────
 
 const SECTIONS: GuideSection[] = [
   {
@@ -321,52 +441,203 @@ const SECTIONS: GuideSection[] = [
   },
 ];
 
-/** Sections that apply to a given client, in display order. */
 export function getSections(d: OnboardingGuideData): GuideSection[] {
   return SECTIONS.filter((s) => s.shouldShow(d));
 }
 
-/** Resolve a section's title (accepts string or function-of-data). */
 export function sectionTitle(s: GuideSection, d: OnboardingGuideData): string {
   return typeof s.title === 'function' ? s.title(d) : s.title;
 }
 
-/** The opening welcome paragraph — variant-aware. */
-export function welcomeIntro(d: OnboardingGuideData): string {
-  const subject = d.variant === 'sole' ? 'you' : d.companyName;
-  return (
-    `Welcome to ${d.brandName}, ${d.clientFirstName}. This short guide covers a few ` +
-    `essentials to help your onboarding go smoothly and get ${subject} set up the right ` +
-    `way. Your accountant, ${d.accountant.name}, will go through anything you would like ` +
-    `to discuss in more detail on your calls.`
-  );
-}
+// ─────────────────────────────────────────────────────────────────────────
+// 05 — Key deadlines for your year
+// ─────────────────────────────────────────────────────────────────────────
 
-/**
- * Short "good to know" practical tips, variant-aware. General good-practice
- * pointers — kept free of specific tax figures so they never go stale. Still
- * pending the same accountant review as the educational sections.
- */
-export function getTips(variant: GuideVariant): string[] {
-  const tips = [
-    'Keep business and personal spending separate from day one — a dedicated ' +
-      'business bank account makes your accounts simpler and your tax position clearer.',
-  ];
-  if (variant === 'ltd-new' || variant === 'ltd-existing') {
-    tips.push(
-      'Treat Corporation Tax as money that was never yours to spend — setting it ' +
-        'aside as you earn means no surprise bill at year end.',
-    );
-  } else {
-    tips.push(
-      'Set aside a portion of every payment for your Self Assessment tax as you go ' +
-        '— it makes the January deadline far less stressful.',
-    );
+export function getDeadlines(variant: GuideVariant): { label: string; when: string }[] {
+  if (variant === 'sole') {
+    return [
+      { label: 'Self Assessment return (online)', when: '31 January, for the tax year ending the previous 5 April' },
+      { label: 'Self Assessment tax payment', when: '31 January, alongside the return' },
+      { label: 'Payments on Account (if applicable)', when: '31 January and 31 July each year' },
+      { label: 'Self Assessment return (paper)', when: '31 October, if you choose paper instead of online' },
+      { label: 'VAT returns (if registered)', when: '1 month and 7 days after each quarter-end' },
+      { label: 'Payroll RTI (if you employ staff)', when: 'Each pay run, plus 19th of the month to HMRC' },
+    ];
   }
-  return tips;
+  return [
+    { label: 'Year-end accounts to Companies House', when: '9 months after your accounting year-end' },
+    { label: 'Corporation Tax payment to HMRC', when: '9 months and 1 day after your year-end' },
+    { label: 'Corporation Tax return (CT600)', when: '12 months after your year-end' },
+    { label: 'Confirmation Statement to Companies House', when: 'Annually, on the anniversary of incorporation' },
+    { label: 'Self Assessment (if you draw a salary or dividends)', when: '31 January, for the prior tax year' },
+    { label: 'VAT returns (if registered)', when: '1 month and 7 days after each quarter-end' },
+    { label: 'Payroll RTI (if you run PAYE)', when: 'Each pay run, plus 19th of the month to HMRC' },
+  ];
 }
 
-/** Realistic sample data for browser preview / design review. */
+// ─────────────────────────────────────────────────────────────────────────
+// 06 — Common questions in your first month
+// ─────────────────────────────────────────────────────────────────────────
+
+export function getFaqs(variant: GuideVariant): { q: string; a: string }[] {
+  if (variant === 'sole') {
+    return [
+      {
+        q: 'Can I claim this as a business expense?',
+        a:
+          "If it's genuinely for the business, yes. Some costs (use of home, mileage) have " +
+          "set allowances. The grey areas are usually the interesting bits — your accountant " +
+          "is the right person to ask before claiming.",
+      },
+      {
+        q: 'When do I pay my tax?',
+        a:
+          '31 January following the tax year — for example, the year ending 5 April 2026 ' +
+          'is paid by 31 January 2027. If you owe more than £1,000 you may also have ' +
+          'Payments on Account due 31 January and 31 July.',
+      },
+      {
+        q: 'What records do I need to keep?',
+        a:
+          'Income, expenses, bank statements and a mileage log — anything HMRC could ' +
+          "ask for over the next six years. FreeAgent handles most of this; you can snap " +
+          "receipts on the mobile app.",
+      },
+      {
+        q: 'Do I pay myself a salary?',
+        a:
+          "No — your profits ARE your income, taxed via Self Assessment. Drawings from " +
+          "your business bank account aren't taxed when you take them; the tax is on " +
+          "profit at year-end.",
+      },
+    ];
+  }
+  return [
+    {
+      q: 'Can I claim this as a business expense?',
+      a:
+        "If it's genuinely 'wholly and exclusively' for the business, yes. The grey areas " +
+        "are usually the interesting bits — your accountant is the right person to ask " +
+        "before claiming.",
+    },
+    {
+      q: 'How do I pay myself?',
+      a:
+        "Most directors take a small salary (up to the NI threshold) plus dividends from " +
+        "after-tax profit. We'll recommend the right mix for your circumstances and set " +
+        "up PAYE if you don't already have it.",
+    },
+    {
+      q: 'What records do I need to keep?',
+      a:
+        "Sales invoices, purchase receipts, bank statements and mileage log — anything " +
+        "HMRC could ask for over the next six years. FreeAgent handles most of this; " +
+        "you can snap receipts on the mobile app.",
+    },
+    {
+      q: 'When do I pay Corporation Tax?',
+      a:
+        '9 months and 1 day after your accounting year-end. The return is due 12 months ' +
+        "after — we'll prepare both for you well before each deadline.",
+    },
+  ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 07 — Quick wins for your first year (replaces the old "Good to know" tips)
+// ─────────────────────────────────────────────────────────────────────────
+
+export function getQuickWins(variant: GuideVariant): { title: string; body: string }[] {
+  if (variant === 'sole') {
+    return [
+      {
+        title: 'Keep business and personal money separate',
+        body:
+          'A dedicated business bank account makes your accounts simpler and your tax ' +
+          'position clearer from day one.',
+      },
+      {
+        title: 'Track every business mile',
+        body:
+          'HMRC allows 45p/mile for the first 10,000 business miles each year, 25p ' +
+          'thereafter. It adds up faster than you would expect — keep a simple log or ' +
+          "use FreeAgent's mobile app.",
+      },
+      {
+        title: 'Claim use-of-home allowance',
+        body:
+          'If you work from home, you can claim a fixed amount (currently £6/week, no ' +
+          'receipts needed) or a proportion of actual costs. Easy win.',
+      },
+      {
+        title: "Don't forget pre-trading expenses",
+        body:
+          'Costs incurred up to seven years before trading started can usually be ' +
+          'claimed — laptops, training, professional fees. Tell us what you spent.',
+      },
+      {
+        title: 'Set aside for tax as you earn',
+        body:
+          'A simple rule: park 25-30% of every payment in a separate "tax pot" account. ' +
+          "January feels far less stressful when the money's already there.",
+      },
+    ];
+  }
+  return [
+    {
+      title: 'Keep business and personal money separate',
+      body:
+        'A dedicated business bank account makes your accounts simpler and your tax ' +
+        'position clearer from day one.',
+    },
+    {
+      title: 'Set Corporation Tax aside as you earn',
+      body:
+        'Treat it as money that was never yours to spend — ringfence a percentage of ' +
+        'every profit-making month and there is no surprise bill at year-end.',
+    },
+    {
+      title: 'Pay pension contributions through the company',
+      body:
+        "They're a tax-deductible expense for the company AND don't touch your personal " +
+        'salary or dividend tax. Worth reviewing with us early.',
+    },
+    {
+      title: "Don't forget pre-trading expenses",
+      body:
+        'Costs incurred up to seven years before trading started can usually be ' +
+        'claimed — laptops, training, professional fees. Tell us what you spent.',
+    },
+    {
+      title: 'Trivial benefits — small thanks, big saving',
+      body:
+        'You can give yourself (as a director) up to £300 a year and each employee up ' +
+        'to £50 per occasion in non-cash gifts, tax-free. Coffees, lunches, birthday ' +
+        'treats — keep the receipts.',
+    },
+  ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// The team behind your accountant
+// ─────────────────────────────────────────────────────────────────────────
+
+export const TEAM_INTRO =
+  "Your accountant doesn't work alone — they're backed by a team of specialists. If " +
+  'you ever need an extra pair of eyes, they bring in the right person at no extra ' +
+  "cost. It's all part of your service.";
+
+export const TEAM_ROLES: { role: string; description: string }[] = [
+  { role: 'Senior tax adviser', description: 'Complex planning and HMRC enquiries' },
+  { role: 'Payroll specialist', description: 'PAYE, P11Ds, year-end submissions' },
+  { role: 'VAT specialist', description: 'Scheme advice, registrations, complex VAT' },
+  { role: 'IR35 advisor', description: 'Contract reviews and status assessments' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────
+// Sample data for browser preview
+// ─────────────────────────────────────────────────────────────────────────
+
 export function buildSampleData(
   brandId: GuideBrandId,
   variant: GuideVariant,
@@ -374,16 +645,10 @@ export function buildSampleData(
   const brand = BRANDS[brandId];
   const isSole = variant === 'sole';
 
-  // Vary the picklist statuses per variant so the preview shows different
-  // copy paths without needing extra query params.
   let vatStatus: string | undefined;
   let payeStatus: string | undefined;
   let clientType: string | undefined;
-  // Sole-trader preview deliberately omits the welcome-call date so the
-  // "Book your call →" link path is visible in the preview.
   let welcomeCall: string | null = 'Tue 26 May 2026';
-  // Calendly URL is set for all sample variants; the sole-trader preview
-  // also drops the date so the booking link surfaces in the journey timeline.
   const calendlyUrl: string | undefined = 'https://calendly.com/sample-accountant';
   if (variant === 'ltd-new') {
     vatStatus = 'Not VAT registered';

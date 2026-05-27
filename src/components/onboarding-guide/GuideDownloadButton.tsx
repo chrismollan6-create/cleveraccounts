@@ -37,7 +37,12 @@ export default function GuideDownloadButton({
     setLoading(true);
     try {
       const res = await fetch(href, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        // Surface the server's actual error message so failures can be
+        // diagnosed (Vercel function logs are the other source of truth).
+        const body = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} — ${body.slice(0, 400) || 'no body'}`);
+      }
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -49,8 +54,9 @@ export default function GuideDownloadButton({
       // Revoke after a tick so Safari has time to start the download.
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
       console.error('Onboarding guide download failed:', err);
-      alert('Sorry — could not generate the PDF. Please try again in a moment.');
+      alert(`PDF generation failed:\n\n${msg}\n\nCheck the browser Network tab or Vercel function logs for more.`);
     } finally {
       setLoading(false);
     }

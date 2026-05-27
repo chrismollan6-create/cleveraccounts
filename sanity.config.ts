@@ -6,7 +6,7 @@ import { schemaTypes } from "./src/sanity/schemas";
 import { dashboardPlugin } from "./src/studio/dashboardPlugin";
 import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
 
-const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage"];
+const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage", "knowledgeArticle"];
 
 export default defineConfig({
   name: "clever-accounts",
@@ -65,6 +65,16 @@ export default defineConfig({
             S.listItem()
               .title("📖 Case Studies")
               .child(S.documentTypeList("caseStudy").title("Case Studies")),
+
+            S.divider(),
+
+            // ── Learning Centre ─────────────────────────────────────────
+            S.listItem()
+              .title("🎓 Learning Centre — Topics")
+              .child(S.documentTypeList("knowledgeTopic").title("Knowledge Topics")),
+            S.listItem()
+              .title("📚 Learning Centre — Articles")
+              .child(S.documentTypeList("knowledgeArticle").title("Knowledge Articles")),
 
             S.divider(),
 

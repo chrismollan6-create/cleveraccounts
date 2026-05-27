@@ -1,5 +1,9 @@
 import type { MetadataRoute } from "next";
-import { getBlogSlugs } from "@/sanity/queries";
+import {
+  getBlogSlugs,
+  getKnowledgeArticleSlugs,
+  getKnowledgeTopicSlugs,
+} from "@/sanity/queries";
 
 const BASE = "https://cleveraccounts.com";
 
@@ -35,6 +39,7 @@ const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRo
   { url: "/contact",                           priority: 0.6, changeFrequency: "monthly" },
   { url: "/faq",                               priority: 0.6, changeFrequency: "monthly" },
   { url: "/blog",                              priority: 0.7, changeFrequency: "weekly" },
+  { url: "/learn",                             priority: 0.8, changeFrequency: "weekly" },
   { url: "/sign-up",                           priority: 0.8, changeFrequency: "monthly" },
   { url: "/switching-accountants",             priority: 0.7, changeFrequency: "monthly" },
   { url: "/self-assessment",                   priority: 0.7, changeFrequency: "monthly" },
@@ -51,11 +56,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Fetch live blog slugs from Sanity — automatically picks up new posts
   let blogSlugs: string[] = [];
+  let learnTopicSlugs: string[] = [];
+  let learnArticles: Array<{ topicSlug: string; articleSlug: string }> = [];
   try {
-    const raw = await getBlogSlugs();
-    blogSlugs = (raw ?? []).filter(Boolean);
+    const [blog, topics, articles] = await Promise.all([
+      getBlogSlugs(),
+      getKnowledgeTopicSlugs(),
+      getKnowledgeArticleSlugs(),
+    ]);
+    blogSlugs = (blog ?? []).filter(Boolean);
+    learnTopicSlugs = ((topics ?? []) as string[]).filter(Boolean);
+    learnArticles = ((articles ?? []) as Array<{ topicSlug: string; articleSlug: string }>).filter(
+      (a) => a?.topicSlug && a?.articleSlug,
+    );
   } catch {
-    // If Sanity is unreachable at build time, sitemap still generates without blog posts
+    // If Sanity is unreachable at build time, sitemap still generates without dynamic entries
   }
 
   return [
@@ -70,6 +85,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    ...learnTopicSlugs.map((slug) => ({
+      url: `${BASE}/learn/${slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+    ...learnArticles.map((a) => ({
+      url: `${BASE}/learn/${a.topicSlug}/${a.articleSlug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
   ];
 }

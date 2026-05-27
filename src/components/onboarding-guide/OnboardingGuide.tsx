@@ -25,20 +25,35 @@ import {
   Phone,
   Mail,
   ArrowRight,
-  Quote,
-  Lightbulb,
-  CalendarPlus,
+  Check,
+  Clock,
+  CalendarDays,
+  HelpCircle,
+  Sparkles,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import { BRANDS } from '@/lib/constants';
 import {
   getSections,
-  getTips,
   sectionTitle,
   welcomeIntro,
-  JOURNEY_STAGES,
+  WORKING_PHASES,
+  ACCOUNTANT_BIO,
+  ENGAGEMENT_LETTER_EXPLANATION,
+  credasExplanation,
+  introCallExplanation,
+  WHAT_TO_EXPECT,
+  CONTACT_CHANNELS,
+  OFFICE_HOURS,
+  getDeadlines,
+  getFaqs,
+  getQuickWins,
+  TEAM_INTRO,
+  TEAM_ROLES,
   type OnboardingGuideData,
   type SectionIconKey,
+  type ContactChannelIcon,
 } from '@/content/onboarding-guide';
 import GuideDownloadButton from './GuideDownloadButton';
 
@@ -105,10 +120,17 @@ function SectionHeader({
 
 export default function OnboardingGuide({ data }: { data: OnboardingGuideData }) {
   const sections = getSections(data);
-  const tips = getTips(data.variant);
+  const deadlines = getDeadlines(data.variant);
+  const faqs = getFaqs(data.variant);
+  const quickWins = getQuickWins(data.variant);
+  const CHANNEL_ICON: Record<ContactChannelIcon, LucideIcon> = {
+    mail: Mail,
+    phone: Phone,
+    monitor: Monitor,
+    calendar: CalendarDays,
+  };
   const brand = BRANDS[data.brandId];
   const logo = `/brand/${data.brandId}/logo.png`;
-  const accFirstName = data.accountant.name.split(' ')[0];
   const accInitials = data.accountant.name
     .split(' ')
     .map((p) => p[0] ?? '')
@@ -233,216 +255,415 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         <p className="text-[14.5px] leading-[1.78] text-text-light">{welcomeIntro(data)}</p>
       </section>
 
-      {/* Accountant personal note */}
+      {/* Compact accountant strip — name + generic bio, no photo, no quote */}
       <section className="px-[20mm] pt-[11mm]">
-        <div className="relative flex break-inside-avoid gap-6 overflow-hidden rounded-2xl border border-border bg-surface p-6">
-          <span
-            className="absolute -right-10 -top-10 h-32 w-32 rounded-full"
-            style={{ backgroundColor: hexAlpha(c.primary, 0.06) }}
-          />
-          {data.accountant.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={data.accountant.photoUrl}
-              alt={data.accountant.name}
-              className="relative h-[92px] w-[92px] shrink-0 rounded-2xl object-cover shadow-md"
-            />
-          ) : (
-            <div
-              className="relative flex h-[92px] w-[92px] shrink-0 items-center justify-center rounded-2xl text-[28px] font-extrabold text-white shadow-md"
-              style={{ backgroundImage: iconTileGradient }}
-            >
-              {accInitials}
-            </div>
-          )}
-          <div className="relative">
-            <Quote size={22} style={{ color: c.primary, opacity: 0.25 }} />
-            <p className="mt-1 text-[13.5px] italic leading-[1.7] text-text">
-              Hi {data.clientFirstName}, I&rsquo;m {accFirstName} — I&rsquo;ll be your
-              dedicated accountant. I&rsquo;m here whenever you need me, so please
-              don&rsquo;t hesitate to get in touch. I&rsquo;m looking forward to working
-              together.
+        <div className="flex break-inside-avoid items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-4">
+          <div
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold text-white shadow-md"
+            style={{ backgroundImage: iconTileGradient }}
+          >
+            {accInitials}
+          </div>
+          <div className="flex-1">
+            <p className="text-[14px] text-text">
+              <span className="font-extrabold">{data.accountant.name}</span>
+              <span className="font-medium text-text-light"> · Your dedicated accountant</span>
             </p>
-            <p className="mt-3 text-[14px] font-extrabold text-text">{data.accountant.name}</p>
-            <p className="text-[11.5px] font-medium text-text-light">
-              Your dedicated accountant · {data.brandName}
+            <p className="mt-0.5 text-[12px] leading-[1.55] text-text-light">
+              {ACCOUNTANT_BIO}
             </p>
           </div>
         </div>
       </section>
 
-      {/* 01 — Journey (tinted band) */}
-      <section className="mt-[12mm] bg-surface px-[20mm] py-[14mm]">
-        <SectionHeader num="01" eyebrow="Step by step" title="What happens next" primaryColor={c.primary} />
-        <ol className="mt-8">
-          {JOURNEY_STAGES.map((stage, i) => {
-            // Inner-row pill handling is below; the prominent banner that
-            // calls attention to an unbooked intro call sits after </ol>.
-            const date = data.dates[stage.key];
-            const isLast = i === JOURNEY_STAGES.length - 1;
-            return (
-              <li key={stage.key} className="relative flex break-inside-avoid gap-5 pb-4 last:pb-0">
-                {!isLast && (
-                  <span
-                    className="absolute bottom-1 left-[22px] top-12 w-[3px] rounded-full"
-                    style={{
-                      backgroundImage: `linear-gradient(to bottom, ${c.primary}, ${hexAlpha(c.primary, 0.15)})`,
-                    }}
-                  />
-                )}
+      {/* Get started — your first three actions */}
+      <section className="px-[20mm] pt-[12mm]">
+        <div
+          className="break-inside-avoid rounded-2xl border-2 border-dashed px-7 py-7"
+          style={{
+            borderColor: c.secondary,
+            backgroundColor: hexAlpha(c.secondary, 0.07),
+          }}
+        >
+          <p
+            className="text-[11px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: c.secondaryDark }}
+          >
+            Get started
+          </p>
+          <h2 className="mt-1.5 text-[24px] font-extrabold leading-tight tracking-tight text-text">
+            Your first three actions
+          </h2>
+          <p className="mt-2 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
+            These three things need to happen before we can begin work for you. We&rsquo;ll
+            guide you through each — but they sit on your side to action.
+          </p>
+          <ol className="mt-7 space-y-6">
+            {[
+              {
+                id: 'engagement',
+                title: 'Sign your engagement letter',
+                body: ENGAGEMENT_LETTER_EXPLANATION,
+              },
+              {
+                id: 'credas',
+                title: 'Complete your ID verification (Credas)',
+                body: credasExplanation(data),
+              },
+              {
+                id: 'intro',
+                title: 'Book your introductory call',
+                body: introCallExplanation(data),
+              },
+            ].map((item, i) => (
+              <li key={item.id} className="flex break-inside-avoid items-start gap-4">
                 <span
-                  className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[16px] font-extrabold text-white shadow-md"
-                  style={{ backgroundImage: iconTileGradient }}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold text-white shadow-md"
+                  style={{ backgroundImage: secondaryButtonGradient }}
                 >
                   {i + 1}
                 </span>
-                <div className="flex-1 rounded-2xl border border-border bg-white px-5 py-4 shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
+                <div className="flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="text-[15px] font-extrabold text-text">{stage.label}</h3>
-                    {date ? (
-                      <span
-                        className="rounded-full px-3 py-1 text-[11px] font-bold text-white"
-                        style={{ backgroundColor: c.primary }}
-                      >
-                        {date}
-                      </span>
-                    ) : stage.key === 'welcomeCall' ? (
-                      // No date yet for the intro call — offer a booking
-                      // shortcut. Calendly link when the accountant has one
-                      // configured; mailto fallback otherwise. PDF preserves
-                      // <a href> as a live clickable link.
-                      <a
-                        href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
-                        className="rounded-full px-3 py-1 text-[11px] font-bold text-white no-underline"
-                        style={{ backgroundColor: c.secondary }}
-                      >
-                        {data.calendlyUrl ? 'Book your call →' : 'Reply to book →'}
-                      </a>
-                    ) : (
-                      <span className="rounded-full bg-border px-3 py-1 text-[11px] font-semibold text-text-light">
-                        To be confirmed
-                      </span>
-                    )}
+                    <h3 className="text-[15px] font-extrabold text-text">{item.title}</h3>
+                    {item.id === 'intro' &&
+                      (data.dates.welcomeCall ? (
+                        <span
+                          className="rounded-full px-3 py-1 text-[11px] font-bold text-white"
+                          style={{ backgroundColor: c.primary }}
+                        >
+                          {data.dates.welcomeCall}
+                        </span>
+                      ) : (
+                        <a
+                          href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
+                          className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-sm"
+                          style={{ backgroundImage: secondaryButtonGradient }}
+                        >
+                          {data.calendlyUrl ? 'Book your call' : 'Reply to book'}
+                          <ArrowRight size={12} />
+                        </a>
+                      ))}
                   </div>
-                  <p className="mt-1.5 text-[12.5px] leading-[1.6] text-text-light">
-                    {stage.blurb}
+                  <p className="mt-1.5 text-[12.5px] leading-[1.65] text-text-light">
+                    {item.body}
                   </p>
                 </div>
               </li>
-            );
-          })}
-        </ol>
-
-        {/* Prominent booking CTA — only when the intro call hasn't yet been
-            booked. Sits inside the journey section so it reads as the next
-            action on top of the timeline above. */}
-        {!data.dates.welcomeCall && (
-          <div
-            className="mt-8 flex break-inside-avoid items-center gap-5 rounded-2xl border-2 border-dashed px-6 py-5"
-            style={{
-              borderColor: c.secondary,
-              backgroundColor: hexAlpha(c.secondary, 0.09),
-            }}
-          >
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
-              style={{ backgroundImage: secondaryButtonGradient }}
-            >
-              <CalendarPlus size={22} strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <p
-                className="text-[10.5px] font-bold uppercase tracking-[0.18em]"
-                style={{ color: c.secondaryDark }}
-              >
-                Your next step
-              </p>
-              <h3 className="mt-1 text-[16px] font-extrabold text-text">
-                Let&rsquo;s get your introductory call booked
-              </h3>
-              <p className="mt-1 text-[12.5px] leading-[1.55] text-text-light">
-                {data.calendlyUrl
-                  ? `Pick a time that suits — most clients are booked in within a couple of days.`
-                  : `Drop ${data.accountant.name.split(' ')[0]} a quick reply with the times that suit you, and we'll get it in the diary.`}
-              </p>
-            </div>
-            <a
-              href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-3 text-[12.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-md"
-              style={{ backgroundImage: secondaryButtonGradient }}
-            >
-              {data.calendlyUrl ? 'Book your call' : 'Reply to book'}
-              <ArrowRight size={14} />
-            </a>
-          </div>
-        )}
+            ))}
+          </ol>
+        </div>
       </section>
 
-      {/* 02 — Essentials (white, 2-up grid) */}
+      {/* 01 — How we'll work with you (three phases) */}
+      <section className="mt-[12mm] bg-surface px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="01"
+          eyebrow="How we'll work with you"
+          title="From here, in three phases"
+          primaryColor={c.primary}
+        />
+        <div className="mt-8 space-y-4">
+          {WORKING_PHASES.map((phase) => (
+            <article
+              key={phase.num}
+              className="flex break-inside-avoid items-start gap-6 rounded-2xl border border-border bg-white p-6 shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
+            >
+              <p
+                className="shrink-0 text-[44px] font-extrabold leading-[0.85]"
+                style={{ color: c.primary, opacity: 0.2, width: '60px' }}
+              >
+                {phase.num}
+              </p>
+              <div className="flex-1">
+                <h3 className="text-[18px] font-extrabold text-text">{phase.title}</h3>
+                <p className="mt-2 text-[13px] leading-[1.7] text-text-light">{phase.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* 02 — What you can expect from us (2-up grid with gradient icon tiles) */}
       <section className="px-[20mm] py-[14mm]">
-        <SectionHeader num="02" eyebrow="The essentials" title="Getting set up the right way" primaryColor={c.primary} />
-        <div className="mt-8 grid grid-cols-2 gap-4">
-          {sections.map((sec) => {
-            const Icon = SECTION_ICON[sec.icon];
-            // Body may contain double-newlines for sub-topic paragraphs
-            // (e.g. VAT + Flat Rate addendum for PSC contractors).
-            const paragraphs = sec.body(data).split('\n\n');
+        <SectionHeader
+          num="02"
+          eyebrow="What you can expect from us"
+          title="Our service standards"
+          primaryColor={c.primary}
+        />
+        <div className="mt-7 grid grid-cols-2 gap-4">
+          {WHAT_TO_EXPECT.map((item) => (
+            <div
+              key={item.title}
+              className="break-inside-avoid rounded-2xl border border-border bg-white p-5 shadow-[0_3px_14px_rgba(15,23,42,0.06)]"
+            >
+              <div
+                className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-md"
+                style={{ backgroundImage: iconTileGradient }}
+              >
+                <Check size={20} strokeWidth={2.5} />
+              </div>
+              <p className="text-[14px] font-extrabold leading-snug text-text">{item.title}</p>
+              <p className="mt-1.5 text-[12px] leading-[1.6] text-text-light">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 03 — How and when to reach us */}
+      <section className="bg-surface px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="03"
+          eyebrow="How and when to reach us"
+          title="The easiest ways to get hold of us"
+          primaryColor={c.primary}
+        />
+        <div className="mt-7 grid grid-cols-2 gap-4">
+          {CONTACT_CHANNELS.map((ch) => {
+            const Icon = CHANNEL_ICON[ch.iconKey];
             return (
-              <article
-                key={sec.id}
-                className="flex break-inside-avoid flex-col rounded-2xl border border-border bg-white p-5 shadow-[0_3px_16px_rgba(15,23,42,0.07)]"
+              <div
+                key={ch.iconKey}
+                className="flex break-inside-avoid items-start gap-4 rounded-2xl border border-border bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
               >
                 <div
-                  className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
                   style={{ backgroundImage: iconTileGradient }}
                 >
-                  <Icon size={22} strokeWidth={2} />
+                  <Icon size={18} strokeWidth={2} />
                 </div>
-                <h3 className="text-[15px] font-extrabold leading-snug text-text">{sectionTitle(sec, data)}</h3>
-                {paragraphs.map((para, i) => (
-                  <p
-                    key={i}
-                    className={
-                      (i === 0 ? 'mt-1.5' : 'mt-2.5') +
-                      ' text-[12px] leading-[1.6] text-text-light'
-                    }
-                  >
-                    {para}
-                  </p>
-                ))}
-              </article>
+                <div>
+                  <p className="text-[13.5px] font-extrabold text-text">{ch.label}</p>
+                  <p className="mt-1 text-[12px] leading-[1.55] text-text-light">{ch.description}</p>
+                </div>
+              </div>
             );
           })}
         </div>
+        <div className="mt-5 flex break-inside-avoid items-start gap-3 rounded-xl border border-border bg-white p-4">
+          <Clock size={18} className="mt-0.5 shrink-0" style={{ color: c.primary }} />
+          <p className="text-[12px] leading-[1.6] text-text-light">{OFFICE_HOURS}</p>
+        </div>
+      </section>
 
-        {/* Good-to-know callouts */}
-        <div className="mt-5 space-y-3">
-          {tips.map((tip) => (
+      {/* 04 — Key deadlines (brand-coloured accent + emphasised "when") */}
+      <section className="bg-surface px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="04"
+          eyebrow="Key deadlines"
+          title="The dates we'll be working to"
+          primaryColor={c.primary}
+        />
+        <ul className="mt-7 space-y-3">
+          {deadlines.map((d) => (
+            <li
+              key={d.label}
+              className="flex break-inside-avoid items-start gap-4 overflow-hidden rounded-r-2xl bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
+              style={{ borderLeft: `4px solid ${c.primary}` }}
+            >
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+                style={{ backgroundImage: iconTileGradient }}
+              >
+                <CalendarDays size={18} strokeWidth={2} />
+              </div>
+              <div className="flex-1">
+                <p className="text-[13.5px] font-extrabold text-text">{d.label}</p>
+                <p
+                  className="mt-1 text-[12px] font-semibold"
+                  style={{ color: c.primary }}
+                >
+                  {d.when}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 05 — Common questions (Q/A badge styling) */}
+      <section className="px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="05"
+          eyebrow="Common questions"
+          title="In your first month"
+          primaryColor={c.primary}
+        />
+        <div className="mt-7 space-y-4">
+          {faqs.map((faq) => (
             <div
-              key={tip}
-              className="flex break-inside-avoid gap-3 rounded-xl border-l-[5px] px-5 py-4"
+              key={faq.q}
+              className="break-inside-avoid rounded-2xl border border-border bg-white p-6 shadow-[0_3px_14px_rgba(15,23,42,0.06)]"
+            >
+              <div className="flex items-start gap-4">
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold text-white shadow-md"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
+                  Q
+                </span>
+                <p className="pt-1 text-[14.5px] font-extrabold leading-snug text-text">
+                  {faq.q}
+                </p>
+              </div>
+              <div className="mt-4 flex items-start gap-4">
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold"
+                  style={{
+                    backgroundColor: hexAlpha(c.primary, 0.12),
+                    color: c.primary,
+                  }}
+                >
+                  A
+                </span>
+                <p className="pt-1.5 text-[12.5px] leading-[1.7] text-text-light">{faq.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 06 — Quick wins (accent border + numbered badges) */}
+      <section className="bg-surface px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="06"
+          eyebrow="Quick wins"
+          title="For your first year"
+          primaryColor={c.primary}
+        />
+        <ul className="mt-7 space-y-3">
+          {quickWins.map((w, i) => (
+            <li
+              key={w.title}
+              className="flex break-inside-avoid items-start gap-4 rounded-xl border-l-[5px] px-5 py-4"
               style={{
                 borderColor: c.secondary,
                 backgroundColor: hexAlpha(c.secondary, 0.09),
               }}
             >
-              <Lightbulb
-                size={18}
+              <span
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold text-white shadow-md"
+                style={{ backgroundImage: secondaryButtonGradient }}
+              >
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div className="flex-1">
+                <p className="text-[13px] font-extrabold text-text">{w.title}</p>
+                <p className="mt-1 text-[12px] leading-[1.6] text-text-light">{w.body}</p>
+              </div>
+              <Sparkles
+                size={16}
                 strokeWidth={2}
-                className="mt-0.5 shrink-0"
-                style={{ color: c.secondaryDark }}
+                className="mt-1 shrink-0"
+                style={{ color: c.secondary }}
               />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 07 — The essentials (deeper educational topics — moved to the end) */}
+      <section className="px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="07"
+          eyebrow="The essentials"
+          title="Getting set up the right way"
+          primaryColor={c.primary}
+        />
+        <div className="mt-8 space-y-4">
+          {sections.map((sec) => {
+            const Icon = SECTION_ICON[sec.icon];
+            const paragraphs = sec.body(data).split('\n\n');
+            return (
+              <article
+                key={sec.id}
+                className="flex break-inside-avoid items-start gap-5 rounded-2xl border border-border bg-white p-5 shadow-[0_3px_16px_rgba(15,23,42,0.07)]"
+              >
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
+                  <Icon size={22} strokeWidth={2} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[15.5px] font-extrabold leading-snug text-text">
+                    {sectionTitle(sec, data)}
+                  </h3>
+                  {paragraphs.map((para, i) => (
+                    <p
+                      key={i}
+                      className={
+                        (i === 0 ? 'mt-1.5' : 'mt-2.5') +
+                        ' text-[12.5px] leading-[1.65] text-text-light'
+                      }
+                    >
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* The team behind your accountant (richer: brand-tinted decorative blob + numbered role badges) */}
+      <section className="bg-surface px-[20mm] py-[14mm]">
+        <div className="relative overflow-hidden break-inside-avoid rounded-3xl border border-border bg-white p-7 shadow-[0_4px_20px_rgba(15,23,42,0.07)]">
+          <span
+            className="absolute -right-10 -top-10 h-36 w-36 rounded-full"
+            style={{ backgroundColor: hexAlpha(c.primary, 0.07) }}
+          />
+          <span
+            className="absolute -bottom-14 -left-10 h-44 w-44 rounded-full"
+            style={{ backgroundColor: hexAlpha(c.secondary, 0.07) }}
+          />
+          <div className="relative">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-md"
+                style={{ backgroundImage: iconTileGradient }}
+              >
+                <Users size={20} strokeWidth={2} />
+              </div>
               <div>
                 <p
-                  className="text-[10px] font-bold uppercase tracking-[0.16em]"
-                  style={{ color: c.secondaryDark }}
+                  className="text-[10.5px] font-bold uppercase tracking-[0.22em]"
+                  style={{ color: c.primary }}
                 >
-                  Good to know
+                  Behind the scenes
                 </p>
-                <p className="mt-1 text-[12.5px] leading-[1.6] text-text">{tip}</p>
+                <h3 className="text-[18px] font-extrabold leading-tight text-text">
+                  The team behind your accountant
+                </h3>
               </div>
             </div>
-          ))}
+            <p className="mt-4 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
+              {TEAM_INTRO}
+            </p>
+            <ul className="mt-5 grid grid-cols-2 gap-3">
+              {TEAM_ROLES.map((r, i) => (
+                <li
+                  key={r.role}
+                  className="rounded-xl border border-border bg-surface p-4"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-extrabold text-white shadow-sm"
+                      style={{ backgroundImage: iconTileGradient }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <p className="text-[12.5px] font-extrabold text-text">{r.role}</p>
+                  </div>
+                  <p className="mt-1.5 text-[11.5px] leading-[1.55] text-text-light">
+                    {r.description}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
