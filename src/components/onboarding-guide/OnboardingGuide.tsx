@@ -30,6 +30,7 @@ import {
   CalendarDays,
   Sparkles,
   Users,
+  FileText,
   type LucideIcon,
 } from 'lucide-react';
 import { BRANDS } from '@/lib/constants';
@@ -48,9 +49,11 @@ import {
   getDeadlines,
   getFaqs,
   getQuickWins,
+  getLearnTopics,
   HAS_LEARN_CENTRE,
   TEAM_INTRO,
   TEAM_ROLES,
+  type LearnTopicIconKey,
   type OnboardingGuideData,
   type SectionIconKey,
   type ContactChannelIcon,
@@ -124,6 +127,16 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
   const faqs = getFaqs(data);
   const quickWins = getQuickWins(data.variant);
   const showLearnLinks = HAS_LEARN_CENTRE[data.brandId];
+  const learnTopics = showLearnLinks ? getLearnTopics(data) : [];
+  const LEARN_ICON: Record<LearnTopicIconKey, LucideIcon> = {
+    expenses: ReceiptText,
+    taxsaving: Sparkles,
+    freeagent: MonitorSmartphone,
+    selfassessment: FileText,
+    director: ShieldCheck,
+    companieshouse: Building2,
+    ir35: Briefcase,
+  };
   const CHANNEL_ICON: Record<ContactChannelIcon, LucideIcon> = {
     mail: Mail,
     phone: Phone,
@@ -619,6 +632,53 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
           })}
         </div>
       </section>
+
+      {/* Where to learn more — topic-tile panel pointing at learn-centre hubs.
+          Brand-aware: only rendered for brands that have a learn centre live
+          (currently Clever only — flip HAS_LEARN_CENTRE.workwell when ready). */}
+      {learnTopics.length > 0 && (
+        <section className="px-[20mm] py-[14mm]">
+          <p
+            className="text-[11px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: c.primary }}
+          >
+            Explore more
+          </p>
+          <h2 className="mt-2 text-[24px] font-extrabold leading-tight tracking-tight text-text">
+            Where to learn more
+          </h2>
+          <p className="mt-2 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
+            Our learn centre has full guides on the questions that come up most. A few
+            worth bookmarking:
+          </p>
+          <div className="mt-7 grid grid-cols-2 gap-3">
+            {learnTopics.map((t) => {
+              const Icon = LEARN_ICON[t.iconKey];
+              return (
+                <a
+                  key={t.slug}
+                  href={`https://${brand.domain}${t.slug}`}
+                  className="flex break-inside-avoid items-center gap-4 rounded-2xl border border-border bg-white p-4 no-underline shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
+                >
+                  <div
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+                    style={{ backgroundImage: iconTileGradient }}
+                  >
+                    <Icon size={18} strokeWidth={2} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[13.5px] font-extrabold text-text">{t.title}</p>
+                    <p className="mt-0.5 text-[11.5px] leading-[1.45] text-text-light">
+                      {t.blurb}
+                    </p>
+                  </div>
+                  <ArrowRight size={14} className="shrink-0" style={{ color: c.primary }} />
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* The team behind your accountant (richer: brand-tinted decorative blob + numbered role badges) */}
       <section className="bg-surface px-[20mm] py-[14mm]">

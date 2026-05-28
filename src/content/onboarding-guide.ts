@@ -604,12 +604,97 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
 }
 
 /** Which brands have a learn centre live. Used by the component to decide
- *  whether to render the "Read the full article →" link. Flip to true once
- *  Workwell ships its own learn centre. */
+ *  whether to render the "Read the full article →" link AND the "Where to
+ *  learn more" tile panel. Flip to true once Workwell ships its own learn
+ *  centre. */
 export const HAS_LEARN_CENTRE: Record<GuideBrandId, boolean> = {
   clever: true,
   workwell: false,
 };
+
+// ─────────────────────────────────────────────────────────────────────────
+// Where to learn more — tile panel pointing at the learn-centre hubs
+// ─────────────────────────────────────────────────────────────────────────
+
+export type LearnTopicIconKey =
+  | 'expenses'
+  | 'taxsaving'
+  | 'freeagent'
+  | 'selfassessment'
+  | 'director'
+  | 'companieshouse'
+  | 'ir35';
+
+export interface LearnTopic {
+  iconKey: LearnTopicIconKey;
+  title: string;
+  blurb: string;
+  slug: string;
+}
+
+/** Topic tiles for the "Where to learn more" panel. Variant-aware so the
+ *  panel shows the topics a given client is most likely to want — and stays
+ *  short (4–6 tiles). Slugs point to learn-centre HUB pages. */
+export function getLearnTopics(d: OnboardingGuideData): LearnTopic[] {
+  const common: LearnTopic[] = [
+    {
+      iconKey: 'expenses',
+      title: 'Expenses guide',
+      blurb: 'What you can claim and how to record it',
+      slug: '/learn/expenses',
+    },
+    {
+      iconKey: 'taxsaving',
+      title: 'Tax-saving guides',
+      blurb: 'Reliefs, allowances and quick wins',
+      slug: '/learn/tax-saving',
+    },
+    {
+      iconKey: 'freeagent',
+      title: 'FreeAgent how-tos',
+      blurb: 'Day-to-day software walkthroughs',
+      slug: '/learn/freeagent',
+    },
+  ];
+
+  if (d.variant === 'sole') {
+    return [
+      ...common,
+      {
+        iconKey: 'selfassessment',
+        title: 'Self-Assessment',
+        blurb: 'Filing, deadlines, payments and UTR',
+        slug: '/learn/self-assessment',
+      },
+    ];
+  }
+
+  const ltdExtras: LearnTopic[] = [
+    {
+      iconKey: 'director',
+      title: "Director's guide",
+      blurb: 'Your legal duties at a glance',
+      slug: '/learn/director-responsibilities',
+    },
+    {
+      iconKey: 'companieshouse',
+      title: 'Companies House essentials',
+      blurb: 'ID verification, filings, confirmation statements',
+      slug: '/learn/companies-house',
+    },
+  ];
+
+  if (d.clientType === 'PSC') {
+    ltdExtras.push({
+      iconKey: 'ir35',
+      title: 'IR35 explained',
+      blurb: 'Inside vs outside, contract reviews',
+      slug: '/learn/ir35',
+    });
+  }
+
+  return [...common, ...ltdExtras];
+}
 
 // ─────────────────────────────────────────────────────────────────────────
 // 07 — Quick wins for your first year (replaces the old "Good to know" tips)
