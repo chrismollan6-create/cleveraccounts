@@ -283,4 +283,28 @@ export const HUBS = [
     canonicalQuestion: "How do dividends work, how much can I take, and what's the paperwork?",
     appliesTo: ["ltd", "director"],
   },
+
+  // ── Wave 3 — Expenses deep-dives (welcome-pack foundation set) ────────────
+  // These three slot under /learn/expenses alongside the existing allowable /
+  // home-office / vehicle-and-travel hubs to give a complete day-one reference
+  // we can link directly from the onboarding guide PDF and the day-2 expenses
+  // email (replacing the legacy Zendesk links).
+  {
+    articleSlug: "recording-expenses-and-receipts",
+    topicSlug: "expenses",
+    sourceTopic: "Expenses",
+    sourceHub: "Recording Expenses and Receipts",
+    title: "How to record business expenses and keep receipts HMRC will accept",
+    canonicalQuestion: "How should I record business expenses and what records do I need to keep?",
+    appliesTo: ["ltd", "sole-trader", "contractor", "landlord", "director"],
+  },
+  {
+    articleSlug: "paying-for-expenses-personally",
+    topicSlug: "expenses",
+    sourceTopic: "Expenses",
+    sourceHub: "Personally Paid Expenses and Reimbursement",
+    title: "Paying for business expenses personally: how to claim them back",
+    canonicalQuestion: "Can I claim back business expenses I paid for with my own money?",
+    appliesTo: ["ltd", "director", "contractor"],
+  },
 ];

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Header from "@/components/layout/Header";
 import { getSiteSettings } from "@/sanity/queries";
 import TrustBar from "@/components/layout/TrustBar";
 import Footer from "@/components/layout/Footer";
+import LearnHeader from "@/components/layout/LearnHeader";
+import LearnFooter from "@/components/layout/LearnFooter";
 import { OrganizationJsonLd } from "@/components/seo/StructuredData";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/GoogleTagManager";
 import UTMCapture from "@/components/seo/UTMCapture";
@@ -90,6 +93,13 @@ export default async function RootLayout({
   // Fetch site settings from Sanity; falls back to constants in Header if null
   const siteSettings = await getSiteSettings().catch(() => null);
 
+  // Reading-mode chrome for /learn/* — see LearnHeader / LearnFooter for the
+  // rationale. Detection via the `x-pathname` header that middleware stamps
+  // on every request.
+  const hdrs = await headers();
+  const pathname = hdrs.get("x-pathname") ?? "";
+  const useLightChrome = pathname === "/learn" || pathname.startsWith("/learn/");
+
   // Build the Google Fonts URL once per brand. Inter is the default and is
   // already imported in globals.css; loading the WW font conditionally here
   // (rather than always-on) keeps the Clever bundle unchanged.
@@ -116,14 +126,20 @@ export default async function RootLayout({
         <GoogleTagManagerBody />
         <UTMCapture />
         <BrandProvider brandId={brand.id}>
-          <PromoBanner />
-          <Header
-            phone={siteSettings?.phone ?? undefined}
-            freephone={siteSettings?.freephone ?? undefined}
-          />
-          <TrustBar />
+          {useLightChrome ? (
+            <LearnHeader />
+          ) : (
+            <>
+              <PromoBanner />
+              <Header
+                phone={siteSettings?.phone ?? undefined}
+                freephone={siteSettings?.freephone ?? undefined}
+              />
+              <TrustBar />
+            </>
+          )}
           <main className="flex-1">{children}</main>
-          <Footer />
+          {useLightChrome ? <LearnFooter /> : <Footer />}
           <CookieConsent />
         </BrandProvider>
         <VercelMonitoring />
