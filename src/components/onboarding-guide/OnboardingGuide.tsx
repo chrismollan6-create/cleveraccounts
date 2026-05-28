@@ -28,7 +28,6 @@ import {
   Check,
   Clock,
   CalendarDays,
-  HelpCircle,
   Sparkles,
   Users,
   type LucideIcon,
@@ -49,6 +48,7 @@ import {
   getDeadlines,
   getFaqs,
   getQuickWins,
+  HAS_LEARN_CENTRE,
   TEAM_INTRO,
   TEAM_ROLES,
   type OnboardingGuideData,
@@ -121,8 +121,9 @@ function SectionHeader({
 export default function OnboardingGuide({ data }: { data: OnboardingGuideData }) {
   const sections = getSections(data);
   const deadlines = getDeadlines(data.variant);
-  const faqs = getFaqs(data.variant);
+  const faqs = getFaqs(data);
   const quickWins = getQuickWins(data.variant);
+  const showLearnLinks = HAS_LEARN_CENTRE[data.brandId];
   const CHANNEL_ICON: Record<ContactChannelIcon, LucideIcon> = {
     mail: Mail,
     phone: Phone,
@@ -149,7 +150,6 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
     ? `linear-gradient(to bottom right, ${c.primary}, ${c.primaryDark}, ${c.secondary})`
     : `linear-gradient(to bottom right, ${c.primary}, ${c.primary}, ${c.primaryDark})`;
   const footerGradient = `linear-gradient(to bottom right, ${c.primaryDark}, ${c.primary})`;
-  const packageGradient = `linear-gradient(to bottom right, ${c.primary}, ${c.primaryDark})`;
   const iconTileGradient = `linear-gradient(to bottom right, ${c.primary}, ${c.primaryDark})`;
   const secondaryButtonGradient = `linear-gradient(to bottom right, ${c.secondary}, ${c.secondaryDark})`;
 
@@ -517,7 +517,19 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 >
                   A
                 </span>
-                <p className="pt-1.5 text-[12.5px] leading-[1.7] text-text-light">{faq.a}</p>
+                <div className="flex-1 pt-1.5">
+                  <p className="text-[12.5px] leading-[1.7] text-text-light">{faq.a}</p>
+                  {showLearnLinks && faq.slug && (
+                    <a
+                      href={`https://${brand.domain}${faq.slug}`}
+                      className="mt-2.5 inline-flex items-center gap-1.5 text-[11.5px] font-semibold no-underline"
+                      style={{ color: c.primary }}
+                    >
+                      Read the full article
+                      <ArrowRight size={11} />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           ))}

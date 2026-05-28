@@ -143,4 +143,144 @@ export const HUBS = [
     canonicalQuestion: "What vehicle and travel expenses can my business claim?",
     appliesTo: ["ltd", "sole-trader", "director", "employer"],
   },
+
+  // ── Wave 2 ────────────────────────────────────────────────────────────────
+
+  // Self-Assessment — 4 more
+  {
+    articleSlug: "self-assessment-registration-and-utr",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "Registering for Self-Assessment and UTR",
+    title: "How to register for Self-Assessment and get your UTR",
+    canonicalQuestion: "How do I register for Self-Assessment and get my Unique Taxpayer Reference (UTR)?",
+    appliesTo: ["sole-trader", "ltd", "contractor", "landlord"],
+  },
+  {
+    articleSlug: "self-assessment-tax-calculation-explained",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "Self-Assessment Tax Calculation Explained",
+    title: "How your Self-Assessment tax bill is calculated",
+    canonicalQuestion: "How is my Self-Assessment tax liability calculated and why are the figures what they are?",
+    appliesTo: ["sole-trader", "landlord", "contractor", "ltd"],
+  },
+  {
+    articleSlug: "capital-gains-and-property-income",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "Capital Gains and Property Income",
+    title: "Capital gains and property income on your Self-Assessment",
+    canonicalQuestion: "How do I report capital gains or property income on my Self-Assessment?",
+    appliesTo: ["landlord", "ltd", "sole-trader"],
+  },
+  {
+    articleSlug: "hmrc-letters-and-penalties",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "HMRC Letters and Penalties",
+    title: "What to do about HMRC letters, demands and penalties",
+    canonicalQuestion: "What should I do about HMRC letters, demands, or penalties?",
+    appliesTo: ["sole-trader", "landlord", "contractor", "ltd"],
+  },
+
+  // Companies House — 2 more
+  {
+    articleSlug: "closing-a-limited-company",
+    topicSlug: "companies-house",
+    sourceTopic: "Companies-House",
+    sourceHub: "Company Closure and Dissolution",
+    title: "How to close a limited company (strike off vs liquidation)",
+    canonicalQuestion: "What is the process for closing a limited company?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "updating-company-details",
+    topicSlug: "companies-house",
+    sourceTopic: "Companies-House",
+    sourceHub: "Company Information and Officer Changes",
+    title: "Updating company details and officer information at Companies House",
+    canonicalQuestion: "How do I update company details or officer information?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // VAT — 3 more
+  {
+    articleSlug: "vat-returns-filing",
+    topicSlug: "vat",
+    sourceTopic: "VAT",
+    sourceHub: "VAT Returns and Filing",
+    title: "VAT returns: how to prepare and submit yours on time",
+    canonicalQuestion: "How do I prepare and submit my VAT return correctly and on time?",
+    appliesTo: ["ltd", "sole-trader", "contractor"],
+  },
+  {
+    articleSlug: "vat-payments-and-refunds",
+    topicSlug: "vat",
+    sourceTopic: "VAT",
+    sourceHub: "VAT Payments and Refunds",
+    title: "Paying VAT and claiming refunds: a UK director's guide",
+    canonicalQuestion: "How do I pay my VAT bill or receive a VAT refund?",
+    appliesTo: ["ltd", "sole-trader", "contractor"],
+  },
+  {
+    articleSlug: "reclaiming-vat-and-rates",
+    topicSlug: "vat",
+    sourceTopic: "VAT",
+    sourceHub: "Reclaiming VAT and Rates",
+    title: "What VAT you can reclaim on business expenses",
+    canonicalQuestion: "What VAT can I reclaim on business expenses and what are the correct rates?",
+    appliesTo: ["ltd", "sole-trader"],
+  },
+
+  // Corporation Tax — 2 more
+  {
+    articleSlug: "understanding-corporation-tax",
+    topicSlug: "corporation-tax",
+    sourceTopic: "Corporation-Tax",
+    sourceHub: "Understanding Corporation Tax Liability",
+    title: "Understanding your Corporation Tax bill",
+    canonicalQuestion: "How is my company's Corporation Tax calculated and why does it change?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "paying-corporation-tax",
+    topicSlug: "corporation-tax",
+    sourceTopic: "Corporation-Tax",
+    sourceHub: "Corporation Tax Payments and Refunds",
+    title: "How to pay Corporation Tax (and claim a refund)",
+    canonicalQuestion: "How do I pay my Corporation Tax, when is it due, and how do I claim a refund?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // Expenses — 2 more
+  {
+    articleSlug: "home-office-expenses",
+    topicSlug: "expenses",
+    sourceTopic: "Expenses",
+    sourceHub: "Home Office Expenses",
+    title: "Home office expenses: what UK businesses can claim",
+    canonicalQuestion: "How do I calculate and claim home office expenses?",
+    appliesTo: ["ltd", "sole-trader", "contractor", "director"],
+  },
+  {
+    articleSlug: "allowable-business-expenses",
+    topicSlug: "expenses",
+    sourceTopic: "Expenses",
+    sourceHub: "Allowable Business Expenses",
+    title: "What expenses can a UK business actually claim?",
+    canonicalQuestion: "What business expenses can I claim for tax relief?",
+    appliesTo: ["ltd", "sole-trader", "landlord"],
+  },
+
+  // Dividends — 1 more (basics + limits combined)
+  {
+    articleSlug: "how-to-take-dividends-correctly",
+    topicSlug: "dividends",
+    sourceTopic: "Dividends",
+    sourceHub: "Dividend Availability and Limits",
+    title: "How to take dividends from your limited company correctly",
+    canonicalQuestion: "How do dividends work, how much can I take, and what's the paperwork?",
+    appliesTo: ["ltd", "director"],
+  },
 ];

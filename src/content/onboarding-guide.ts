@@ -476,72 +476,140 @@ export function getDeadlines(variant: GuideVariant): { label: string; when: stri
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// 06 — Common questions in your first month
+// 05 — Common questions in your first month
+//
+// Sourced from the top topics in the 12-month inbound-question seed
+// (scratch/learn-seed/final-seed.md). Each FAQ optionally carries a `slug`
+// pointing at the brand's learn-centre article — the component renders a
+// "Read the full article →" link when both (a) the brand has a learn centre
+// and (b) the slug is set. Slugs that don't yet exist as articles should be
+// omitted (set undefined) so no broken links ship.
 // ─────────────────────────────────────────────────────────────────────────
 
-export function getFaqs(variant: GuideVariant): { q: string; a: string }[] {
-  if (variant === 'sole') {
+export interface FaqItem {
+  q: string;
+  a: string;
+  /** Relative path on the brand's learn centre, e.g. "/learn/...". When set
+   *  AND the brand has a learn centre, a "Read the full article →" link
+   *  renders below the answer. */
+  slug?: string;
+}
+
+export function getFaqs(d: OnboardingGuideData): FaqItem[] {
+  if (d.variant === 'sole') {
+    // Top sole-trader topics from the seed: SA payments (44), SA registration/
+    // UTR (28), allowable expenses (~74 across Expenses), record-keeping
+    // (Bookkeeping + general).
     return [
+      {
+        q: 'How and when do I pay my Self-Assessment tax bill?',
+        a:
+          "Your tax for the year ending 5 April is due by the following 31 January, paid " +
+          "via HMRC's online portal. If you owe more than £1,000 you'll usually also have " +
+          "Payments on Account due 31 January and 31 July. We'll send the figures and a " +
+          "guide well before each deadline.",
+        slug: '/learn/paying-your-self-assessment-tax',
+      },
+      {
+        q: 'How do I register for Self-Assessment and get my UTR?',
+        a:
+          "If you're new to self-employment, HMRC needs to issue you a UTR (Unique " +
+          "Taxpayer Reference) before you can file. Registration usually takes about 10 " +
+          "working days — we can do it for you, just send us your details.",
+        slug: '/learn/registering-for-self-assessment-utr',
+      },
       {
         q: 'Can I claim this as a business expense?',
         a:
-          "If it's genuinely for the business, yes. Some costs (use of home, mileage) have " +
-          "set allowances. The grey areas are usually the interesting bits — your accountant " +
-          "is the right person to ask before claiming.",
+          "If it's genuinely for the business, yes. Some costs (use of home, mileage) " +
+          "have set allowances. The grey areas are usually the interesting bits — ask us " +
+          "before claiming.",
+        slug: '/learn/allowable-business-expenses',
       },
       {
-        q: 'When do I pay my tax?',
+        q: 'What records do I need to keep, and for how long?',
         a:
-          '31 January following the tax year — for example, the year ending 5 April 2026 ' +
-          'is paid by 31 January 2027. If you owe more than £1,000 you may also have ' +
-          'Payments on Account due 31 January and 31 July.',
-      },
-      {
-        q: 'What records do I need to keep?',
-        a:
-          'Income, expenses, bank statements and a mileage log — anything HMRC could ' +
-          "ask for over the next six years. FreeAgent handles most of this; you can snap " +
-          "receipts on the mobile app.",
-      },
-      {
-        q: 'Do I pay myself a salary?',
-        a:
-          "No — your profits ARE your income, taxed via Self Assessment. Drawings from " +
-          "your business bank account aren't taxed when you take them; the tax is on " +
-          "profit at year-end.",
+          'Income, expenses, bank statements and a mileage log — anything HMRC could ask ' +
+          'for over the next six years. FreeAgent handles most of this; snap receipts on ' +
+          'the mobile app as they happen.',
+        slug: '/learn/record-keeping-essentials',
       },
     ];
   }
-  return [
+
+  // Limited Company — top topics from the seed: Companies House ID
+  // verification (93), corporation tax payments (24), director salary/dividend
+  // strategy (14), allowable expenses, officer/details changes (31).
+  const ltdBase: FaqItem[] = [
+    {
+      q: 'How do I complete Companies House ID verification?',
+      a:
+        'Every director and Person with Significant Control (PSC) must verify their ' +
+        "identity directly with Companies House — it's a statutory requirement. You can " +
+        'do it via the Companies House identity service, GOV.UK One Login, or an ' +
+        "authorised provider. We'll guide you to the right route for your situation.",
+      slug: '/learn/companies-house-id-verification',
+    },
+    {
+      q: 'How do I pay myself — salary and dividends?',
+      a:
+        "Most directors take a modest salary (around the NI threshold) plus dividends " +
+        "from after-tax profit. We'll recommend the right mix for your circumstances and " +
+        "set up PAYE if you don't already have it.",
+      slug: '/learn/director-salary-and-dividends',
+    },
+    {
+      q: 'How and when do I pay my corporation tax?',
+      a:
+        '9 months and 1 day after your accounting year-end. The return (CT600) is due 12 ' +
+        "months after — we'll prepare both well before each deadline.",
+      slug: '/learn/paying-corporation-tax',
+    },
     {
       q: 'Can I claim this as a business expense?',
       a:
-        "If it's genuinely 'wholly and exclusively' for the business, yes. The grey areas " +
-        "are usually the interesting bits — your accountant is the right person to ask " +
-        "before claiming.",
+        "If it's genuinely 'wholly and exclusively' for the business, yes. The grey " +
+        "areas are usually the interesting bits — ask us before claiming.",
+      slug: '/learn/allowable-business-expenses',
     },
+  ];
+
+  // PSC contractor — IR35 is the standout topic for this profile, so swap
+  // the generic "update company details" question for the IR35 one.
+  if (d.clientType === 'PSC') {
+    return [
+      ...ltdBase,
+      {
+        q: 'How do I know if my contract is inside or outside IR35?',
+        a:
+          "IR35 looks at whether HMRC would treat you as an employee if your limited " +
+          "company didn't exist. We offer a contract review on any current or future " +
+          "engagement to assess your position — just ask when you'd like one.",
+        slug: '/learn/ir35-explained',
+      },
+    ];
+  }
+
+  return [
+    ...ltdBase,
     {
-      q: 'How do I pay myself?',
+      q: "How do I update my company's details or officers?",
       a:
-        "Most directors take a small salary (up to the NI threshold) plus dividends from " +
-        "after-tax profit. We'll recommend the right mix for your circumstances and set " +
-        "up PAYE if you don't already have it.",
-    },
-    {
-      q: 'What records do I need to keep?',
-      a:
-        "Sales invoices, purchase receipts, bank statements and mileage log — anything " +
-        "HMRC could ask for over the next six years. FreeAgent handles most of this; " +
-        "you can snap receipts on the mobile app.",
-    },
-    {
-      q: 'When do I pay Corporation Tax?',
-      a:
-        '9 months and 1 day after your accounting year-end. The return is due 12 months ' +
-        "after — we'll prepare both for you well before each deadline.",
+        'We can file most changes (registered address, SIC code, director appointments, ' +
+        'share transfers) with Companies House on your behalf — just let us know what has ' +
+        'changed.',
+      slug: '/learn/updating-company-details',
     },
   ];
 }
+
+/** Which brands have a learn centre live. Used by the component to decide
+ *  whether to render the "Read the full article →" link. Flip to true once
+ *  Workwell ships its own learn centre. */
+export const HAS_LEARN_CENTRE: Record<GuideBrandId, boolean> = {
+  clever: true,
+  workwell: false,
+};
 
 // ─────────────────────────────────────────────────────────────────────────
 // 07 — Quick wins for your first year (replaces the old "Good to know" tips)
