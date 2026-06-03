@@ -474,4 +474,155 @@ export const HUBS = [
     canonicalQuestion: "Should I be a sole trader or a limited company?",
     appliesTo: ["sole-trader", "ltd", "director"],
   },
+
+  // ── Wave 5 — hub fillers + evergreen high-SEO articles ────────────────────
+
+  // Self-Assessment — 3 more
+  {
+    articleSlug: "amending-your-self-assessment-return",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "Amending Your Self-Assessment Return",
+    title: "How to amend your Self-Assessment return",
+    canonicalQuestion: "How do I amend or correct information on my Self-Assessment tax return?",
+    appliesTo: ["sole-trader", "landlord", "contractor", "ltd"],
+  },
+  {
+    articleSlug: "self-assessment-tax-refunds",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "Self-Assessment Tax Refunds",
+    title: "Self-Assessment tax refunds: when and how you'll get yours",
+    canonicalQuestion: "When and how will I receive my Self-Assessment tax refund?",
+    appliesTo: ["sole-trader", "landlord", "contractor", "ltd"],
+  },
+  {
+    articleSlug: "sa302-and-accountant-references-for-mortgages",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "General Self-Assessment Guidance",
+    title: "SA302 and accountant's references for mortgages",
+    canonicalQuestion: "How do I get an SA302 or accountant's reference for my mortgage application?",
+    appliesTo: ["sole-trader", "ltd", "landlord", "contractor"],
+  },
+
+  // Companies House — 3 more
+  {
+    articleSlug: "company-shares-issuing-and-transferring",
+    topicSlug: "companies-house",
+    sourceTopic: "Companies-House",
+    sourceHub: "Company Shares and Ownership",
+    title: "Company shares: issuing, transferring and cancelling",
+    canonicalQuestion: "How do I manage company shares and ownership changes?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "dormant-company-status",
+    topicSlug: "companies-house",
+    sourceTopic: "Companies-House",
+    sourceHub: "Company Dormancy Status",
+    title: "Making your company dormant: what it means and how to do it",
+    canonicalQuestion: "How do I make my company dormant and what are the implications?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "directors-legal-responsibilities",
+    topicSlug: "companies-house",
+    sourceTopic: "Companies-House",
+    sourceHub: "Company Information and Officer Changes",
+    title: "A UK director's legal responsibilities: the complete checklist",
+    canonicalQuestion: "What are my legal responsibilities as a UK limited company director?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // Corporation Tax — 3 more
+  {
+    articleSlug: "capital-allowances-and-aia",
+    topicSlug: "corporation-tax",
+    sourceTopic: "Expenses",
+    sourceHub: "Capital Allowances Explained",
+    title: "Capital allowances and the Annual Investment Allowance explained",
+    canonicalQuestion: "What are capital allowances, the AIA, and how do they reduce my tax bill?",
+    appliesTo: ["ltd", "sole-trader", "director"],
+  },
+  {
+    articleSlug: "closing-your-company-and-badr",
+    topicSlug: "corporation-tax",
+    sourceTopic: "Corporation-Tax",
+    sourceHub: "Corporation Tax on Company Closure",
+    title: "Closing your limited company tax-efficiently (BADR and MVL)",
+    canonicalQuestion: "How do I close my company tax-efficiently using Business Asset Disposal Relief?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "rd-tax-credits-for-smes",
+    topicSlug: "corporation-tax",
+    sourceTopic: "Corporation-Tax",
+    sourceHub: "Corporation Tax Planning and Reliefs",
+    title: "R&D Tax Credits for UK SMEs: who qualifies and how to claim",
+    canonicalQuestion: "What are R&D Tax Credits and can my company claim them?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // Dividends — 2 more
+  {
+    articleSlug: "dividend-accounting-and-reclassification",
+    topicSlug: "dividends",
+    sourceTopic: "Dividends",
+    sourceHub: "Dividend Accounting and Reclassification",
+    title: "Dividend accounting: recording, reclassifying and fixing mistakes",
+    canonicalQuestion: "How should I correctly record or adjust dividend payments in my company accounts?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "dividend-tax-for-higher-earners",
+    topicSlug: "dividends",
+    sourceTopic: "Dividends",
+    sourceHub: "Dividend Tax Calculations",
+    title: "Dividend tax for higher and additional rate earners",
+    canonicalQuestion: "How is my personal dividend tax calculated and what changes at the higher rate threshold?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // Expenses — 1 more
+  {
+    articleSlug: "buying-a-company-car-tax-decision",
+    topicSlug: "expenses",
+    sourceTopic: "Expenses",
+    sourceHub: "Benefits in Kind and P11D",
+    title: "Buying a company car: the tax decision (including EVs)",
+    canonicalQuestion: "Should I buy a car through my limited company and what's the tax impact?",
+    appliesTo: ["ltd", "director", "employer"],
+  },
+
+  // PAYE & Payroll — 2 more
+  {
+    articleSlug: "paye-penalties-and-hmrc-letters",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "PAYE Payments and HMRC Letters",
+    title: "PAYE penalties and HMRC letters: what to do",
+    canonicalQuestion: "When are PAYE payments due and how should I respond to HMRC letters about them?",
+    appliesTo: ["ltd", "employer", "director"],
+  },
+  {
+    articleSlug: "statutory-sick-and-maternity-pay",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "Statutory Sick and Maternity Pay",
+    title: "Statutory Sick Pay and Maternity Pay: a UK employer's guide",
+    canonicalQuestion: "How do Statutory Sick Pay and Maternity Pay work and who pays for them?",
+    appliesTo: ["ltd", "employer"],
+  },
+
+  // Self-Assessment / general — HMRC investigation
+  {
+    articleSlug: "hmrc-investigation-what-to-do",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "HMRC Letters and Penalties",
+    title: "HMRC investigation or compliance check: what to do",
+    canonicalQuestion: "What should I do if HMRC opens an investigation or compliance check?",
+    appliesTo: ["sole-trader", "ltd", "director", "landlord", "contractor"],
+  },
 ];
