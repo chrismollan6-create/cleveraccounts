@@ -31,6 +31,13 @@ import {
   Sparkles,
   Users,
   FileText,
+  Umbrella,
+  Lock,
+  KeyRound,
+  Copyright,
+  PiggyBank,
+  AlertTriangle,
+  Forward,
   type LucideIcon,
 } from 'lucide-react';
 import { BRANDS } from '@/lib/constants';
@@ -53,10 +60,14 @@ import {
   HAS_LEARN_CENTRE,
   TEAM_INTRO,
   TEAM_ROLES,
+  getThingsToThinkAbout,
+  HMRC_SCAM_WARNING,
+  FORWARD_ANYTHING,
   type LearnTopicIconKey,
   type OnboardingGuideData,
   type SectionIconKey,
   type ContactChannelIcon,
+  type ThingsIconKey,
 } from '@/content/onboarding-guide';
 import GuideDownloadButton from './GuideDownloadButton';
 
@@ -80,6 +91,15 @@ const SECTION_ICON: Record<SectionIconKey, LucideIcon> = {
   paye: Coins,
   ir35: Briefcase,
   freeagent: MonitorSmartphone,
+};
+
+const THINGS_ICON: Record<ThingsIconKey, LucideIcon> = {
+  insurance: Umbrella,
+  ico: Lock,
+  bank: Landmark,
+  cyber: KeyRound,
+  ip: Copyright,
+  pension: PiggyBank,
 };
 
 const INCLUDED: { icon: LucideIcon; label: string }[] = [
@@ -126,6 +146,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
   const deadlines = getDeadlines(data.variant);
   const faqs = getFaqs(data);
   const quickWins = getQuickWins(data.variant);
+  const thingsToThinkAbout = getThingsToThinkAbout(data);
   const showLearnLinks = HAS_LEARN_CENTRE[data.brandId];
   const learnTopics = showLearnLinks ? getLearnTopics(data) : [];
   const LEARN_ICON: Record<LearnTopicIconKey, LucideIcon> = {
@@ -458,6 +479,19 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
           <Clock size={18} className="mt-0.5 shrink-0" style={{ color: c.primary }} />
           <p className="text-[12px] leading-[1.6] text-text-light">{OFFICE_HOURS}</p>
         </div>
+        <div
+          className="mt-3 flex break-inside-avoid items-start gap-3 rounded-xl border-l-[4px] bg-white p-4"
+          style={{
+            borderColor: c.secondary,
+            backgroundColor: hexAlpha(c.secondary, 0.07),
+          }}
+        >
+          <Forward size={18} className="mt-0.5 shrink-0" style={{ color: c.secondary }} />
+          <p className="text-[12px] leading-[1.6] text-text-light">
+            <strong className="font-extrabold text-text">Forward us anything.</strong>{' '}
+            {FORWARD_ANYTHING.replace(/^Forward us anything from /, 'From ')}
+          </p>
+        </div>
       </section>
 
       {/* 04 — Key deadlines (brand-coloured accent + emphasised "when") */}
@@ -630,6 +664,94 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
               </article>
             );
           })}
+        </div>
+      </section>
+
+      {/* 08 — Things to think about (outside our remit, but flagged because the
+          consequence of missing them is real — statutory, legal or uninsured).
+          Insurance copy is variant-aware off clientType. The HMRC-scam callout
+          at the bottom is the highest harm-prevented addition; clients fall for
+          these every month and the fix is one line of guidance. */}
+      <section className="bg-surface px-[20mm] py-[14mm]">
+        <SectionHeader
+          num="08"
+          eyebrow="Things to think about"
+          title="Outside our remit — but worth flagging"
+          primaryColor={c.primary}
+        />
+        <p className="mt-4 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
+          A handful of things every new business should have on its radar. None of
+          these are part of your accountancy package, but missing them tends to bite
+          later — so we’d rather you knew now.
+        </p>
+        <div className="mt-7 space-y-3">
+          {thingsToThinkAbout.map((t) => {
+            const Icon = THINGS_ICON[t.iconKey];
+            return (
+              <article
+                key={t.title}
+                className="flex break-inside-avoid items-start gap-5 rounded-2xl border border-border bg-white p-5 shadow-[0_3px_16px_rgba(15,23,42,0.07)]"
+              >
+                <div
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
+                  <Icon size={20} strokeWidth={2} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[14px] font-extrabold leading-snug text-text">
+                    {t.title}
+                  </h3>
+                  <p className="mt-1.5 text-[12px] leading-[1.65] text-text-light">
+                    {t.body}
+                  </p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* HMRC scam awareness callout — amber/secondary border to read as a
+            warning without using true red (kept inside brand palette). */}
+        <div
+          className="mt-5 break-inside-avoid rounded-2xl border-l-[5px] bg-white p-5 shadow-[0_3px_16px_rgba(15,23,42,0.07)]"
+          style={{
+            borderColor: c.secondary,
+            backgroundColor: hexAlpha(c.secondary, 0.05),
+          }}
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+              style={{ backgroundImage: secondaryButtonGradient }}
+            >
+              <AlertTriangle size={20} strokeWidth={2.2} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-[14px] font-extrabold leading-snug text-text">
+                {HMRC_SCAM_WARNING.title}
+              </h3>
+              <p className="mt-1.5 text-[12px] leading-[1.65] text-text-light">
+                {HMRC_SCAM_WARNING.lead}
+              </p>
+              <ul className="mt-3 space-y-1.5">
+                {HMRC_SCAM_WARNING.rules.map((r) => (
+                  <li
+                    key={r}
+                    className="flex items-start gap-2 text-[11.5px] leading-[1.55] text-text-light"
+                  >
+                    <Check
+                      size={12}
+                      strokeWidth={3}
+                      className="mt-1 shrink-0"
+                      style={{ color: c.secondary }}
+                    />
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 

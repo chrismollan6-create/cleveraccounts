@@ -772,6 +772,178 @@ export function getQuickWins(variant: GuideVariant): { title: string; body: stri
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// 08 — Things to think about (outside our remit — but worth flagging)
+//
+// Deliberate framing: NOT upsell. These are gaps a new business owner
+// usually doesn't know exist, where the consequence of missing them is real
+// (legal requirement, statutory fine, or uninsured loss). Tone is "we're
+// looking out for you" — not "here's another bill".
+//
+// Insurance copy is variant-aware off clientType:
+//   • 'PSC'        → we have a streamlined block-style policy for contractors,
+//                    surfaced without naming the product (the accountant
+//                    follows up with details). One line covers PI + PL + cover
+//                    requirements typically asked for in IT/engineering
+//                    contracts.
+//   • 'SME' / etc. → we'd refer to a specialist commercial broker for a
+//                    bespoke quote. Provider name intentionally not in the
+//                    PDF — keeps the doc evergreen if partner ever changes.
+// ─────────────────────────────────────────────────────────────────────────
+
+export type ThingsIconKey =
+  | 'insurance'
+  | 'ico'
+  | 'bank'
+  | 'cyber'
+  | 'ip'
+  | 'pension';
+
+export interface ThingsItem {
+  iconKey: ThingsIconKey;
+  title: string;
+  body: string;
+}
+
+function insuranceItem(d: OnboardingGuideData): ThingsItem {
+  if (d.clientType === 'PSC') {
+    return {
+      iconKey: 'insurance',
+      title: 'Contractor insurance (PI + PL)',
+      body:
+        'Most contracts require Professional Indemnity and Public Liability cover ' +
+        'before you can start work, and many agencies set specific minimum limits. ' +
+        "We have a streamlined option built for contractors — ask your accountant if " +
+        "you'd like the details.",
+    };
+  }
+  if (d.clientType === 'SME') {
+    return {
+      iconKey: 'insurance',
+      title: 'Business insurance',
+      body:
+        'Your cover needs depend on what you do, who you employ and where you work — ' +
+        'Public Liability, Employer’s Liability (legally required from your first ' +
+        'employee), Professional Indemnity, business interruption and cyber are the ' +
+        'usual mix. We can introduce you to a specialist commercial broker for a ' +
+        'bespoke quote — just ask.',
+    };
+  }
+  return {
+    iconKey: 'insurance',
+    title: 'Business insurance',
+    body:
+      'Even as a smaller operation, Public Liability and Professional Indemnity cover ' +
+      'protect you against claims that can dwarf a year’s profit. We can point ' +
+      'you to a specialist broker if you’d like a bespoke quote — just ask.',
+  };
+}
+
+export function getThingsToThinkAbout(d: OnboardingGuideData): ThingsItem[] {
+  const items: ThingsItem[] = [insuranceItem(d)];
+
+  // ICO registration — applies broadly; legal requirement if you process
+  // personal data (which almost every business does — customer email, payroll,
+  // suppliers).
+  items.push({
+    iconKey: 'ico',
+    title: 'ICO registration (data protection fee)',
+    body:
+      'If you process personal data — customers, suppliers, employees — you almost ' +
+      'certainly need to register with the Information Commissioner’s Office and ' +
+      'pay an annual fee (currently £40–£60 for most small businesses). ' +
+      'Statutory; missing it can attract a fine.',
+  });
+
+  // Business bank account — for Ltd this is essentially required; for sole
+  // traders it's strong best practice, not a legal must.
+  if (d.variant !== 'sole') {
+    items.push({
+      iconKey: 'bank',
+      title: 'A dedicated business bank account',
+      body:
+        'Your limited company is a separate legal entity, so its money has to live in ' +
+        'its own account — not yours. Most banks open a basic business account quickly; ' +
+        'we can point you to providers our clients rate if you’d like a steer.',
+    });
+  } else {
+    items.push({
+      iconKey: 'bank',
+      title: 'Keep business and personal money separate',
+      body:
+        'Not strictly required for a sole trader, but a dedicated business account ' +
+        'makes bookkeeping, tax and VAT (if you register) dramatically easier — and ' +
+        'protects you in an HMRC enquiry.',
+    });
+  }
+
+  // Cyber awareness — universally applicable.
+  items.push({
+    iconKey: 'cyber',
+    title: 'Basic cyber hygiene',
+    body:
+      'Unique passwords on a password manager, two-factor authentication on your ' +
+      'email, accounting software and HMRC login, and a healthy scepticism of urgent ' +
+      'payment requests. Most small-business losses start with a compromised email ' +
+      'inbox.',
+  });
+
+  // Trade marks / IP — only worth flagging for new Ltds (those building a
+  // brand from day one); sole traders rarely have brand assets to protect.
+  if (d.variant === 'ltd-new') {
+    items.push({
+      iconKey: 'ip',
+      title: 'Protect your name and brand',
+      body:
+        'A company name registered at Companies House does NOT give you trade mark ' +
+        'rights. If your business name, logo or product name matters to you, a UK ' +
+        'trade mark registration (currently from £170 via the IPO) gives you exclusive ' +
+        'rights and is well worth the price.',
+    });
+  }
+
+  // Pension auto-enrolment — only when employer status (PAYE) applies.
+  if (d.payeStatus === 'Existing PAYE registration' || d.payeStatus === 'Needs PAYE registration') {
+    items.push({
+      iconKey: 'pension',
+      title: 'Pension auto-enrolment',
+      body:
+        'As soon as you employ someone other than a single director, you have to set ' +
+        'up a workplace pension and enrol eligible employees. The Pensions Regulator ' +
+        'writes to you with a staging date — we’ll prompt you when it lands.',
+    });
+  }
+
+  return items;
+}
+
+// HMRC scam awareness — fixed copy, surfaced as a callout at the bottom of
+// Section 08. Real client harm averted by this is significant: HMRC-impersonation
+// SMS, "tax refund" emails, and "you owe tax, pay now" phone calls cost UK
+// taxpayers tens of millions a year. The rule is simple: HMRC never asks for
+// payment by SMS, never threatens immediate arrest, and never asks for
+// passwords or card details.
+export const HMRC_SCAM_WARNING = {
+  title: 'HMRC and Companies House scams — read this',
+  lead:
+    "We see this monthly: a client gets a convincing-looking SMS, email or phone " +
+    "call claiming to be from HMRC or Companies House, often urgent and threatening. " +
+    "Almost all of it is fraud.",
+  rules: [
+    'HMRC will never text you a link to claim a tax refund, or ask for card or password details by SMS or email.',
+    'HMRC will never threaten you with arrest or immediate police action over the phone.',
+    'Companies House do not phone you to demand payment for your confirmation statement.',
+    'When in doubt, hang up / delete / forward to us. We can confirm whether anything is real in minutes.',
+  ],
+};
+
+// Open invitation that belongs near the contact channels — many clients sit
+// on letters for weeks before flagging. Encouraging immediate forwarding is
+// the cheapest preventable-loss measure we have.
+export const FORWARD_ANYTHING =
+  'Forward us anything from HMRC, Companies House or your bank — even if it looks like spam. ' +
+  "We’d rather see it and confirm it's nothing than miss something that mattered.";
+
+// ─────────────────────────────────────────────────────────────────────────
 // The team behind your accountant
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -810,7 +982,10 @@ export function buildSampleData(
   } else if (variant === 'ltd-existing') {
     vatStatus = 'Existing VAT registration';
     payeStatus = 'Existing PAYE registration';
-    clientType = undefined;
+    // SME so the design-review preview surfaces the SME-broker insurance copy
+    // for Section 08. Real-world distribution: existing Ltds split between
+    // 'SME' and 'PSC' — both branches need exercising in preview.
+    clientType = 'SME';
   } else {
     vatStatus = 'Needs VAT registration';
     payeStatus = 'Not PAYE registered';
