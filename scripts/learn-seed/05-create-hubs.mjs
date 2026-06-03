@@ -56,18 +56,27 @@ const ARTICLE_PUB_ID = (slug) => `knowledgeArticle-${slug}`;
 
 async function upsertTopic(topic) {
   const id = TOPIC_ID(topic.slug);
-  // createOrReplace overwrites — but topics are config, that's fine
-  await client.createOrReplace({
-    _id: id,
-    _type: "knowledgeTopic",
+  const baseFields = {
     name: topic.name,
     slug: { _type: "slug", current: topic.slug },
     shortDescription: topic.shortDescription,
     intro: topic.intro,
     icon: topic.icon,
     order: topic.order,
-  });
-  console.log(`  ✓ topic: ${topic.name}`);
+  };
+  // Patch base fields if the topic exists, otherwise create. We deliberately
+  // DO NOT createOrReplace — that would wipe keyFacts / timeline / usefulLinks
+  // / quickAnswers managed by 07-enrich-topics.mjs (or by accountants in
+  // Studio). This is exactly how the Expenses-and-friends topic data got
+  // wiped on 2026-05-28; never again.
+  const existing = await client.getDocument(id).catch(() => null);
+  if (existing) {
+    await client.patch(id).set(baseFields).commit();
+    console.log(`  ↻ topic: ${topic.name} — base fields refreshed`);
+  } else {
+    await client.create({ _id: id, _type: "knowledgeTopic", ...baseFields });
+    console.log(`  + topic: ${topic.name} — created`);
+  }
   return id;
 }
 

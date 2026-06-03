@@ -304,7 +304,7 @@ export default async function KnowledgeArticlePage({
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-dark mb-4">Want this handled for you?</h2>
           <p className="text-text-light mb-6">
-            Our accountants do the work, file with HMRC and keep you compliant — from £24.50/month.
+            Our accountants do the work, file with HMRC and keep you compliant — from £42.50/month.
           </p>
           <Link
             href="/contact"

@@ -11,7 +11,6 @@ import {
   ListChecks,
   HelpCircle,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { getKnowledgeTopic, getKnowledgeTopicSlugs } from "@/sanity/queries";
@@ -206,25 +205,20 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         ]}
       />
 
-      {/* ── Hero (matches pricing/marketing dark-hero pattern) ─────────── */}
+      {/* ── Hero (matches pricing/marketing dark-hero pattern, aligned to LearnHeader's max-w-7xl) ─── */}
       <section className="relative overflow-hidden bg-dark py-20 md:py-28">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-3xl animate-blob" />
           <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-4">
+        <div className="relative max-w-7xl mx-auto px-4">
           <Link
             href="/learn"
-            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white mb-6"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white mb-8"
           >
             <ArrowLeft size={16} /> Learning Centre
           </Link>
-
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/80 rounded-full px-4 py-2 text-sm font-semibold mb-6">
-            <Sparkles size={14} className="text-secondary" />
-            Learning Centre · {data.name}
-          </div>
 
           <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
             <span className="text-gradient">{data.name}</span>
@@ -233,18 +227,30 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
           <p className="text-lg text-white/75 leading-relaxed max-w-3xl mb-8">{data.intro}</p>
 
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
-              <BookOpen size={14} className="text-primary-light" /> {articles.length} {articles.length === 1 ? "guide" : "guides"}
-            </span>
+            {/* Primary CTA: Jump straight to the guides */}
+            {articles.length > 0 && (
+              <a
+                href="#guides"
+                className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary-dark text-white rounded-full px-5 py-2.5 font-semibold shadow-lg transition-colors"
+              >
+                <BookOpen size={14} /> Jump to {articles.length} {articles.length === 1 ? "guide" : "guides"}
+              </a>
+            )}
             {keyFacts.length > 0 && (
-              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
+              <a
+                href="#key-facts"
+                className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 hover:bg-white/15 rounded-full px-4 py-2 font-semibold transition-colors"
+              >
                 <ListChecks size={14} className="text-primary-light" /> {keyFacts.length} key facts
-              </span>
+              </a>
             )}
             {timeline.length > 0 && (
-              <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
-                <Calendar size={14} className="text-primary-light" /> Annual cycle covered
-              </span>
+              <a
+                href="#timeline"
+                className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 hover:bg-white/15 rounded-full px-4 py-2 font-semibold transition-colors"
+              >
+                <Calendar size={14} className="text-primary-light" /> Annual cycle
+              </a>
             )}
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/85 rounded-full px-4 py-2 font-semibold">
               <ShieldCheck size={14} className="text-green-400" /> Reviewed by qualified accountants
@@ -259,111 +265,21 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         </div>
       </section>
 
-      {/* ── Key facts ──────────────────────────────────────────────────── */}
-      {keyFacts.length > 0 && (
-        <section className="bg-white py-12">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="flex items-center gap-2 mb-1">
-              <div className={`h-0.5 w-8 ${accent.bg}`} />
-              <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Key facts</p>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-dark mb-8">The headline figures</h2>
-            {/* Flex-wrap so a row of 5 facts fits on one line on lg+, wraps cleanly below. */}
-            <div className="flex flex-wrap gap-3">
-              {keyFacts.map((f, i) => (
-                <div
-                  key={`fact-${i}`}
-                  className="relative flex-1 min-w-[170px] bg-white border border-border rounded-2xl p-4 hover:shadow-md transition-shadow"
-                >
-                  {f.icon && (
-                    <div className={`inline-flex w-9 h-9 rounded-lg ${accent.iconBg} items-center justify-center mb-2.5`}>
-                      <LucideByName name={f.icon} className={accent.iconText} size={18} />
-                    </div>
-                  )}
-                  <p className={`text-xl md:text-2xl font-bold ${accent.text} mb-1 leading-tight`}>
-                    {f.value}
-                  </p>
-                  <p className="text-sm font-medium text-dark leading-snug mb-1">{f.label}</p>
-                  {f.context && (
-                    <p className="text-xs text-text-light leading-snug">{f.context}</p>
-                  )}
-                </div>
-              ))}
-            </div>
+      {/* ── Articles (moved to position #2, right after hero — guides are the primary intent) ─── */}
+      <section id="guides" className="bg-white border-b border-border py-12 scroll-mt-20">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="flex items-center gap-2 mb-1">
+            <div className={`h-0.5 w-8 ${accent.bg}`} />
+            <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Guides</p>
           </div>
-        </section>
-      )}
-
-      {/* ── Timeline ───────────────────────────────────────────────────── */}
-      {timeline.length > 0 && (
-        <section className="relative bg-surface/40 border-t border-border py-12 overflow-hidden">
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-50 pointer-events-none"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.04) 1px, transparent 0)",
-              backgroundSize: "24px 24px",
-            }}
-          />
-          <div className="relative max-w-5xl mx-auto px-4">
-            <div className="flex items-center gap-2 mb-1">
-              <div className={`h-0.5 w-8 ${accent.bg}`} />
-              <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Annual cycle</p>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">Key dates and deadlines</h2>
-            <p className="text-text-light mb-8">The events you can&apos;t afford to miss in a typical year.</p>
-            <ol className="relative border-l-2 border-border ml-3 space-y-6">
-              {timeline.map((t, i) => (
-                <li key={`timeline-${i}`} className="relative pl-6">
-                  <span className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full ${accent.bg} ring-4 ${accent.ring} flex items-center justify-center`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                  </span>
-                  <div className={`inline-block ${accent.bgSoft} ${accent.text} text-xs font-semibold px-2.5 py-1 rounded-full mb-1.5`}>
-                    {t.period}
-                  </div>
-                  <p className="font-semibold text-dark leading-snug">{t.label}</p>
-                  {t.description && (
-                    <p className="text-sm text-text-light mt-1 leading-relaxed max-w-2xl">{t.description}</p>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-      )}
-
-      {/* ── Articles ───────────────────────────────────────────────────── */}
-      <section className={`relative ${accent.bgSoft} border-y border-border py-14 overflow-hidden`}>
-        {/* one subtle decorative blob (down from two) */}
-        <div
-          aria-hidden
-          className={`absolute -bottom-24 -right-24 w-72 h-72 rounded-full ${accent.bg} opacity-[0.06] blur-3xl pointer-events-none`}
-        />
-
-        <div className="relative max-w-5xl mx-auto px-4">
-          <div className="flex items-start justify-between gap-4 mb-8">
-            <div className="flex-1 min-w-0">
-              <div className={`inline-flex items-center gap-2 bg-primary/10 ${accent.text} text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3`}>
-                <BookOpen size={12} />
-                {articles.length === 0 ? "Coming soon" : `${articles.length} ${articles.length === 1 ? "guide" : "guides"} ready to read`}
-              </div>
-              <h2 className="text-2xl md:text-4xl font-bold text-dark leading-tight">
-                {articles.length === 0 ? `${data.name} guides` : `Read our ${data.name} guides`}
-              </h2>
-              <p className="text-text-light text-base mt-2 max-w-2xl">
-                {articles.length === 0
-                  ? "We're writing these next. In the meantime, the key facts and resources should cover most needs."
-                  : "Plain-English walkthroughs of the most common questions clients ask."}
-              </p>
-            </div>
-            {/* Only show the big icon panel once we have a reasonable number of guides — otherwise it dwarfs the content */}
-            {articles.length >= 3 && (
-              <div className={`hidden md:flex flex-shrink-0 w-16 h-16 rounded-2xl ${accent.iconBg} items-center justify-center`}>
-                <BookOpen className={accent.iconText} size={28} />
-              </div>
-            )}
-          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
+            {articles.length === 0 ? `${data.name} guides — coming soon` : `Read our ${data.name} guides`}
+          </h2>
+          <p className="text-text-light mb-8">
+            {articles.length === 0
+              ? "We're writing these next. In the meantime, the key facts and resources below should cover most needs."
+              : "Plain-English walkthroughs of the most common questions clients ask."}
+          </p>
 
           {articles.length > 0 ? (
             <ul className="space-y-3">
@@ -403,7 +319,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
             </ul>
           ) : (
             <div className="bg-white border border-border rounded-xl p-5 text-center text-sm text-text-light">
-              No guides yet for {data.name}. In the meantime, the key facts above and the resources below
+              No guides yet for {data.name}. In the meantime, the key facts and resources below
               should cover most needs — or{" "}
               <Link href="/contact" className={`font-medium ${accent.text} underline`}>
                 ask an accountant
@@ -413,6 +329,80 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
           )}
         </div>
       </section>
+
+      {/* ── Key facts ──────────────────────────────────────────────────── */}
+      {keyFacts.length > 0 && (
+        <section id="key-facts" className="bg-white py-12 scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`h-0.5 w-8 ${accent.bg}`} />
+              <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Key facts</p>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-dark mb-8">The headline figures</h2>
+            {/* Flex-wrap so a row of 5 facts fits on one line on lg+, wraps cleanly below. */}
+            <div className="flex flex-wrap gap-3">
+              {keyFacts.map((f, i) => (
+                <div
+                  key={`fact-${i}`}
+                  className="relative flex-1 min-w-[170px] bg-white border border-border rounded-2xl p-4 hover:shadow-md transition-shadow"
+                >
+                  {f.icon && (
+                    <div className={`inline-flex w-9 h-9 rounded-lg ${accent.iconBg} items-center justify-center mb-2.5`}>
+                      <LucideByName name={f.icon} className={accent.iconText} size={18} />
+                    </div>
+                  )}
+                  <p className={`text-xl md:text-2xl font-bold ${accent.text} mb-1 leading-tight`}>
+                    {f.value}
+                  </p>
+                  <p className="text-sm font-medium text-dark leading-snug mb-1">{f.label}</p>
+                  {f.context && (
+                    <p className="text-xs text-text-light leading-snug">{f.context}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Timeline ───────────────────────────────────────────────────── */}
+      {timeline.length > 0 && (
+        <section id="timeline" className="relative bg-surface/40 border-t border-border py-12 overflow-hidden scroll-mt-20">
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-50 pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.04) 1px, transparent 0)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+          <div className="relative max-w-5xl mx-auto px-4">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`h-0.5 w-8 ${accent.bg}`} />
+              <p className={`text-xs font-semibold uppercase tracking-wider ${accent.text}`}>Annual cycle</p>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">Key dates and deadlines</h2>
+            <p className="text-text-light mb-8">The events you can&apos;t afford to miss in a typical year.</p>
+            <ol className="relative border-l-2 border-border ml-3 space-y-6">
+              {timeline.map((t, i) => (
+                <li key={`timeline-${i}`} className="relative pl-6">
+                  <span className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full ${accent.bg} ring-4 ${accent.ring} flex items-center justify-center`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                  </span>
+                  <div className={`inline-block ${accent.bgSoft} ${accent.text} text-xs font-semibold px-2.5 py-1 rounded-full mb-1.5`}>
+                    {t.period}
+                  </div>
+                  <p className="font-semibold text-dark leading-snug">{t.label}</p>
+                  {t.description && (
+                    <p className="text-sm text-text-light mt-1 leading-relaxed max-w-2xl">{t.description}</p>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
 
       {/* ── Useful links ───────────────────────────────────────────────── */}
       {usefulLinks.length > 0 && (
