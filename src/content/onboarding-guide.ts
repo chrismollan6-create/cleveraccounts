@@ -772,12 +772,14 @@ export function getQuickWins(variant: GuideVariant): { title: string; body: stri
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// 08 — Things to think about (outside our remit — but worth flagging)
+// 08 — Things to think about (looking out for the business)
 //
 // Deliberate framing: NOT upsell. These are gaps a new business owner
 // usually doesn't know exist, where the consequence of missing them is real
 // (legal requirement, statutory fine, or uninsured loss). Tone is "we're
-// looking out for you" — not "here's another bill".
+// looking out for you" — not "here's another bill" and not distancing
+// ("not our problem"). Title and lead copy in OnboardingGuide.tsx are
+// aligned with that framing.
 //
 // Insurance copy is variant-aware off clientType:
 //   • 'PSC'        → we have a streamlined block-style policy for contractors,

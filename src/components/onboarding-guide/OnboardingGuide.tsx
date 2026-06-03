@@ -676,13 +676,12 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         <SectionHeader
           num="08"
           eyebrow="Things to think about"
-          title="Outside our remit — but worth flagging"
+          title="Looking out for your business"
           primaryColor={c.primary}
         />
         <p className="mt-4 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
-          A handful of things every new business should have on its radar. None of
-          these are part of your accountancy package, but missing them tends to bite
-          later — so we’d rather you knew now.
+          A handful of things every new business should have on its radar. We’d
+          rather flag them now than have them bite later.
         </p>
         <div className="mt-7 space-y-3">
           {thingsToThinkAbout.map((t) => {
