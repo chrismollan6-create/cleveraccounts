@@ -129,6 +129,18 @@ const TOPIC_ACCENTS: Record<string, TopicAccent> = {
     cardBg: "bg-gradient-to-br from-white to-yellow-50", blobBg: "bg-yellow-200",
     tagBg: "bg-yellow-100 text-yellow-700", hoverShadow: "hover:shadow-yellow-200/60",
   },
+  "paye-payroll": {
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-200",
+    hoverBorder: "hover:border-yellow-400", bullet: "text-yellow-500",
+    cardBg: "bg-gradient-to-br from-white to-yellow-50", blobBg: "bg-yellow-200",
+    tagBg: "bg-yellow-100 text-yellow-700", hoverShadow: "hover:shadow-yellow-200/60",
+  },
+  "year-end-accounts": {
+    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-200",
+    hoverBorder: "hover:border-emerald-400", bullet: "text-emerald-500",
+    cardBg: "bg-gradient-to-br from-white to-emerald-50", blobBg: "bg-emerald-200",
+    tagBg: "bg-emerald-100 text-emerald-700", hoverShadow: "hover:shadow-emerald-200/60",
+  },
   bookkeeping: {
     iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-200",
     hoverBorder: "hover:border-emerald-400", bullet: "text-emerald-500",

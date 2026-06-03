@@ -68,6 +68,26 @@ export const TOPICS = [
     intro:
       "Claiming the right expenses isn't about being clever with HMRC — it's about not paying tax on money you've actually spent running your business. These guides cover what counts as an allowable expense, the specific rules for mileage, home working and benefits in kind, and how to record everything so it stands up to scrutiny.",
   },
+  {
+    name: "PAYE & Payroll",
+    slug: "paye-payroll",
+    icon: "Users",
+    order: 70,
+    shortDescription:
+      "Running payroll for your company — PAYE basics, NIC, tax codes, payslips, P11D, auto-enrolment and reporting to HMRC.",
+    intro:
+      "PAYE (Pay As You Earn) is how UK employers collect income tax and National Insurance from salaries before paying them to staff. Every Ltd company that pays a director or employee a wage runs PAYE. The rules around tax codes, employer NIC, the Employment Allowance, P11D benefits and auto-enrolment pensions change regularly, and the consequences of missing a Real-Time Information submission are real. These guides cover the basics, the most common pitfalls, and the changes that came in with the 2025/26 and 2026/27 Budgets.",
+  },
+  {
+    name: "Year-End Accounts",
+    slug: "year-end-accounts",
+    icon: "FolderClock",
+    order: 80,
+    shortDescription:
+      "How your year-end accounts work, what your accountant needs from you, and what the figures actually mean.",
+    intro:
+      "Every limited company files annual accounts at Companies House and a Corporation Tax return at HMRC for the same accounting period — collectively the 'year-end'. This is the moment everything from the year comes together, and it's also the most-questioned process by clients each year. These guides cover the deadlines, what documents your accountant needs from you, and how to actually read the accounts they produce.",
+  },
 ];
 
 export const HUBS = [
@@ -306,5 +326,152 @@ export const HUBS = [
     title: "Paying for business expenses personally: how to claim them back",
     canonicalQuestion: "Can I claim back business expenses I paid for with my own money?",
     appliesTo: ["ltd", "director", "contractor"],
+  },
+
+  // ── Wave 4 — PAYE & Payroll topic launch (7), Year-End Accounts (3), evergreen filler (5) ──
+
+  // PAYE & Payroll topic — 7 articles
+  {
+    articleSlug: "paye-for-limited-company-directors",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "Payroll Administration & Setup",
+    title: "PAYE for limited company directors: the complete guide",
+    canonicalQuestion: "How does PAYE work for a limited company director?",
+    appliesTo: ["ltd", "director", "employer"],
+  },
+  {
+    articleSlug: "hiring-your-first-employee",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "Payroll Administration & Setup",
+    title: "Hiring your first employee: the UK setup checklist",
+    canonicalQuestion: "What do I need to do to hire my first employee in the UK?",
+    appliesTo: ["ltd", "employer", "director"],
+  },
+  {
+    articleSlug: "national-insurance-contributions-explained",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "National Insurance Contributions Explained",
+    title: "National Insurance contributions explained (2026/27 rates)",
+    canonicalQuestion: "How are National Insurance contributions calculated and paid?",
+    appliesTo: ["ltd", "employer", "director", "sole-trader"],
+  },
+  {
+    articleSlug: "tax-codes-payslips-and-deductions",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "Tax Codes, Payslips, and Deductions",
+    title: "Tax codes, payslips and deductions: what they mean and how to fix them",
+    canonicalQuestion: "How do tax codes and deductions affect my payslip?",
+    appliesTo: ["ltd", "employer", "sole-trader"],
+  },
+  {
+    articleSlug: "p11d-benefits-in-kind-explained",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "P11D and Employee Benefits",
+    title: "P11D and Benefits in Kind: what to report and how",
+    canonicalQuestion: "What are P11D forms and how are employee benefits taxed?",
+    appliesTo: ["ltd", "employer", "director"],
+  },
+  {
+    articleSlug: "auto-enrolment-workplace-pensions",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "Workplace Pension Auto-Enrolment",
+    title: "Workplace pensions and auto-enrolment for UK employers",
+    canonicalQuestion: "What are my obligations for workplace pension auto-enrolment?",
+    appliesTo: ["ltd", "employer"],
+  },
+  {
+    articleSlug: "p60-and-p45-explained",
+    topicSlug: "paye-payroll",
+    sourceTopic: "PAYE",
+    sourceHub: "P60, P45 and Employment Records",
+    title: "P60 and P45 explained — what they're for and how to get them",
+    canonicalQuestion: "How do I get my P60 or P45 and what are they used for?",
+    appliesTo: ["ltd", "employer", "umbrella"],
+  },
+
+  // Year-End Accounts topic — 3 articles
+  {
+    articleSlug: "year-end-accounts-deadlines-and-filings",
+    topicSlug: "year-end-accounts",
+    sourceTopic: "Year-End-Accounts",
+    sourceHub: "Year-End Accounts Status and Deadlines",
+    title: "Year-end accounts: deadlines, filings and what happens when",
+    canonicalQuestion: "When are my year-end accounts due and what gets filed where?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "understanding-your-year-end-accounts",
+    topicSlug: "year-end-accounts",
+    sourceTopic: "Year-End-Accounts",
+    sourceHub: "Explaining Year-End Accounts Figures",
+    title: "Understanding the figures in your year-end accounts",
+    canonicalQuestion: "How do I understand the figures and reports in my year-end accounts?",
+    appliesTo: ["ltd", "director"],
+  },
+  {
+    articleSlug: "year-end-documents-your-accountant-needs",
+    topicSlug: "year-end-accounts",
+    sourceTopic: "Year-End-Accounts",
+    sourceHub: "Documents Required for Accounts Preparation",
+    title: "What documents your accountant needs at year-end",
+    canonicalQuestion: "What information and documents do I need to provide for my year-end accounts?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // Self-Assessment — Making Tax Digital
+  {
+    articleSlug: "making-tax-digital-for-itsa",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "General Self-Assessment Guidance",
+    title: "Making Tax Digital for Income Tax (MTD for ITSA): what's changing and when",
+    canonicalQuestion: "What is MTD for ITSA and what do I need to do?",
+    appliesTo: ["sole-trader", "landlord"],
+  },
+
+  // VAT — Flat Rate, HMRC correspondence, MTD VAT
+  {
+    articleSlug: "vat-flat-rate-scheme",
+    topicSlug: "vat",
+    sourceTopic: "VAT",
+    sourceHub: "VAT Schemes and Invoicing",
+    title: "VAT Flat Rate Scheme: pros, cons and when to use it",
+    canonicalQuestion: "What is the VAT Flat Rate Scheme and should I use it?",
+    appliesTo: ["ltd", "sole-trader", "contractor"],
+  },
+  {
+    articleSlug: "dealing-with-hmrc-vat-letters",
+    topicSlug: "vat",
+    sourceTopic: "VAT",
+    sourceHub: "HMRC VAT Correspondence and Queries",
+    title: "Dealing with HMRC VAT letters and queries",
+    canonicalQuestion: "How do I understand and respond to HMRC VAT letters and queries?",
+    appliesTo: ["ltd", "sole-trader"],
+  },
+  {
+    articleSlug: "making-tax-digital-for-vat",
+    topicSlug: "vat",
+    sourceTopic: "VAT",
+    sourceHub: "VAT Returns and Filing",
+    title: "Making Tax Digital for VAT: what it means and how to stay compliant",
+    canonicalQuestion: "What is MTD for VAT and how do I stay compliant?",
+    appliesTo: ["ltd", "sole-trader", "contractor"],
+  },
+
+  // Corporation Tax — Sole Trader vs Ltd decision guide
+  {
+    articleSlug: "sole-trader-vs-limited-company",
+    topicSlug: "corporation-tax",
+    sourceTopic: "Corporation-Tax",
+    sourceHub: "Corporation Tax Planning and Reliefs",
+    title: "Sole trader vs limited company: which is right for you?",
+    canonicalQuestion: "Should I be a sole trader or a limited company?",
+    appliesTo: ["sole-trader", "ltd", "director"],
   },
 ];

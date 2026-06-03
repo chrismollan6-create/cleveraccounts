@@ -70,6 +70,64 @@ export default defineConfig({
 
             // ── Learning Centre ─────────────────────────────────────────
             S.listItem()
+              .title("🔍 Learning Centre — Review queue")
+              .child(
+                S.list()
+                  .title("Article review queue")
+                  .items([
+                    S.listItem()
+                      .title("🔴 To review — no accountant sign-off")
+                      .child(
+                        S.documentList()
+                          .title("Articles awaiting accountant review")
+                          .schemaType("knowledgeArticle")
+                          .filter('_type == "knowledgeArticle" && !defined(lastReviewed)')
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("🟡 To review — has grounding sources")
+                      .child(
+                        S.documentList()
+                          .title("Drafted with Google-Search citations to spot-check")
+                          .schemaType("knowledgeArticle")
+                          .filter(
+                            '_type == "knowledgeArticle" && !defined(lastReviewed) && defined(draftedSources) && length(draftedSources) > 0'
+                          )
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("⚠ To verify — no grounding (training-data only)")
+                      .child(
+                        S.documentList()
+                          .title("Articles drafted without grounding — extra scrutiny needed")
+                          .schemaType("knowledgeArticle")
+                          .filter(
+                            '_type == "knowledgeArticle" && !defined(lastReviewed) && (!defined(draftedSources) || length(draftedSources) == 0)'
+                          )
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.divider(),
+                    S.listItem()
+                      .title("✓ Reviewed & ready to publish")
+                      .child(
+                        S.documentList()
+                          .title("Accountant-reviewed articles")
+                          .schemaType("knowledgeArticle")
+                          .filter('_type == "knowledgeArticle" && defined(lastReviewed)')
+                          .defaultOrdering([{ field: "lastReviewed", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("🟢 Live on /learn (published)")
+                      .child(
+                        S.documentList()
+                          .title("Published articles")
+                          .schemaType("knowledgeArticle")
+                          .filter('_type == "knowledgeArticle" && !(_id in path("drafts.**"))')
+                          .defaultOrdering([{ field: "lastReviewed", direction: "desc" }])
+                      ),
+                  ])
+              ),
+            S.listItem()
               .title("🎓 Learning Centre — Topics")
               .child(S.documentTypeList("knowledgeTopic").title("Knowledge Topics")),
             S.listItem()

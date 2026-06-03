@@ -230,7 +230,7 @@ const TOPICS = {
     ],
   },
 
-  payroll: {
+  "paye-payroll": {
     keyFacts: [
       { label: "Personal allowance", value: "£12,570", context: "Tax-free for most employees, 2025/26", icon: "PoundSterling" },
       { label: "Employer NI threshold (ST)", value: "£5,000", context: "Employer NI starts above this, 2025/26 (down from £9,100)", icon: "AlertTriangle" },
@@ -258,6 +258,38 @@ const TOPICS = {
       { q: "How does the Employment Allowance work?", a: "It reduces your employer NI bill by up to £10,500 per year — but it's not available to one-person Ltd companies where the only employee is the sole director. If you have at least one non-director employee, you usually qualify." },
       { q: "What happens if I miss a PAYE payment?", a: "HMRC charges interest immediately and may add a late-payment penalty (1-4% depending on how late). Worse — late RTI submissions can also trigger penalties even if you eventually pay. Speak to HMRC quickly if there's a problem." },
       { q: "Can I employ family members?", a: "Yes, but the salary must be commercially justifiable for the work actually done. HMRC will challenge a £40k 'salary' for a child who does an hour a week — and disallow the company's deduction. Document the role and pay a market rate." },
+    ],
+  },
+
+  "year-end-accounts": {
+    keyFacts: [
+      { label: "Accounts filing deadline", value: "9 months", context: "After your accounting reference date (private companies)", icon: "Calendar" },
+      { label: "CT600 filing deadline", value: "12 months", context: "After the end of your accounting period", icon: "FileText" },
+      { label: "Corporation Tax payment", value: "9 months + 1 day", context: "After your accounting period end", icon: "PoundSterling" },
+      { label: "First accounts (new co)", value: "21 months", context: "From incorporation date", icon: "Hourglass" },
+      { label: "Late filing penalty", value: "£150-£1,500", context: "Depending on how late — and doubles for repeat offenders", icon: "AlertTriangle" },
+      { label: "How often", value: "Annually", context: "Every 12-month accounting period", icon: "RefreshCw" },
+    ],
+    timeline: [
+      { period: "Day 1 of accounting period", label: "Period starts", description: "Usually 12 months long — your accounting reference date sets when it ends. First period from incorporation can be up to 18 months." },
+      { period: "Last day of period", label: "Period ends", description: "Books are closed. Your accountant prepares the statutory accounts and the CT600 corporation tax return for this period." },
+      { period: "+3-4 months (typical)", label: "Accountant sends draft accounts", description: "You review, approve, sign the directors' report and confirm anything outstanding." },
+      { period: "+9 months and 1 day", label: "Corporation Tax payment due to HMRC", description: "Pay the CT bill via your 17-character reference. Companies with profits over £1.5m pay quarterly instalments instead." },
+      { period: "+9 months", label: "Statutory accounts due at Companies House", description: "Late filing here triggers an automatic penalty — £150 if up to 1 month late, escalating to £1,500 if 6+ months late." },
+      { period: "+12 months", label: "CT600 corporation tax return due at HMRC", description: "Filed online via your accountant's software." },
+    ],
+    usefulLinks: [
+      { label: "File your company accounts (WebFiling)", url: "https://www.gov.uk/file-your-company-annual-accounts", source: "gov.uk", description: "Official entry point for filing statutory accounts at Companies House." },
+      { label: "Corporation Tax for company directors", url: "https://www.gov.uk/corporation-tax", source: "gov.uk", description: "Overview of how CT works, what's due and when." },
+      { label: "Change your company's year-end date (AA01)", url: "https://www.gov.uk/change-your-companys-year-end", source: "gov.uk", description: "How and when you can shorten or extend the accounting reference date." },
+      { label: "Late filing penalties at Companies House", url: "https://www.gov.uk/government/publications/late-filing-penalties", source: "gov.uk", description: "Current penalty bands and how to appeal." },
+    ],
+    quickAnswers: [
+      { q: "What's the difference between filing accounts and filing the CT600?", a: "Two separate filings to two separate places. Accounts go to Companies House (the public record), the CT600 goes to HMRC (the tax authority). Both cover the same accounting period, but the deadlines and contents are different. Your accountant handles both." },
+      { q: "What documents does my accountant need?", a: "Bank statements covering the period, sales and purchase invoices, expense receipts, payroll records, last year's accounts (if not us), confirmation of any director's loan account movements, asset purchases, and details of anything unusual. Most of this is automatic if you use FreeAgent or similar — they'll pull from there." },
+      { q: "What happens if I file accounts late?", a: "Companies House charges an automatic penalty: £150 if up to 1 month late, £375 if 1-3 months, £750 if 3-6 months, £1,500 over 6 months. Penalties double if you were also late last year. There's also a real risk of the company being struck off the register if you ignore them long enough." },
+      { q: "Can I change my company's year-end date?", a: "Yes — you can shorten the period as often as you like, but you can only lengthen it once every 5 years (unless special circumstances apply). File form AA01. Useful for aligning with the tax year (5 April) or your busy season." },
+      { q: "Do I have to file 'full' accounts or can I file abbreviated?", a: "Most small companies file 'micro-entity' or 'abridged' accounts at Companies House — these only show the balance sheet, not the profit & loss. That's enough to satisfy the public filing requirement while keeping your trading performance off the public record. HMRC still gets full accounts." },
     ],
   },
 };

@@ -116,6 +116,18 @@ const ACCENTS: Record<string, Accent> = {
     hoverBorder: "hover:border-yellow-400",
     gradient: "from-yellow-500 to-yellow-700",
   },
+  "paye-payroll": {
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-100",
+    bg: "bg-yellow-500", bgSoft: "bg-yellow-50", text: "text-yellow-700",
+    hoverBorder: "hover:border-yellow-400",
+    gradient: "from-yellow-500 to-yellow-700",
+  },
+  "year-end-accounts": {
+    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
+    bg: "bg-emerald-500", bgSoft: "bg-emerald-50", text: "text-emerald-600",
+    hoverBorder: "hover:border-emerald-400",
+    gradient: "from-emerald-500 to-emerald-700",
+  },
   bookkeeping: {
     iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
     bg: "bg-emerald-500", bgSoft: "bg-emerald-50", text: "text-emerald-600",

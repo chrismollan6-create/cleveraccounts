@@ -144,6 +144,27 @@ export default defineType({
       validation: (Rule) => Rule.max(6),
     }),
     defineField({
+      name: "draftedSources",
+      title: "Drafter sources (for reviewer)",
+      description:
+        "URLs Gemini cited via Google Search grounding while drafting this article. Reviewer should spot-check at least the gov.uk ones before publishing. Not rendered publicly — internal only.",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "url", type: "url", title: "URL" },
+            { name: "title", type: "string", title: "Page title" },
+            { name: "source", type: "string", title: "Source (host)" },
+          ],
+          preview: {
+            select: { title: "title", subtitle: "url" },
+          },
+        },
+      ],
+      readOnly: false,
+    }),
+    defineField({
       name: "pageSchemas",
       title: "Structured data (schema.org)",
       type: "pageSchemas",

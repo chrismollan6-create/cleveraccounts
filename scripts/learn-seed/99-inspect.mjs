@@ -1,5 +1,6 @@
 /**
- * One-off: inspect the directors-loan article in Sanity to diagnose the 500.
+ * Inspect a single article's drafted sources to verify grounding worked.
+ * Run: node scripts/learn-seed/99-inspect.mjs <article-slug>
  */
 import { createClient } from "@sanity/client";
 import { existsSync, readFileSync } from "fs";
@@ -24,19 +25,26 @@ const client = createClient({
   useCdn: false,
 });
 
-const r = await client.fetch(`*[_type == "knowledgeArticle" && slug.current == "directors-loan-account-s455-explained"] {
-  _id, _type, title, "slug": slug.current,
-  canonicalQuestion, excerpt, appliesTo,
-  lastReviewed, reviewedBy,
-  "topicRef": topic._ref,
-  "resolvedTopic": topic->{_id, name, "slug": slug.current},
-  "bodyLen": length(body),
-  "firstBlock": body[0],
-  "secondBlock": body[1],
-  "lastBlock": body[length(body)-1],
-  "blocksMissingKey": count(body[!defined(_key)]),
-  "blocksMissingType": count(body[!defined(_type)]),
-  "blockTypes": array::unique(body[]._type)
-}`);
+const slug = process.argv[2];
+if (!slug) {
+  console.error("Usage: node 99-inspect.mjs <article-slug>");
+  process.exit(1);
+}
 
-console.log(JSON.stringify(r, null, 2));
+const draftId = `drafts.knowledgeArticle-${slug}`;
+const r = await client.getDocument(draftId);
+if (!r) {
+  console.error(`Draft not found: ${draftId}`);
+  process.exit(1);
+}
+console.log("title:", r.title);
+console.log("body blocks:", r.body?.length ?? 0);
+console.log("draftedSources:", r.draftedSources?.length ?? 0);
+console.log("");
+const sources = r.draftedSources ?? [];
+const govuk = sources.filter((s) => (s.source || "").endsWith("gov.uk"));
+const other = sources.filter((s) => !(s.source || "").endsWith("gov.uk"));
+console.log(`── gov.uk sources (${govuk.length}) ──`);
+for (const s of govuk) console.log(`  ${s.title || "(no title)"}\n    ${s.url}`);
+console.log(`\n── other sources (${other.length}) ──`);
+for (const s of other) console.log(`  [${s.source}] ${s.title || "(no title)"}\n    ${s.url}`);
