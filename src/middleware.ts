@@ -80,6 +80,12 @@ const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   // serve directly on portal hosts without the auth gate. No /api/forms/*
   // counterpart: every form posts to tfaforms.net, not our backend.
   /^\/forms(\/.*)?$/,
+  // Learning Centre — public marketing surface that Workwell visitors reach
+  // via my.workwellaccountancy.com/learn. Without this they get auth-gated
+  // to /sign-in. The /api/learn-feedback POST (Was this helpful? widget)
+  // also has no Clerk session, so the API route needs to pass through too.
+  /^\/learn(\/.*)?$/,
+  /^\/api\/learn-feedback(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {
