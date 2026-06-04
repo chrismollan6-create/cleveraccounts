@@ -165,10 +165,10 @@ export const WHAT_TO_EXPECT: { title: string; body: string }[] = [
       'No surprise letters, no last-minute rushes.',
   },
   {
-    title: 'An annual review meeting',
+    title: 'Proactive tax-saving suggestions',
     body:
-      "Once a year we sit down (or video) to look ahead — at your numbers, your " +
-      "tax position, and what we can do better.",
+      "When your numbers or the tax rules create an opportunity, we'll flag it — " +
+      "we don't wait for you to ask.",
   },
   {
     title: 'Real-time visibility on FreeAgent',
