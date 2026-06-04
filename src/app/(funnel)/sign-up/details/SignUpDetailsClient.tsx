@@ -2120,10 +2120,23 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                           <span className="text-sm text-text">Today</span>
                           <span className="font-bold text-success">No upfront payment</span>
                         </div>
-                        <div className="flex justify-between items-center border-t border-primary/10 pt-2">
-                          <span className="text-sm text-text">Monthly fee</span>
-                          <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
-                        </div>
+                        {isLtd ? (
+                          <>
+                            <div className="flex justify-between items-center border-t border-primary/10 pt-2">
+                              <span className="text-sm text-text">Months 1–3 <span className="text-xs bg-primary text-white rounded-full px-2 py-0.5 ml-1">50% OFF</span></span>
+                              <span className="font-bold text-primary">£{chargeAmount.toFixed(2)}/month + VAT</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-text">From month 4 onwards</span>
+                              <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex justify-between items-center border-t border-primary/10 pt-2">
+                            <span className="text-sm text-text">Monthly fee</span>
+                            <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
+                          </div>
+                        )}
                       </>
                     ) : isFirstMonthFree ? (
                       <div className="flex justify-between items-center">
