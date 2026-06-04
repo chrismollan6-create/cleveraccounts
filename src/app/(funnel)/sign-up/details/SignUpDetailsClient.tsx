@@ -67,6 +67,14 @@ interface PostcoderAddress {
   posttown: string; county?: string; postcode: string;
 }
 
+// Feature flag — skip the upfront Stripe payment step in the sign-up flow.
+// Reason: 5 of 11 signups in May/June 2026 dropped out at the payment screen.
+// Set back to `false` to restore the original 5-step flow (all Stripe code below is left intact).
+// Paired with a `paymentBypassed: true` flag in the submit body that LeadSignupService
+// reads to skip its stripePaymentIntentId requirement. Sign_up_incentive__c is left
+// untouched so downstream billing semantics are unaffected.
+const BYPASS_SIGNUP_PAYMENT = true;
+
 const EMPTY_FORM: FormData = {
   firstName: "", lastName: "", email: "", phone: "", company: "",
   businessStructure: "", expectedFee: "", signUpIncentive: "",
@@ -689,7 +697,7 @@ function AddressFields({
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
-const STEPS = [
+const ALL_STEPS = [
   { label: "Business", icon: <Building2 size={16} />, time: "1 min" },
   { label: "Identity", icon: <ShieldCheck size={16} />, time: "1 min" },
   { label: "Addresses", icon: <MapPin size={16} />, time: "1 min" },
@@ -697,13 +705,22 @@ const STEPS = [
   { label: "Confirm", icon: <CheckCircle2 size={16} />, time: "30s" },
 ];
 
+// Visible steps depend on the payment-bypass flag — internal `step` state still uses
+// the original numbering (1=Business … 5=Confirm) and we skip 4 in navigation.
+const STEPS = BYPASS_SIGNUP_PAYMENT
+  ? ALL_STEPS.filter((s) => s.label !== "Payment")
+  : ALL_STEPS;
+
+// `current` is the internal step state (1..5); we translate to a display index
+// against the visible STEPS array so the dots line up after a step is filtered out.
 function StepIndicator({ current }: { current: number }) {
+  const displayCurrent = BYPASS_SIGNUP_PAYMENT && current > 4 ? current - 1 : current;
   return (
     <div className="flex items-center mb-6">
       {STEPS.map((step, i) => {
         const num = i + 1;
-        const done = num < current;
-        const active = num === current;
+        const done = num < displayCurrent;
+        const active = num === displayCurrent;
         return (
           <div key={step.label} className="flex items-center flex-1 last:flex-none">
             <div className="flex flex-col items-center">
@@ -979,6 +996,13 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isCompleted, formData.businessStructure, formData.sector]);
 
+  // Defensive: if the bypass flag is on but the user lands on step 4 anyway
+  // (e.g. a stale Stripe redirect URL from before the flag flipped), skip
+  // them straight to the review step rather than show an empty payment screen.
+  useEffect(() => {
+    if (BYPASS_SIGNUP_PAYMENT && step === 4) setStep(5);
+  }, [step]);
+
   // ── Handle Stripe return ───────────────────────────────────────────────────
 
   useEffect(() => {
@@ -1094,11 +1118,15 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
       transferring: formData.transferringFromAccountant,
       ...getStoredUTMParams(),
     });
-    setStep((s) => s + 1);
+    // Skip step 4 (Payment) when the bypass flag is on — jump 3 → 5 and back 5 → 3.
+    setStep((s) => (BYPASS_SIGNUP_PAYMENT && s === 3 ? 5 : s + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function handleBack() { setStep((s) => s - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function handleBack() {
+    setStep((s) => (BYPASS_SIGNUP_PAYMENT && s === 5 ? 3 : s - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
 
   // ── Stripe ─────────────────────────────────────────────────────────────────
@@ -1137,7 +1165,13 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
       // user actually paid.
       const derivedIncentive = formData.signUpIncentive
         || (isLtd ? "3 month 50% discount" : "");
-      const submitBody = { ...formData, signUpIncentive: derivedIncentive };
+      // `paymentBypassed: true` tells LeadSignupService.validateSubmission to skip its
+      // stripePaymentIntentId requirement when the front-end has hidden the payment step.
+      const submitBody = {
+        ...formData,
+        signUpIncentive: derivedIncentive,
+        paymentBypassed: BYPASS_SIGNUP_PAYMENT,
+      };
       const res = await fetch(`/api/signup/submit?t=${encodeURIComponent(token)}`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(submitBody),
       });
@@ -1471,7 +1505,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wider">Step {BYPASS_SIGNUP_PAYMENT && step > 4 ? step - 1 : step} of {STEPS.length} · ~{STEPS[(BYPASS_SIGNUP_PAYMENT && step > 4 ? step - 1 : step) - 1]?.time}</p>
                 </div>
                 <h1 className="text-3xl xl:text-4xl font-black text-dark tracking-tight leading-[1.1]">
                   {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
@@ -1532,7 +1566,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
             <div className="lg:hidden text-center mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 mb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {step} of 5 · ~{STEPS[step - 1]?.time}</p>
+                <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Step {BYPASS_SIGNUP_PAYMENT && step > 4 ? step - 1 : step} of {STEPS.length} · ~{STEPS[(BYPASS_SIGNUP_PAYMENT && step > 4 ? step - 1 : step) - 1]?.time}</p>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-dark tracking-tight leading-[1.1]">
                 {step === 1 && <>Welcome, <span className="text-primary">{formData.firstName}</span></>}
@@ -1919,13 +1953,21 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                   </InfoBox>
                 )}
 
-                <NextUpHint
-                  title="Next: Secure your account"
-                  desc={isLtd
-                    ? "50% off your first 3 months — fully refundable, cancel anytime."
-                    : "Your first month upfront — fully refundable, cancel anytime."}
-                  icon={<CreditCard size={14} />}
-                />
+                {BYPASS_SIGNUP_PAYMENT ? (
+                  <NextUpHint
+                    title="Next: Review & confirm"
+                    desc="One last check, then we'll match you with your accountant — no payment needed today."
+                    icon={<ClipboardList size={14} />}
+                  />
+                ) : (
+                  <NextUpHint
+                    title="Next: Secure your account"
+                    desc={isLtd
+                      ? "50% off your first 3 months — fully refundable, cancel anytime."
+                      : "Your first month upfront — fully refundable, cancel anytime."}
+                    icon={<CreditCard size={14} />}
+                  />
+                )}
               </div>
             )}
 
@@ -2072,7 +2114,18 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                 <div className="rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-blue-50 p-5">
                   <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">Your Pricing Summary</p>
                   <div className="space-y-2">
-                    {isFirstMonthFree ? (
+                    {BYPASS_SIGNUP_PAYMENT ? (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-text">Today</span>
+                          <span className="font-bold text-success">No upfront payment</span>
+                        </div>
+                        <div className="flex justify-between items-center border-t border-primary/10 pt-2">
+                          <span className="text-sm text-text">Monthly fee</span>
+                          <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
+                        </div>
+                      </>
+                    ) : isFirstMonthFree ? (
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-text">First month</span>
                         <span className="font-bold text-success">FREE</span>
@@ -2088,12 +2141,18 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                         <span className="font-bold text-primary">£{chargeAmount.toFixed(2)} + VAT</span>
                       </div>
                     )}
-                    <div className="flex justify-between items-center border-t border-primary/10 pt-2">
-                      <span className="text-sm text-text">{isLtd ? "From month 4 onwards" : "From month 2 onwards"}</span>
-                      <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
-                    </div>
+                    {!BYPASS_SIGNUP_PAYMENT && (
+                      <div className="flex justify-between items-center border-t border-primary/10 pt-2">
+                        <span className="text-sm text-text">{isLtd ? "From month 4 onwards" : "From month 2 onwards"}</span>
+                        <span className="font-semibold text-dark">£{monthlyFee.toFixed(2)}/month + VAT</span>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-xs text-text-light mt-3">All fees are exclusive of VAT at 20%. No setup fees. Cancel anytime.</p>
+                  <p className="text-xs text-text-light mt-3">
+                    {BYPASS_SIGNUP_PAYMENT
+                      ? "Nothing to pay today — your accountant will arrange standard monthly billing as part of your onboarding. All fees are exclusive of VAT at 20%. No setup fees. Cancel anytime."
+                      : "All fees are exclusive of VAT at 20%. No setup fees. Cancel anytime."}
+                  </p>
                 </div>
 
                 {/* ── What happens next ── */}
@@ -2213,7 +2272,7 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
 
           <div className="flex items-center gap-3">
             <p className="hidden md:block text-xs text-text-light">
-              Step {step} of 5
+              Step {BYPASS_SIGNUP_PAYMENT && step > 4 ? step - 1 : step} of {STEPS.length}
             </p>
             {/* Hide Continue on the payment step until either: it's a 1st-month-free
                 signup (no payment required), OR the user has already paid (intent
