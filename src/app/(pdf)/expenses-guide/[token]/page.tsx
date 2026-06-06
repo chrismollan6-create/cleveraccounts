@@ -45,7 +45,7 @@ export default async function ExpensesGuideDocument({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ brand?: string; variant?: string; clientType?: string; sector?: string; d?: string }>;
+  searchParams: Promise<{ brand?: string; variant?: string; clientType?: string; sector?: string; prior?: string; d?: string }>;
 }) {
   await params;
   const sp = await searchParams;
@@ -73,6 +73,7 @@ export default async function ExpensesGuideDocument({
     ? (sp.sector as ExpensesSector)
     : 'general';
   const clientType = sp.clientType ?? (variant === 'ltd' ? 'PSC' : undefined);
+  const priorAccountant = sp.prior === '1';
 
-  return <ExpensesGuide data={buildSampleData(brand, variant, clientType, sector)} />;
+  return <ExpensesGuide data={buildSampleData(brand, variant, clientType, sector, priorAccountant)} />;
 }

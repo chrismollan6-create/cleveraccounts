@@ -40,10 +40,15 @@ import {
   UtensilsCrossed,
   ShoppingBag,
   BarChart2,
+  History,
+  SearchCheck,
   type LucideIcon,
 } from 'lucide-react';
 import { BRANDS } from '@/lib/constants';
 import {
+  PRIOR_ACCOUNTANT_CALLOUT,
+  getAmendmentWindow,
+  getMissedItems,
   GOLDEN_RULE,
   EVERYDAY_ESSENTIALS,
   LTD_EXTRAS,
@@ -379,6 +384,101 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
           </div>
         </div>
       </section>
+
+      {/* ── Prior accountant: switcher callout + missed items ── */}
+      {data.priorAccountant && (() => {
+        const missedItems = getMissedItems(data);
+        return (
+          <section className="px-[20mm] pt-[10mm]">
+            {/* Main callout box */}
+            <div
+              className="break-inside-avoid rounded-2xl border-2 border-dashed px-6 py-6"
+              style={{
+                borderColor: c.secondary,
+                backgroundColor: hexAlpha(c.secondary, 0.06),
+              }}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+                  style={{ backgroundImage: secondaryButtonGradient }}
+                >
+                  <History size={20} strokeWidth={2} />
+                </div>
+                <div className="flex-1">
+                  <p
+                    className="text-[10.5px] font-bold uppercase tracking-[0.22em]"
+                    style={{ color: c.secondaryDark }}
+                  >
+                    Switching from a previous accountant
+                  </p>
+                  <h3 className="mt-1 text-[16px] font-extrabold text-text">
+                    {PRIOR_ACCOUNTANT_CALLOUT.title}
+                  </h3>
+                  <p className="mt-2 text-[12.5px] leading-[1.65] text-text-light">
+                    {PRIOR_ACCOUNTANT_CALLOUT.body}
+                  </p>
+                  {/* Amendment window */}
+                  <div
+                    className="mt-4 rounded-xl border-l-[3px] py-3 pl-4 pr-3"
+                    style={{
+                      borderColor: c.secondary,
+                      backgroundColor: hexAlpha(c.secondary, 0.08),
+                    }}
+                  >
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: c.secondaryDark }}>
+                      Amendment windows
+                    </p>
+                    <p className="mt-1.5 text-[12px] leading-[1.65] text-text-light">
+                      {getAmendmentWindow(data.variant)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Commonly missed items */}
+            <div className="mt-5">
+              <div className="mb-4 flex items-center gap-3">
+                <div
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm"
+                  style={{ backgroundImage: iconTileGradient }}
+                >
+                  <SearchCheck size={16} strokeWidth={2} />
+                </div>
+                <div>
+                  <p className="text-[13.5px] font-extrabold text-text">
+                    What we check first — commonly missed deductions
+                  </p>
+                  <p className="text-[11.5px] text-text-light">
+                    These are the items most often absent from returns we inherit
+                  </p>
+                </div>
+              </div>
+              <ul className="space-y-2.5">
+                {missedItems.map((item, i) => (
+                  <li
+                    key={i}
+                    className="flex break-inside-avoid items-start gap-4 overflow-hidden rounded-r-2xl bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.05)]"
+                    style={{ borderLeft: `4px solid ${c.primary}` }}
+                  >
+                    <span
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white shadow-sm"
+                      style={{ backgroundImage: iconTileGradient }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <div className="flex-1">
+                      <p className="text-[13px] font-extrabold text-text">{item.title}</p>
+                      <p className="mt-1 text-[11.5px] leading-[1.62] text-text-light">{item.body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* ── 01: Everyday essentials ── */}
       {(() => {

@@ -43,7 +43,7 @@ const SECTOR_LABEL: Record<ExpensesSector, string> = {
 export default async function ExpensesGuidePreview({
   searchParams,
 }: {
-  searchParams: Promise<{ brand?: string; variant?: string; clientType?: string; sector?: string }>;
+  searchParams: Promise<{ brand?: string; variant?: string; clientType?: string; sector?: string; prior?: string }>;
 }) {
   const sp = await searchParams;
 
@@ -57,19 +57,22 @@ export default async function ExpensesGuidePreview({
     ? (sp.sector as ExpensesSector)
     : 'general';
   const clientType = sp.clientType ?? (variant === 'ltd' ? 'PSC' : undefined);
+  const priorAccountant = sp.prior === '1';
 
-  const data = buildSampleData(brand, variant, clientType, sector);
+  const data = buildSampleData(brand, variant, clientType, sector, priorAccountant);
 
   const switchers: { label: string; href: string; active: boolean }[] = [];
   for (const b of BRANDS) {
     for (const v of VARIANTS) {
       for (const s of SECTORS) {
-        const ct = v === 'ltd' ? 'PSC' : '';
-        switchers.push({
-          label: `${b} · ${VARIANT_LABEL[v]}${ct ? ' · PSC' : ''} · ${SECTOR_LABEL[s]}`,
-          href: `?brand=${b}&variant=${v}&clientType=${ct}&sector=${s}`,
-          active: b === brand && v === variant && s === sector,
-        });
+        for (const prior of [false, true]) {
+          const ct = v === 'ltd' ? 'PSC' : '';
+          switchers.push({
+            label: `${b} · ${VARIANT_LABEL[v]}${ct ? ' · PSC' : ''} · ${SECTOR_LABEL[s]}${prior ? ' · Switcher' : ''}`,
+            href: `?brand=${b}&variant=${v}&clientType=${ct}&sector=${s}${prior ? '&prior=1' : ''}`,
+            active: b === brand && v === variant && s === sector && prior === priorAccountant,
+          });
+        }
       }
     }
   }

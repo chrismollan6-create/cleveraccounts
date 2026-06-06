@@ -50,6 +50,8 @@ export interface ExpensesGuideData {
   clientType?: string;
   /** Determines which sector-specific block is shown */
   sector?: ExpensesSector;
+  /** True when the client has switched from a previous accountant */
+  priorAccountant?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -1146,6 +1148,131 @@ export const LEARN_CENTRE_DOMAIN: Record<ExpensesGuideBrandId, string> = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────
+// Prior accountant — switcher callout + commonly missed items
+// ─────────────────────────────────────────────────────────────────────────
+
+export const PRIOR_ACCOUNTANT_CALLOUT = {
+  title: "You've joined us from a previous accountant",
+  body:
+    "One of the first things we do for every switcher is review your recent tax returns " +
+    "for missed deductions. The windows for amending returns are limited — so we make " +
+    "this a priority in the early weeks of our relationship.",
+};
+
+export function getAmendmentWindow(variant: ExpensesVariant): string {
+  if (variant === 'ltd') {
+    return (
+      "Corporation Tax: a CT600 can be amended up to 12 months after the original " +
+      "filing deadline — giving us access to roughly the past two years. Your director's " +
+      "Self Assessment can be amended up to 12 months after the relevant 31 January " +
+      "deadline (approximately 22 months after the tax year ended)."
+    );
+  }
+  return (
+    "Self Assessment returns can be amended up to 12 months after the relevant " +
+    "31 January filing deadline — giving us access to roughly the past 22 months. " +
+    "We'll check both your most recent return and the one before it for anything " +
+    "that can be corrected."
+  );
+}
+
+export interface MissedItem {
+  title: string;
+  body: string;
+}
+
+export function getMissedItems(d: ExpensesGuideData): MissedItem[] {
+  const items: MissedItem[] = [];
+
+  // Use of home — universally missed
+  items.push({
+    title: 'Use of home as office — the £312/year minimum',
+    body:
+      'The flat-rate claim of £6/week requires no receipts and no calculation, yet many ' +
+      'accountants never set it up. If you have worked from home at any point in the last ' +
+      'two years and it was not on your returns, this is the first thing we will look at.',
+  });
+
+  // Mileage
+  items.push({
+    title: 'Business mileage — rate and record-keeping',
+    body:
+      'Some clients have never claimed business mileage at all; others have been claiming ' +
+      'at an incorrect rate. The HMRC approved rate is 55p/mile (increased from 45p in ' +
+      'April 2026). Where mileage logs do not exist for prior years, we can sometimes ' +
+      'reconstruct a reasonable estimate from diary entries, invoices, and bank records.',
+  });
+
+  if (d.variant === 'ltd') {
+    // Trivial benefits
+    items.push({
+      title: 'Trivial benefits — £300/year of tax-free perks',
+      body:
+        'The £50-per-occasion, £300/year director benefit is almost universally missed. ' +
+        'It cannot be backdated to prior years, but identifying it now means you start ' +
+        'claiming it from day one with us.',
+    });
+
+    // Pension
+    items.push({
+      title: 'Director pension contributions',
+      body:
+        'Company pension contributions are one of the most tax-efficient tools available ' +
+        'to a director — yet many are either never set up, or the contribution level has ' +
+        'never been reviewed against the company\'s profit position. We will look at ' +
+        'whether employer contributions were properly claimed in previous years.',
+    });
+
+    // AIA / capital allowances
+    items.push({
+      title: 'Capital allowances on equipment',
+      body:
+        'Equipment purchased in prior years may have been expensed incorrectly — either ' +
+        'missed entirely, or capitalised without claiming the Annual Investment Allowance ' +
+        '(which gives 100% first-year relief). We will check the capital allowance pool ' +
+        'figures in your previous accounts.',
+    });
+  }
+
+  if (d.variant === 'sole') {
+    // Pre-trading expenses
+    items.push({
+      title: 'Pre-trading expenses',
+      body:
+        'Costs incurred up to seven years before you started trading can be treated as ' +
+        'allowable expenses on day one. Equipment, training, and professional fees paid ' +
+        'before the business launched are often never claimed. We will ask about your ' +
+        'pre-trading costs if they have not already been included.',
+    });
+
+    // Payments on account
+    items.push({
+      title: 'Payments on Account — have they been set up correctly?',
+      body:
+        'If your tax bill exceeded £1,000 in any year, HMRC requires Payments on Account ' +
+        'towards the following year\'s bill. Errors here — underpayment, overpayment, or ' +
+        'failure to claim a reduction — are common and can result in unnecessary interest ' +
+        'charges or cash tied up unnecessarily. We will check your Payments on Account ' +
+        'position as part of the handover review.',
+    });
+  }
+
+  // PSC — 24-month rule audit
+  if (d.clientType === 'PSC') {
+    items.push({
+      title: 'Travel expenses and the 24-month rule',
+      body:
+        'Contractors sometimes claim travel expenses that should have stopped when the ' +
+        '24-month temporary workplace limit was reached — or conversely, stop claiming ' +
+        'travel they were still entitled to. We will review your contract history and ' +
+        'travel claims to confirm your prior-year position was correct.',
+    });
+  }
+
+  return items;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // Sample data for browser preview
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -1154,6 +1281,7 @@ export function buildSampleData(
   variant: ExpensesVariant,
   clientType?: string,
   sector?: ExpensesSector,
+  priorAccountant?: boolean,
 ): ExpensesGuideData {
   const brand = BRANDS[brandId];
   return {
@@ -1170,5 +1298,6 @@ export function buildSampleData(
     support: { email: brand.supportEmail, phone: brand.phone },
     clientType: clientType ?? (variant === 'ltd' ? 'PSC' : undefined),
     sector: sector ?? 'general',
+    priorAccountant: priorAccountant ?? false,
   };
 }
