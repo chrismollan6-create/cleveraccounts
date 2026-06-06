@@ -1134,14 +1134,16 @@ export function getLearnItems(d: ExpensesGuideData): ExpensesLearnItem[] {
   return base;
 }
 
-/** Both brands link to the Clever Accounts learn centre — Workwell has no separate one. */
 export const HAS_LEARN_CENTRE: Record<ExpensesGuideBrandId, boolean> = {
   clever: true,
   workwell: true,
 };
 
-/** The domain that hosts the learn centre — always cleveraccounts.com regardless of brand. */
-export const LEARN_CENTRE_DOMAIN = 'cleveraccounts.com';
+/** Domain hosting each brand's learn centre. */
+export const LEARN_CENTRE_DOMAIN: Record<ExpensesGuideBrandId, string> = {
+  clever: 'cleveraccounts.com',
+  workwell: 'my.workwellaccountancy.com',
+};
 
 // ─────────────────────────────────────────────────────────────────────────
 // Sample data for browser preview

@@ -434,7 +434,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
                     <p className="mt-1.5 text-[11.5px] leading-[1.62] text-text-light">{item.body}</p>
                     {showLearnLinks && item.learnSlug && (
                       <a
-                        href={`https://${LEARN_CENTRE_DOMAIN}${item.learnSlug}`}
+                        href={`https://${LEARN_CENTRE_DOMAIN[data.brandId]}${item.learnSlug}`}
                         className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold no-underline"
                         style={{ color: c.primary }}
                       >
@@ -795,7 +795,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
 
             {showLearnLinks && (
               <a
-                href={`https://${LEARN_CENTRE_DOMAIN}/learn/24-month-rule-contractors`}
+                href={`https://${LEARN_CENTRE_DOMAIN[data.brandId]}/learn/24-month-rule-contractors`}
                 className="mt-4 flex break-inside-avoid items-center gap-3 rounded-xl border border-border bg-white p-4 no-underline shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
               >
                 <div
@@ -806,7 +806,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
                 </div>
                 <div className="flex-1">
                   <p className="text-[12.5px] font-extrabold text-text">The 24-month rule — full guide</p>
-                  <p className="text-[11px] text-text-light">{LEARN_CENTRE_DOMAIN}/learn/24-month-rule-contractors</p>
+                  <p className="text-[11px] text-text-light">{LEARN_CENTRE_DOMAIN[data.brandId]}/learn/24-month-rule-contractors</p>
                 </div>
                 <ArrowRight size={13} className="shrink-0" style={{ color: c.primary }} />
               </a>
@@ -987,7 +987,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
             Go deeper
           </p>
           <h2 className="mt-2 text-[22px] font-extrabold leading-tight tracking-tight text-text">
-            Learn more at cleveraccounts.com/learn
+            Learn more at {LEARN_CENTRE_DOMAIN[data.brandId]}/learn
           </h2>
           <p className="mt-2 max-w-[140mm] text-[12px] leading-[1.65] text-text-light">
             Each topic in this guide has a full article with worked examples, HMRC
@@ -997,7 +997,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
             {learnItems.map((t) => (
               <a
                 key={t.slug}
-                href={`https://${LEARN_CENTRE_DOMAIN}${t.slug}`}
+                href={`https://${LEARN_CENTRE_DOMAIN[data.brandId]}${t.slug}`}
                 className="flex break-inside-avoid items-center gap-4 rounded-2xl border border-border bg-white p-4 no-underline shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
               >
                 <div
