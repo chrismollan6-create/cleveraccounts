@@ -429,29 +429,6 @@ body {
 ::-webkit-scrollbar-thumb { background: #1A7A9B; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #136280; }
 
-/* ═══════════════════════════════════════
-   MARQUEE (sector showcase) — brand-neutral
-   ═══════════════════════════════════════ */
-@keyframes marquee-left {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@keyframes marquee-right {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
-}
-.animate-marquee-left { animation: marquee-left 45s linear infinite; }
-.animate-marquee-right { animation: marquee-right 45s linear infinite; }
-.marquee-group:hover .animate-marquee-left,
-.marquee-group:hover .animate-marquee-right { animation-play-state: paused; }
-.marquee-mask {
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee-left, .animate-marquee-right { animation: none; }
-}
-
 /* ═══════════════════════════════════════════════════════════════════════
    WORKWELL BRAND OVERRIDES
    ═══════════════════════════════════════════════════════════════════════

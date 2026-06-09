@@ -67,6 +67,12 @@ const TINTS = [
   "bg-[#32535a]/12 text-[#2c4a51]",
 ];
 
+/** Soft fade on the marquee edges. */
+const MARQUEE_MASK = {
+  maskImage: "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)",
+  WebkitMaskImage: "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)",
+} as const;
+
 /**
  * Workwell homepage — a bold, colourful, B2C service-industry experience for
  * sole traders, limited companies and contractors. Warm, plain-English, benefit
@@ -169,9 +175,15 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
           </p>
         </div>
 
-        <div className="marquee-group space-y-4">
-          <div className="overflow-hidden marquee-mask">
-            <div className="flex gap-3 w-max animate-marquee-left">
+        {/* Keyframes shipped inline so the animation never depends on a
+            cached external stylesheet. */}
+        <style>{`
+          @keyframes ww-marq-l { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+          @keyframes ww-marq-r { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+        `}</style>
+        <div className="space-y-4">
+          <div className="overflow-hidden" style={MARQUEE_MASK}>
+            <div className="flex gap-3 w-max" style={{ animation: "ww-marq-l 28s linear infinite" }}>
               {[...sectorsA, ...sectorsA].map((s, i) => (
                 <span
                   key={`a-${i}`}
@@ -182,8 +194,8 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
               ))}
             </div>
           </div>
-          <div className="overflow-hidden marquee-mask">
-            <div className="flex gap-3 w-max animate-marquee-right">
+          <div className="overflow-hidden" style={MARQUEE_MASK}>
+            <div className="flex gap-3 w-max" style={{ animation: "ww-marq-r 28s linear infinite" }}>
               {[...sectorsB, ...sectorsB].map((s, i) => (
                 <span
                   key={`b-${i}`}
