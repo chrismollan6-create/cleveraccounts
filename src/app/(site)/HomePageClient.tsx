@@ -36,7 +36,7 @@ import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
-import WorkwellHero from "./WorkwellHero";
+import WorkwellHome from "./WorkwellHome";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA — fallback if CMS empty
@@ -184,19 +184,24 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
   const [activeTab, setActiveTab] = useState(defaultTab);
   const activeService = serviceTabs.find((t) => t.id === activeTab) || serviceTabs[0];
 
+  // Workwell gets a bespoke, B2C-structured homepage. Clever keeps the page below.
+  if (brand.id === "workwell") {
+    return (
+      <WorkwellHome
+        home={home}
+        serviceTabs={serviceTabs}
+        faqs={faqs}
+        promoBadges={promoBadges}
+        trustBadge={trustBadge}
+      />
+    );
+  }
+
   return (
     <>
       {/* ═══════════════════════════════════════
-          HERO — Workwell gets its own distinct,
-          lighter B2C treatment; Clever keeps the
-          dark hero below.
+          HERO — Bold, clear, one CTA
           ═══════════════════════════════════════ */}
-      {brand.id === "workwell" && <WorkwellHero home={home} trustBadge={trustBadge} />}
-
-      {/* ═══════════════════════════════════════
-          HERO (Clever) — Bold, clear, one CTA
-          ═══════════════════════════════════════ */}
-      {brand.id !== "workwell" && (
       <section className="relative overflow-hidden bg-dark pb-24">
         {/* Background effects */}
         <div className="absolute inset-0">
@@ -342,7 +347,6 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
           </svg>
         </div>
       </section>
-      )}
 
       {/* ═══════════════════════════════════════
           REFERRAL BANNER — High visibility
