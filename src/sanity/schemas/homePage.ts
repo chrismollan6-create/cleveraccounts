@@ -1,12 +1,10 @@
 import { defineType, defineField } from "sanity";
-import { brandField } from "./objects/brandField";
 
 export default defineType({
   name: "homePage",
   title: "Home Page",
   type: "document",
   fields: [
-    brandField(),
     defineField({
       name: "heroHeadline",
       title: "Hero Headline",

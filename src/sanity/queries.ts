@@ -72,13 +72,16 @@ export async function getServicePage(slug: string, brandId?: BrandId) {
   );
 }
 
-// Home page content
+// Home page content.
+//
+// homePage is a per-brand singleton (one fixed document per brand, pinned by
+// id in the Studio desk — see sanity.config.ts). Clever uses the original
+// "homePage" id; other brands use "homePage-<brandId>". If a brand's doc
+// doesn't exist yet this returns null and the homepage falls back to the
+// component's built-in copy.
 export async function getHomePage(brandId?: BrandId) {
-  if (!brandId) return client.fetch(`*[_type == "homePage"][0]`);
-  return client.fetch(
-    `*[_type == "homePage" && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
-    { brandId }
-  );
+  const id = brandId && brandId !== "clever" ? `homePage-${brandId}` : "homePage";
+  return client.fetch(`*[_id == $id][0]`, { id });
 }
 
 // FAQs
