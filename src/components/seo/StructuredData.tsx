@@ -2,32 +2,33 @@ import { getBrand } from "@/lib/brand";
 
 export async function OrganizationJsonLd() {
   const brand = await getBrand();
-  const data = {
+  const base = `https://${brand.domain}`;
+  const logoUrl = `${base}${brand.assets.logo}`;
+  const office = brand.offices[0];
+  const sameAs = [brand.social.facebook, brand.social.twitter, brand.social.linkedin].filter(Boolean);
+
+  const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": ["AccountingService", "ProfessionalService", "LocalBusiness"],
-    name: "Clever Accounts",
-    alternateName: "Clever Accounts Ltd",
-    url: "https://cleveraccounts.com",
+    name: brand.name,
+    alternateName: brand.legalName,
+    url: base,
     logo: {
       "@type": "ImageObject",
-      url: "https://cleveraccounts.com/images/logo.png",
+      url: logoUrl,
       width: 200,
       height: 60,
     },
-    image: "https://cleveraccounts.com/images/logo.png",
+    image: logoUrl,
     description:
-      "Expert online accountancy services for sole traders, limited companies, contractors and freelancers across the UK. Dedicated accountant, unlimited advice, free FreeAgent software from £42.50/month.",
+      "Expert online accountancy services for sole traders, limited companies and contractors across the UK. Dedicated accountant, unlimited advice and free accounting software from £42.50/month.",
     telephone: brand.freephone,
     email: brand.email,
-    foundingDate: "2006",
     currenciesAccepted: "GBP",
     paymentAccepted: "Credit Card, Direct Debit",
-    numberOfEmployees: { "@type": "QuantitativeValue", minValue: 10, maxValue: 50 },
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Leeds",
-      addressRegion: "West Yorkshire",
-      postalCode: "LS1",
+      ...(office?.city ? { addressLocality: office.city } : {}),
       addressCountry: "GB",
     },
     areaServed: { "@type": "Country", name: "United Kingdom" },
@@ -40,18 +41,6 @@ export async function OrganizationJsonLd() {
         closes: "17:30",
       },
     ],
-    sameAs: [
-      brand.social.facebook,
-      brand.social.twitter,
-      brand.social.linkedin,
-    ],
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.7",
-      reviewCount: "746",
-      bestRating: "5",
-      worstRating: "1",
-    },
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Accounting Services",
@@ -61,7 +50,7 @@ export async function OrganizationJsonLd() {
           itemOffered: {
             "@type": "Service",
             name: "Sole Trader Accounting",
-            description: "Complete accounting for sole traders including self assessment, unlimited advice, and free FreeAgent software.",
+            description: "Complete accounting for sole traders including self assessment, unlimited advice, and free accounting software.",
           },
           price: "42.50",
           priceCurrency: "GBP",
@@ -83,7 +72,7 @@ export async function OrganizationJsonLd() {
           itemOffered: {
             "@type": "Service",
             name: "Contractor Accounting",
-            description: "Specialist contractor accounting with IR35 support, contract reviews, and Clever FLEX umbrella solution.",
+            description: "Specialist contractor accounting with IR35 support, contract reviews, and umbrella solution.",
           },
           price: "104.50",
           priceCurrency: "GBP",
@@ -93,6 +82,21 @@ export async function OrganizationJsonLd() {
     },
   };
 
+  if (sameAs.length) data.sameAs = sameAs;
+
+  // Clever-only specifics — omitted for brands we don't have verified figures for.
+  if (brand.id === "clever") {
+    data.foundingDate = "2006";
+    data.numberOfEmployees = { "@type": "QuantitativeValue", minValue: 10, maxValue: 50 };
+    data.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: "4.7",
+      reviewCount: "746",
+      bestRating: "5",
+      worstRating: "1",
+    };
+  }
+
   return (
     <script
       type="application/ld+json"
@@ -101,118 +105,56 @@ export async function OrganizationJsonLd() {
   );
 }
 
-export function PricingJsonLd() {
+export async function PricingJsonLd() {
+  const brand = await getBrand();
+  const base = `https://${brand.domain}`;
+  const seller = { "@type": "Organization", name: brand.name };
+  const brandRef = { "@type": "Brand", name: brand.name };
+
+  const product = (
+    position: number,
+    name: string,
+    description: string,
+    path: string,
+    price: string,
+  ) => ({
+    "@type": "ListItem",
+    position,
+    item: {
+      "@type": "Product",
+      name,
+      description,
+      url: `${base}${path}`,
+      brand: brandRef,
+      offers: {
+        "@type": "Offer",
+        price,
+        priceCurrency: "GBP",
+        priceSpecification: {
+          "@type": "UnitPriceSpecification",
+          price,
+          priceCurrency: "GBP",
+          billingDuration: "P1M",
+          unitText: "month",
+        },
+        availability: "https://schema.org/InStock",
+        url: `${base}${path}`,
+        seller,
+      },
+    },
+  });
+
   const data = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Clever Accounts Pricing Plans",
+    name: `${brand.name} Pricing Plans`,
     description: "Online accounting packages for sole traders, limited companies, and contractors across the UK.",
-    url: "https://cleveraccounts.com/#pricing",
+    url: `${base}/#pricing`,
     itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        item: {
-          "@type": "Product",
-          name: "Sole Trader Accounting",
-          description: "Dedicated sole trader accountant, self assessment tax return, unlimited advice, free FreeAgent software, expense tracking, MTD compliant.",
-          url: "https://cleveraccounts.com/sole-trader",
-          brand: { "@type": "Brand", name: "Clever Accounts" },
-          offers: {
-            "@type": "Offer",
-            price: "42.50",
-            priceCurrency: "GBP",
-            priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              price: "42.50",
-              priceCurrency: "GBP",
-              billingDuration: "P1M",
-              unitText: "month",
-            },
-            availability: "https://schema.org/InStock",
-            url: "https://cleveraccounts.com/sole-trader",
-            seller: { "@type": "Organization", name: "Clever Accounts" },
-          },
-        },
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        item: {
-          "@type": "Product",
-          name: "Limited Company Accounting",
-          description: "Year-end accounts, corporation tax, VAT returns, payroll, Companies House filings, tax planning, free FreeAgent software.",
-          url: "https://cleveraccounts.com/limited-company",
-          brand: { "@type": "Brand", name: "Clever Accounts" },
-          offers: {
-            "@type": "Offer",
-            price: "104.50",
-            priceCurrency: "GBP",
-            priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              price: "104.50",
-              priceCurrency: "GBP",
-              billingDuration: "P1M",
-              unitText: "month",
-            },
-            availability: "https://schema.org/InStock",
-            url: "https://cleveraccounts.com/limited-company",
-            seller: { "@type": "Organization", name: "Clever Accounts" },
-          },
-        },
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        item: {
-          "@type": "Product",
-          name: "Contractor Accounting",
-          description: "End-to-end IR35 support, contract reviews, Clever FLEX umbrella solution, full limited company accounting, bespoke contracting advice.",
-          url: "https://cleveraccounts.com/contractor-accountancy",
-          brand: { "@type": "Brand", name: "Clever Accounts" },
-          offers: {
-            "@type": "Offer",
-            price: "104.50",
-            priceCurrency: "GBP",
-            priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              price: "104.50",
-              priceCurrency: "GBP",
-              billingDuration: "P1M",
-              unitText: "month",
-            },
-            availability: "https://schema.org/InStock",
-            url: "https://cleveraccounts.com/contractor-accountancy",
-            seller: { "@type": "Organization", name: "Clever Accounts" },
-          },
-        },
-      },
-      {
-        "@type": "ListItem",
-        position: 4,
-        item: {
-          "@type": "Product",
-          name: "Landlord Accounting",
-          description: "Comprehensive accounting for property investors and landlords including self assessment, rental income, and tax efficiency advice.",
-          url: "https://cleveraccounts.com/landlord-accounting",
-          brand: { "@type": "Brand", name: "Clever Accounts" },
-          offers: {
-            "@type": "Offer",
-            price: "42.50",
-            priceCurrency: "GBP",
-            priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              price: "42.50",
-              priceCurrency: "GBP",
-              billingDuration: "P1M",
-              unitText: "month",
-            },
-            availability: "https://schema.org/InStock",
-            url: "https://cleveraccounts.com/landlord-accounting",
-            seller: { "@type": "Organization", name: "Clever Accounts" },
-          },
-        },
-      },
+      product(1, "Sole Trader Accounting", "Dedicated sole trader accountant, self assessment tax return, unlimited advice, free accounting software, expense tracking, MTD compliant.", "/sole-trader", "42.50"),
+      product(2, "Limited Company Accounting", "Year-end accounts, corporation tax, VAT returns, payroll, Companies House filings, tax planning, free accounting software.", "/limited-company", "104.50"),
+      product(3, "Contractor Accounting", "End-to-end IR35 support, contract reviews, umbrella solution, full limited company accounting, bespoke contracting advice.", "/contractor-accountancy", "104.50"),
+      product(4, "Landlord Accounting", "Comprehensive accounting for property investors and landlords including self assessment, rental income, and tax efficiency advice.", "/landlord-accounting", "42.50"),
     ],
   };
 

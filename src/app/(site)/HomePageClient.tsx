@@ -186,10 +186,17 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
 
   // Workwell gets a bespoke, B2C-structured homepage. Clever keeps the page below.
   if (brand.id === "workwell") {
+    // Pricing/packages are shared, but feature copy can carry Clever-specific
+    // product names (e.g. "Clever FLEX"). Strip them for Workwell.
+    const deClever = (s: string) =>
+      s
+        .replace(/Clever FLEX umbrella solution/gi, "Umbrella solution")
+        .replace(/\bClever FLEX\b/gi, "umbrella");
+    const cleanTabs = serviceTabs.map((t) => ({ ...t, features: t.features.map(deClever) }));
     return (
       <WorkwellHome
         home={home}
-        serviceTabs={serviceTabs}
+        serviceTabs={cleanTabs}
         faqs={faqs}
         promoBadges={promoBadges}
         trustBadge={trustBadge}
