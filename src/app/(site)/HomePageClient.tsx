@@ -36,6 +36,7 @@ import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
+import WorkwellHero from "./WorkwellHero";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA — fallback if CMS empty
@@ -186,8 +187,16 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
   return (
     <>
       {/* ═══════════════════════════════════════
-          HERO — Bold, clear, one CTA
+          HERO — Workwell gets its own distinct,
+          lighter B2C treatment; Clever keeps the
+          dark hero below.
           ═══════════════════════════════════════ */}
+      {brand.id === "workwell" && <WorkwellHero home={home} trustBadge={trustBadge} />}
+
+      {/* ═══════════════════════════════════════
+          HERO (Clever) — Bold, clear, one CTA
+          ═══════════════════════════════════════ */}
+      {brand.id !== "workwell" && (
       <section className="relative overflow-hidden bg-dark pb-24">
         {/* Background effects */}
         <div className="absolute inset-0">
@@ -333,6 +342,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
           </svg>
         </div>
       </section>
+      )}
 
       {/* ═══════════════════════════════════════
           REFERRAL BANNER — High visibility
