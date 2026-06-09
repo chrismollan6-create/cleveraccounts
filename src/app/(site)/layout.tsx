@@ -141,7 +141,7 @@ export default async function RootLayout({
             </>
           )}
           <main className="flex-1">{children}</main>
-          {useLightChrome ? <LearnFooter /> : <Footer />}
+          {useLightChrome ? <LearnFooter /> : <Footer brand={brand} />}
           <CookieConsent />
         </BrandProvider>
         <VercelMonitoring />
