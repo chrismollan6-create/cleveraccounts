@@ -67,6 +67,13 @@ const TINTS = [
   "bg-[#32535a]/12 text-[#2c4a51]",
 ];
 
+/** Pill tints that pop on the dark sector band. */
+const DARK_TINTS = [
+  "bg-[#9cbf50]/20 text-[#bdd289] border border-[#9cbf50]/30",
+  "bg-[#71c5d6]/20 text-[#a5dde8] border border-[#71c5d6]/30",
+  "bg-white/[0.07] text-white/80 border border-white/15",
+];
+
 /** Soft fade on the marquee edges. */
 const MARQUEE_MASK = {
   maskImage: "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)",
@@ -163,14 +170,16 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         </div>
       </section>
 
-      {/* ── Sector breadth — "we work with all sorts" ────────────────── */}
-      <section className="bg-white py-16 md:py-20 overflow-hidden">
-        <div className="max-w-3xl mx-auto px-4 text-center mb-10">
-          <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Whatever you do</span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
+      {/* ── Sector breadth — dark band so the colourful pills pop ─────── */}
+      <section className="relative bg-gradient-to-br from-[#1a2426] to-[#243b40] py-16 md:py-20 overflow-hidden">
+        <div className="absolute -top-16 left-1/4 w-72 h-72 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 right-1/4 w-72 h-72 bg-[#71c5d6]/12 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative max-w-3xl mx-auto px-4 text-center mb-10">
+          <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Whatever you do</span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
             We work with all sorts of businesses
           </h2>
-          <p className="text-[#5a6f74] mt-3 text-lg">
+          <p className="text-white/65 mt-3 text-lg">
             From trades to tech, salons to startups — chances are we already look after someone just like you.
           </p>
         </div>
@@ -181,13 +190,13 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
           @keyframes ww-marq-l { from { transform: translateX(0); } to { transform: translateX(-50%); } }
           @keyframes ww-marq-r { from { transform: translateX(-50%); } to { transform: translateX(0); } }
         `}</style>
-        <div className="space-y-4">
+        <div className="relative space-y-4">
           <div className="overflow-hidden" style={MARQUEE_MASK}>
             <div className="flex gap-3 w-max" style={{ animation: "ww-marq-l 28s linear infinite" }}>
               {[...sectorsA, ...sectorsA].map((s, i) => (
                 <span
                   key={`a-${i}`}
-                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold ${TINTS[i % TINTS.length]}`}
+                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold ${DARK_TINTS[i % DARK_TINTS.length]}`}
                 >
                   {s}
                 </span>
@@ -199,7 +208,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
               {[...sectorsB, ...sectorsB].map((s, i) => (
                 <span
                   key={`b-${i}`}
-                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold ${TINTS[(i + 1) % TINTS.length]}`}
+                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold ${DARK_TINTS[(i + 1) % DARK_TINTS.length]}`}
                 >
                   {s}
                 </span>
@@ -208,7 +217,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
           </div>
         </div>
 
-        <p className="text-center mt-10 text-[#2c4a51] font-bold text-lg">
+        <p className="relative text-center mt-10 text-white font-bold text-lg">
           …and{" "}
           <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
             200+ more
@@ -365,12 +374,14 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         </div>
       </section>
 
-      {/* ── FAQ — reduce objections (reused component) ────────────────── */}
-      <section className="bg-[#f4f8ec] py-20 md:py-28">
-        <div className="max-w-4xl mx-auto px-4">
+      {/* ── FAQ — dark section so the reused PricingFAQ (white text) reads ─ */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#1a2426] to-[#243b40] py-20 md:py-28">
+        <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#71c5d6]/15 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#9cbf50]/12 rounded-full blur-3xl" />
+        <div className="relative max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Good to know</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-3">
+            <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Good to know</span>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
               Questions, answered
             </h2>
           </div>
@@ -378,9 +389,9 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
             faqs={faqs.map((f, i) => ({ _id: String(i), question: f.q, answer: f.a }))}
           />
           <div className="text-center mt-10">
-            <p className="text-[#5a6f74]">
+            <p className="text-white/60">
               Still wondering about something?{" "}
-              <Link href="/contact" className="text-[#2c6470] font-semibold hover:underline">
+              <Link href="/contact" className="text-[#9cbf50] font-semibold hover:underline">
                 Talk to us &rarr;
               </Link>
             </p>
