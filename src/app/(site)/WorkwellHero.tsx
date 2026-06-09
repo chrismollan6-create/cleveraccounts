@@ -5,7 +5,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Star,
-  ShieldCheck,
   Sparkles,
   FileCheck2,
 } from "lucide-react";
@@ -209,16 +208,6 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               </div>
             </div>
 
-            {/* Floating chip — qualified (below card, right) */}
-            <div className="absolute -bottom-5 right-4 sm:right-10 bg-white rounded-2xl px-4 py-3 shadow-lg border border-[#e4ecd6] rotate-2 hidden sm:flex items-center gap-2.5 animate-float z-20">
-              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#9cbf50]/25 to-[#71c5d6]/25 flex items-center justify-center">
-                <ShieldCheck size={18} className="text-[#6f8052]" />
-              </span>
-              <div>
-                <p className="text-xs font-bold text-[#2c4a51] leading-tight">Qualified &amp; regulated</p>
-                <p className="text-[11px] text-[#6a7b80]">In safe hands</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

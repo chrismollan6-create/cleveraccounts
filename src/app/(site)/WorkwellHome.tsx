@@ -25,6 +25,7 @@ import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import WorkwellHero from "./WorkwellHero";
 import type { CmsHomePage } from "./HomePageClient";
+import { SHOWCASE_SECTORS } from "@/lib/sectors";
 
 type ServiceTab = {
   id: string;
@@ -76,6 +77,9 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
   const segments = serviceTabs.slice(0, 3);
+  const sectorHalf = Math.ceil(SHOWCASE_SECTORS.length / 2);
+  const sectorsA = SHOWCASE_SECTORS.slice(0, sectorHalf);
+  const sectorsB = SHOWCASE_SECTORS.slice(sectorHalf);
 
   const benefits: { icon: ReactNode; title: string; desc: string }[] = [
     { icon: <UserCheck size={24} />, title: "A real accountant, on first-name terms", desc: "Not a call centre. One named expert who knows you and your business." },
@@ -151,6 +155,54 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
             })}
           </div>
         </div>
+      </section>
+
+      {/* ── Sector breadth — "we work with all sorts" ────────────────── */}
+      <section className="bg-white py-16 md:py-20 overflow-hidden">
+        <div className="max-w-3xl mx-auto px-4 text-center mb-10">
+          <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Whatever you do</span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
+            We work with all sorts of businesses
+          </h2>
+          <p className="text-[#5a6f74] mt-3 text-lg">
+            From trades to tech, salons to startups — chances are we already look after someone just like you.
+          </p>
+        </div>
+
+        <div className="marquee-group space-y-4">
+          <div className="overflow-hidden marquee-mask">
+            <div className="flex gap-3 w-max animate-marquee-left">
+              {[...sectorsA, ...sectorsA].map((s, i) => (
+                <span
+                  key={`a-${i}`}
+                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold ${TINTS[i % TINTS.length]}`}
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="overflow-hidden marquee-mask">
+            <div className="flex gap-3 w-max animate-marquee-right">
+              {[...sectorsB, ...sectorsB].map((s, i) => (
+                <span
+                  key={`b-${i}`}
+                  className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold ${TINTS[(i + 1) % TINTS.length]}`}
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center mt-10 text-[#2c4a51] font-bold text-lg">
+          …and{" "}
+          <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
+            200+ more
+          </span>{" "}
+          sectors
+        </p>
       </section>
 
       {/* ── Reassurance — outcomes, not features ──────────────────────── */}
