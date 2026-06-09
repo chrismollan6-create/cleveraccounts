@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HomePageClient from "./HomePageClient";
+import HomePageClient, { type CmsHomePage } from "./HomePageClient";
 import { FAQPageJsonLd, PricingJsonLd } from "@/components/seo/StructuredData";
 import { getSiteSettings, getHomePage, getPricingPlans } from "@/sanity/queries";
 import { promoBadgesByPlanName } from "@/lib/promo";
@@ -83,13 +83,18 @@ export default async function HomePage() {
     pricingPlans = (await getPricingPlans()) || [];
   } catch { /* fallback to hardcoded */ }
 
+  let home: CmsHomePage | null = null;
+  try {
+    home = await getHomePage(brand.id);
+  } catch { /* HomePageClient falls back to hardcoded hero copy */ }
+
   const homeFaqs = buildHomeFaqs(freephone, email);
 
   return (
     <>
       <FAQPageJsonLd faqs={homeFaqs} />
       <PricingJsonLd />
-      <HomePageClient faqs={homeFaqs} promoBadges={promoBadges} pricingPlans={pricingPlans} freephone={freephone} />
+      <HomePageClient faqs={homeFaqs} promoBadges={promoBadges} pricingPlans={pricingPlans} freephone={freephone} home={home} />
     </>
   );
 }
