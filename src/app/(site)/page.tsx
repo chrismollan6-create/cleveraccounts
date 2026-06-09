@@ -10,10 +10,20 @@ const DEFAULT_DESC =
   "Your own dedicated UK accountant, unlimited advice, and free FreeAgent software for one fixed monthly fee. Sole traders, limited companies, contractors & freelancers. Rated 4.7 on Trustpilot — 10,000+ businesses served.";
 
 export async function generateMetadata(): Promise<Metadata> {
-  let title = DEFAULT_TITLE;
-  let description = DEFAULT_DESC;
+  const brand = await getBrand();
+  const fallback =
+    brand.id === "clever"
+      ? { title: DEFAULT_TITLE, description: DEFAULT_DESC }
+      : {
+          title: `${brand.name} | Accountants for Sole Traders, Limited Companies & Contractors`,
+          description:
+            brand.tagline ||
+            `${brand.name} — your own dedicated UK accountant, unlimited advice and free software for one fixed monthly fee.`,
+        };
+  let title = fallback.title;
+  let description = fallback.description;
   try {
-    const home = await getHomePage();
+    const home = await getHomePage(brand.id);
     if (home?.metaTitle) title = home.metaTitle;
     if (home?.metaDescription) description = home.metaDescription;
   } catch { /* use defaults */ }
@@ -21,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: "https://cleveraccounts.com/" },
+    alternates: { canonical: `https://${brand.domain}/` },
   };
 }
 

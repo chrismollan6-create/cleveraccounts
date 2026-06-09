@@ -1,4 +1,18 @@
 import { client } from "./client";
+import type { BrandId } from "@/lib/constants";
+
+/**
+ * Brand-scoping for conversion content (homepage, service pages, landing pages,
+ * testimonials, case studies, promo banners).
+ *
+ * A document matches the current brand when it's explicitly tagged for that
+ * brand, explicitly "shared", or carries no `brand` field at all (every
+ * pre-existing document). Pass a `brandId` to scope; omit it to keep the
+ * original un-scoped behaviour (used by callers not yet migrated).
+ */
+const BRAND_FILTER = `(brand == $brandId || brand == "shared" || !defined(brand))`;
+/** When a brand-specific and a shared doc both match, prefer the brand-specific one. */
+const BRAND_ORDER = `order(select(brand == $brandId => 0, 1))`;
 
 // Blog posts
 export async function getBlogPosts() {
@@ -26,11 +40,15 @@ export async function getBlogSlugs() {
 }
 
 // Testimonials
-export async function getTestimonials(featured?: boolean) {
-  const filter = featured ? ` && featured == true` : "";
-  return client.fetch(`*[_type == "testimonial"${filter}] | order(_createdAt desc) {
-    _id, name, role, quote, rating, photo, featured
-  }`);
+export async function getTestimonials(featured?: boolean, brandId?: BrandId) {
+  const featuredFilter = featured ? ` && featured == true` : "";
+  const brandFilter = brandId ? ` && ${BRAND_FILTER}` : "";
+  return client.fetch(
+    `*[_type == "testimonial"${featuredFilter}${brandFilter}] | order(_createdAt desc) {
+      _id, name, role, quote, rating, photo, featured, brand
+    }`,
+    brandId ? { brandId } : {}
+  );
 }
 
 // Team members
@@ -41,16 +59,26 @@ export async function getTeamMembers() {
 }
 
 // Service pages
-export async function getServicePage(slug: string) {
+export async function getServicePage(slug: string, brandId?: BrandId) {
+  if (!brandId) {
+    return client.fetch(
+      `*[_type == "servicePage" && slug.current == $slug][0]`,
+      { slug }
+    );
+  }
   return client.fetch(
-    `*[_type == "servicePage" && slug.current == $slug][0]`,
-    { slug }
+    `*[_type == "servicePage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
+    { slug, brandId }
   );
 }
 
 // Home page content
-export async function getHomePage() {
-  return client.fetch(`*[_type == "homePage"][0]`);
+export async function getHomePage(brandId?: BrandId) {
+  if (!brandId) return client.fetch(`*[_type == "homePage"][0]`);
+  return client.fetch(
+    `*[_type == "homePage" && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
+    { brandId }
+  );
 }
 
 // FAQs
@@ -76,35 +104,53 @@ export async function getPricingPlans() {
 }
 
 // Promo banner
-export async function getActivePromoBanner() {
+export async function getActivePromoBanner(brandId?: BrandId) {
   const now = new Date().toISOString();
-  return client.fetch(`*[_type == "promoBanner" && active == true &&
-    (startDate == null || startDate <= $now) &&
-    (endDate == null || endDate >= $now)
-  ] | order(_createdAt desc)[0] {
-    _id, text, linkText, linkUrl, backgroundColor
-  }`, { now });
-}
-
-// Case studies
-export async function getCaseStudies() {
-  return client.fetch(`*[_type == "caseStudy"] | order(publishedAt desc) {
-    _id, clientName, slug, businessType, industry, photo, headline, summary, metrics, featured
-  }`);
-}
-
-export async function getCaseStudy(slug: string) {
+  const brandFilter = brandId ? ` && ${BRAND_FILTER}` : "";
   return client.fetch(
-    `*[_type == "caseStudy" && slug.current == $slug][0]`,
-    { slug }
+    `*[_type == "promoBanner" && active == true &&
+      (startDate == null || startDate <= $now) &&
+      (endDate == null || endDate >= $now)${brandFilter}
+    ] | order(_createdAt desc)[0] {
+      _id, text, linkText, linkUrl, backgroundColor
+    }`,
+    brandId ? { now, brandId } : { now }
   );
 }
 
-export async function getFeaturedCaseStudy() {
-  return client.fetch(`*[_type == "caseStudy" && featured == true] | order(publishedAt desc)[0] {
-    _id, clientName, slug, businessType, industry, photo, headline, summary,
-    challenge, solution, results, quote, metrics
-  }`);
+// Case studies
+export async function getCaseStudies(brandId?: BrandId) {
+  const brandFilter = brandId ? ` && ${BRAND_FILTER}` : "";
+  return client.fetch(
+    `*[_type == "caseStudy"${brandFilter}] | order(publishedAt desc) {
+      _id, clientName, slug, businessType, industry, photo, headline, summary, metrics, featured, brand
+    }`,
+    brandId ? { brandId } : {}
+  );
+}
+
+export async function getCaseStudy(slug: string, brandId?: BrandId) {
+  if (!brandId) {
+    return client.fetch(
+      `*[_type == "caseStudy" && slug.current == $slug][0]`,
+      { slug }
+    );
+  }
+  return client.fetch(
+    `*[_type == "caseStudy" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
+    { slug, brandId }
+  );
+}
+
+export async function getFeaturedCaseStudy(brandId?: BrandId) {
+  const brandFilter = brandId ? ` && ${BRAND_FILTER}` : "";
+  return client.fetch(
+    `*[_type == "caseStudy" && featured == true${brandFilter}] | order(publishedAt desc)[0] {
+      _id, clientName, slug, businessType, industry, photo, headline, summary,
+      challenge, solution, results, quote, metrics
+    }`,
+    brandId ? { brandId } : {}
+  );
 }
 
 // Site settings (singleton)
@@ -119,14 +165,21 @@ export async function getSiteSettings() {
 }
 
 // Landing pages (CMS-driven /lp/* pages)
-export async function getLandingPage(slug: string) {
-  return client.fetch(
-    `*[_type == "landingPage" && slug.current == $slug][0] {
+export async function getLandingPage(slug: string, brandId?: BrandId) {
+  const projection = `{
       _id, title, slug, headline, subheadline, price, targetAudience,
       urgencyText, features, whyUs, painPoints, howItWorks, testimonials,
       faq, metaTitle, metaDescription, noIndex
-    }`,
-    { slug }
+    }`;
+  if (!brandId) {
+    return client.fetch(
+      `*[_type == "landingPage" && slug.current == $slug][0] ${projection}`,
+      { slug }
+    );
+  }
+  return client.fetch(
+    `*[_type == "landingPage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0] ${projection}`,
+    { slug, brandId }
   );
 }
 
