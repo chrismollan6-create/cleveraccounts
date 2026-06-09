@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Star,
   ShieldCheck,
-  PhoneCall,
   Sparkles,
   FileCheck2,
 } from "lucide-react";
@@ -36,7 +35,8 @@ interface WorkwellHeroProps {
 /**
  * Workwell homepage hero — bold, colourful, B2C. Uses the full Workwell palette
  * (lime / cyan / teal) over a soft mesh background with a layered card visual.
- * Copy comes from the brand-scoped homePage doc, with Workwell fallbacks.
+ * Floating chips are positioned OUTSIDE the card silhouette (above / below) so
+ * they never obscure the card header, price or CTA.
  */
 export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
   const brand = useBrand();
@@ -51,33 +51,34 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
   ];
 
   const audience: { label: string; tint: string }[] = [
-    { label: "Sole Traders", tint: "bg-[#9cbf50]/20 text-[#5d7038]" },
-    { label: "Limited Companies", tint: "bg-[#71c5d6]/25 text-[#2c6470]" },
-    { label: "Contractors", tint: "bg-[#32535a]/12 text-[#2c4a51]" },
+    { label: "Sole Traders", tint: "bg-[#9cbf50]/25 text-[#566a33]" },
+    { label: "Limited Companies", tint: "bg-[#71c5d6]/30 text-[#235c68]" },
+    { label: "Contractors", tint: "bg-[#32535a]/15 text-[#2c4a51]" },
   ];
 
   return (
     <section className="relative overflow-hidden bg-[#f4f8ec]">
       {/* ── Vibrant mesh background ──────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-24 w-[620px] h-[620px] rounded-full bg-[#9cbf50]/30 blur-[110px]" />
-        <div className="absolute top-10 right-1/3 w-[460px] h-[460px] rounded-full bg-[#71c5d6]/30 blur-[110px]" />
-        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#32535a]/15 blur-[120px]" />
+        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#9cbf50]/40 blur-[110px]" />
+        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#71c5d6]/40 blur-[110px]" />
+        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#32535a]/18 blur-[120px]" />
+        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#bdd289]/40 blur-[90px]" />
         <div className="absolute top-1/4 left-1/4 w-3 h-3 rounded-full bg-[#9cbf50] animate-float opacity-70" />
-        <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 rounded-full bg-[#71c5d6] animate-float-delayed opacity-70" />
+        <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 rounded-full bg-[#71c5d6] animate-float-delayed opacity-80" />
         <div className="absolute top-1/2 left-2/3 w-2 h-2 rounded-full bg-[#32535a] animate-float opacity-40" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 pt-14 md:pt-20 pb-28 md:pb-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* ── Left: message ─────────────────────────────────────────── */}
           <div>
-            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-white shadow-sm rounded-full px-4 py-2 text-sm text-[#2c4a51] font-semibold mb-7">
-              <div className="flex">
+            <div className="inline-flex items-center gap-2 bg-white/85 backdrop-blur border border-white shadow-sm rounded-full pl-2 pr-4 py-1.5 text-sm text-[#2c4a51] font-semibold mb-7">
+              <span className="flex items-center gap-0.5 bg-gradient-to-r from-[#9cbf50]/20 to-[#71c5d6]/20 rounded-full px-2 py-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
                 ))}
-              </div>
+              </span>
               <span>{trustBadge}</span>
             </div>
 
@@ -115,7 +116,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <Link
                 href="/sign-up"
-                className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3.5 rounded-xl shadow-lg shadow-[#9cbf50]/25"
+                className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3.5 rounded-xl shadow-lg shadow-[#9cbf50]/30"
               >
                 {home?.heroCTA || "Get Started"}
                 <ArrowRight size={18} />
@@ -135,57 +136,61 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
           </div>
 
           {/* ── Right: layered card visual ────────────────────────────── */}
-          <div className="relative lg:pl-6">
-            {/* Tilted backdrop card for depth */}
-            <div className="absolute inset-0 translate-x-5 translate-y-5 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#71c5d6]/30 to-[#9cbf50]/30 hidden sm:block" />
+          <div className="relative lg:pl-4">
+            {/* Decorative colour ring behind the card */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[118%] h-[118%] rounded-[3rem] bg-gradient-to-tr from-[#9cbf50]/10 via-[#71c5d6]/15 to-[#9cbf50]/10 blur-2xl hidden sm:block" />
 
-            {/* Main card */}
-            <div className="relative bg-white rounded-[2rem] shadow-2xl shadow-[#2c4a51]/15 border border-white overflow-hidden">
-              {/* Gradient header strip */}
-              <div className="bg-gradient-to-r from-[#32535a] via-[#3f6b73] to-[#71c5d6] px-7 py-5 flex items-center gap-2 text-white">
-                <Sparkles size={18} />
-                <span className="text-sm font-bold uppercase tracking-wider">Everything included</span>
-              </div>
+            {/* card + tilted backdrop, dropped down to leave headroom for top chips */}
+            <div className="relative mt-14 sm:mt-12">
+              <div className="absolute inset-0 translate-x-4 translate-y-5 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#71c5d6]/40 to-[#9cbf50]/40 hidden sm:block" />
 
-              <div className="p-7">
-                <p className="text-2xl font-extrabold text-[#2c4a51] mb-6">
-                  One accountant. One simple fee.
-                </p>
+              <div className="relative bg-white rounded-[2rem] shadow-2xl shadow-[#2c4a51]/15 border border-white overflow-hidden">
+                {/* Gradient header strip */}
+                <div className="bg-gradient-to-r from-[#32535a] via-[#3f6b73] to-[#71c5d6] px-7 py-5 flex items-center gap-2 text-white">
+                  <Sparkles size={18} />
+                  <span className="text-sm font-bold uppercase tracking-wider">Everything included</span>
+                </div>
 
-                <ul className="space-y-3.5 mb-7">
-                  {included.map((item, i) => (
-                    <li key={item} className="flex items-center gap-3">
-                      <span
-                        className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                          i % 2 === 0 ? "bg-[#9cbf50]/20 text-[#6f8052]" : "bg-[#71c5d6]/25 text-[#2c6470]"
-                        }`}
-                      >
-                        <CheckCircle2 size={15} />
-                      </span>
-                      <span className="text-[#3f565b] font-medium">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="p-7">
+                  <p className="text-2xl font-extrabold text-[#2c4a51] mb-6">
+                    One accountant. One simple fee.
+                  </p>
 
-                <div className="flex items-end justify-between pt-6 border-t border-[#eef2e4]">
-                  <div>
-                    <p className="text-xs text-[#6a7b80] font-medium">Plans from</p>
-                    <p className="text-3xl font-extrabold text-[#2c4a51]">
-                      £42.50<span className="text-base font-semibold text-[#6a7b80]">/mo</span>
-                    </p>
+                  <ul className="space-y-3.5 mb-7">
+                    {included.map((item, i) => (
+                      <li key={item} className="flex items-center gap-3">
+                        <span
+                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                            i % 2 === 0 ? "bg-[#9cbf50]/20 text-[#6f8052]" : "bg-[#71c5d6]/25 text-[#2c6470]"
+                          }`}
+                        >
+                          <CheckCircle2 size={15} />
+                        </span>
+                        <span className="text-[#3f565b] font-medium">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="flex items-end justify-between pt-6 border-t border-[#eef2e4]">
+                    <div>
+                      <p className="text-xs text-[#6a7b80] font-medium">Plans from</p>
+                      <p className="text-3xl font-extrabold text-[#2c4a51]">
+                        £42.50<span className="text-base font-semibold text-[#6a7b80]">/mo</span>
+                      </p>
+                    </div>
+                    <Link
+                      href="/pricing"
+                      className="inline-flex items-center gap-1.5 bg-[#9cbf50]/15 text-[#5d7038] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-[#9cbf50]/25 transition-colors"
+                    >
+                      See pricing <ArrowRight size={15} />
+                    </Link>
                   </div>
-                  <Link
-                    href="/pricing"
-                    className="inline-flex items-center gap-1.5 bg-[#9cbf50]/15 text-[#5d7038] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-[#9cbf50]/25 transition-colors"
-                  >
-                    See pricing <ArrowRight size={15} />
-                  </Link>
                 </div>
               </div>
             </div>
 
-            {/* Floating chip — Trustpilot (top-left) */}
-            <div className="absolute -top-5 -left-6 bg-white rounded-2xl px-4 py-3 shadow-xl border border-[#e4ecd6] hidden sm:block -rotate-3 animate-float">
+            {/* Floating chip — Trustpilot (above card, top-left) */}
+            <div className="absolute top-0 left-2 sm:left-6 bg-white rounded-2xl px-4 py-2.5 shadow-xl border border-[#e4ecd6] -rotate-3 animate-float z-20">
               <div className="flex items-center gap-1.5">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
@@ -195,8 +200,8 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               <p className="text-[11px] text-[#6a7b80] mt-0.5">Excellent on Trustpilot</p>
             </div>
 
-            {/* Floating chip — MTD ready (cyan, bottom-left) */}
-            <div className="absolute bottom-6 -left-7 bg-[#71c5d6] text-white rounded-2xl px-4 py-3 shadow-lg hidden lg:flex items-center gap-2.5 animate-float-delayed">
+            {/* Floating chip — MTD ready (cyan, above card, top-right) */}
+            <div className="absolute top-1 right-2 sm:right-4 bg-[#71c5d6] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-20">
               <FileCheck2 size={18} />
               <div>
                 <p className="text-xs font-bold leading-tight">Making Tax Digital</p>
@@ -204,21 +209,15 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               </div>
             </div>
 
-            {/* Floating chip — qualified (bottom-right) */}
-            <div className="absolute -bottom-5 right-4 bg-white rounded-2xl px-4 py-3 shadow-lg border border-[#e4ecd6] hidden sm:flex items-center gap-2.5 rotate-2 animate-float">
-              <span className="w-9 h-9 rounded-xl bg-[#9cbf50]/20 flex items-center justify-center">
+            {/* Floating chip — qualified (below card, right) */}
+            <div className="absolute -bottom-5 right-4 sm:right-10 bg-white rounded-2xl px-4 py-3 shadow-lg border border-[#e4ecd6] rotate-2 hidden sm:flex items-center gap-2.5 animate-float z-20">
+              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#9cbf50]/25 to-[#71c5d6]/25 flex items-center justify-center">
                 <ShieldCheck size={18} className="text-[#6f8052]" />
               </span>
               <div>
                 <p className="text-xs font-bold text-[#2c4a51] leading-tight">Qualified &amp; regulated</p>
                 <p className="text-[11px] text-[#6a7b80]">In safe hands</p>
               </div>
-            </div>
-
-            {/* Floating pill — talk to a human (right) */}
-            <div className="absolute top-1/3 -right-3 bg-[#32535a] text-white rounded-full px-4 py-2 shadow-lg hidden xl:flex items-center gap-2 animate-float-delayed">
-              <PhoneCall size={14} />
-              <span className="text-xs font-semibold">Talk to a real accountant</span>
             </div>
           </div>
         </div>
