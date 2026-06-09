@@ -143,18 +143,18 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
                       {seg.icon}
                     </span>
                     <h3 className="text-xl font-bold text-[#2c4a51] mb-2">{seg.label}</h3>
-                    <p className="text-[#5a6f74] text-sm leading-relaxed mb-5 flex-1">
+                    <p className="text-[#5a6f74] text-sm leading-relaxed mb-5">
                       {SEGMENT_BLURB[seg.id] ?? seg.headline}
                     </p>
-                    <ul className="space-y-2 mb-6">
-                      {seg.features.slice(0, 3).map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-sm text-[#3f565b]">
-                          <CheckCircle2 size={15} className="text-[#6f8052] shrink-0" />
+                    <ul className="space-y-2.5 mb-6">
+                      {seg.features.slice(0, 6).map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-sm text-[#3f565b]">
+                          <CheckCircle2 size={15} className="text-[#6f8052] shrink-0 mt-0.5" />
                           {f}
                         </li>
                       ))}
                     </ul>
-                    <div className="flex items-center justify-between pt-4 border-t border-[#e4ecd6]">
+                    <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#e4ecd6]">
                       <span className="text-sm text-[#6a7b80]">
                         from <span className="text-lg font-extrabold text-[#2c4a51]">£{seg.price}</span>/mo
                       </span>
@@ -227,9 +227,9 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       </section>
 
       {/* ── Reassurance — outcomes, not features ──────────────────────── */}
-      <section className="relative bg-[#f4f8ec] py-20 md:py-28 overflow-hidden">
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-[#71c5d6]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 -left-20 w-80 h-80 bg-[#9cbf50]/15 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative bg-white py-20 md:py-28 overflow-hidden">
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-[#71c5d6]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 -left-20 w-80 h-80 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4">
           <div className="text-center mb-16 max-w-2xl mx-auto">
             <span className="inline-flex items-center gap-2 text-[#6f8052] font-bold text-sm uppercase tracking-wider">
@@ -247,7 +247,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
             {benefits.map((b, i) => (
               <div
                 key={b.title}
-                className="bg-white rounded-3xl p-7 border border-[#e4ecd6] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                className="bg-white rounded-3xl p-7 border border-[#e4ecd6] shadow-[0_10px_30px_-12px_rgba(44,74,81,0.18)] hover:shadow-[0_16px_40px_-12px_rgba(44,74,81,0.28)] hover:-translate-y-1 transition-all"
               >
                 <span className={`w-12 h-12 rounded-2xl ${TINTS[i % TINTS.length]} flex items-center justify-center mb-4`}>
                   {b.icon}
@@ -276,26 +276,27 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         <TaxCalculator />
       </section>
 
-      {/* ── How it works — colourful steps ────────────────────────────── */}
-      <section className="bg-[#f4f8ec] py-20 md:py-28">
-        <div className="max-w-6xl mx-auto px-4">
+      {/* ── How it works — dark band, flows into the dark social-proof ── */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#1a2426] to-[#243b40] py-20 md:py-28">
+        <div className="absolute -top-16 left-1/3 w-72 h-72 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Getting started</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-3">
+            <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Getting started</span>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
               Up and running in minutes
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-9 left-[18%] right-[18%] h-0.5 bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a]" />
+            <div className="hidden md:block absolute top-9 left-[18%] right-[18%] h-0.5 bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#9cbf50] opacity-50" />
             {steps.map((s) => (
               <div key={s.n} className="text-center relative z-10">
-                <div className="w-18 h-18 mx-auto mb-6 rounded-3xl bg-white border border-[#e4ecd6] shadow-sm flex items-center justify-center">
+                <div className="w-18 h-18 mx-auto mb-6 rounded-3xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
                   <span className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${s.grad} text-white text-xl font-extrabold flex items-center justify-center`}>
                     {s.n}
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-[#2c4a51] mb-2">{s.title}</h3>
-                <p className="text-[#5a6f74] leading-relaxed max-w-xs mx-auto">{s.desc}</p>
+                <h3 className="text-xl font-bold text-white mb-2">{s.title}</h3>
+                <p className="text-white/65 leading-relaxed max-w-xs mx-auto">{s.desc}</p>
               </div>
             ))}
           </div>

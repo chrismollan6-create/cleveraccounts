@@ -56,13 +56,14 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-[#f4f8ec]">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#eef4e2] via-[#f1f6e6] to-[#e4eed3]">
       {/* ── Vibrant mesh background ──────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#9cbf50]/40 blur-[110px]" />
-        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#71c5d6]/40 blur-[110px]" />
-        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#32535a]/18 blur-[120px]" />
-        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#bdd289]/40 blur-[90px]" />
+        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#9cbf50]/45 blur-[110px]" />
+        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#71c5d6]/45 blur-[110px]" />
+        <div className="absolute -bottom-44 left-1/4 w-[620px] h-[420px] rounded-full bg-[#32535a]/22 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#4d7079]/20 blur-[120px]" />
+        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#bdd289]/45 blur-[90px]" />
         <div className="absolute top-1/4 left-1/4 w-3 h-3 rounded-full bg-[#9cbf50] animate-float opacity-70" />
         <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 rounded-full bg-[#71c5d6] animate-float-delayed opacity-80" />
         <div className="absolute top-1/2 left-2/3 w-2 h-2 rounded-full bg-[#32535a] animate-float opacity-40" />
