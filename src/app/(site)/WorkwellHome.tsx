@@ -17,7 +17,6 @@ import {
   UserCheck,
   Sparkles,
   ChevronRight,
-  Calculator,
 } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 import TaxCalculator from "@/components/ui/TaxCalculator";
@@ -260,21 +259,8 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         </div>
       </section>
 
-      {/* ── Take-home calculator — interactive engagement (reused) ─────── */}
-      <section className="relative bg-white pt-20 md:pt-24 overflow-hidden">
-        <div className="max-w-3xl mx-auto px-4 text-center mb-10">
-          <span className="inline-flex items-center gap-2 bg-[#71c5d6]/15 text-[#2c6470] font-bold text-sm uppercase tracking-wider px-4 py-1.5 rounded-full">
-            <Calculator size={15} /> Try it yourself
-          </span>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-4">
-            See what you could take home
-          </h2>
-          <p className="text-[#5a6f74] mt-4 text-lg">
-            Pop in your income and get a quick, no-strings estimate of your take-home pay.
-          </p>
-        </div>
-        <TaxCalculator />
-      </section>
+      {/* ── Take-home calculator (reused; has its own heading) ────────── */}
+      <TaxCalculator />
 
       {/* ── How it works — dark band, flows into the dark social-proof ── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#1a2426] to-[#243b40] py-20 md:py-28">
@@ -303,9 +289,10 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         </div>
       </section>
 
-      {/* ── Social proof — Trustpilot + reassurance (no fabricated quotes) ─ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#243b40] via-[#2c4a51] to-[#32535a] py-20 md:py-24">
-        <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#71c5d6]/20 rounded-full blur-3xl" />
+      {/* ── Social proof — vertical gradient (top edge uniform #243b40)
+          so it joins the How-it-works band above with no seam. ───────── */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#243b40] via-[#2c4a51] to-[#32535a] py-20 md:py-24">
+        <div className="absolute top-16 -right-16 w-80 h-80 bg-[#71c5d6]/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#9cbf50]/15 rounded-full blur-3xl" />
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 mb-5">
