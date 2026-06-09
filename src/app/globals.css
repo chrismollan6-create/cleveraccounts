@@ -1,7 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-@theme inline {
+/* NOTE: plain `@theme` (not `@theme inline`) is required so colour utilities
+   compile to `var(--color-*)` references rather than baked-in literal hex.
+   That's what lets the [data-brand="workwell"] overrides below re-theme every
+   bg-/text-/border- colour utility. Do NOT add `inline` back. */
+@theme {
   /* Teal blue as primary — professional, trustworthy */
   --color-primary: #1A7A9B;
   --color-primary-dark: #136280;
