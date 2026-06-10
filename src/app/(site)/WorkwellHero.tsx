@@ -175,7 +175,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                     <div>
                       <p className="text-xs text-[#6a7b80] font-medium">Plans from</p>
                       <p className="text-3xl font-extrabold text-[#2c4a51]">
-                        £42.50<span className="text-base font-semibold text-[#6a7b80]">/mo</span>
+                        £42.50<span className="text-base font-semibold text-[#6a7b80]">/mo + VAT</span>
                       </p>
                     </div>
                     <Link

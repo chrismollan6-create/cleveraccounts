@@ -17,11 +17,13 @@ import {
   UserCheck,
   Sparkles,
   ChevronRight,
+  Gift,
 } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 import TaxCalculator from "@/components/ui/TaxCalculator";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
+import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import WorkwellHero from "./WorkwellHero";
 import type { CmsHomePage } from "./HomePageClient";
 import { SHOWCASE_SECTORS } from "@/lib/sectors";
@@ -114,6 +116,45 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
     <>
       <WorkwellHero home={home} trustBadge={trustBadge} />
 
+      {/* ── Refer a friend — inset rounded card on white so it flows ──── */}
+      <section className="bg-white pt-5 pb-0 md:pt-7">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#9cbf50] via-[#6f8052] to-[#32535a] shadow-xl shadow-[#2c4a51]/15">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 right-1/4 w-48 h-48 bg-[#71c5d6]/25 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative px-6 py-6 md:px-8 md:py-7">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
+                <div className="flex items-center gap-4">
+                  <div className="relative flex-shrink-0">
+                    <div className="absolute inset-0 bg-[#bdd289]/40 rounded-2xl blur-md" />
+                    <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-lg">
+                      <Gift size={24} className="text-white" />
+                    </div>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <p className="text-white font-black text-lg leading-tight tracking-tight">
+                      Refer a friend — earn up to{" "}
+                      <span className="text-[#eaf3d0] underline decoration-[#bdd289]/70 decoration-2 underline-offset-2">£250</span>
+                    </p>
+                    <p className="text-white/85 text-sm mt-0.5">
+                      Know someone who needs an accountant? You both benefit.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/refer-a-friend"
+                  className="group inline-flex items-center gap-2 bg-white text-[#2c4a51] font-bold px-6 py-3 rounded-xl text-sm shadow-lg hover:shadow-xl hover:bg-[#eef4e2] transition-all whitespace-nowrap"
+                >
+                  Find out more
+                  <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Who are you? — colourful segment picker, the B2C front door ── */}
       <section className="bg-white py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
@@ -155,7 +196,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
                     </ul>
                     <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#e4ecd6]">
                       <span className="text-sm text-[#6a7b80]">
-                        from <span className="text-lg font-extrabold text-[#2c4a51]">£{seg.price}</span>/mo
+                        from <span className="text-lg font-extrabold text-[#2c4a51]">£{seg.price}</span>/mo + VAT
                       </span>
                       <span className={`inline-flex items-center gap-1 ${a.link} font-bold text-sm group-hover:gap-2 transition-all`}>
                         Explore <ChevronRight size={16} />
@@ -420,6 +461,8 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
           </div>
         </div>
       </section>
+
+      <StickyFloatingCTA freephone={brand.freephone} />
     </>
   );
 }
