@@ -21,12 +21,15 @@ import {
   Sparkles,
 } from "lucide-react";
 import { COMPANY } from "@/lib/constants";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Compare Clever Accounts vs Local Accountants vs DIY Software | Clever Accounts",
-  description:
-    "How Clever Accounts compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance. See why 10,000+ UK businesses chose us.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Compare ${brand.name} vs Local Accountants vs DIY Software | ${brand.name}`,
+    description: `How ${brand.name} compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance. See why 10,000+ UK businesses chose us.`,
+  };
+}
 
 type CellValue = boolean | string;
 
@@ -92,7 +95,8 @@ function Cell({ value, highlight = false }: { value: CellValue; highlight?: bool
   return <span className="text-sm font-semibold text-text">{value}</span>;
 }
 
-export default function ComparePage() {
+export default async function ComparePage() {
+  const brand = await getBrand();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -104,7 +108,7 @@ export default function ComparePage() {
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-6">
             <Sparkles size={15} />
-            Why 10,000+ UK businesses chose Clever Accounts
+            Why 10,000+ UK businesses chose {brand.name}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
             Compare. <span className="text-gradient">Don&apos;t settle.</span>
@@ -170,7 +174,7 @@ export default function ComparePage() {
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow">
                         Recommended
                       </div>
-                      <div className="font-black text-base mt-1">Clever Accounts</div>
+                      <div className="font-black text-base mt-1">{brand.name}</div>
                       <div className="text-white/80 text-xs mt-0.5">From £42.50/mo</div>
                     </div>
                   </th>
@@ -228,12 +232,12 @@ export default function ComparePage() {
 
           {/* Mobile stacked cards */}
           <div className="md:hidden space-y-4">
-            {/* Clever Accounts card — highlighted */}
+            {/* Our highlighted card */}
             <div className="bg-primary text-white rounded-2xl p-6 shadow-lg relative">
               <div className="absolute -top-3 left-6 bg-secondary text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow">
                 Recommended
               </div>
-              <h3 className="font-black text-xl mb-1 mt-1">Clever Accounts</h3>
+              <h3 className="font-black text-xl mb-1 mt-1">{brand.name}</h3>
               <p className="text-white/80 text-sm mb-5">From £42.50/month — everything in</p>
               <ul className="space-y-2.5">
                 {featureRows.map((row) => (
@@ -310,7 +314,7 @@ export default function ComparePage() {
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
               The differences between the three options aren&apos;t small. Here&apos;s what
-              each row actually buys you with Clever Accounts.
+              each row actually buys you with {brand.name}.
             </p>
           </div>
 

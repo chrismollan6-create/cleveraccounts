@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ExternalLink, CheckCircle2, Star, Shield, PoundSterling, TrendingUp, Phone } from "lucide-react";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Partner Services — Business Banking, Insurance & Financial Planning | Clever Accounts",
-  description:
-    "Our recommended partners for UK business banking, professional insurance, and financial planning. Exclusive offers for Clever Accounts clients — including £75 cashback with Tide.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Partner Services — Business Banking, Insurance & Financial Planning | ${brand.name}`,
+    description:
+      `Our recommended partners for UK business banking, professional insurance, and financial planning. Exclusive offers for ${brand.name} clients — including £75 cashback with Tide.`,
+  };
+}
 
 const partners = [
   {
@@ -86,7 +90,9 @@ const partners = [
   },
 ];
 
-export default function PartnersPage() {
+export default async function PartnersPage() {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       {/* ── HERO ────────────────────────────────────────────── */}
@@ -157,10 +163,10 @@ export default function PartnersPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-black text-dark text-base">{p.offer.headline}</p>
+                          <p className="font-black text-dark text-base">{swap(p.offer.headline)}</p>
                           <span className="text-xs font-bold bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">{p.offer.badge}</span>
                         </div>
-                        <p className="text-text-light text-sm leading-relaxed">{p.offer.detail}</p>
+                        <p className="text-text-light text-sm leading-relaxed">{swap(p.offer.detail)}</p>
                       </div>
                     </div>
                   </div>
@@ -185,7 +191,7 @@ export default function PartnersPage() {
       <section className="bg-surface py-10 border-t border-border">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <p className="text-text-light text-xs leading-relaxed">
-            Clever Accounts may receive a referral fee from some of these partners. This does not affect the advice we give our clients or the price you pay. We only recommend services we genuinely believe will benefit your business. Prospera Wealth is an independent financial adviser — financial advice is regulated by the FCA.
+            {brand.name} may receive a referral fee from some of these partners. This does not affect the advice we give our clients or the price you pay. We only recommend services we genuinely believe will benefit your business. Prospera Wealth is an independent financial adviser — financial advice is regulated by the FCA.
           </p>
         </div>
       </section>
@@ -193,7 +199,7 @@ export default function PartnersPage() {
       {/* ── CTA ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16">
         <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-black text-white mb-4">Already a Clever Accounts Client?</h2>
+          <h2 className="text-3xl font-black text-white mb-4">Already a {brand.name} Client?</h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
             Talk to your accountant about any of these services — they can make the introduction directly.
           </p>

@@ -227,6 +227,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function SwitchAccountantPage() {
   const brand = useBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -383,7 +384,7 @@ export default function SwitchAccountantPage() {
             <Zap size={24} className="text-primary mx-auto mb-3" />
             <h3 className="font-bold text-dark mb-2">Your benefits start immediately — not after the transfer</h3>
             <p className="text-text-light text-sm max-w-xl mx-auto">
-              The moment you sign up, you're a Clever Accounts client. Your dedicated accountant is assigned, FreeAgent is set up, and any upcoming deadlines are tracked. The records transfer runs in the background.
+              The moment you sign up, you&apos;re a {brand.name} client. Your dedicated accountant is assigned, FreeAgent is set up, and any upcoming deadlines are tracked. The records transfer runs in the background.
             </p>
           </div>
         </div>
@@ -402,7 +403,7 @@ export default function SwitchAccountantPage() {
               <span className="text-gradient">Traditional & Budget Accountants</span>
             </h2>
             <p className="text-white/70 max-w-2xl mx-auto">
-              Traditional firms charge by the hour and disappear until year end. Budget online services cut corners and leave you without real support. Clever Accounts gives you both — expert service at a fixed, fair price.
+              Traditional firms charge by the hour and disappear until year end. Budget online services cut corners and leave you without real support. {brand.name} gives you both — expert service at a fixed, fair price.
             </p>
           </div>
 
@@ -467,7 +468,7 @@ export default function SwitchAccountantPage() {
                     <Star key={i} size={16} className="text-secondary fill-secondary" />
                   ))}
                 </div>
-                <p className="text-text-light text-sm leading-relaxed mb-4 italic">"{quote}"</p>
+                <p className="text-text-light text-sm leading-relaxed mb-4 italic">&ldquo;{swap(quote)}&rdquo;</p>
                 <div className="border-t border-border pt-4">
                   <div className="font-bold text-dark text-sm">{name}</div>
                   <div className="text-text-light text-xs">{role}</div>
@@ -514,7 +515,7 @@ export default function SwitchAccountantPage() {
             <h2 className="text-3xl font-black text-white mb-4">Switching Questions Answered</h2>
           </div>
           <div className="space-y-3">
-            {faqs.map((item) => <FAQItem key={item.q} q={item.q} a={item.a} />)}
+            {faqs.map((item) => <FAQItem key={item.q} q={swap(item.q)} a={swap(item.a)} />)}
           </div>
         </div>
 

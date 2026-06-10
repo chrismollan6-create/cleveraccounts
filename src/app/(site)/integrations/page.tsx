@@ -164,6 +164,7 @@ const steps = [
 
 export default async function IntegrationsPage() {
   const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -183,7 +184,7 @@ export default async function IntegrationsPage() {
               <span className="text-gradient">Integrations</span>
             </h1>
             <p className="text-lg text-white/80 leading-relaxed mb-4">
-              Every Clever Accounts client gets FreeAgent — award-winning
+              Every {brand.name} client gets FreeAgent — award-winning
               accounting software — included free with their package. Connect
               your bank, submit VAT returns directly to HMRC, and manage your
               finances in real time.
@@ -231,14 +232,14 @@ export default async function IntegrationsPage() {
                 FreeAgent — Included Free with Every Package
               </h2>
               <p className="text-text/70 leading-relaxed mb-6">
-                Clever Accounts is a FreeAgent Platinum Partner — the highest
+                {brand.name} is a FreeAgent Platinum Partner — the highest
                 accreditation FreeAgent awards. This means our accountants are
                 fully trained and certified on FreeAgent, and we&apos;re
                 recognised as one of the UK&apos;s leading FreeAgent
                 practices.
               </p>
               <p className="text-text/70 leading-relaxed mb-6">
-                FreeAgent normally costs up to £33/month. With Clever Accounts,
+                FreeAgent normally costs up to £33/month. With {brand.name},
                 it&apos;s completely free — included as standard in every
                 package, for as long as you&apos;re a client.
               </p>
@@ -310,7 +311,7 @@ export default async function IntegrationsPage() {
                     Already using FreeAgent?
                   </span>{" "}
                   If you&apos;re on FreeAgent with another accountant, switching
-                  to Clever Accounts is straightforward — we take over as your
+                  to {brand.name} is straightforward — we take over as your
                   Practice and you keep all your existing data.
                 </p>
               </div>
@@ -569,8 +570,8 @@ export default async function IntegrationsPage() {
                     {num.slice(-1)}
                   </div>
                 </div>
-                <h3 className="font-black text-dark text-lg mb-3">{title}</h3>
-                <p className="text-text/70 text-sm leading-relaxed">{desc}</p>
+                <h3 className="font-black text-dark text-lg mb-3">{swap(title)}</h3>
+                <p className="text-text/70 text-sm leading-relaxed">{swap(desc)}</p>
               </div>
             ))}
           </div>

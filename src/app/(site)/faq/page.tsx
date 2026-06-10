@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { getFAQs } from "@/sanity/queries";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import FAQPageClient from "./FAQPageClient";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "FAQs — Clever Accounts | Online Accounting Questions Answered",
-  description:
-    "Answers to common questions about Clever Accounts — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `FAQs — ${brand.name} | Online Accounting Questions Answered`,
+    description:
+      `Answers to common questions about ${brand.name} — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.`,
+  };
+}
 
 export const revalidate = 60;
 
@@ -96,6 +100,12 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
 };
 
 export default async function FAQPage() {
+  const brand = await getBrand();
+  const flexLabel = brand.id === "workwell" ? "Workwell Flex" : "Clever FLEX";
+  // Rewrite "Clever Accounts" → current brand and "Clever FLEX" → flexLabel
+  // for both the visible FAQ content and the JSON-LD payload so SEO matches.
+  const swap = (s: string) =>
+    s.replaceAll("Clever Accounts", brand.name).replaceAll("Clever FLEX", flexLabel);
   // Try CMS first
   let faqsByCategory: Record<string, { q: string; a: string }[]> = {};
   let usingCMS = false;
@@ -126,13 +136,18 @@ export default async function FAQPage() {
     faqsByCategory = fallbackCategories;
   }
 
-  // Flatten for JSON-LD
-  const allFaqs = Object.values(faqsByCategory).flat();
+  // Brand-aware swap on every q/a so both the visible content and the JSON-LD
+  // match the host brand. Module-scope fallback + CMS data both flow through.
+  const swappedByCategory: Record<string, { q: string; a: string }[]> = {};
+  for (const [label, items] of Object.entries(faqsByCategory)) {
+    swappedByCategory[label] = items.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
+  }
+  const allFaqs = Object.values(swappedByCategory).flat();
 
   return (
     <>
       <FAQPageJsonLd faqs={allFaqs} />
-      <FAQPageClient faqsByCategory={faqsByCategory} />
+      <FAQPageClient faqsByCategory={swappedByCategory} />
     </>
   );
 }

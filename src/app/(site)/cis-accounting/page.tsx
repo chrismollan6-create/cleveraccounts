@@ -281,6 +281,7 @@ const breadcrumbJsonLd = {
 // ── Page ──────────────────────────────────────────────────────
 export default function CisAccountingPage() {
   const brand = useBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
@@ -833,7 +834,7 @@ export default function CisAccountingPage() {
                   size={18}
                   className="text-primary shrink-0 mt-0.5"
                 />
-                <p className="text-dark text-sm leading-relaxed">{point}</p>
+                <p className="text-dark text-sm leading-relaxed">{swap(point)}</p>
               </div>
             ))}
           </div>
@@ -896,7 +897,7 @@ export default function CisAccountingPage() {
               >
                 <Stars count={t.rating} />
                 <p className="text-dark leading-relaxed mb-5 italic">
-                  &ldquo;{t.quote}&rdquo;
+                  &ldquo;{swap(t.quote)}&rdquo;
                 </p>
                 <div className="flex items-center gap-3 pt-4 border-t border-border">
                   <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-sm">
@@ -947,7 +948,7 @@ export default function CisAccountingPage() {
 
           <div className="space-y-2">
             {faqs.map((faq) => (
-              <FAQItem key={faq.q} q={faq.q} a={faq.a} />
+              <FAQItem key={faq.q} q={swap(faq.q)} a={swap(faq.a)} />
             ))}
           </div>
         </div>

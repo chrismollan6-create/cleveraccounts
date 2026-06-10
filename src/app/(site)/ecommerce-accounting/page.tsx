@@ -296,6 +296,7 @@ const breadcrumbJsonLd = {
 
 export default function EcommerceAccountingPage() {
   const brand = useBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
@@ -657,7 +658,7 @@ export default function EcommerceAccountingPage() {
                   ))}
                 </div>
                 <p className="text-white/80 leading-relaxed text-sm mb-5 italic">
-                  &ldquo;{quote}&rdquo;
+                  &ldquo;{swap(quote)}&rdquo;
                 </p>
                 <div>
                   <p className="text-white font-semibold text-sm">{name}</p>
@@ -689,7 +690,7 @@ export default function EcommerceAccountingPage() {
           </div>
           <div className="space-y-3">
             {faqs.map(({ q, a }) => (
-              <FAQItem key={q} q={q} a={a} />
+              <FAQItem key={q} q={swap(q)} a={swap(a)} />
             ))}
           </div>
         </div>

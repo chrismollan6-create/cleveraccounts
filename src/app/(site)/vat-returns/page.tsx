@@ -233,6 +233,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function VATReturnsPage() {
   const brand = useBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -261,7 +262,7 @@ export default function VATReturnsPage() {
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
                 Whether you&apos;re newly VAT-registered or looking to switch
-                accountants, your dedicated Clever Accounts expert handles
+                accountants, your dedicated {brand.name} expert handles
                 everything from scheme selection to HMRC submission.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -791,7 +792,7 @@ export default function VATReturnsPage() {
           </div>
           <div className="space-y-3">
             {faqs.map((faq) => (
-              <FAQItem key={faq.q} q={faq.q} a={faq.a} />
+              <FAQItem key={faq.q} q={swap(faq.q)} a={swap(faq.a)} />
             ))}
           </div>
         </div>
