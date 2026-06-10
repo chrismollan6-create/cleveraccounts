@@ -124,6 +124,9 @@ const faqs = [
 export default async function FreeAgentPage() {
   const brand = await getBrand();
   const telHref = `tel:${brand.freephone.replace(/\s/g, "")}`;
+  // Swap "Clever Accounts" → current brand name in the shared data arrays
+  // (whyUs/steps/faqs) so Workwell visitors don't see the wrong brand name.
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
 
   return (
     <>
@@ -146,7 +149,7 @@ export default async function FreeAgentPage() {
                 <span className="text-gradient">FreeAgent Recommends</span>
               </h1>
               <p className="text-lg text-white/80 leading-relaxed mb-4">
-                Clever Accounts has worked hand in hand with FreeAgent for many
+                {brand.name} has worked hand in hand with FreeAgent for many
                 years — as a Platinum Partner and a member of FreeAgent&apos;s
                 Co-Pilot panel, the small group of accountancy firms FreeAgent
                 recommends directly to its own users.
@@ -248,7 +251,7 @@ export default async function FreeAgentPage() {
                   Already a FreeAgent user?
                 </p>
                 <p className="text-xs text-text-light">
-                  Choose Clever Accounts from the Co-Pilot panel inside your
+                  Choose {brand.name} from the Co-Pilot panel inside your
                   FreeAgent account — that&apos;s all it takes.
                 </p>
               </div>
@@ -282,7 +285,7 @@ export default async function FreeAgentPage() {
               </h2>
               <p className="text-text/70 leading-relaxed mb-4">
                 Plenty of accountants offer FreeAgent. Very few have the
-                relationship with FreeAgent that Clever Accounts has. We&apos;re
+                relationship with FreeAgent that {brand.name} has. We&apos;re
                 a <span className="font-semibold text-dark">Platinum
                 Partner</span> — FreeAgent&apos;s highest accreditation — and
                 one of the longest-serving accountancy partners FreeAgent has
@@ -514,7 +517,7 @@ export default async function FreeAgentPage() {
                   <Icon size={22} />
                 </div>
                 <h3 className="font-bold text-dark mb-2">{title}</h3>
-                <p className="text-sm text-text/70 leading-relaxed">{desc}</p>
+                <p className="text-sm text-text/70 leading-relaxed">{swap(desc)}</p>
               </div>
             ))}
           </div>
@@ -560,7 +563,7 @@ export default async function FreeAgentPage() {
                   </div>
                 </div>
                 <h3 className="font-black text-white text-lg mb-3">{title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
+                <p className="text-white/60 text-sm leading-relaxed">{swap(desc)}</p>
               </div>
             ))}
           </div>
@@ -636,14 +639,14 @@ export default async function FreeAgentPage() {
                 className="group bg-white border border-border rounded-xl overflow-hidden"
               >
                 <summary className="flex items-center justify-between gap-3 px-5 py-4 cursor-pointer font-semibold text-dark hover:bg-surface transition-colors list-none [&::-webkit-details-marker]:hidden">
-                  {q}
+                  {swap(q)}
                   <ArrowRight
                     size={18}
                     className="shrink-0 text-primary transition-transform group-open:rotate-90"
                   />
                 </summary>
                 <div className="px-5 pb-4 pt-1 text-sm text-text/70 leading-relaxed border-t border-border">
-                  {a}
+                  {swap(a)}
                 </div>
               </details>
             ))}
@@ -664,7 +667,7 @@ export default async function FreeAgentPage() {
             </h2>
             <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
               Sole trader or limited company, if you use FreeAgent you&apos;ll
-              find Clever Accounts in the{" "}
+              find {brand.name} in the{" "}
               <span className="font-bold">Co-Pilot panel</span> inside your
               account — start an enquiry there to get going. Got a question
               first? Our team is happy to help.

@@ -195,6 +195,12 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function ITContractorAccountantPage() {
   const brand = useBrand();
+  const flexLabel = brand.id === "workwell" ? "Workwell Flex" : "Clever FLEX";
+  // Rewrite "Clever Accounts" → current brand and "Clever FLEX" → flexLabel
+  // in the comparison-table data + supporting copy so Workwell visitors see
+  // the right brand without duplicating the provider array.
+  const swap = (s: string) =>
+    s.replaceAll("Clever Accounts", brand.name).replaceAll("Clever FLEX", flexLabel);
   return (
     <>
       {/* ── Hero ─────────────────────────────────────── */}
@@ -216,7 +222,7 @@ export default function ITContractorAccountantPage() {
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
               How the 8 leading UK contractor accountants compare on the things IT contractors
-              actually rely on — and why we built Clever Accounts to win on every one.
+              actually rely on — and why we built {brand.name} to win on every one.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -254,7 +260,7 @@ export default function ITContractorAccountantPage() {
             ].map((point, i) => (
               <li key={i} className="flex items-start gap-3">
                 <CheckCircle2 size={18} className="text-primary shrink-0 mt-0.5" />
-                <span className="text-text text-sm leading-relaxed">{point}</span>
+                <span className="text-text text-sm leading-relaxed">{swap(point)}</span>
               </li>
             ))}
           </ul>
@@ -279,7 +285,7 @@ export default function ITContractorAccountantPage() {
               { icon: Users, title: "Monthly payroll", desc: "Running a small salary to maintain your NI record without triggering large PAYE bills." },
               { icon: BarChart2, title: "Dividend planning", desc: "Advising when and how much to draw as dividends to stay within basic rate tax bands." },
               { icon: Shield, title: "IR35 contract reviews", desc: "Reviewing your contracts to confirm inside or outside IR35 status before you sign." },
-              { icon: Zap, title: "Clever FLEX (CA only)", desc: "Seamless switching between PSC and umbrella when contract status changes — no admin, no gaps." },
+              { icon: Zap, title: `${flexLabel} (us only)`, desc: "Seamless switching between PSC and umbrella when contract status changes — no admin, no gaps." },
               { icon: UserCheck, title: "Year-end accounts & CT600", desc: "Statutory accounts filed at Companies House, Corporation Tax return filed with HMRC." },
               { icon: FileText, title: "Self Assessment", desc: "Your personal tax return filed annually, incorporating dividends, salary, and any other income." },
             ].map(({ icon: Icon, title, desc }) => (
@@ -395,7 +401,7 @@ export default function ITContractorAccountantPage() {
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto">
               We&apos;re not the cheapest in the table below — and we don&apos;t want to be. Here&apos;s what
-              £104.50/month buys an IT contractor at Clever Accounts that the rest of the list doesn&apos;t match.
+              £104.50/month buys an IT contractor at {brand.name} that the rest of the list doesn&apos;t match.
             </p>
           </div>
           <div className="space-y-4">
@@ -426,8 +432,8 @@ export default function ITContractorAccountantPage() {
                   {i + 1}
                 </div>
                 <div>
-                  <h3 className="font-bold text-white mb-1.5">{item.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-white mb-1.5">{swap(item.title)}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{swap(item.desc)}</p>
                 </div>
               </div>
             ))}
@@ -468,7 +474,7 @@ export default function ITContractorAccountantPage() {
                   <tr key={p.name} className={p.highlight ? "bg-primary/5" : "bg-white hover:bg-surface/60 transition-colors"}>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <span className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{p.name}</span>
+                        <span className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{swap(p.name)}</span>
                         {p.highlight && (
                           <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-semibold">Our pick</span>
                         )}
@@ -487,7 +493,7 @@ export default function ITContractorAccountantPage() {
                         : <span className="text-red-400 font-bold text-base">✗</span>}
                     </td>
                     <td className="px-5 py-4 text-text-light">{p.trustpilot}</td>
-                    <td className="px-5 py-4 text-text-light">{p.bestFor}</td>
+                    <td className="px-5 py-4 text-text-light">{swap(p.bestFor)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -502,7 +508,7 @@ export default function ITContractorAccountantPage() {
                 className={`rounded-2xl border p-5 card-hover ${p.highlight ? "border-primary bg-primary/5" : "border-border bg-white"}`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{p.name}</span>
+                  <span className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{swap(p.name)}</span>
                   {p.highlight && (
                     <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-semibold">Our pick</span>
                   )}
@@ -517,7 +523,7 @@ export default function ITContractorAccountantPage() {
                     {p.ir35Included ? <CheckCircle2 size={14} className="text-success" /> : <span className="text-red-400 font-bold">✗</span>}
                   </div>
                 </div>
-                <p className="text-text-light text-xs leading-relaxed">{p.notes}</p>
+                <p className="text-text-light text-xs leading-relaxed">{swap(p.notes)}</p>
                 {p.watchouts && (
                   <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-2.5">
                     <AlertCircle size={13} className="text-amber-600 shrink-0 mt-0.5" />
@@ -536,12 +542,12 @@ export default function ITContractorAccountantPage() {
             {providers.map((p) => (
               <div key={p.name} className={`rounded-xl border p-5 ${p.highlight ? "border-primary/30 bg-primary/5" : "border-border bg-white"}`}>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <h3 className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{p.name}</h3>
+                  <h3 className={`font-bold ${p.highlight ? "text-primary" : "text-dark"}`}>{swap(p.name)}</h3>
                   {p.highlight && (
                     <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-semibold">Our pick</span>
                   )}
                 </div>
-                <p className="text-text-light text-sm leading-relaxed">{p.notes}</p>
+                <p className="text-text-light text-sm leading-relaxed">{swap(p.notes)}</p>
                 {p.watchouts && (
                   <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
                     <AlertCircle size={15} className="text-amber-600 shrink-0 mt-0.5" />
@@ -693,7 +699,7 @@ export default function ITContractorAccountantPage() {
             The contractor accountant built for IT professionals
           </h2>
           <p className="text-white/80 mb-8 max-w-2xl mx-auto">
-            Dedicated accountant · FreeAgent included · Unlimited IR35 reviews · Clever FLEX — all for £104.50/month.
+            Dedicated accountant · FreeAgent included · Unlimited IR35 reviews · {flexLabel} — all for £104.50/month.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

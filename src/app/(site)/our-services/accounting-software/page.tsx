@@ -28,6 +28,7 @@ import {
   Calendar,
   BadgeCheck,
 } from "lucide-react";
+import { useBrand } from "@/lib/useBrand";
 
 const freeagentFeatures = [
   { icon: FileText, title: "Professional Invoicing", desc: "Create and send branded invoices in seconds. Automatic payment reminders, recurring invoices, and real-time payment status." },
@@ -153,6 +154,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function AccountingSoftwarePage() {
+  const brand = useBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────────── */}
@@ -176,7 +179,7 @@ export default function AccountingSoftwarePage() {
                 Included Free
               </h1>
               <p className="text-lg text-white/80 leading-relaxed mb-8">
-                Every Clever Accounts package includes FreeAgent — the UK's leading small business accounting software — at no extra cost. Valued at up to £29/month, it's yours free as long as you're a client.
+                Every {brand.name} package includes FreeAgent — the UK&apos;s leading small business accounting software — at no extra cost. Valued at up to £29/month, it&apos;s yours free as long as you&apos;re a client.
               </p>
               <div className="flex flex-wrap gap-3 mb-8">
                 {["MTD Compliant", "HMRC Recognised", "Open Banking", "Free on Mobile"].map((t) => (
@@ -277,7 +280,7 @@ export default function AccountingSoftwarePage() {
             <div className="relative rounded-3xl overflow-hidden shadow-xl aspect-[4/3] bg-dark flex items-center justify-center">
               <Image
                 src="/images/hero-accountant.webp"
-                alt="Clever Accounts FreeAgent Platinum Partner"
+                alt={`${brand.name} FreeAgent Platinum Partner`}
                 fill
                 className="object-cover"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -366,7 +369,7 @@ export default function AccountingSoftwarePage() {
                     <Users size={14} />
                     {who}
                   </div>
-                  <p className="text-white/70 text-sm leading-relaxed">{detail}</p>
+                  <p className="text-white/70 text-sm leading-relaxed">{swap(detail)}</p>
                 </div>
               </div>
             ))}
@@ -378,7 +381,7 @@ export default function AccountingSoftwarePage() {
             <div>
               <div className="text-white font-bold mb-1">Don't leave it until the last minute</div>
               <p className="text-white/70 text-sm leading-relaxed">
-                Many businesses are leaving MTD preparation too late. With Clever Accounts and FreeAgent, you're MTD-ready from day one — digital records, quarterly submissions, and HMRC connectivity all handled for you. If MTD for ITSA is on the horizon for you, talk to us now.
+                Many businesses are leaving MTD preparation too late. With {brand.name} and FreeAgent, you&apos;re MTD-ready from day one — digital records, quarterly submissions, and HMRC connectivity all handled for you. If MTD for ITSA is on the horizon for you, talk to us now.
               </p>
               <Link href="/contact" className="inline-flex items-center gap-1.5 text-secondary font-semibold text-sm mt-3 hover:underline">
                 Speak to an MTD expert <ArrowRight size={14} />
@@ -484,7 +487,7 @@ export default function AccountingSoftwarePage() {
           </div>
           <div className="space-y-3">
             {faqs.map((item) => (
-              <FAQItem key={item.q} q={item.q} a={item.a} />
+              <FAQItem key={item.q} q={swap(item.q)} a={swap(item.a)} />
             ))}
           </div>
         </div>
@@ -501,7 +504,7 @@ export default function AccountingSoftwarePage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-black text-dark mb-4">Ready to get started?</h2>
           <p className="text-text-light mb-8 max-w-xl mx-auto">
-            Join thousands of sole traders, contractors, and limited companies who've made the switch to Clever Accounts.
+            Join thousands of sole traders, contractors, and limited companies who&apos;ve made the switch to {brand.name}.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-primary/90 transition-all shadow-lg">
