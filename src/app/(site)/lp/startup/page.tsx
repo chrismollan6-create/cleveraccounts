@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Startup Accountant — From £104.50/mo | Clever Accounts",
-  description:
-    "Expert accounting for startups and new limited companies from £104.50/month. Company formation, first accounts, director payroll, VAT, and a dedicated accountant who grows with your business. No setup fees.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Startup Accountant — From £104.50/mo | ${brand.name}`,
+    description:
+      "Expert accounting for startups and new limited companies from £104.50/month. Company formation, first accounts, director payroll, VAT, and a dedicated accountant who grows with your business. No setup fees.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -114,7 +118,9 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function StartupLP() {
+export default async function StartupLP() {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <LandingPageLayout
       headline="Startup Accounting — From £104.50/month"
@@ -132,11 +138,11 @@ export default function StartupLP() {
         "Free FreeAgent accounting software",
         "Unlimited phone & email advice",
       ]}
-      whyUs={whyUs}
+      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
       painPoints={painPoints}
-      howItWorks={howItWorks}
-      testimonials={testimonials}
-      faq={faq}
+      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
+      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
+      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
     />
   );
 }

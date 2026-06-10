@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Landlord Accountant — From £42.50/mo | Clever Accounts",
-  description:
-    "Expert landlord accounting from just £42.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Landlord Accountant — From £42.50/mo | ${brand.name}`,
+    description:
+      "Expert landlord accounting from just £42.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -114,14 +118,16 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function LandlordLP() {
+export default async function LandlordLP() {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <LandingPageLayout
       headline="Landlord Accounting — From £42.50/month"
       subheadline="Specialist landlord accounting for buy-to-let and residential property. We handle rental income tax, self assessment, Section 24, and every expense claim — so your investment works harder."
       price="42.50"
       targetAudience="For Landlords & Property Investors"
-      urgencyText="Join landlords across the UK who trust Clever Accounts"
+      urgencyText={`Join landlords across the UK who trust ${brand.name}`}
       features={[
         "Dedicated accountant with landlord expertise",
         "Rental income & expense calculations",
@@ -132,11 +138,11 @@ export default function LandlordLP() {
         "Unlimited phone & email advice",
         "MTD for Income Tax compliant",
       ]}
-      whyUs={whyUs}
+      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
       painPoints={painPoints}
-      howItWorks={howItWorks}
-      testimonials={testimonials}
-      faq={faq}
+      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
+      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
+      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
     />
   );
 }

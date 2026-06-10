@@ -144,6 +144,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function SwitchingAccountantsPage() {
   const brand = useBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <>
       {/* ── Hero ─────────────────────────────────────── */}
@@ -172,7 +173,7 @@ export default function SwitchingAccountantsPage() {
                 href="/sign-up"
                 className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-5 rounded-2xl animate-pulse-glow"
               >
-                Switch to Clever Accounts <ArrowRight size={22} />
+                Switch to {brand.name} <ArrowRight size={22} />
               </Link>
               <a
                 href="#how-to-switch"
@@ -203,7 +204,7 @@ export default function SwitchingAccountantsPage() {
             ].map((point, i) => (
               <li key={i} className="flex items-start gap-3">
                 <CheckCircle2 size={18} className="text-primary shrink-0 mt-0.5" />
-                <span className="text-text text-sm leading-relaxed">{point}</span>
+                <span className="text-text text-sm leading-relaxed">{swap(point)}</span>
               </li>
             ))}
           </ul>
@@ -370,7 +371,7 @@ export default function SwitchingAccountantsPage() {
           </div>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <FAQItem key={i} q={faq.q} a={faq.a} />
+              <FAQItem key={i} q={swap(faq.q)} a={swap(faq.a)} />
             ))}
           </div>
         </div>

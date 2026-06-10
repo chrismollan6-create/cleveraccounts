@@ -2,13 +2,17 @@ import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
 import { FileText, BarChart2, Users, Building2, ShieldCheck, MessageSquare, CheckCircle2 } from "lucide-react";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Limited Company Accountant — From £104.50/mo | Clever Accounts",
-  description:
-    "Complete limited company accounting from £104.50/month. Year-end accounts, CT600, VAT, payroll, Companies House filings and a dedicated accountant who knows your business. No setup fees.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Limited Company Accountant — From £104.50/mo | ${brand.name}`,
+    description:
+      "Complete limited company accounting from £104.50/month. Year-end accounts, CT600, VAT, payroll, Companies House filings and a dedicated accountant who knows your business. No setup fees.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -115,10 +119,10 @@ const faq: FAQItem[] = [
   },
 ];
 
-const statsSection = (
+const statsSection = (brandName: string) => (
   <section className="bg-dark py-14">
     <div className="max-w-5xl mx-auto px-4">
-      <p className="text-center text-slate-400 text-sm font-semibold uppercase tracking-widest mb-8">Why directors choose Clever Accounts</p>
+      <p className="text-center text-slate-400 text-sm font-semibold uppercase tracking-widest mb-8">Why directors choose {brandName}</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { value: "3,000+", label: "Directors switched to us this year", colour: "from-primary to-blue-400" },
@@ -176,7 +180,9 @@ const servicesGrid = (
   </section>
 );
 
-export default function LimitedCompanyLP() {
+export default async function LimitedCompanyLP() {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <LandingPageLayout
       headline="Limited Company Accounting — Everything Included"
@@ -194,13 +200,13 @@ export default function LimitedCompanyLP() {
         "Free FreeAgent accounting software",
         "Unlimited phone & email support",
       ]}
-      whyUs={whyUs}
+      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
       painPoints={painPoints}
-      howItWorks={howItWorks}
-      testimonials={testimonials}
-      faq={faq}
+      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
+      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
+      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
     >
-      {statsSection}
+      {statsSection(brand.name)}
       {servicesGrid}
     </LandingPageLayout>
   );

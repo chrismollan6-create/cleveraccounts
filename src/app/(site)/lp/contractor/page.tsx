@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Contractor Accountant + IR35 Support — From £104.50/mo | Clever Accounts",
-  description:
-    "Specialist contractor accounting with end-to-end IR35 support, contract reviews, and our unique Clever FLEX umbrella solution. Switch between PSC and umbrella seamlessly. From £104.50/month.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  const flexLabel = brand.id === "workwell" ? "Workwell Flex" : "Clever FLEX";
+  return {
+    title: `Contractor Accountant + IR35 Support — From £104.50/mo | ${brand.name}`,
+    description:
+      `Specialist contractor accounting with end-to-end IR35 support, contract reviews, and our unique ${flexLabel} umbrella solution. Switch between PSC and umbrella seamlessly. From £104.50/month.`,
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -114,11 +119,15 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function ContractorLP() {
+export default async function ContractorLP() {
+  const brand = await getBrand();
+  const flexLabel = brand.id === "workwell" ? "Workwell Flex" : "Clever FLEX";
+  const swap = (s: string) =>
+    s.replaceAll("Clever Accounts", brand.name).replaceAll("Clever FLEX", flexLabel);
   return (
     <LandingPageLayout
       headline="Contractor Accounting With Full IR35 Support"
-      subheadline="End-to-end IR35 support, contract reviews, and our unique Clever FLEX solution. We're the specialist contractor accountant that keeps you compliant and maximises your take-home pay."
+      subheadline={`End-to-end IR35 support, contract reviews, and our unique ${flexLabel} solution. We're the specialist contractor accountant that keeps you compliant and maximises your take-home pay.`}
       price="104.50"
       targetAudience="For Contractors & Freelancers"
       urgencyText="2,000+ contractors trust us with their IR35"
@@ -126,17 +135,17 @@ export default function ContractorLP() {
         "Specialist contractor accountant",
         "End-to-end IR35 support",
         "Contract reviews & assessments",
-        "Clever FLEX umbrella solution",
+        `${flexLabel} umbrella solution`,
         "Seamless PSC/Umbrella switching",
         "Full limited company accounting",
         "Free FreeAgent accounting software",
         "Unlimited advice & support",
       ]}
-      whyUs={whyUs}
+      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
       painPoints={painPoints}
-      howItWorks={howItWorks}
-      testimonials={testimonials}
-      faq={faq}
+      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
+      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
+      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
     />
   );
 }

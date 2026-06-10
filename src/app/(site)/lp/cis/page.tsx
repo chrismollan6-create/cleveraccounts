@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "CIS Accountant for Construction Workers — From £49.95/mo | Clever Accounts",
-  description:
-    "Specialist CIS accounting for subbies and self-employed construction workers. CIS deduction reclaims, monthly returns, self assessment and unlimited advice. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `CIS Accountant for Construction Workers — From £49.95/mo | ${brand.name}`,
+    description:
+      "Specialist CIS accounting for subbies and self-employed construction workers. CIS deduction reclaims, monthly returns, self assessment and unlimited advice. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -114,14 +118,16 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function CISLP() {
+export default async function CISLP() {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <LandingPageLayout
       headline="CIS Accounting for Construction Workers"
       subheadline="We handle CIS deductions, monthly returns, tax reclaims, and self assessment — so you can focus on the job. Many construction workers get money back from HMRC each year. Let us find yours."
       price="49.95"
       targetAudience="For CIS Subbies & Construction Contractors"
-      urgencyText="Join construction workers across the UK who trust Clever Accounts"
+      urgencyText={`Join construction workers across the UK who trust ${brand.name}`}
       features={[
         "Dedicated CIS specialist accountant",
         "CIS deduction reclaim from HMRC",
@@ -132,11 +138,11 @@ export default function CISLP() {
         "Unlimited phone & email advice",
         "HMRC correspondence handled",
       ]}
-      whyUs={whyUs}
+      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
       painPoints={painPoints}
-      howItWorks={howItWorks}
-      testimonials={testimonials}
-      faq={faq}
+      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
+      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
+      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
     />
   );
 }

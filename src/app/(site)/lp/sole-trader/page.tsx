@@ -2,13 +2,17 @@ import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
 import { FileText, Calculator, ShieldCheck, MessageSquare, CheckCircle2 } from "lucide-react";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Sole Trader Accountant — From £42.50/mo | Clever Accounts",
-  description:
-    "Expert sole trader accounting from just £42.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Sole Trader Accountant — From £42.50/mo | ${brand.name}`,
+    description:
+      "Expert sole trader accounting from just £42.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -174,7 +178,9 @@ const servicesGrid = (
   </section>
 );
 
-export default function SoleTraderLP() {
+export default async function SoleTraderLP() {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
   return (
     <LandingPageLayout
       headline="Sole Trader Accounting From £42.50/month"
@@ -192,11 +198,11 @@ export default function SoleTraderLP() {
         "Tax efficiency advice (save £1,000+)",
         "HMRC correspondence handled",
       ]}
-      whyUs={whyUs}
+      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
       painPoints={painPoints}
-      howItWorks={howItWorks}
-      testimonials={testimonials}
-      faq={faq}
+      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
+      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
+      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
     >
       {statsSection}
       {servicesGrid}

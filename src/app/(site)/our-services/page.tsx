@@ -7,12 +7,16 @@ import {
 } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
 import { promoBadgesByPlanName } from "@/lib/promo";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Online Accounting Services UK — All Packages | Clever Accounts",
-  description:
-    "Online accounting services for sole traders, limited companies, contractors, landlords, CIS & more. Dedicated accountant, free FreeAgent software, from £42.50/month. No setup fees.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Online Accounting Services UK — All Packages | ${brand.name}`,
+    description:
+      "Online accounting services for sole traders, limited companies, contractors, landlords, CIS & more. Dedicated accountant, free FreeAgent software, from £42.50/month. No setup fees.",
+  };
+}
 
 const services = [
   {
@@ -110,6 +114,7 @@ const specialists = [
 export const revalidate = 60;
 
 export default async function ServicesPage() {
+  const brand = await getBrand();
   let promoBadges: Record<string, string> = {};
   try {
     const settings = await getSiteSettings();
@@ -223,7 +228,7 @@ export default async function ServicesPage() {
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">Every Package</p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Everything Included.<br />No Hidden Extras.</h2>
-            <p className="text-white/60 max-w-xl mx-auto">You shouldn't have to pay extra every time you pick up the phone. With Clever Accounts, everything is included in your monthly fee.</p>
+            <p className="text-white/60 max-w-xl mx-auto">You shouldn&apos;t have to pay extra every time you pick up the phone. With {brand.name}, everything is included in your monthly fee.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {included.map(({ icon: Icon, label, desc }) => (

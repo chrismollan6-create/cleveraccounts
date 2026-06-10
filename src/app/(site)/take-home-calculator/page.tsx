@@ -493,7 +493,7 @@ export default function TakeHomeCalculatorPage() {
           <div className="mt-8 bg-white border border-border rounded-2xl p-6 flex flex-col md:flex-row items-center gap-5">
             <div className="flex-1">
               <div className="font-black text-dark mb-1">Want a personalised tax plan?</div>
-              <p className="text-text-light text-sm">Your dedicated Clever Accounts accountant will review your actual figures, factor in expenses, pension contributions, and help you structure your income for maximum take-home.</p>
+              <p className="text-text-light text-sm">Your dedicated {brand.name} accountant will review your actual figures, factor in expenses, pension contributions, and help you structure your income for maximum take-home.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all whitespace-nowrap">
@@ -544,7 +544,7 @@ export default function TakeHomeCalculatorPage() {
             Stop leaving money on the table.
           </h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-            A dedicated Clever Accounts accountant will build a personalised tax plan around your actual income, expenses, and goals. From £42.50/month.
+            A dedicated {brand.name} accountant will build a personalised tax plan around your actual income, expenses, and goals. From £42.50/month.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
