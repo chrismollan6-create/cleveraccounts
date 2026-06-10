@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Making Tax Digital (MTD) — Are You Ready? | Clever Accounts",
-  description:
-    "Making Tax Digital is coming for sole traders, landlords, and CIS subcontractors. Find out what MTD means, who's affected, the key deadlines, and how Clever Accounts gets you ready — with free FreeAgent software included.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Making Tax Digital (MTD) — Are You Ready? | ${brand.name}`,
+    description: `Making Tax Digital is coming for sole traders, landlords, and CIS subcontractors. Find out what MTD means, who's affected, the key deadlines, and how ${brand.name} gets you ready — with free FreeAgent software included.`,
+  };
+}
 
 const faqs = [
   {
@@ -34,7 +37,7 @@ const faqs = [
   },
   {
     q: "Is FreeAgent really MTD-compliant?",
-    a: "Yes — FreeAgent is an HMRC-recognised MTD-compatible software for both VAT and Income Tax. It submits directly to HMRC with no bridging software needed. We're a FreeAgent Platinum Partner and it's included free with every Clever Accounts package.",
+    a: "Yes — FreeAgent is HMRC-recognised MTD-compatible software for both VAT and Income Tax. It submits directly to HMRC with no bridging software needed. We're a FreeAgent Platinum Partner and it's included free with every plan.",
   },
   {
     q: "I'm currently doing my own self assessment — what do I need to change?",

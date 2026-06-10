@@ -3,8 +3,10 @@
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import FormPageLayout from "@/components/layout/FormPageLayout";
+import { useBrand } from "@/lib/useBrand";
 
 function StatementOfFacts() {
+  const brand = useBrand();
   const searchParams = useSearchParams();
 
   const tfa24 = searchParams.get("tfa_24") ?? "";
@@ -25,7 +27,7 @@ function StatementOfFacts() {
 
   return (
     <FormPageLayout
-      title="Pay your outstanding invoice from Clever Accounts"
+      title={`Pay your outstanding invoice from ${brand.name}`}
       description="We appreciate a prompt payment of our invoice when it's not been taken by direct debit."
     >
       {showForm && (

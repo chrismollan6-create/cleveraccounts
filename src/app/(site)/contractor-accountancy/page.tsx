@@ -5,13 +5,17 @@ import { servicePages } from "@/lib/service-page-data";
 import { getSiteSettings, getPricingPlans } from "@/sanity/queries";
 import { promoBadgeForPage } from "@/lib/promo";
 import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
 const data = servicePages["contractor-accountancy"];
 
-export const metadata: Metadata = {
-  title: "Contractor Accountant & IR35 Support — From £104.50/mo | Clever Accounts",
-  description: data.metaDescription,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Contractor Accountant & IR35 Support — From £104.50/mo + VAT | ${brand.name}`,
+    description: data.metaDescription,
+  };
+}
 
 export const revalidate = 60;
 

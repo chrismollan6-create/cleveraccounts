@@ -13,6 +13,7 @@ import {
 } from "@/components/blog/PortableTextBlocks";
 import { getKnowledgeArticle, getKnowledgeArticleSlugs } from "@/sanity/queries";
 import ArticleToc from "@/components/learn/ArticleToc";
+import { getBrand } from "@/lib/brand";
 import ReadingProgressBar from "@/components/learn/ReadingProgressBar";
 import WasThisHelpful from "@/components/learn/WasThisHelpful";
 import { extractHeadings, estimateReadingTimeMinutes, slugifyHeading } from "@/components/learn/bodyUtils";
@@ -176,6 +177,7 @@ export default async function KnowledgeArticlePage({
   const { topic, slug } = await params;
   const article = (await getKnowledgeArticle(topic, slug).catch(() => null)) as Article | null;
   if (!article) notFound();
+  const brand = await getBrand();
 
   const lastReviewed = formatDate(article.lastReviewed);
   const headings = extractHeadings(article.body);
@@ -190,7 +192,7 @@ export default async function KnowledgeArticlePage({
         title={article.title}
         description={article.excerpt}
         publishedAt={article.lastReviewed || new Date().toISOString()}
-        authorName={article.reviewedBy || "Clever Accounts"}
+        authorName={article.reviewedBy || brand.name}
         url={`/learn/${article.topic.slug.current}/${article.slug.current}`}
         imageUrl={article.featuredImage?.asset?.url}
       />

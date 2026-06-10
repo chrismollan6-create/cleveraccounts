@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Free FreeAgent Accounting Software — Platinum Partner | Clever Accounts",
-  description: "Every Clever Accounts package includes free FreeAgent accounting software (worth £29/mo). We're a FreeAgent Platinum Partner. MTD compliant, open banking, invoicing and more.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Free FreeAgent Accounting Software — Platinum Partner | ${brand.name}`,
+    description: `Every ${brand.name} package includes free FreeAgent accounting software (worth £29/mo). We're a FreeAgent Platinum Partner. MTD compliant, open banking, invoicing and more.`,
+  };
+}
 
 const faqs = [
   {
-    q: "Is FreeAgent really free with my Clever Accounts package?",
-    a: "Yes — completely free. FreeAgent normally costs £19–£29/month if you subscribe directly. With Clever Accounts, it's included at no extra charge with every package.",
+    q: "Is FreeAgent really free with my plan?",
+    a: "Yes — completely free. FreeAgent normally costs £19–£29/month if you subscribe directly. With us, it's included at no extra charge with every package.",
   },
   {
     q: "What does 'FreeAgent Platinum Partner' mean?",
@@ -32,8 +36,8 @@ const faqs = [
     a: "Yes — FreeAgent has full iOS and Android apps. You can create invoices, log expenses, snap receipts, and check your financial dashboard all from your phone.",
   },
   {
-    q: "What happens to my FreeAgent account if I leave Clever Accounts?",
-    a: "If you cancel your Clever Accounts subscription, you'll lose access to the free FreeAgent licence. You can either subscribe to FreeAgent directly, or export all your data to use elsewhere. All your historical data is always yours.",
+    q: "What happens to my FreeAgent account if I leave?",
+    a: "If you cancel your subscription, you'll lose access to the free FreeAgent licence. You can either subscribe to FreeAgent directly, or export all your data to use elsewhere. All your historical data is always yours.",
   },
 ];
 

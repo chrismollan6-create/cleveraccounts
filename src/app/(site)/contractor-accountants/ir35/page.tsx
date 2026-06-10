@@ -43,6 +43,9 @@ const faqs = [
 
 export default function IR35Page() {
   const brand = useBrand();
+  // Brand-specific name for the inside/outside-IR35 switching product.
+  // Same offer, brand-stamped: "Clever FLEX" for Clever, "Workwell Flex" for Workwell.
+  const flexLabel = brand.id === "workwell" ? "Workwell Flex" : "Clever FLEX";
   return (
     <>
       {/* ═══════════════════════════════════
@@ -365,7 +368,7 @@ export default function IR35Page() {
               },
               {
                 Icon: ArrowLeftRight,
-                title: "Clever FLEX",
+                title: flexLabel,
                 items: ["Seamless PSC to umbrella switching", "No new accountant or onboarding", "Inside IR35 umbrella payroll", "Switch back when status changes"],
               },
               {
@@ -417,18 +420,18 @@ export default function IR35Page() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 bg-secondary/20 border border-secondary/30 rounded-full px-4 py-2 text-sm text-secondary mb-6">
-                <Sparkles size={14} /> Unique to Clever Accounts
+                <Sparkles size={14} /> Unique to {brand.name}
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
-                Introducing <span className="text-gradient">Clever FLEX</span>
+                Introducing <span className="text-gradient">{flexLabel}</span>
               </h2>
               <p className="text-white/60 leading-relaxed mb-8">
-                The reality of modern contracting is that your IR35 status can change from one engagement to the next. Clever FLEX is our solution — letting you switch between operating through your PSC (outside IR35) and our umbrella company (inside IR35) without any disruption.
+                The reality of modern contracting is that your IR35 status can change from one engagement to the next. {flexLabel} is our solution — letting you switch between operating through your PSC (outside IR35) and our umbrella company (inside IR35) without any disruption.
               </p>
               <div className="space-y-4">
                 {[
                   { title: "Outside IR35 contract?", body: "Operate through your PSC. Maximum take-home, full tax efficiency." },
-                  { title: "Inside IR35 contract?", body: "Switch to Clever FLEX umbrella in one step. Same accountant, same team." },
+                  { title: "Inside IR35 contract?", body: `Switch to ${flexLabel} umbrella in one step. Same accountant, same team.` },
                   { title: "Status changes again?", body: "Switch back to PSC instantly. No new onboarding, no hassle." },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-4 bg-white/[0.06] rounded-2xl p-4 border border-white/10">
@@ -445,7 +448,7 @@ export default function IR35Page() {
             </div>
 
             <div className="bg-white/[0.07] backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-              <p className="text-white/50 text-sm uppercase tracking-wider mb-6">Clever FLEX includes</p>
+              <p className="text-white/50 text-sm uppercase tracking-wider mb-6">{flexLabel} includes</p>
               <ul className="space-y-4">
                 {[
                   "Seamless PSC / umbrella switching",
@@ -467,7 +470,7 @@ export default function IR35Page() {
                 href="/sign-up"
                 className="btn-primary w-full mt-8 inline-flex items-center justify-center gap-2 text-lg py-4 rounded-xl"
               >
-                Get Clever FLEX <ArrowRight size={20} />
+                Get {flexLabel} <ArrowRight size={20} />
               </Link>
             </div>
           </div>
@@ -493,7 +496,7 @@ export default function IR35Page() {
               <div className="text-6xl font-black text-white my-3">
                 £104.50<span className="text-2xl text-white/60">/month</span>
               </div>
-              <p className="text-white/75 mb-8">Full contractor accounting + end-to-end IR35 support + Clever FLEX. No extras, ever.</p>
+              <p className="text-white/75 mb-8">Full contractor accounting + end-to-end IR35 support + {flexLabel}. No extras, ever.</p>
               <Link
                 href="/sign-up"
                 className="inline-flex items-center gap-2 bg-white text-secondary font-bold px-10 py-4 rounded-2xl text-lg hover:shadow-2xl transition-all"
@@ -516,7 +519,7 @@ export default function IR35Page() {
             ))}
           </div>
           <blockquote className="text-2xl font-bold text-dark leading-relaxed mb-6">
-            &ldquo;I had an inside IR35 determination from a client that I was sure was wrong. Clever Accounts reviewed my working practices, drafted the formal challenge, and it was overturned within three weeks. Saved me over £18,000 a year.&rdquo;
+            &ldquo;I had an inside IR35 determination from a client that I was sure was wrong. {brand.name} reviewed my working practices, drafted the formal challenge, and it was overturned within three weeks. Saved me over £18,000 a year.&rdquo;
           </blockquote>
           <p className="font-bold text-dark">Rob Fletcher</p>
           <p className="text-sm text-text-light">Senior IT Contractor — Outside IR35</p>
@@ -538,7 +541,11 @@ export default function IR35Page() {
           </div>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <FAQItem key={i} q={faq.q} a={faq.a} />
+              <FAQItem
+                key={i}
+                q={faq.q.replaceAll("Clever FLEX", flexLabel)}
+                a={faq.a.replaceAll("Clever FLEX", flexLabel)}
+              />
             ))}
           </div>
         </div>

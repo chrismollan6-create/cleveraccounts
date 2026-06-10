@@ -62,7 +62,7 @@ const timeline = [
     title: "MTD for Income Tax — £30,000+",
     who: "Self-employed individuals & landlords with combined income over £30,000",
     description:
-      "MTD for ITSA extends to those earning over £30,000. This brings a significantly larger group of sole traders and landlords into the quarterly reporting regime. With Clever Accounts, you'll be prepared well in advance — FreeAgent handles all quarterly submissions automatically.",
+      "MTD for ITSA extends to those earning over £30,000. This brings a significantly larger group of sole traders and landlords into the quarterly reporting regime. We get you prepared well in advance — FreeAgent handles all quarterly submissions automatically.",
     affects: ["Sole traders earning £30k–£50k", "Smaller landlords with rental income", "Part-time self-employed with other income pushing total above £30k"],
     colour: "border-blue-500",
     badgeColour: "bg-blue-500/15 text-blue-400 border-blue-500/30",
@@ -109,7 +109,7 @@ const howWeHelp = [
   {
     icon: Monitor,
     title: "Free FreeAgent Software",
-    desc: "FreeAgent is HMRC-recognised MTD-compatible software, included free with every Clever Accounts package. It keeps your digital records automatically and submits your quarterly updates directly to HMRC — no bridging software, no manual uploads.",
+    desc: "FreeAgent is HMRC-recognised MTD-compatible software, included free with every plan. It keeps your digital records automatically and submits your quarterly updates directly to HMRC — no bridging software, no manual uploads.",
   },
   {
     icon: Users,
@@ -175,7 +175,7 @@ const faqs = [
   },
   {
     q: "Is FreeAgent really MTD-compliant?",
-    a: "Yes — FreeAgent is an HMRC-recognised MTD-compatible software for both VAT and Income Tax. It submits directly to HMRC with no bridging software needed. We're a FreeAgent Platinum Partner and it's included free with every Clever Accounts package.",
+    a: "Yes — FreeAgent is HMRC-recognised MTD-compatible software for both VAT and Income Tax. It submits directly to HMRC with no bridging software needed. We're a FreeAgent Platinum Partner and it's included free with every plan.",
   },
   {
     q: "I'm currently doing my own self assessment — what do I need to change?",
@@ -232,7 +232,7 @@ export default function MakingTaxDigitalPage() {
                 HMRC is replacing the annual self assessment with quarterly digital reporting. It's not optional — and the deadlines are closer than most people think.
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
-                Clever Accounts gets you MTD-ready from day one. Free FreeAgent software included. Dedicated accountant managing every submission.
+                We get you MTD-ready from day one. Free FreeAgent software included. Dedicated accountant managing every submission.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
@@ -486,7 +486,7 @@ export default function MakingTaxDigitalPage() {
             <div className="flex-1 text-center md:text-left">
               <div className="font-black text-dark text-lg mb-1">FreeAgent Platinum Partner</div>
               <p className="text-text-light text-sm leading-relaxed">
-                We're one of FreeAgent's highest-tier partners. FreeAgent is HMRC-recognised for MTD for VAT and MTD for Income Tax — and it's <strong className="text-dark">included free</strong> with every Clever Accounts package. No extra cost, no bridging software, no manual uploads.
+                We're one of FreeAgent's highest-tier partners. FreeAgent is HMRC-recognised for MTD for VAT and MTD for Income Tax — and it's <strong className="text-dark">included free</strong> with every plan. No extra cost, no bridging software, no manual uploads.
               </p>
             </div>
             <Link href="/our-services/accounting-software" className="shrink-0 inline-flex items-center gap-2 bg-secondary text-white font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all whitespace-nowrap">

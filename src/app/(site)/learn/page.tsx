@@ -14,12 +14,16 @@ import {
 } from "lucide-react";
 import { getLearnIndexData } from "@/sanity/queries";
 import LearnSearch, { type SearchableArticle } from "@/components/learn/LearnSearch";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Learning Centre — UK accounting & tax guides | Clever Accounts",
-  description:
-    "Clear, no-jargon guides on VAT, Self-Assessment, PAYE, Corporation Tax, expenses, dividends and more — written and reviewed by qualified UK accountants.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Learning Centre — UK accounting & tax guides | ${brand.name}`,
+    description:
+      "Clear, no-jargon guides on VAT, Self-Assessment, PAYE, Corporation Tax, expenses, dividends and more — written and reviewed by qualified UK accountants.",
+  };
+}
 
 export const dynamic = "force-dynamic";
 

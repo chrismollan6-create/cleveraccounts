@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { getKnowledgeTopic, getKnowledgeTopicSlugs } from "@/sanity/queries";
+import { getBrand } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -189,8 +190,9 @@ export async function generateMetadata({ params }: { params: Promise<{ topic: st
   const { topic } = await params;
   const data = (await getKnowledgeTopic(topic).catch(() => null)) as TopicWithExtras | null;
   if (!data) return { title: "Learning Centre" };
+  const brand = await getBrand();
   return {
-    title: data.metaTitle || `${data.name} — guides & answers | Clever Accounts`,
+    title: data.metaTitle || `${data.name} — guides & answers | ${brand.name}`,
     description: data.metaDescription || data.shortDescription,
   };
 }

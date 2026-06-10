@@ -1,30 +1,34 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Best Accountant for Small Limited Companies UK (2026 Guide) | Clever Accounts",
-  description:
-    "Compare the leading online accountants for small UK limited companies. Honest pricing, what's included, software compared, and a decision framework — updated April 2026.",
-  keywords: [
-    "accountant for small limited company UK",
-    "small business accountant UK",
-    "limited company accountant",
-    "online accountant small business",
-    "best accountant small limited company",
-    "small limited company accounting",
-    "online accounting small business UK",
-    "limited company accountant comparison 2026",
-  ],
-  openGraph: {
-    title: "Best Accountant for Small Limited Companies UK (2026 Guide)",
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Best Accountant for Small Limited Companies UK (2026 Guide) | ${brand.name}`,
     description:
-      "An honest comparison of the leading online accountants for small UK limited companies — pricing, software, what's included, and how to choose. Updated April 2026.",
-    type: "article",
-  },
-  alternates: {
-    canonical: "https://cleveraccounts.com/small-business-accountant",
-  },
-};
+      "Compare the leading online accountants for small UK limited companies. Honest pricing, what's included, software compared, and a decision framework — updated April 2026.",
+    keywords: [
+      "accountant for small limited company UK",
+      "small business accountant UK",
+      "limited company accountant",
+      "online accountant small business",
+      "best accountant small limited company",
+      "small limited company accounting",
+      "online accounting small business UK",
+      "limited company accountant comparison 2026",
+    ],
+    openGraph: {
+      title: "Best Accountant for Small Limited Companies UK (2026 Guide)",
+      description:
+        "An honest comparison of the leading online accountants for small UK limited companies — pricing, software, what's included, and how to choose. Updated April 2026.",
+      type: "article",
+    },
+    alternates: {
+      canonical: `https://${brand.domain}/small-business-accountant`,
+    },
+  };
+}
 
 const faqs = [
   {
