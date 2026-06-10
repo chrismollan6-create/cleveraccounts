@@ -41,7 +41,28 @@ export default defineConfig({
               ),
             S.listItem()
               .title("🏠 Home Page")
-              .child(S.document().schemaType("homePage").documentId("homePage")),
+              .child(
+                S.list()
+                  .title("Home Page")
+                  .items([
+                    S.listItem()
+                      .title("Clever Accounts")
+                      .child(
+                        S.document()
+                          .schemaType("homePage")
+                          .documentId("homePage")
+                          .title("Home Page — Clever Accounts")
+                      ),
+                    S.listItem()
+                      .title("Workwell Accountancy")
+                      .child(
+                        S.document()
+                          .schemaType("homePage")
+                          .documentId("homePage-workwell")
+                          .title("Home Page — Workwell")
+                      ),
+                  ])
+              ),
             S.listItem()
               .title("📢 Promo Banner")
               .child(S.documentTypeList("promoBanner").title("Promotion Banners")),

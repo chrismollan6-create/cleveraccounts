@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { Phone, MapPin } from "lucide-react";
+import type { BrandConfig } from "@/lib/constants";
 
 // Footer columns mirror the top nav structure so the two stay in sync.
 // "Who We Help" + "Specialist Services" exactly match the Services dropdown
@@ -49,7 +49,12 @@ const footerLinks = {
   ],
 };
 
-export default function Footer() {
+export default function Footer({ brand }: { brand: BrandConfig }) {
+  const year = new Date().getFullYear();
+  const description =
+    brand.id === "clever"
+      ? "For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support."
+      : `${brand.name} provides expert online accountancy for sole traders, limited companies and contractors. One simple monthly fee, unlimited support.`;
   return (
     <footer className="bg-dark text-white">
       {/* Main footer */}
@@ -59,21 +64,21 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="inline-flex items-center bg-white rounded-xl px-2 py-1 shadow-sm">
-                <Image src="/images/logo.png" alt="Clever Accounts" width={160} height={48} className="h-9 w-auto" />
+                <Image src={brand.assets.logo} alt={brand.name} width={160} height={48} className="h-9 w-auto" />
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
-              For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support.
+              {description}
             </p>
             <div className="space-y-3">
-              <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
+              <a href={`tel:${brand.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-primary-light transition-colors">
                 <Phone size={16} className="text-primary" />
-                {COMPANY.phone}
+                {brand.phone}
               </a>
 
               <div className="flex items-start gap-2 text-sm text-slate-300">
                 <MapPin size={16} className="text-primary mt-0.5" />
-                <span>Leeds, UK</span>
+                <span>{brand.offices[0]?.city ?? ""}, UK</span>
               </div>
             </div>
           </div>
@@ -140,15 +145,25 @@ export default function Footer() {
       <div className="border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} Clever Accounts Ltd. All rights reserved.
+            &copy; {year} {brand.legalName}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+            <Link
+              href={brand.legal.privacyUrl}
+              {...(brand.legal.privacyUrl.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
-              Terms of Service
-            </Link>
+            {brand.legal.termsUrl && (
+              <Link
+                href={brand.legal.termsUrl}
+                {...(brand.legal.termsUrl.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                Terms of Service
+              </Link>
+            )}
           </div>
         </div>
       </div>

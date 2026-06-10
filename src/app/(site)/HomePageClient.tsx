@@ -36,6 +36,7 @@ import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
+import WorkwellHome from "./WorkwellHome";
 
 /* ────────────────────────────────────────
    SERVICE TAB DATA — fallback if CMS empty
@@ -140,19 +141,68 @@ function buildServiceTabs(plans: CmsPricingPlan[]) {
     }));
 }
 
+export type CmsHomePage = {
+  heroHeadline?: string;
+  heroSubheadline?: string;
+  heroCTA?: string;
+  trustBadgeText?: string;
+};
+
+/**
+ * Render a hero headline with its final word in the brand gradient (the
+ * signature treatment of the design). Works for any brand's CMS copy —
+ * Workwell's headline gets the same gradient automatically.
+ */
+function renderHeroHeadline(text: string) {
+  const words = text.trim().split(/\s+/);
+  if (words.length <= 1) return <span className="text-gradient">{text}</span>;
+  const last = words.pop();
+  return (
+    <>
+      {words.join(" ")} <span className="text-gradient">{last}</span>
+    </>
+  );
+}
+
 interface HomePageClientProps {
   faqs: { q: string; a: string }[];
   promoBadges?: Record<string, string>;
   pricingPlans?: CmsPricingPlan[];
   freephone?: string;
+  home?: CmsHomePage | null;
 }
 
-export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [], freephone }: HomePageClientProps) {
+export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = [], freephone, home }: HomePageClientProps) {
   const brand = useBrand();
+  const trustBadge =
+    home?.trustBadgeText ||
+    (brand.trustpilot
+      ? `Rated ${brand.trustpilot.rating} on Trustpilot${brand.trustpilot.reviewCount ? ` by ${brand.trustpilot.reviewCount} UK businesses` : ""}`
+      : "Rated 4.7 on Trustpilot by 746 UK businesses");
   const serviceTabs = buildServiceTabs(pricingPlans);
   const defaultTab = serviceTabs.find((t) => t.id === "limited-company")?.id || serviceTabs[0]?.id;
   const [activeTab, setActiveTab] = useState(defaultTab);
   const activeService = serviceTabs.find((t) => t.id === activeTab) || serviceTabs[0];
+
+  // Workwell gets a bespoke, B2C-structured homepage. Clever keeps the page below.
+  if (brand.id === "workwell") {
+    // Pricing/packages are shared, but feature copy can carry Clever-specific
+    // product names (e.g. "Clever FLEX"). Strip them for Workwell.
+    const deClever = (s: string) =>
+      s
+        .replace(/Clever FLEX umbrella solution/gi, "Umbrella solution")
+        .replace(/\bClever FLEX\b/gi, "umbrella");
+    const cleanTabs = serviceTabs.map((t) => ({ ...t, features: t.features.map(deClever) }));
+    return (
+      <WorkwellHome
+        home={home}
+        serviceTabs={cleanTabs}
+        faqs={faqs}
+        promoBadges={promoBadges}
+        trustBadge={trustBadge}
+      />
+    );
+  }
 
   return (
     <>
@@ -175,19 +225,26 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
             <div>
               <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/25 rounded-full px-4 py-2 text-sm text-primary-light mb-8">
                 <Sparkles size={14} />
-                <span>Rated 4.7 on Trustpilot by 746 UK businesses</span>
+                <span>{trustBadge}</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6">
-                Stop Worrying
-                <br />
-                About Your
-                <br />
-                <span className="text-gradient">Accounts.</span>
+                {home?.heroHeadline ? (
+                  renderHeroHeadline(home.heroHeadline)
+                ) : (
+                  <>
+                    Stop Worrying
+                    <br />
+                    About Your
+                    <br />
+                    <span className="text-gradient">Accounts.</span>
+                  </>
+                )}
               </h1>
 
               <p className="text-lg sm:text-xl text-slate-400 leading-relaxed mb-10 max-w-lg">
-                Your own dedicated accountant, unlimited advice, and free software — all for one fixed monthly fee. No surprises. Ever.
+                {home?.heroSubheadline ||
+                  "Your own dedicated accountant, unlimited advice, and free software — all for one fixed monthly fee. No surprises. Ever."}
               </p>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -195,7 +252,7 @@ export default function HomePageClient({ faqs, promoBadges = {}, pricingPlans = 
                   href="/sign-up"
                   className="btn-primary inline-flex items-center gap-2 text-base px-6 py-3 rounded-xl animate-pulse-glow"
                 >
-                  Get Started
+                  {home?.heroCTA || "Get Started"}
                   <ArrowRight size={18} />
                 </Link>
                 <RequestCallback

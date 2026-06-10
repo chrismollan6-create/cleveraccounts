@@ -21,12 +21,38 @@ import { getBrand } from "@/lib/brand";
 import { getPricingPlans, getFAQs, getSiteSettings } from "@/sanity/queries";
 import { type Promo, promoBadgeForPlanId } from "@/lib/promo";
 import PricingFAQ from "@/components/ui/PricingFAQ";
+import WorkwellPricing from "../WorkwellPricing";
 
-export const metadata: Metadata = {
-  title: "Accounting Pricing & Plans — From £42.50/month | Clever Accounts",
-  description:
-    "Simple, transparent accounting pricing. Sole Trader from £42.50/month, Limited Company & Contractor from £104.50/month. No setup fees, no minimum contract, free FreeAgent included.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "workwell") {
+    return {
+      title: `Accounting Pricing & Plans — From £42.50/month + VAT | ${brand.name}`,
+      description:
+        "Simple, transparent accounting pricing. Sole Trader from £42.50/month + VAT, Limited Company & Contractor from £104.50/month + VAT. No setup fees, no minimum contract, free accounting software included.",
+      alternates: { canonical: `https://${brand.domain}/pricing` },
+    };
+  }
+  return {
+    title: "Accounting Pricing & Plans — From £42.50/month | Clever Accounts",
+    description:
+      "Simple, transparent accounting pricing. Sole Trader from £42.50/month, Limited Company & Contractor from £104.50/month. No setup fees, no minimum contract, free FreeAgent included.",
+    alternates: { canonical: `https://${brand.domain}/pricing` },
+  };
+}
+
+// Strip Clever-specific product names from CMS plan features for Workwell.
+function deCleverPlans<T extends { features?: string[] }>(plans: T[]): T[] {
+  const fix = (s: string) =>
+    s
+      .replace(/Clever FLEX umbrella solution/gi, "Umbrella solution")
+      .replace(/\bClever FLEX\b/gi, "umbrella")
+      .replace(/Free FreeAgent accounting software/gi, "Free accounting software")
+      .replace(/\bFreeAgent\b/gi, "accounting software");
+  return plans.map((p) =>
+    Array.isArray(p.features) ? { ...p, features: p.features.map(fix) } : p,
+  );
+}
 
 // Fallback data if CMS is empty
 const fallbackPlans = [
@@ -101,6 +127,18 @@ const fallbackFaqs = [
   { _id: "f7", question: "What happens when I sign up?", answer: "You'll be matched with a dedicated accountant within one business day. They'll book an onboarding call, set up your FreeAgent account, and handle any transfer from your previous accountant if needed." },
 ];
 
+// Workwell-specific FAQ fallback — no FreeAgent Platinum / Clever Accounts /
+// Clever FLEX claims, brand-neutral software wording.
+const fallbackFaqsWorkwell = [
+  { _id: "wf1", question: "Are there any setup fees?", answer: "No. There are absolutely no setup fees — you can start enjoying pro-active accountancy support from day one, at no extra cost." },
+  { _id: "wf2", question: "Is there a minimum contract period?", answer: "No minimum contract, ever. You can cancel any time with 30 days' notice. We want you to stay because we're brilliant — not because you're locked in." },
+  { _id: "wf3", question: "What's included in the monthly fee?", answer: "Everything. Your dedicated accountant, unlimited advice, all tax returns and filings, Companies House submissions, free accounting software and a real-time financial dashboard. One fee, no surprises." },
+  { _id: "wf4", question: "Is the accounting software really included for free?", answer: "Yes — completely free with every plan. Cloud accounting that shows your numbers in real time, set up for you when you join." },
+  { _id: "wf5", question: "Can I switch plans later?", answer: "Absolutely. If your business structure changes — say you move from sole trader to limited company — just speak to your accountant. We'll switch your plan and manage the transition for you." },
+  { _id: "wf6", question: "Do you offer bespoke pricing?", answer: "Yes. For businesses with more complex needs — multiple directors, larger payrolls or international operations — we can put together a custom package. Get in touch for a quote." },
+  { _id: "wf7", question: "What happens when I sign up?", answer: "You'll be matched with a dedicated accountant within one business day. They'll book an onboarding call, get your software set up, and handle any transfer from your previous accountant if needed." },
+];
+
 const universalFeatures = [
   { icon: Users, label: "Dedicated accountant" },
   { icon: MessageCircle, label: "Unlimited advice" },
@@ -140,6 +178,22 @@ export default async function PricingPage() {
     const settings = await getSiteSettings();
     if (settings?.promo) promo = settings.promo;
   } catch (_e) { /* use fallback */ }
+
+  if (brand.id === "workwell") {
+    // If we fell back to Clever's hardcoded FAQs, swap in the brand-neutral
+    // Workwell set so visitors never see "FreeAgent Platinum Partner" or
+    // "Clever Accounts" in the answers.
+    const workwellFaqs = faqs === fallbackFaqs ? fallbackFaqsWorkwell : faqs;
+    return (
+      <WorkwellPricing
+        plans={deCleverPlans(plans)}
+        faqs={workwellFaqs}
+        promo={promo}
+        freephone={brand.freephone}
+        rating={brand.trustpilot?.rating ?? "4.6"}
+      />
+    );
+  }
 
   return (
     <>

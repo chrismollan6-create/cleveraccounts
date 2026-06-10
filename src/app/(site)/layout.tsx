@@ -131,15 +131,17 @@ export default async function RootLayout({
           ) : (
             <>
               <PromoBanner />
+              {/* siteSettings is a shared (Clever) singleton — only use it for
+                  Clever. Other brands fall back to their registry contact info. */}
               <Header
-                phone={siteSettings?.phone ?? undefined}
-                freephone={siteSettings?.freephone ?? undefined}
+                phone={brand.id === "clever" ? (siteSettings?.phone ?? undefined) : undefined}
+                freephone={brand.id === "clever" ? (siteSettings?.freephone ?? undefined) : undefined}
               />
-              <TrustBar />
+              <TrustBar brand={brand} />
             </>
           )}
           <main className="flex-1">{children}</main>
-          {useLightChrome ? <LearnFooter /> : <Footer />}
+          {useLightChrome ? <LearnFooter /> : <Footer brand={brand} />}
           <CookieConsent />
         </BrandProvider>
         <VercelMonitoring />

@@ -1,5 +1,5 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { brandIdFromHost } from '@/lib/brand-host';
 import { isPortalHost, portalBrandFromHost } from '@/lib/portal/host';
 import { BRANDS, type BrandId } from '@/lib/constants';
@@ -193,7 +193,20 @@ function applySecurityHeaders(
   return res;
 }
 
-export default clerkMiddleware(async (auth, req) => {
+const hasClerk =
+  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !!process.env.CLERK_SECRET_KEY;
+
+/**
+ * Core middleware logic, independent of Clerk. `getUserId` returns the
+ * authenticated user id (via Clerk) or null/undefined.
+ *
+ * When Clerk keys are absent (e.g. a preview environment that hasn't had
+ * Clerk configured), `getUserId` always resolves to null — so every
+ * authenticated portal route is DENIED (redirected to sign-in) and only
+ * public marketing / funnel routes are served. Production always has the
+ * keys, so this fallback never runs there and behaviour is unchanged.
+ */
+async function handle(req: NextRequest, getUserId: () => Promise<string | null | undefined>) {
   const host = req.headers.get('host') ?? '';
   const url = req.nextUrl;
   const isPortal = isPortalHost(host);
@@ -256,7 +269,7 @@ export default clerkMiddleware(async (auth, req) => {
       : '/portal' + url.pathname;
 
     if (!isPublicPortalPath(portalPath)) {
-      const { userId } = await auth();
+      const userId = await getUserId();
       if (!userId) {
         const signInUrl = url.clone();
         signInUrl.pathname = '/sign-in';
@@ -290,7 +303,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     // Dev / preview: enforce auth gate but allow direct /portal/* access.
     if (!isPublicPortalPath(url.pathname)) {
-      const { userId } = await auth();
+      const userId = await getUserId();
       if (!userId) {
         const signInUrl = url.clone();
         signInUrl.pathname = '/portal/sign-in';
@@ -326,7 +339,15 @@ export default clerkMiddleware(async (auth, req) => {
   const isPortalBound =
     !isPublicPassthrough && (isPortal || url.pathname.startsWith('/portal'));
   return applySecurityHeaders(res, { host, isPortalBound });
-});
+}
+
+// Production (and any env with Clerk keys) → real Clerk auth gate, unchanged.
+// No keys (e.g. an unconfigured preview) → no Clerk import invoked at runtime;
+// getUserId is always null so authenticated portal routes are denied while
+// marketing/funnel routes still serve. Stops MIDDLEWARE_INVOCATION_FAILED.
+export default hasClerk
+  ? clerkMiddleware(async (auth, req) => handle(req, async () => (await auth()).userId))
+  : (req: NextRequest) => handle(req, async () => null);
 
 export const config = {
   // Skip static assets and Next internals — they don't need brand/auth awareness.
