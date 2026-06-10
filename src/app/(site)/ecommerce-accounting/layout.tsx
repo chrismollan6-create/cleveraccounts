@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Ecommerce Accounting — Online Seller Accountants | Clever Accounts",
-  description:
-    "Specialist accounting for ecommerce businesses and online sellers. Amazon, eBay, Etsy, Shopify and WooCommerce experts. International VAT (OSS/IOSS), inventory accounting, platform fee reconciliation. FreeAgent included free.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Ecommerce Accounting — Online Seller Accountants | ${brand.name}`,
+    description:
+      "Specialist accounting for ecommerce businesses and online sellers. Amazon, eBay, Etsy, Shopify and WooCommerce experts. International VAT (OSS/IOSS), inventory accounting, platform fee reconciliation. FreeAgent included free.",
+  };
+}
 
 const faqs = [
   {
@@ -42,10 +46,13 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const swappedFaqs = faqs.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      <FAQPageJsonLd faqs={swappedFaqs} />
       {children}
     </>
   );

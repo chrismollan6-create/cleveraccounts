@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "UK Tax Deadlines 2025/26 — Key Dates for Your Diary | Clever Accounts",
-  description:
-    "Complete guide to UK tax deadlines for 2025/26: Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD. Never miss an HMRC deadline again — Clever Accounts handles it all.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `UK Tax Deadlines 2025/26 — Key Dates for Your Diary | ${brand.name}`,
+    description: `Complete guide to UK tax deadlines for 2025/26: Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD. Never miss an HMRC deadline again — ${brand.name} handles it all.`,
+  };
+}
 
 const faqs = [
   {
@@ -42,10 +45,13 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const swappedFaqs = faqs.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      <FAQPageJsonLd faqs={swappedFaqs} />
       {children}
     </>
   );

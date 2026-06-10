@@ -1,28 +1,31 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Self Assessment Tax Returns | Done For You | Clever Accounts",
-  description:
-    "Clever Accounts prepares and files your self assessment tax return to HMRC — accurately, on time, and with every allowable expense claimed. Dedicated accountant from £42.50/month. No setup fees.",
-  keywords: [
-    "self assessment",
-    "self assessment tax return",
-    "HMRC self assessment",
-    "self assessment accountant",
-    "self assessment filing",
-    "sole trader tax return",
-    "landlord self assessment",
-    "31 January deadline",
-    "self assessment UK",
-  ],
-  openGraph: {
-    title: "Self Assessment Tax Return — Done For You | Clever Accounts",
-    description:
-      "Stop dreading the 31 January deadline. We prepare and file your self assessment tax return to HMRC. Dedicated accountant, all income sources covered, from £42.50/month.",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Self Assessment Tax Returns | Done For You | ${brand.name}`,
+    description: `${brand.name} prepares and files your self assessment tax return to HMRC — accurately, on time, and with every allowable expense claimed. Dedicated accountant from £42.50/month. No setup fees.`,
+    keywords: [
+      "self assessment",
+      "self assessment tax return",
+      "HMRC self assessment",
+      "self assessment accountant",
+      "self assessment filing",
+      "sole trader tax return",
+      "landlord self assessment",
+      "31 January deadline",
+      "self assessment UK",
+    ],
+    openGraph: {
+      title: `Self Assessment Tax Return — Done For You | ${brand.name}`,
+      description:
+        "Stop dreading the 31 January deadline. We prepare and file your self assessment tax return to HMRC. Dedicated accountant, all income sources covered, from £42.50/month.",
+      type: "website",
+    },
+  };
+}
 
 const faqs = [
   {
@@ -59,14 +62,17 @@ const faqs = [
   },
 ];
 
-export default function SelfAssessmentLayout({
+export default async function SelfAssessmentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const swappedFaqs = faqs.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      <FAQPageJsonLd faqs={swappedFaqs} />
       {children}
     </>
   );

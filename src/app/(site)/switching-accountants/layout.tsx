@@ -1,30 +1,34 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "How to Switch Accountants UK (2026 Guide) | Clever Accounts",
-  description:
-    "Thinking of switching accountants? Our step-by-step guide covers when to switch, how the professional clearance process works, what to look for in a new firm, and common concerns answered. Updated April 2026.",
-  keywords: [
-    "switch accountant UK",
-    "how to switch accountants",
-    "change accountant UK",
-    "switching accountants mid-year",
-    "professional clearance accountant",
-    "leave my accountant",
-    "new accountant UK",
-    "switch to Clever Accounts",
-  ],
-  openGraph: {
-    title: "How to Switch Accountants UK (2026 Guide)",
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `How to Switch Accountants UK (2026 Guide) | ${brand.name}`,
     description:
-      "Step-by-step guide to switching accountants in the UK. Professional clearance, mid-year switching, what to look for — and how Clever Accounts makes it free and seamless.",
-    type: "article",
-  },
-  alternates: {
-    canonical: "https://cleveraccounts.com/switching-accountants",
-  },
-};
+      "Thinking of switching accountants? Our step-by-step guide covers when to switch, how the professional clearance process works, what to look for in a new firm, and common concerns answered. Updated April 2026.",
+    keywords: [
+      "switch accountant UK",
+      "how to switch accountants",
+      "change accountant UK",
+      "switching accountants mid-year",
+      "professional clearance accountant",
+      "leave my accountant",
+      "new accountant UK",
+      `switch to ${brand.name}`,
+    ],
+    openGraph: {
+      title: "How to Switch Accountants UK (2026 Guide)",
+      description:
+        `Step-by-step guide to switching accountants in the UK. Professional clearance, mid-year switching, what to look for — and how ${brand.name} makes it free and seamless.`,
+      type: "article",
+    },
+    alternates: {
+      canonical: `https://${brand.domain}/switching-accountants`,
+    },
+  };
+}
 
 const faqs = [
   {
@@ -69,10 +73,13 @@ const faqs = [
   },
 ];
 
-export default function SwitchingAccountantsLayout({ children }: { children: React.ReactNode }) {
+export default async function SwitchingAccountantsLayout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
+  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const swappedFaqs = faqs.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      <FAQPageJsonLd faqs={swappedFaqs} />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "/" },
