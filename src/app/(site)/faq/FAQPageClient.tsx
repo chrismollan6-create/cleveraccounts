@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useBrand } from "@/lib/useBrand";
 import {
   ArrowRight,
   Phone,
@@ -89,6 +90,7 @@ function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean
 }
 
 export default function FAQPageClient({ faqsByCategory }: Props) {
+  const brand = useBrand();
   const [query, setQuery] = useState("");
   const [openKey, setOpenKey] = useState<string | null>(null);
 
@@ -132,7 +134,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
             Frequently Asked <span className="text-gradient">Questions</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            Everything you need to know about Clever Accounts — pricing, services,
+            Everything you need to know about {brand.name} — pricing, services,
             switching, software, and the specifics for your business type.
           </p>
 

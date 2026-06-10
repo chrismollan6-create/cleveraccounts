@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Clever Accounts",
-  description: "Clever Accounts privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Privacy Policy | ${brand.name}`,
+    description: `${brand.name} privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.`,
+  };
+}
 
 const sections = [
   {

@@ -4,14 +4,18 @@ import { Star, ArrowRight, Quote, Users, Award } from "lucide-react";
 import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
 import { TESTIMONIALS } from "@/lib/constants";
 import { getTestimonials } from "@/sanity/queries";
+import { getBrand } from "@/lib/brand";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Customer Reviews & Testimonials — 5 Stars | Clever Accounts",
-  description:
-    "Read reviews from 10,000+ businesses who trust Clever Accounts for their accounting. Rated 5 stars — see why sole traders, contractors and limited companies love us.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Customer Reviews & Testimonials — 5 Stars | ${brand.name}`,
+    description:
+      `Read reviews from 10,000+ businesses who trust ${brand.name} for their accounting. Rated 5 stars — see why sole traders, contractors and limited companies love us.`,
+  };
+}
 
 const allReviews = [
   ...TESTIMONIALS,

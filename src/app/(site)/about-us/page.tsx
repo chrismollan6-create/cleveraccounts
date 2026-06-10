@@ -19,11 +19,14 @@ import {
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "About Clever Accounts — 20 Years of Online Accounting | Clever Accounts",
-  description:
-    "Clever Accounts has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds based.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `About ${brand.name} — 20 Years of Online Accounting | ${brand.name}`,
+    description:
+      `${brand.name} has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds based.`,
+  };
+}
 
 const values = [
   {

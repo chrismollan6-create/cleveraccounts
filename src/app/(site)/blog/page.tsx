@@ -3,12 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock, Tag } from "lucide-react";
 import { getBlogPosts } from "@/lib/sanity";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Accounting & Tax Blog — Expert Insights | Clever Accounts",
-  description:
-    "Latest accounting news, tax tips and business advice from Clever Accounts. Expert insights for sole traders, limited companies, contractors, and landlords.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Accounting & Tax Blog — Expert Insights | ${brand.name}`,
+    description:
+      `Latest accounting news, tax tips and business advice from ${brand.name}. Expert insights for sole traders, limited companies, contractors, and landlords.`,
+  };
+}
 
 // Revalidate every 60s so new Sanity posts/images appear without a manual deploy.
 export const revalidate = 60;
