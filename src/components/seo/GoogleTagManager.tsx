@@ -88,7 +88,10 @@ export async function trackEnhancedConversion(params: {
   }
 }
 
-export function GoogleTagManagerHead() {
+export function GoogleTagManagerHead({ gtmId }: { gtmId?: string } = {}) {
+  // Per-brand GTM container (from the BRANDS registry), falling back to the
+  // global env var. Lets each brand have its own funnel / Ads conversions.
+  const id = gtmId || GTM_ID;
   return (
     <>
       {/* ── Consent Mode v2 — MUST run before GTM loads ──────────────────────
@@ -124,7 +127,7 @@ export function GoogleTagManagerHead() {
           `}
       </Script>
       {/* ── Google Tag Manager ──────────────────────────────────────────────── */}
-      {GTM_ID && (
+      {id && (
         <Script
           id="gtm-head"
           strategy="afterInteractive"
@@ -134,7 +137,7 @@ export function GoogleTagManagerHead() {
               new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               'https://${SGTM_HOST}/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','${GTM_ID}');
+              })(window,document,'script','dataLayer','${id}');
             `}
         </Script>
       )}
@@ -142,13 +145,14 @@ export function GoogleTagManagerHead() {
   );
 }
 
-export function GoogleTagManagerBody() {
-  if (!GTM_ID) return null;
+export function GoogleTagManagerBody({ gtmId }: { gtmId?: string } = {}) {
+  const id = gtmId || GTM_ID;
+  if (!id) return null;
 
   return (
     <noscript>
       <iframe
-        src={`https://${SGTM_HOST}/ns.html?id=${GTM_ID}`}
+        src={`https://${SGTM_HOST}/ns.html?id=${id}`}
         height="0"
         width="0"
         style={{ display: "none", visibility: "hidden" }}

@@ -70,6 +70,15 @@ export default defineType({
       type: "image",
       group: "content",
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Alt text (image description)",
+          type: "string",
+          description: "Describe the image for screen readers & Google — e.g. 'Sarah, freelance designer'.",
+          validation: (R) => R.custom((v) => (v ? true : "Add alt text for accessibility & SEO")).warning(),
+        }),
+      ],
     }),
     defineField({
       name: "headline",

@@ -6,6 +6,7 @@ import { schemaTypes } from "./src/sanity/schemas";
 import { dashboardPlugin } from "./src/studio/dashboardPlugin";
 import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
 import { StudioLogo } from "./src/studio/StudioLogo";
+import { AiDraftAction } from "./src/studio/AiDraftAction";
 
 const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage", "knowledgeArticle"];
 
@@ -119,6 +120,58 @@ export default defineConfig({
             S.listItem()
               .title("📢 Promo Banner")
               .child(S.documentTypeList("promoBanner").title("Promotion Banners")),
+
+            S.divider(),
+
+            // ── Editorial calendar ───────────────────────────────────────
+            S.listItem()
+              .title("📅 Editorial Calendar")
+              .child(
+                S.list()
+                  .title("Editorial Calendar")
+                  .items([
+                    S.listItem()
+                      .title("✍️ Drafts in progress")
+                      .child(
+                        S.documentList()
+                          .id("cal-drafts")
+                          .title("Unpublished drafts (work in progress)")
+                          .filter('_id in path("drafts.**")')
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("🕓 Recently updated")
+                      .child(
+                        S.documentList()
+                          .id("cal-recent")
+                          .title("Recently updated content")
+                          .filter(
+                            '!(_id in path("drafts.**")) && _type in ["flexiblePage","landingPage","servicePage","blogPost","caseStudy","homePage"]'
+                          )
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("📰 Blog — by publish date")
+                      .child(
+                        S.documentList()
+                          .id("cal-blog")
+                          .title("Blog posts, newest first")
+                          .schemaType("blogPost")
+                          .filter('_type == "blogPost"')
+                          .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("📖 Case studies — by publish date")
+                      .child(
+                        S.documentList()
+                          .id("cal-cs")
+                          .title("Case studies, newest first")
+                          .schemaType("caseStudy")
+                          .filter('_type == "caseStudy"')
+                          .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
+                      ),
+                  ])
+              ),
 
             S.divider(),
 
@@ -246,6 +299,13 @@ export default defineConfig({
     }),
     visionTool(),
   ],
+  document: {
+    // "✨ AI draft" action on content-heavy types — drafts copy with Gemini.
+    actions: (prev, context) =>
+      ["servicePage", "flexiblePage", "blogPost"].includes(context.schemaType)
+        ? [...prev, AiDraftAction]
+        : prev,
+  },
   schema: {
     types: schemaTypes,
   },

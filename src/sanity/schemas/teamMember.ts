@@ -61,6 +61,15 @@ export default defineType({
       type: "image",
       group: "profile",
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Alt text (image description)",
+          type: "string",
+          description: "Describe the image for screen readers & Google — e.g. 'Jane Smith, Senior Accountant'.",
+          validation: (R) => R.custom((v) => (v ? true : "Add alt text for accessibility & SEO")).warning(),
+        }),
+      ],
     }),
     defineField({
       name: "specialities",

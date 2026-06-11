@@ -127,8 +127,8 @@ export default async function RootLayout({
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
-        <GoogleTagManagerHead />
-        <GoogleTagManagerBody />
+        <GoogleTagManagerHead gtmId={brand.analytics?.gtmId} />
+        <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
         <UTMCapture />
         <BrandProvider brandId={brand.id}>
           {useLightChrome ? (

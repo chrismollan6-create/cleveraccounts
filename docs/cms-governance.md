@@ -16,6 +16,13 @@ Managed in the **Sanity project dashboard** (sanity.io → Manage → this proje
 
 **Onboarding a new editor:** an Administrator invites their email as **Editor** in the Sanity dashboard, then shares the `cms-editor-runbook.md` guide. No code, no deploy.
 
+### Brand-scoped permissions (multi-brand / group)
+By default any Editor can edit any brand's content. For a group with per-brand teams, restrict who edits what — this is a **Sanity dashboard configuration, not code**:
+- On **Growth/Enterprise** plans, Sanity supports **custom roles with document-level grants**. In the dashboard → *API/Members → Roles*, create e.g. a "Workwell Editor" role whose update/create grant is **filtered by the `brand` field** (`brand == "workwell" || brand == "shared"`), and assign each person to their brand's role.
+- This builds directly on the **`brand` field already on every content type** (Clever / Workwell / Shared) — that's what the grant filters on. No code change needed.
+- On the **free/Team plan** (no custom roles), brand separation is by **convention + trust**: the brand field + the runbook rule "only edit your brand." Acceptable for a small team; revisit when the group scales.
+- Independent of brand: enforce **MFA on every Administrator account**, and keep Administrators to the two-person minimum.
+
 ## 2. The no-code / needs-a-developer line
 
 This is the single most important thing to be clear about, so the team knows what they own and what to escalate.

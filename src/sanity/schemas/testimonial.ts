@@ -60,6 +60,15 @@ export default defineType({
       group: "review",
       description: "An optional headshot shown beside the review.",
       options: { hotspot: true },
+      fields: [
+        defineField({
+          name: "alt",
+          title: "Alt text (image description)",
+          type: "string",
+          description: "Describe the image for screen readers & Google — e.g. 'Michael, limited company director'.",
+          validation: (R) => R.custom((v) => (v ? true : "Add alt text for accessibility & SEO")).warning(),
+        }),
+      ],
     }),
     defineField({
       name: "featured",
