@@ -33,6 +33,18 @@ type CmsServicePage = {
   stats?: { value: string; label: string }[];
   serviceCategories?: { title: string; items: string[] }[];
   testimonial?: { name?: string; role?: string; quote?: string };
+  sections?: {
+    featuresEyebrow?: string;
+    featuresHeading?: string;
+    benefitsEyebrow?: string;
+    benefitsHeading?: string;
+    categoriesEyebrow?: string;
+    categoriesHeading?: string;
+    faqEyebrow?: string;
+    faqHeading?: string;
+    ctaHeading?: string;
+    ctaBody?: string;
+  };
   metaTitle?: string;
   metaDescription?: string;
 };
@@ -73,6 +85,20 @@ function mergeContent(cms: CmsServicePage | null, fb: ServicePageData, brandName
     })),
     testimonial: testimonialSrc?.quote
       ? { name: dc(testimonialSrc.name), role: dc(testimonialSrc.role), quote: dc(testimonialSrc.quote) }
+      : undefined,
+    sections: cms?.sections
+      ? {
+          featuresEyebrow: dc(cms.sections.featuresEyebrow),
+          featuresHeading: dc(cms.sections.featuresHeading),
+          benefitsEyebrow: dc(cms.sections.benefitsEyebrow),
+          benefitsHeading: dc(cms.sections.benefitsHeading),
+          categoriesEyebrow: dc(cms.sections.categoriesEyebrow),
+          categoriesHeading: dc(cms.sections.categoriesHeading),
+          faqEyebrow: dc(cms.sections.faqEyebrow),
+          faqHeading: dc(cms.sections.faqHeading),
+          ctaHeading: dc(cms.sections.ctaHeading),
+          ctaBody: dc(cms.sections.ctaBody),
+        }
       : undefined,
   };
 }

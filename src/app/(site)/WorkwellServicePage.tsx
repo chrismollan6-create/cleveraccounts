@@ -23,6 +23,18 @@ export type ServiceContent = {
   stats?: { value: string; label: string }[];
   serviceCategories?: { title: string; items: string[] }[];
   testimonial?: { name: string; role: string; quote: string };
+  sections?: {
+    featuresEyebrow?: string;
+    featuresHeading?: string;
+    benefitsEyebrow?: string;
+    benefitsHeading?: string;
+    categoriesEyebrow?: string;
+    categoriesHeading?: string;
+    faqEyebrow?: string;
+    faqHeading?: string;
+    ctaHeading?: string;
+    ctaBody?: string;
+  };
 };
 
 const TINTS = [
@@ -53,7 +65,8 @@ function gradientLastWord(text: string) {
 export default function WorkwellServicePage({ content }: { content: ServiceContent }) {
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
-  const { title, headline, description, price, features, benefits, faqs, stats, serviceCategories, testimonial } = content;
+  const { title, headline, description, price, features, benefits, faqs, stats, serviceCategories, testimonial, sections } = content;
+  const s = sections ?? {};
 
   return (
     <>
@@ -134,9 +147,9 @@ export default function WorkwellServicePage({ content }: { content: ServiceConte
         <section className="bg-white py-20 md:py-24">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-12">
-              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Everything included</span>
+              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.featuresEyebrow || "Everything included"}</span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
-                What you get with {title}
+                {s.featuresHeading || `What you get with ${title}`}
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5 max-w-3xl mx-auto">
@@ -158,9 +171,9 @@ export default function WorkwellServicePage({ content }: { content: ServiceConte
         <section className="bg-[#f4f8ec] py-20 md:py-24">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-14">
-              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Why us</span>
+              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.benefitsEyebrow || "Why us"}</span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
-                The difference a dedicated accountant makes
+                {s.benefitsHeading || "The difference a dedicated accountant makes"}
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -186,8 +199,8 @@ export default function WorkwellServicePage({ content }: { content: ServiceConte
         <section className="bg-white py-20 md:py-24">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-14">
-              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">What we handle</span>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">Everything, sorted</h2>
+              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.categoriesEyebrow || "What we handle"}</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">{s.categoriesHeading || "Everything, sorted"}</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {serviceCategories.map((cat, i) => (
@@ -237,8 +250,8 @@ export default function WorkwellServicePage({ content }: { content: ServiceConte
           <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#71c5d6]/15 rounded-full blur-3xl" />
           <div className="relative max-w-4xl mx-auto px-4">
             <div className="text-center mb-12">
-              <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Good to know</span>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">Questions, answered</h2>
+              <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">{s.faqEyebrow || "Good to know"}</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">{s.faqHeading || "Questions, answered"}</h2>
             </div>
             <PricingFAQ faqs={faqs.map((f, i) => ({ _id: String(i), question: f.q, answer: f.a }))} />
           </div>
@@ -253,10 +266,11 @@ export default function WorkwellServicePage({ content }: { content: ServiceConte
             <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#71c5d6]/20 rounded-full blur-3xl" />
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5">
-                Ready to get {title.toLowerCase()} sorted?
+                {s.ctaHeading || `Ready to get ${title.toLowerCase()} sorted?`}
               </h2>
               <p className="text-white/75 text-lg mb-9 max-w-2xl mx-auto">
-                A dedicated accountant, unlimited advice and free software — one simple monthly fee. Set up in minutes.
+                {s.ctaBody ||
+                  "A dedicated accountant, unlimited advice and free software — one simple monthly fee. Set up in minutes."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-4 rounded-xl shadow-lg shadow-[#9cbf50]/25">
