@@ -39,7 +39,7 @@ export async function getBlogPosts() {
 }
 
 export async function getBlogPost(slug: string) {
-  return client.fetch(
+  return (await rc()).fetch(
     `*[_type == "blogPost" && slug.current == $slug][0] {
       _id, title, slug, excerpt,
       featuredImage { alt, asset->{ url } },

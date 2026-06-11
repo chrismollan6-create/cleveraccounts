@@ -330,7 +330,7 @@ export default defineConfig({
   document: {
     // "✨ AI draft" action on content-heavy types — drafts copy with Gemini.
     actions: (prev, context) =>
-      ["servicePage", "flexiblePage", "blogPost"].includes(context.schemaType)
+      ["servicePage", "flexiblePage", "landingPage", "blogPost", "caseStudy"].includes(context.schemaType)
         ? [...prev, AiDraftAction]
         : prev,
   },

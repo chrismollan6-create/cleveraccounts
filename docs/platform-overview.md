@@ -35,6 +35,12 @@ npx sanity schema validate   # validate CMS schema after schema edits
 - Blocks: schema in `src/sanity/schemas/blocks/block*.ts` (`name: "block.<x>"`), component in `src/components/blocks/Block*.tsx`. Section tone (light/tinted/dark) via `src/components/blocks/tone.ts`.
 - Reference page seeded at `/p/example` (`scripts/seed-demo-page.mjs`).
 
+## Visual preview (Sanity Presentation)
+- `presentationTool` in `sanity.config.ts` (locations map doc types → site URLs). Draft mode: `/api/draft/enable` (`defineEnableDraftMode` from `next-sanity/draft-mode` — validates the signed preview URL, 401 otherwise) + `/api/draft/disable`.
+- `previewClient` (`src/sanity/client.ts`) — `SANITY_TOKEN` + `perspective: "drafts"` + stega (for click-to-edit overlays). `queries.ts` `rc()` returns it **only** when `draftMode().isEnabled`, else the published `client` — so non-preview output is byte-identical. To make a new query previewable, route its fetch through `rc()`.
+- `(site)/layout.tsx` renders `<VisualEditing/>` (from `next-sanity/visual-editing`) + the preview bar when draft mode is on.
+- **Production needs `SANITY_TOKEN` set as a Vercel env var** (server-side, NOT `NEXT_PUBLIC_`) for preview to work — without it, preview shows published content.
+
 ---
 
 ## How-to: the common developer tasks
