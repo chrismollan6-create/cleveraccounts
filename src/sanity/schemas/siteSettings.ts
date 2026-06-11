@@ -1,36 +1,56 @@
 import { defineType, defineField } from "sanity";
+import { Settings } from "lucide-react";
 
+/**
+ * Site-wide settings (contact details, offices, social links, promo banner).
+ * Organised into tabs (Contact / Company / Promotion) so the form stays
+ * approachable for non-technical editors.
+ */
 export default defineType({
   name: "siteSettings",
   title: "Site Settings",
   type: "document",
+  icon: Settings,
+  groups: [
+    { name: "contact", title: "Contact", default: true },
+    { name: "company", title: "Company" },
+    { name: "promo", title: "Promotion" },
+  ],
   fields: [
     defineField({
       name: "phone",
-      title: "Main Phone Number",
+      title: "Main phone number",
       type: "string",
-      description: "Displayed in the header desktop nav and footer (e.g. 0113 518 8800)",
+      group: "contact",
+      description: "Shown in the header navigation and the footer (e.g. 0113 518 8800).",
     }),
     defineField({
       name: "freephone",
-      title: "Freephone Number",
+      title: "Freephone number",
       type: "string",
-      description: "Displayed in the top bar and landing pages (e.g. 0113 518 8800)",
+      group: "contact",
+      description: "Shown in the top bar and on landing pages (e.g. 0800 ...).",
     }),
     defineField({
       name: "email",
-      title: "Contact Email",
+      title: "Contact email",
       type: "string",
+      group: "contact",
+      description: "The main email address shown to visitors.",
     }),
     defineField({
       name: "tagline",
-      title: "Company Tagline",
+      title: "Company tagline",
       type: "string",
+      group: "company",
+      description: "A short strapline describing the business.",
     }),
     defineField({
       name: "offices",
-      title: "Office Locations",
+      title: "Office locations",
       type: "array",
+      group: "company",
+      description: "Your office addresses, shown in the footer and on contact pages.",
       of: [
         {
           type: "object",
@@ -46,9 +66,10 @@ export default defineType({
     }),
     defineField({
       name: "stats",
-      title: "Company Stats",
+      title: "Company stats",
       type: "object",
-      description: "Used in hero sections and social proof strips across the site",
+      group: "company",
+      description: "Headline numbers used in hero sections and social-proof strips across the site.",
       fields: [
         { name: "years", title: "Years in Business", type: "number" },
         { name: "businesses", title: "Businesses Served", type: "number" },
@@ -57,8 +78,10 @@ export default defineType({
     }),
     defineField({
       name: "social",
-      title: "Social Media Links",
+      title: "Social media links",
       type: "object",
+      group: "company",
+      description: "Links to your social profiles, shown in the footer.",
       fields: [
         { name: "facebook", title: "Facebook URL", type: "url" },
         { name: "twitter", title: "Twitter / X URL", type: "url" },
@@ -67,14 +90,16 @@ export default defineType({
     }),
     defineField({
       name: "promo",
-      title: "Promotional Offer",
+      title: "Promotional offer",
       type: "object",
-      description: "Controls the discount badge shown on pricing cards. Toggle 'enabled' to show or hide site-wide.",
+      group: "promo",
+      description: "Controls the discount badge shown on pricing cards. Turn 'Enable promo badge' on or off to show or hide it everywhere.",
       fields: [
         {
           name: "enabled",
           title: "Enable promo badge",
           type: "boolean",
+          description: "Turn the discount badge on or off across the whole site.",
           initialValue: false,
         },
         {

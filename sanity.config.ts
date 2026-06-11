@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { schemaTypes } from "./src/sanity/schemas";
 import { dashboardPlugin } from "./src/studio/dashboardPlugin";
 import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
+import { StudioLogo } from "./src/studio/StudioLogo";
 
 const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage", "knowledgeArticle"];
 
@@ -39,6 +40,9 @@ export default defineConfig({
   dataset: "production",
   basePath: "/studio",
   theme,
+  studio: {
+    components: { logo: StudioLogo },
+  },
   plugins: [
     dashboardPlugin(),
     seoPlugin(),
