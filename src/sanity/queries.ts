@@ -72,6 +72,21 @@ export async function getServicePage(slug: string, brandId?: BrandId) {
   );
 }
 
+// Header menu + footer columns (per-brand singleton; null = use built-in defaults).
+export async function getNavigation(brandId?: BrandId) {
+  const id = brandId && brandId !== "clever" ? `navigation-${brandId}` : "navigation";
+  return client.fetch(`*[_id == $id][0]{ headerLinks, footerColumns }`, { id });
+}
+
+// Editor-managed redirects. The read client uses the Sanity CDN, which caches
+// for ~60s — enough to stop a scanner hitting many 404s from spamming Sanity,
+// while new redirects go live within about a minute.
+export async function getRedirects(): Promise<{ from: string; to: string; permanent?: boolean }[]> {
+  return (
+    (await client.fetch(`*[_type == "redirect" && defined(from) && defined(to)]{ from, to, permanent }`)) || []
+  );
+}
+
 // Page-builder pages (/p/{slug}).
 export async function getFlexiblePage(slug: string, brandId?: BrandId) {
   if (!brandId) {

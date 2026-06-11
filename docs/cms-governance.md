@@ -24,14 +24,13 @@ This is the single most important thing to be clear about, so the team knows wha
 - All page **content** — text, prices, FAQs, testimonials, blog, Learning Centre.
 - **Building pages** with the page builder (`/p/{slug}`) and **landing pages** (`/lp/{slug}`) — stacking blocks, no code.
 - **Promo banners**, **site settings** (phone/email/offices), **SEO** fields, **brand tagging** (Clever/Workwell/Shared), **publish/draft**.
-- Slugs/URLs of CMS-driven pages (**but see redirects below**).
+- The **header menu & footer columns** (Navigation & Footer — per brand).
+- **URL redirects** (Redirects) — change a page's slug, then add a redirect old → new themselves.
 
 **Needs a developer:**
 - A **new page type** or **new field** that doesn't exist.
 - A **new block** for the page builder, or a new component/section.
 - **Design** — colours, fonts, spacing, component styling (locked per brand by design).
-- **Navigation menu** and **footer** structure.
-- **Changing a live URL** — needs a 301 redirect to protect SEO and avoid broken links.
 - **Adding a brand** to the platform, integrations, forms, calculators.
 
 Guiding principle: *the more we invest in CMS-driven fields and blocks, the more the team self-serves.* The block library is the lever — when the team keeps hitting "I wish there was a block for X," that's the cue to have a developer add block X once, after which it's reusable forever.
@@ -58,8 +57,8 @@ The platform is conventional **Next.js + Sanity + Vercel** — any competent con
 - **Two Administrators** at all times.
 - When a developer adds a block or page type, they should also add a line to the editor runbook so the team knows it exists.
 
-## 6. Redirects (the one easy thing to get wrong)
-Changing a published page's slug **breaks the old URL**. There's no self-serve redirect tool yet. Process: editor proposes the new URL → developer adds a 301 redirect from old → new → editor changes the slug. (A future improvement is a CMS-managed redirects list so editors can do this themselves.)
+## 6. Redirects (now self-serve)
+Changing a published page's slug **breaks the old URL**, so always pair a URL change with a redirect. Editors now do this themselves: **Studio → 🔀 Redirects** → add **From** (old path) → **To** (new path). Live within ~a minute. Redirects fire for paths that no longer resolve (i.e. the old URL is now a 404), which covers the slug-change case. *(Note: a redirect from a path that still has a live page won't fire — remove/rename the page first. Bulk or domain-level redirects still warrant a developer.)*
 
 ## 7. Backups & safety
 - Sanity keeps document **history** — any document can be rolled back to a previous version (open the doc → history). So a bad edit is recoverable.

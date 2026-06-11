@@ -12,6 +12,8 @@ import landingPage from "./landingPage";
 import knowledgeTopic from "./knowledgeTopic";
 import knowledgeArticle from "./knowledgeArticle";
 import knowledgeArticleFeedback from "./knowledgeArticleFeedback";
+import navigation from "./navigation";
+import redirect from "./redirect";
 import flexiblePage from "./flexiblePage";
 import blockHero from "./blocks/blockHero";
 import blockRichText from "./blocks/blockRichText";
@@ -58,6 +60,8 @@ export const schemaTypes = [
   knowledgeTopic,
   knowledgeArticle,
   knowledgeArticleFeedback,
+  navigation,
+  redirect,
   // page builder
   flexiblePage,
   blockHero,

@@ -51,8 +51,11 @@ npx sanity schema validate   # validate CMS schema after schema edits
 ### Add a brand (the group-consolidation play)
 - Add an entry to `BRANDS` in `constants.ts` (colours/font/logo/legal), add brand assets in `public/brand/<id>/`, add a `[data-brand="<id>"]` override block in `globals.css`, extend `brandIdFromHost` + the brand `<option>`s in `brandField`, add the domain in Vercel and point DNS. Content is then brand-scoped via the existing `brand` field. **This is incremental — that's the whole point of the platform.**
 
-### Add a redirect (when an editor changes a URL)
-- Add to `next.config.ts` `redirects()` (301 old → new). *(Future: a CMS-managed redirects list so editors self-serve.)*
+### Redirects (editor-managed)
+- Editors add `redirect` docs in Studio (🔀 Redirects). Applied by the catch-all `src/app/(site)/[...notFound]/page.tsx` via `getRedirects()` — fires on otherwise-404 paths (covers slug changes). The read goes via the Sanity CDN (~60s cache). For a redirect from a path that still has a live route, or bulk/domain redirects, use `next.config.ts` `redirects()`.
+
+### Navigation & footer (editor-managed)
+- `navigation` per-brand singleton (`navigation` / `navigation-{brand}`) → `getNavigation(brandId)`. `(site)/layout.tsx` passes `headerLinks` → `<Header navLinks>` and `footerColumns` → `<Footer columns>`, both **falling back** to `NAV_LINKS` / the built-in footer columns when empty. So nav/footer are safe to leave unset.
 
 ### Brand-aware metadata / JSON-LD
 - Per-route `layout.tsx`/`page.tsx` can branch on `getBrand()`; see the ecommerce/small-business/CIS routes for the pattern (Clever keeps its SEO + FAQ JSON-LD; Workwell gets `workwellServiceMetadata`, Clever JSON-LD gated off).

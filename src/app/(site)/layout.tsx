@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Header from "@/components/layout/Header";
-import { getSiteSettings } from "@/sanity/queries";
+import { getSiteSettings, getNavigation } from "@/sanity/queries";
 import TrustBar from "@/components/layout/TrustBar";
 import Footer from "@/components/layout/Footer";
 import LearnHeader from "@/components/layout/LearnHeader";
@@ -92,6 +92,11 @@ export default async function RootLayout({
   const brand = await getBrand();
   // Fetch site settings from Sanity; falls back to constants in Header if null
   const siteSettings = await getSiteSettings().catch(() => null);
+  // Header menu + footer columns; null/empty → Header & Footer use built-in defaults
+  const navigation = (await getNavigation(brand.id).catch(() => null)) as {
+    headerLinks?: { label: string; href: string }[];
+    footerColumns?: { heading: string; links: { label: string; href: string }[] }[];
+  } | null;
 
   // Reading-mode chrome for /learn/* — see LearnHeader / LearnFooter for the
   // rationale. Detection via the `x-pathname` header that middleware stamps
@@ -136,12 +141,13 @@ export default async function RootLayout({
               <Header
                 phone={brand.id === "clever" ? (siteSettings?.phone ?? undefined) : undefined}
                 freephone={brand.id === "clever" ? (siteSettings?.freephone ?? undefined) : undefined}
+                navLinks={navigation?.headerLinks?.length ? navigation.headerLinks : undefined}
               />
               <TrustBar brand={brand} />
             </>
           )}
           <main className="flex-1">{children}</main>
-          {useLightChrome ? <LearnFooter /> : <Footer brand={brand} />}
+          {useLightChrome ? <LearnFooter /> : <Footer brand={brand} columns={navigation?.footerColumns?.length ? navigation.footerColumns : undefined} />}
           <CookieConsent />
         </BrandProvider>
         <VercelMonitoring />

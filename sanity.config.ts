@@ -93,6 +93,30 @@ export default defineConfig({
                   ])
               ),
             S.listItem()
+              .title("🧭 Navigation & Footer")
+              .child(
+                S.list()
+                  .title("Navigation & Footer")
+                  .items([
+                    S.listItem()
+                      .title("Clever Accounts")
+                      .child(
+                        S.document()
+                          .schemaType("navigation")
+                          .documentId("navigation")
+                          .title("Navigation & Footer — Clever Accounts")
+                      ),
+                    S.listItem()
+                      .title("Workwell Accountancy")
+                      .child(
+                        S.document()
+                          .schemaType("navigation")
+                          .documentId("navigation-workwell")
+                          .title("Navigation & Footer — Workwell")
+                      ),
+                  ])
+              ),
+            S.listItem()
               .title("📢 Promo Banner")
               .child(S.documentTypeList("promoBanner").title("Promotion Banners")),
 
@@ -108,6 +132,9 @@ export default defineConfig({
             S.listItem()
               .title("💼 Service Pages")
               .child(S.documentTypeList("servicePage").title("Service Pages")),
+            S.listItem()
+              .title("🔀 Redirects")
+              .child(S.documentTypeList("redirect").title("Redirects")),
 
             S.divider(),
 

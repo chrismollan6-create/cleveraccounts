@@ -62,8 +62,16 @@ Rule of thumb: write **Shared** for things that are the same on both; pick a spe
 ### Change a button's text or where it links
 - Most buttons are fields on the page/block (e.g. "Button text" + "Button link"). Edit them and **Publish.** *(Buttons that aren't editable fields are built into the design — those need a developer.)*
 
-### Change a page's web address (URL)
-- The **Web address (URL)** / slug field controls it (for pages that have one). **⚠ Changing a live URL breaks the old link** and can hurt SEO — tell a developer so they can set up a redirect.
+### Change a page's web address (URL) — and add a redirect
+1. Change the **Web address (URL)** / slug field on the page → **Publish.**
+2. **Add a redirect so the old link still works:** left sidebar → **🔀 Redirects** → **＋** → **From** = the old path (e.g. `/old-page`), **To** = the new path (e.g. `/new-page`), leave **Permanent move** on → **Publish.**
+- The redirect goes live within about a minute. **Always add a redirect when you change a live URL** — it protects your Google ranking and stops broken links. (Redirects only need to point *from* a path that no longer exists.)
+
+### Edit the header menu or footer
+- Left sidebar → **🧭 Navigation & Footer** → pick **Clever Accounts** or **Workwell Accountancy**.
+- **Header menu items** — add, remove or reorder the top menu. A plain item is a simple link; add **Dropdown sections** to turn it into a dropdown.
+- **Footer columns** — edit the footer's link columns (each has a heading + links).
+- **Publish.** *(If a brand's Navigation is left empty, the site uses the built-in default menu and footer.)*
 
 ### Edit FAQs, testimonials, blog, Learning Centre
 - Each has its own section in the sidebar. Open, edit, **Publish.** The Learning Centre has its own review queue (articles need accountant sign-off before publishing).
@@ -82,9 +90,9 @@ You can do almost all day-to-day content yourself. **Ask a developer for:**
 - A **new *kind* of page** or a new field that doesn't exist yet.
 - A **new block** for the page builder.
 - Anything about **design** (colours, fonts, spacing, component look).
-- **Navigation menu** and **footer** structure.
-- **Changing a live URL** (needs a redirect).
 - A page that behaves differently (forms, calculators, integrations).
+
+*(You can now do menu/footer edits and URL redirects yourself — see the tasks above.)*
 
 ---
 *See also: `cms-governance.md` (roles & rules) and `platform-overview.md` (for developers).*

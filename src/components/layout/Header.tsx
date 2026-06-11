@@ -19,9 +19,11 @@ type NavLink = {
 
 export default function Header({
   freephone: freephoneProp,
+  navLinks = NAV_LINKS as NavLink[],
 }: {
   phone?: string;
   freephone?: string;
+  navLinks?: NavLink[];
 } = {}) {
   const brand = useBrand();
   const freephone = freephoneProp ?? brand.freephone;
@@ -71,7 +73,7 @@ export default function Header({
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {(NAV_LINKS as NavLink[]).map((link) => {
+            {navLinks.map((link) => {
               const hasSections = !!link.sections;
               const hasChildren = !!link.children;
               const isOpen = openDropdown === link.label;
@@ -190,7 +192,7 @@ export default function Header({
       {mobileOpen && (
         <div className="fixed inset-0 z-40 bg-white lg:hidden overflow-y-auto" style={{ top: "72px" }}>
           <nav className="p-4 space-y-1">
-            {(NAV_LINKS as NavLink[]).map((link) => (
+            {navLinks.map((link) => (
               <div key={link.label}>
                 {link.sections ? (
                   /* Accordion toggle for items with sections */
