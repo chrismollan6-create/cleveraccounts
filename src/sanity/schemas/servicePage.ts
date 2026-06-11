@@ -59,6 +59,47 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "stats",
+      title: "Stats band (optional)",
+      description: "Short proof points shown in a band, e.g. value '£1,200' + label 'Average annual tax saving'.",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "value", type: "string", title: "Value" },
+            { name: "label", type: "string", title: "Label" },
+          ],
+          preview: { select: { title: "value", subtitle: "label" } },
+        },
+      ],
+    }),
+    defineField({
+      name: "serviceCategories",
+      title: "What we do (category columns, optional)",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "title", type: "string", title: "Category Title" },
+            { name: "items", type: "array", of: [{ type: "string" }], title: "Items" },
+          ],
+          preview: { select: { title: "title" } },
+        },
+      ],
+    }),
+    defineField({
+      name: "testimonial",
+      title: "Testimonial (optional)",
+      type: "object",
+      fields: [
+        { name: "name", type: "string", title: "Client Name" },
+        { name: "role", type: "string", title: "Role / Business Type" },
+        { name: "quote", type: "text", title: "Quote", rows: 3 },
+      ],
+    }),
+    defineField({
       name: "faqs",
       title: "FAQs",
       type: "array",

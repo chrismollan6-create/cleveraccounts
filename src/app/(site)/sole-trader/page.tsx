@@ -1,26 +1,16 @@
-import type { Metadata } from "next";
-import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
-import { servicePages } from "@/lib/service-page-data";
-import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import ServiceRoute, { serviceMetadata } from "@/components/service/ServiceRoute";
 
-const data = servicePages["sole-trader"];
-
-export const metadata: Metadata = {
-  title: data.title,
-  description: data.metaDescription,
-};
+export const generateMetadata = () => serviceMetadata("sole-trader");
 
 export default function SoleTraderPage() {
   return (
-    <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: "/" },
-          { name: "Services", url: "/our-services" },
-          { name: "Sole Trader Accounting", url: "/sole-trader" },
-        ]}
-      />
-      <ServicePageTemplate data={data} />
-    </>
+    <ServiceRoute
+      slug="sole-trader"
+      breadcrumb={[
+        { name: "Home", url: "/" },
+        { name: "Services", url: "/our-services" },
+        { name: "Sole Trader Accounting", url: "/sole-trader" },
+      ]}
+    />
   );
 }

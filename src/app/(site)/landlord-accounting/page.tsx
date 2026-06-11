@@ -1,26 +1,16 @@
-import type { Metadata } from "next";
-import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
-import { servicePages } from "@/lib/service-page-data";
-import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import ServiceRoute, { serviceMetadata } from "@/components/service/ServiceRoute";
 
-const data = servicePages["landlord-accounting"];
-
-export const metadata: Metadata = {
-  title: data.title,
-  description: data.metaDescription,
-};
+export const generateMetadata = () => serviceMetadata("landlord-accounting");
 
 export default function LandlordAccountingPage() {
   return (
-    <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: "/" },
-          { name: "Services", url: "/our-services" },
-          { name: "Landlord Accounting", url: "/landlord-accounting" },
-        ]}
-      />
-      <ServicePageTemplate data={data} />
-    </>
+    <ServiceRoute
+      slug="landlord-accounting"
+      breadcrumb={[
+        { name: "Home", url: "/" },
+        { name: "Services", url: "/our-services" },
+        { name: "Landlord Accounting", url: "/landlord-accounting" },
+      ]}
+    />
   );
 }
