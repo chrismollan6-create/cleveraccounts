@@ -10,20 +10,24 @@ import {
   Star,
   MapPin,
   Phone,
-  Monitor,
-  TrendingDown,
-  ShieldCheck,
-  MessageCircle,
-  BadgeCheck,
   Building2,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "About Clever Accounts — 20 Years of Online Accounting | Clever Accounts",
-  description:
-    "Clever Accounts has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds based.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") {
+    return {
+      title: "About Clever Accounts — 20 Years of Online Accounting | Clever Accounts",
+      description:
+        "Clever Accounts has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds based.",
+    };
+  }
+  return {
+    title: `About ${brand.name} | Expert Online Accountants`,
+    description: `${brand.name} provides expert online accounting for UK sole traders, limited companies and contractors — a dedicated accountant, free software and one fixed monthly fee.`,
+  };
+}
 
 const values = [
   {
@@ -48,22 +52,8 @@ const values = [
   },
 ];
 
-const whyUs = [
-  "Dedicated accountant who knows your business",
-  "Unlimited phone and email support",
-  "Free FreeAgent accounting software (Platinum Partner)",
-  "No setup fees, no minimum contract",
-  "Proactive tax efficiency advice",
-  "All HMRC filings and returns handled",
-  "Specialist IR35 and contractor support",
-  "MTD-compliant from day one",
-  "Open banking with 25+ UK banks",
-  "Real-time financial dashboard on any device",
-  "UK-based Leeds office",
-  "20+ years UK accounting experience",
-];
-
-const timeline = [
+// Clever's specific history — only shown on Clever.
+const cleverTimeline = [
   { year: "2004", event: "Founded in Leeds with a simple mission: make accounting accessible and affordable for every UK business." },
   { year: "2015", event: "Became an early adopter of cloud accounting, partnering with FreeAgent to give clients real-time visibility of their finances." },
   { year: "2019", event: "Achieved FreeAgent Platinum Partner status — the highest tier — reflecting our depth of expertise and client volume." },
@@ -73,6 +63,38 @@ const timeline = [
 
 export default async function AboutPage() {
   const brand = await getBrand();
+  const isClever = brand.id === "clever";
+  const city = brand.offices[0]?.city ?? "the UK";
+
+  const whyUs = [
+    "Dedicated accountant who knows your business",
+    "Unlimited phone and email support",
+    isClever ? "Free FreeAgent accounting software (Platinum Partner)" : "Free FreeAgent accounting software",
+    "No setup fees, no minimum contract",
+    "Proactive tax efficiency advice",
+    "All HMRC filings and returns handled",
+    "Specialist IR35 and contractor support",
+    "MTD-compliant from day one",
+    "Open banking with 25+ UK banks",
+    "Real-time financial dashboard on any device",
+    `UK-based ${city} office`,
+    isClever ? "20+ years UK accounting experience" : "Qualified, regulated UK accountants",
+  ];
+
+  const stats = isClever
+    ? [
+        { value: "20+", label: "Years experience", colour: "text-primary-light", bg: "bg-primary/20" },
+        { value: "10,000+", label: "Businesses served", colour: "text-secondary", bg: "bg-secondary/20" },
+        { value: "Excellent", label: "Customer rating", colour: "text-green-400", bg: "bg-green-500/20" },
+        { value: "£0", label: "Setup fees", colour: "text-purple-400", bg: "bg-purple-500/20" },
+      ]
+    : [
+        { value: "£0", label: "Setup fees", colour: "text-primary-light", bg: "bg-primary/20" },
+        { value: "Fixed", label: "Monthly fee", colour: "text-secondary", bg: "bg-secondary/20" },
+        { value: "Dedicated", label: "Your own accountant", colour: "text-green-400", bg: "bg-green-500/20" },
+        { value: "Unlimited", label: "Advice & support", colour: "text-purple-400", bg: "bg-purple-500/20" },
+      ];
+
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -86,14 +108,25 @@ export default async function AboutPage() {
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">Our Story</p>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-                20 Years of Making<br />
-                <span className="text-gradient">Accounting Clever</span>
+                {isClever ? (
+                  <>
+                    20 Years of Making<br />
+                    <span className="text-gradient">Accounting Clever</span>
+                  </>
+                ) : (
+                  <>
+                    Expert Accountancy for<br />
+                    <span className="text-gradient">Modern Businesses</span>
+                  </>
+                )}
               </h1>
               <p className="text-lg text-white/80 leading-relaxed mb-5">
                 We started with a simple idea: that every UK business deserves an expert accountant, brilliant software, and a fixed price they can rely on.
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
-                Over 20 years and 10,000+ businesses later, that idea hasn't changed. What has changed is the technology — and our ability to deliver it better than ever.
+                {isClever
+                  ? "Over 20 years and 10,000+ businesses later, that idea hasn't changed. What has changed is the technology — and our ability to deliver it better than ever."
+                  : "That idea still drives everything we do — expert people, powerful software, and pricing you can rely on, with no surprises."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
@@ -108,12 +141,7 @@ export default async function AboutPage() {
             {/* Stats panel */}
             <div className="bg-white/[0.07] backdrop-blur-xl border border-white/15 rounded-3xl p-8 shadow-2xl">
               <div className="grid grid-cols-2 gap-5">
-                {[
-                  { value: "20+", label: "Years experience", colour: "text-primary-light", bg: "bg-primary/20" },
-                  { value: "10,000+", label: "Businesses served", colour: "text-secondary", bg: "bg-secondary/20" },
-                  { value: "Excellent", label: "Customer rating", colour: "text-green-400", bg: "bg-green-500/20" },
-                  { value: "£0", label: "Setup fees", colour: "text-purple-400", bg: "bg-purple-500/20" },
-                ].map(({ value, label, colour, bg }) => (
+                {stats.map(({ value, label, colour, bg }) => (
                   <div key={label} className={`${bg} rounded-2xl p-5 text-center`}>
                     <div className={`text-3xl font-black ${colour} mb-1`}>{value}</div>
                     <div className="text-white/60 text-xs">{label}</div>
@@ -124,7 +152,7 @@ export default async function AboutPage() {
                 <div className="flex items-center gap-3">
                   <MapPin size={16} className="text-white/40 shrink-0" />
                   <div>
-                    <div className="text-white/70 text-sm font-semibold">Leeds</div>
+                    <div className="text-white/70 text-sm font-semibold">{city}</div>
                     <div className="text-white/40 text-xs">Serving businesses across the UK</div>
                   </div>
                 </div>
@@ -143,7 +171,7 @@ export default async function AboutPage() {
       {/* ── OUR STORY ────────────────────────────────────────── */}
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-14 items-start">
+          <div className={isClever ? "grid md:grid-cols-2 gap-14 items-start" : "max-w-3xl mx-auto"}>
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Who We Are</p>
               <h2 className="text-3xl md:text-4xl font-black text-dark mb-5 leading-tight">
@@ -151,7 +179,9 @@ export default async function AboutPage() {
               </h2>
               <div className="space-y-4 text-text-light leading-relaxed">
                 <p>
-                  Clever Accounts was founded in Leeds in 2004 with a straightforward mission: make professional accounting accessible, affordable, and genuinely useful for small UK businesses.
+                  {isClever
+                    ? "Clever Accounts was founded in Leeds in 2004 with a straightforward mission: make professional accounting accessible, affordable, and genuinely useful for small UK businesses."
+                    : `${brand.name} exists for one reason: to make professional accounting accessible, affordable, and genuinely useful for small UK businesses.`}
                 </p>
                 <p>
                   We saw that too many sole traders, contractors, and limited companies were either overpaying for traditional firms that barely communicated, or underserved by budget online services that left them without real support.
@@ -160,31 +190,35 @@ export default async function AboutPage() {
                   So we built something in between — and better. Expert, dedicated accountants. Powerful cloud software included free. A fixed monthly price with no surprises.
                 </p>
                 <p>
-                  Today we serve over 10,000 businesses across the UK from our offices in Leeds. We're specialists in sole trader, limited company, contractor, and landlord accounting — and we've been preparing our clients for Making Tax Digital long before it became mandatory.
+                  {isClever
+                    ? "Today we serve over 10,000 businesses across the UK from our offices in Leeds. We're specialists in sole trader, limited company, contractor, and landlord accounting — and we've been preparing our clients for Making Tax Digital long before it became mandatory."
+                    : "We're specialists in sole trader, limited company, contractor and landlord accounting — and we prepare every client for Making Tax Digital well ahead of the deadline, so there's never a last-minute scramble."}
                 </p>
               </div>
             </div>
 
-            {/* Timeline */}
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-5">Our Journey</p>
-              <div className="relative">
-                <div className="absolute left-5 top-3 bottom-3 w-0.5 bg-border" />
-                <div className="space-y-5">
-                  {timeline.map(({ year, event }) => (
-                    <div key={year} className="flex gap-5 items-start">
-                      <div className="w-10 h-10 rounded-full bg-primary text-white text-xs font-black flex items-center justify-center shrink-0 relative z-10">
-                        {year.slice(2)}
+            {/* Timeline — Clever's specific history */}
+            {isClever && (
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-5">Our Journey</p>
+                <div className="relative">
+                  <div className="absolute left-5 top-3 bottom-3 w-0.5 bg-border" />
+                  <div className="space-y-5">
+                    {cleverTimeline.map(({ year, event }) => (
+                      <div key={year} className="flex gap-5 items-start">
+                        <div className="w-10 h-10 rounded-full bg-primary text-white text-xs font-black flex items-center justify-center shrink-0 relative z-10">
+                          {year.slice(2)}
+                        </div>
+                        <div className="bg-surface border border-border rounded-xl p-4 flex-1">
+                          <div className="text-primary font-bold text-sm mb-1">{year}</div>
+                          <div className="text-text-light text-sm leading-relaxed">{event}</div>
+                        </div>
                       </div>
-                      <div className="bg-surface border border-border rounded-xl p-4 flex-1">
-                        <div className="text-primary font-bold text-sm mb-1">{year}</div>
-                        <div className="text-text-light text-sm leading-relaxed">{event}</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -218,9 +252,9 @@ export default async function AboutPage() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">Why Clever Accounts</p>
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">Why {brand.name}</p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-              Everything You'd Expect.<br />
+              Everything You&apos;d Expect.<br />
               <span className="text-gradient">And Quite a Bit More.</span>
             </h2>
           </div>
@@ -247,7 +281,7 @@ export default async function AboutPage() {
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Where We Are</p>
             <h2 className="text-3xl font-black text-dark mb-4">Our Offices</h2>
-            <p className="text-text-light max-w-xl mx-auto">Based in Yorkshire and the Home Counties, serving businesses across the whole of the UK.</p>
+            <p className="text-text-light max-w-xl mx-auto">Serving businesses across the whole of the UK.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {brand.offices.map((office) => (
@@ -270,26 +304,34 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ── TESTIMONIAL ──────────────────────────────────────── */}
-      <section className="bg-white py-12">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <div className="flex justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => <Star key={i} size={20} className="text-secondary fill-secondary" />)}
+      {/* ── TESTIMONIAL — Clever-specific named review ────────── */}
+      {isClever && (
+        <section className="bg-white py-12">
+          <div className="max-w-3xl mx-auto px-4 text-center">
+            <div className="flex justify-center gap-1 mb-4">
+              {[...Array(5)].map((_, i) => <Star key={i} size={20} className="text-secondary fill-secondary" />)}
+            </div>
+            <blockquote className="text-xl font-semibold text-dark leading-relaxed italic mb-6">
+              &quot;I&apos;ve been with Clever Accounts for seven years. My accountant knows my business inside out — they&apos;ve saved me thousands in tax and I never have to worry about deadlines. It&apos;s the best business decision I&apos;ve made.&quot;
+            </blockquote>
+            <div className="text-text-light text-sm">
+              <span className="font-bold text-dark">David Thompson</span> — Startup Founder &amp; Limited Company Director
+            </div>
           </div>
-          <blockquote className="text-xl font-semibold text-dark leading-relaxed italic mb-6">
-            "I've been with Clever Accounts for seven years. My accountant knows my business inside out — they've saved me thousands in tax and I never have to worry about deadlines. It's the best business decision I've made."
-          </blockquote>
-          <div className="text-text-light text-sm">
-            <span className="font-bold text-dark">David Thompson</span> — Startup Founder & Limited Company Director
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── CTA ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16 md:py-20">
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-            Ready to Join 10,000+<br />Happy Businesses?
+            {isClever ? (
+              <>
+                Ready to Join 10,000+<br />Happy Businesses?
+              </>
+            ) : (
+              <>Ready to Get Started?</>
+            )}
           </h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
             Get started in minutes. Dedicated accountant, free software, all-inclusive pricing.
