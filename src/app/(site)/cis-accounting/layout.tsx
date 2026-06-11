@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "CIS Accounting — Construction Industry Scheme Specialists | Clever Accounts",
   description:
     "Expert CIS accounting for contractors and subcontractors. We handle CIS registration, monthly returns, subcontractor verification, year-end tax reclaims, and gross payment status applications. Fixed monthly fee, dedicated accountant.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return brand.id === "workwell" ? workwellServiceMetadata("cis-accounting") : cleverMetadata;
+}
 
 const faqs = [
   {
@@ -42,10 +49,11 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

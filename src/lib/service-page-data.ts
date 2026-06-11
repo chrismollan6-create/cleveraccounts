@@ -598,4 +598,115 @@ export const servicePages: Record<string, ServicePageData> = {
       quote: "Excellent advice and service from Hamza Ali, just set up as a sole trader and I have been guided through the requirements needed to keep my accounts in order along with training on the FreeAgent software. Would highly recommend.",
     },
   },
+  "ecommerce-accounting": {
+    slug: "ecommerce-accounting",
+    title: "Ecommerce Accountants",
+    headline: "Accounting for Online Sellers & Ecommerce Businesses",
+    description:
+      "Specialist accounting for Amazon, eBay, Etsy and Shopify sellers. Marketplace reconciliation, VAT (including OSS/IOSS), inventory and cost-of-goods — all handled by a dedicated accountant for one fixed monthly fee.",
+    metaDescription:
+      "Specialist ecommerce accountants for Amazon, eBay, Etsy & Shopify sellers. Marketplace reconciliation, VAT (OSS/IOSS), inventory accounting. Dedicated accountant, unlimited advice.",
+    price: "104.50",
+    features: [
+      "Dedicated ecommerce accountant",
+      "Amazon, eBay, Etsy & Shopify reconciliation",
+      "VAT returns — including OSS & IOSS",
+      "Inventory & cost-of-goods accounting",
+      "Marketplace fee & payout reconciliation",
+      "Year-end accounts & corporation tax",
+      "Free accounting software",
+      "Unlimited phone & email advice",
+    ],
+    benefits: [
+      { title: "Platform-savvy", description: "We know how Amazon, eBay, Etsy and Shopify payouts and fees work — and how to account for them properly." },
+      { title: "VAT sorted", description: "Cross-border sales, OSS and IOSS handled correctly so you stay compliant as you grow." },
+      { title: "Real margins", description: "Cost-of-goods and inventory tracked so you actually know what you're making on each sale." },
+      { title: "Built to scale", description: "From side-hustle to six figures — your accountant grows with you." },
+    ],
+    faqs: [
+      { q: "Do you handle Amazon and eBay VAT?", a: "Yes. We reconcile your marketplace sales, fees and payouts and prepare your VAT returns — including the OSS and IOSS schemes for cross-border EU sales." },
+      { q: "Can you reconcile marketplace fees and payouts?", a: "Absolutely. Marketplace statements are complex; we reconcile the fees, refunds and payouts so your accounts reflect what's actually happening." },
+      { q: "Should I be a sole trader or a limited company?", a: "It depends on your profit and plans. Your dedicated accountant will advise on the most tax-efficient structure for your store." },
+      { q: "What's included in the monthly fee?", a: "Your dedicated accountant, marketplace reconciliation, VAT, year-end accounts, corporation tax, free software and unlimited advice. No hidden extras." },
+    ],
+    testimonial: {
+      name: "Online seller",
+      role: "Shopify & Amazon",
+      quote: "Finally an accountant who understands marketplace payouts and VAT across borders. It's taken a huge weight off and I always know where I stand.",
+    },
+  },
+  "small-business-accountant": {
+    slug: "small-business-accountant",
+    title: "Small Business Accountants",
+    headline: "Accountants for Small Limited Companies",
+    description:
+      "Everything a small limited company needs — year-end accounts, corporation tax, VAT, director payroll and Companies House filings — handled by a named accountant for one fixed monthly fee.",
+    metaDescription:
+      "Accountants for small limited companies. Year-end accounts, corporation tax, VAT, payroll and Companies House filings. Dedicated accountant, unlimited advice, free software.",
+    price: "104.50",
+    features: [
+      "Dedicated small-business accountant",
+      "Year-end accounts & corporation tax (CT600)",
+      "VAT returns",
+      "Director & staff payroll",
+      "Companies House filings",
+      "Corporation tax planning",
+      "Free accounting software",
+      "Unlimited phone & email advice",
+    ],
+    benefits: [
+      { title: "A named accountant", description: "Not a call centre — one expert who knows your company and is always a call away." },
+      { title: "Filed on time", description: "Accounts, CT600, VAT and confirmation statements all handled, with no last-minute panic." },
+      { title: "Tax-efficient", description: "Proactive advice on salary, dividends and allowances so you keep more of your profit." },
+      { title: "All-inclusive", description: "Everything your company needs for one fixed monthly fee. No surprise bills." },
+    ],
+    faqs: [
+      { q: "What's included in the monthly fee?", a: "Your dedicated accountant, year-end accounts, corporation tax, VAT, director payroll, Companies House filings, tax planning, free software and unlimited advice." },
+      { q: "Do you handle payroll?", a: "Yes — director and staff payroll, including RTI submissions and payslips, are included." },
+      { q: "Is switching accountants difficult?", a: "No. We handle the whole switch for you, free of charge — we write to your current accountant and obtain your records." },
+      { q: "How quickly can I get set up?", a: "Most clients are fully onboarded within a couple of business days." },
+    ],
+    testimonial: {
+      name: "Company director",
+      role: "Limited Company",
+      quote: "Everything just gets done — accounts, payroll, VAT — and I get straight answers whenever I call. Exactly what a small business needs.",
+    },
+  },
+  "cis-accounting": {
+    slug: "cis-accounting",
+    title: "CIS Accountants",
+    headline: "CIS Accounting for Contractors & Subcontractors",
+    description:
+      "Specialist accounting for the Construction Industry Scheme. CIS returns, subcontractor verification, deductions and refund reclaims — handled by a dedicated accountant for one fixed monthly fee.",
+    metaDescription:
+      "CIS accountants for contractors & subcontractors. CIS returns, subcontractor verification, deduction handling and refund reclaims. Dedicated accountant, unlimited advice.",
+    price: "42.50",
+    features: [
+      "Dedicated CIS accountant",
+      "Monthly CIS returns filed with HMRC",
+      "Subcontractor verification",
+      "CIS deductions handled correctly",
+      "CIS suffered / refund reclaim",
+      "Self assessment tax return",
+      "Free accounting software",
+      "Unlimited phone & email advice",
+    ],
+    benefits: [
+      { title: "CIS specialists", description: "We live and breathe the Construction Industry Scheme — contractors and subcontractors alike." },
+      { title: "Reclaim what's yours", description: "Overpaid CIS deductions reclaimed so you're not leaving money with HMRC." },
+      { title: "Stay compliant", description: "Returns filed and subcontractors verified on time, every time — no penalties." },
+      { title: "A named accountant", description: "One expert who knows your situation and is always a call away." },
+    ],
+    faqs: [
+      { q: "Do you file my monthly CIS returns?", a: "Yes. We file your monthly CIS returns with HMRC and verify your subcontractors so you stay compliant." },
+      { q: "Can I reclaim overpaid CIS deductions?", a: "Yes — if you're a subcontractor who's had CIS deducted, we reclaim any overpaid tax through your self assessment or company accounts." },
+      { q: "Should I be a sole trader or limited company for CIS?", a: "It depends on your income and plans. Your dedicated accountant will advise on the most tax-efficient structure." },
+      { q: "What's included in the monthly fee?", a: "Your dedicated accountant, CIS returns, subcontractor verification, refund reclaims, self assessment, free software and unlimited advice." },
+    ],
+    testimonial: {
+      name: "Construction subcontractor",
+      role: "CIS",
+      quote: "They sorted my CIS and got back the tax I'd overpaid — money I didn't even realise I was owed. Couldn't be happier.",
+    },
+  },
 };

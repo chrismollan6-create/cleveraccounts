@@ -54,6 +54,9 @@ const SLUGS = [
   "freelancer-accountancy",
   "landlord-accounting",
   "accounting-for-startups",
+  "ecommerce-accounting",
+  "small-business-accountant",
+  "cis-accounting",
 ];
 
 function isEmpty(v: unknown): boolean {

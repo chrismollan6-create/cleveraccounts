@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "Best Accountant for Small Limited Companies UK (2026 Guide) | Clever Accounts",
   description:
     "Compare the leading online accountants for small UK limited companies. Honest pricing, what's included, software compared, and a decision framework — updated April 2026.",
@@ -25,6 +27,11 @@ export const metadata: Metadata = {
     canonical: "https://cleveraccounts.com/small-business-accountant",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return brand.id === "workwell" ? workwellServiceMetadata("small-business-accountant") : cleverMetadata;
+}
 
 const faqs = [
   {
@@ -69,17 +76,22 @@ const faqs = [
   },
 ];
 
-export default function SmallBusinessAccountantLayout({ children }: { children: React.ReactNode }) {
+export default async function SmallBusinessAccountantLayout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: "/" },
-          { name: "Limited Company", url: "/limited-company" },
-          { name: "Best Accountant for Small Limited Companies", url: "/small-business-accountant" },
-        ]}
-      />
+      {brand.id !== "workwell" && (
+        <>
+          <FAQPageJsonLd faqs={faqs} />
+          <BreadcrumbJsonLd
+            items={[
+              { name: "Home", url: "/" },
+              { name: "Limited Company", url: "/limited-company" },
+              { name: "Best Accountant for Small Limited Companies", url: "/small-business-accountant" },
+            ]}
+          />
+        </>
+      )}
       {children}
     </>
   );
