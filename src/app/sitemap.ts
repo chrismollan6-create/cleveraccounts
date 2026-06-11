@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
+import { headers } from "next/headers";
+import { BRANDS } from "@/lib/constants";
+import { brandIdFromHost } from "@/lib/brand-host";
 import {
   getBlogSlugs,
   getKnowledgeArticleSlugs,
   getKnowledgeTopicSlugs,
 } from "@/sanity/queries";
-
-const BASE = "https://cleveraccounts.com";
 
 const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
   { url: "/",                                  priority: 1.0, changeFrequency: "weekly" },
@@ -53,6 +54,11 @@ const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRo
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
+
+  // Per-brand sitemap: emit the requesting host's brand domain. Middleware is
+  // excluded from /sitemap.xml, so derive the brand from the host directly.
+  const host = (await headers()).get("host") || "";
+  const BASE = `https://${BRANDS[brandIdFromHost(host)].domain}`;
 
   // Fetch live blog slugs from Sanity — automatically picks up new posts
   let blogSlugs: string[] = [];

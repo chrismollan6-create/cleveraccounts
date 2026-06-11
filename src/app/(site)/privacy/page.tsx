@@ -16,8 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function buildSections(brand: { legalName: string }) {
-  const { legalName } = brand;
+function buildSections(brand: { legalName: string; postalAddress: string }) {
+  const { legalName, postalAddress } = brand;
   return [
     {
       title: "Information We Collect",
@@ -135,7 +135,7 @@ If required by law, we will get your permission or give you the opportunity to o
       title: "Additional Disclosures for General Data Protection Regulation (GDPR) Compliance (EU)",
       content: `Data Controller / Data Processor
 
-The GDPR distinguishes between organisations that process personal information for their own purposes (known as "data controllers") and organizations that process personal information on behalf of other organizations (known as "data processors"). We, ${legalName}, located at the address provided in our Contact Us section, are a Data Controller with respect to the personal information you provide to us.
+The GDPR distinguishes between organisations that process personal information for their own purposes (known as "data controllers") and organizations that process personal information on behalf of other organizations (known as "data processors"). We, ${legalName}, located at ${postalAddress}, are a Data Controller with respect to the personal information you provide to us.
 
 Legal Bases for Processing Your Personal Information
 
