@@ -1,5 +1,6 @@
 import { defineConfig, buildLegacyTheme } from "sanity";
 import { structureTool } from "sanity/structure";
+import { presentationTool, defineLocations } from "sanity/presentation";
 import { visionTool } from "@sanity/vision";
 import { Search } from "lucide-react";
 import { schemaTypes } from "./src/sanity/schemas";
@@ -296,6 +297,33 @@ export default defineConfig({
                 S.documentTypeList("faq").title("Frequently Asked Questions")
               ),
           ]),
+    }),
+    // Visual preview — side-by-side live preview of the site as you edit.
+    presentationTool({
+      previewUrl: { previewMode: { enable: "/api/draft/enable" } },
+      resolve: {
+        locations: {
+          homePage: defineLocations({
+            locations: [{ title: "Home page", href: "/" }],
+          }),
+          flexiblePage: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Page", href: `/p/${doc?.slug}` }] }),
+          }),
+          servicePage: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Service page", href: `/${doc?.slug}` }] }),
+          }),
+          landingPage: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Landing page", href: `/lp/${doc?.slug}` }] }),
+          }),
+          blogPost: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Blog post", href: `/blog/${doc?.slug}` }] }),
+          }),
+        },
+      },
     }),
     visionTool(),
   ],

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
+import { headers, draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import Header from "@/components/layout/Header";
 import { getSiteSettings, getNavigation } from "@/sanity/queries";
 import TrustBar from "@/components/layout/TrustBar";
@@ -90,6 +91,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const brand = await getBrand();
+  const { isEnabled: isDraft } = await draftMode();
   // Fetch site settings from Sanity; falls back to constants in Header if null
   const siteSettings = await getSiteSettings().catch(() => null);
   // Header menu + footer columns; null/empty → Header & Footer use built-in defaults
@@ -150,6 +152,32 @@ export default async function RootLayout({
           {useLightChrome ? <LearnFooter /> : <Footer brand={brand} columns={navigation?.footerColumns?.length ? navigation.footerColumns : undefined} />}
           <CookieConsent />
         </BrandProvider>
+        {isDraft && (
+          <>
+            <VisualEditing />
+            <div
+              style={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 9999,
+                background: "#1c5e70",
+                color: "#fff",
+                textAlign: "center",
+                padding: "8px 16px",
+                fontSize: 14,
+                fontFamily: "sans-serif",
+              }}
+            >
+              🔍 Preview mode — showing unpublished drafts.{" "}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- API route, needs a real navigation */}
+              <a href="/api/draft/disable" style={{ color: "#fff", textDecoration: "underline", fontWeight: 600 }}>
+                Exit preview
+              </a>
+            </div>
+          </>
+        )}
         <VercelMonitoring />
       </body>
     </html>

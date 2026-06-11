@@ -16,7 +16,7 @@ The Clever/Workwell websites are now a **multi-tenant marketing platform** (one 
 | Accessibility/SEO guardrails (alt text) | **Built** — required on images |
 | AI-assisted drafting | **v1** — Studio action → Gemini |
 | A/B testing | **v1** — page-builder variants + assignment + tracking |
-| Visual preview (Sanity Presentation) | **Planned** — needs draft-mode infra; see below |
+| Visual preview (Sanity Presentation) | **Built** — side-by-side live preview with draft mode + click-to-edit overlays |
 | Scheduled publishing | **Planned** — native Sanity feature; enable in dashboard |
 
 ---

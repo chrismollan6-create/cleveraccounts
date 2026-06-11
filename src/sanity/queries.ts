@@ -1,5 +1,20 @@
-import { client } from "./client";
+import { client, previewClient } from "./client";
 import type { BrandId } from "@/lib/constants";
+
+/**
+ * Returns the draft-aware preview client when Next draft mode is on (an editor
+ * in the Studio's visual preview), otherwise the normal published client. The
+ * dynamic import keeps this module usable outside a request scope (build time),
+ * where draftMode() would throw — in which case we fall back to published.
+ */
+async function rc() {
+  try {
+    const { draftMode } = await import("next/headers");
+    return (await draftMode()).isEnabled ? previewClient : client;
+  } catch {
+    return client;
+  }
+}
 
 /**
  * Brand-scoping for conversion content (homepage, service pages, landing pages,
@@ -60,13 +75,11 @@ export async function getTeamMembers() {
 
 // Service pages
 export async function getServicePage(slug: string, brandId?: BrandId) {
+  const c = await rc();
   if (!brandId) {
-    return client.fetch(
-      `*[_type == "servicePage" && slug.current == $slug][0]`,
-      { slug }
-    );
+    return c.fetch(`*[_type == "servicePage" && slug.current == $slug][0]`, { slug });
   }
-  return client.fetch(
+  return c.fetch(
     `*[_type == "servicePage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
     { slug, brandId }
   );
@@ -89,10 +102,11 @@ export async function getRedirects(): Promise<{ from: string; to: string; perman
 
 // Page-builder pages (/p/{slug}).
 export async function getFlexiblePage(slug: string, brandId?: BrandId) {
+  const c = await rc();
   if (!brandId) {
-    return client.fetch(`*[_type == "flexiblePage" && slug.current == $slug][0]`, { slug });
+    return c.fetch(`*[_type == "flexiblePage" && slug.current == $slug][0]`, { slug });
   }
-  return client.fetch(
+  return c.fetch(
     `*[_type == "flexiblePage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
     { slug, brandId }
   );
@@ -107,7 +121,7 @@ export async function getFlexiblePage(slug: string, brandId?: BrandId) {
 // component's built-in copy.
 export async function getHomePage(brandId?: BrandId) {
   const id = brandId && brandId !== "clever" ? `homePage-${brandId}` : "homePage";
-  return client.fetch(`*[_id == $id][0]`, { id });
+  return (await rc()).fetch(`*[_id == $id][0]`, { id });
 }
 
 // FAQs
@@ -200,13 +214,11 @@ export async function getLandingPage(slug: string, brandId?: BrandId) {
       urgencyText, features, whyUs, painPoints, howItWorks, testimonials,
       faq, metaTitle, metaDescription, noIndex
     }`;
+  const c = await rc();
   if (!brandId) {
-    return client.fetch(
-      `*[_type == "landingPage" && slug.current == $slug][0] ${projection}`,
-      { slug }
-    );
+    return c.fetch(`*[_type == "landingPage" && slug.current == $slug][0] ${projection}`, { slug });
   }
-  return client.fetch(
+  return c.fetch(
     `*[_type == "landingPage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0] ${projection}`,
     { slug, brandId }
   );

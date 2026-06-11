@@ -82,8 +82,8 @@ Rule of thumb: write **Shared** for things that are the same on both; pick a spe
 - Leave **Structured data (advanced)** alone unless a developer asks.
 
 ## 7. Previewing before it's live
-- Use the **preview URL** the team shares (a stable `…-git-feat-…vercel.app` link) to check changes on a test build.
-- Add `?_brand=workwell` to see the Workwell version, `?_brand=clear` for Clever.
+- **Visual preview (recommended):** in the top bar of Studio open **Presentation** (the preview/eye view). Pick a page and you'll see it rendered **side-by-side as you edit** — your unpublished draft, no need to publish first. A blue **"Preview mode"** bar shows you're viewing drafts; **Exit preview** leaves it. This is the easiest way to check a change before publishing.
+- Or use the **preview URL** the team shares (a stable `…-git-feat-…vercel.app` link) to check changes on a test build. Add `?_brand=workwell` to see the Workwell version, `?_brand=clear` for Clever.
 
 ## 8. When to ask a developer
 You can do almost all day-to-day content yourself. **Ask a developer for:**
