@@ -28,7 +28,7 @@ const theme = buildLegacyTheme({
   "--state-success-color": "#16a34a",
   "--state-warning-color": "#f59e0b",
   "--state-danger-color": "#e11d48",
-  "--main-navigation-color": "#16282e",
+  "--main-navigation-color": "#1c5e70",
   "--main-navigation-color--inverted": "#ffffff",
   "--focus-color": "#1A7A9B",
 });
