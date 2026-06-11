@@ -118,8 +118,7 @@ function LandingPageLayout({
       {/* Minimal top bar — logo + phone only */}
       <div className="bg-white border-b border-border py-4">
         <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <Image src="/images/logo.png" alt="Clever Accounts" width={140} height={40} className="h-10 w-auto" />
+          <Image src={brand.assets.logo} alt={brand.name} width={140} height={40} className="h-10 w-auto" />
           <a
             href={`tel:${brand.freephone.replace(/\s/g, "")}`}
             className="flex items-center gap-2 text-sm font-bold text-dark hover:text-primary transition-colors"
@@ -179,7 +178,7 @@ function LandingPageLayout({
               </div>
               <h2 className="text-xl font-bold text-dark mb-2">Ready to switch?</h2>
               <p className="text-sm text-text-light mb-5">
-                {urgencyText || "Join thousands of businesses who trust Clever Accounts."}
+                {urgencyText || `Join thousands of businesses who trust ${brand.name}.`}
               </p>
               <div className="space-y-2 mb-6">
                 {[
@@ -231,7 +230,7 @@ function LandingPageLayout({
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-10">
               <h2 className="text-2xl md:text-3xl font-black text-dark mb-3">
-                Why Choose Clever Accounts?
+                Why Choose {brand.name}?
               </h2>
               <p className="text-text-light max-w-xl mx-auto">
                 We&apos;ve been helping {targetAudience.toLowerCase()} for over 20 years. Here&apos;s what makes us different.
@@ -405,7 +404,7 @@ function LandingPageLayout({
       {/* Minimal footer */}
       <footer className="bg-dark text-white py-6">
         <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-slate-400">
-          <p>&copy; {new Date().getFullYear()} Clever Accounts Ltd</p>
+          <p>&copy; {new Date().getFullYear()} {brand.legalName}</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-white">Privacy</Link>
             <Link href="/terms" className="hover:text-white">Terms</Link>

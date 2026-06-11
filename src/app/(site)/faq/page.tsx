@@ -2,12 +2,22 @@ import type { Metadata } from "next";
 import { getFAQs } from "@/sanity/queries";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import FAQPageClient from "./FAQPageClient";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "FAQs — Clever Accounts | Online Accounting Questions Answered",
   description:
     "Answers to common questions about Clever Accounts — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") return cleverMetadata;
+  return {
+    title: `FAQs — ${brand.name} | Online Accounting Questions Answered`,
+    description: `Answers to common questions about ${brand.name} — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.`,
+  };
+}
 
 export const revalidate = 60;
 
@@ -27,7 +37,9 @@ const categoryLabels: Record<string, string> = {
 
 // Fallback content for when Sanity is empty / fetch fails. Covers all 10
 // declared categories so the page is never sparse even on a cold start.
-const fallbackCategories: Record<string, { q: string; a: string }[]> = {
+// Built per-brand so brand names render correctly (and no "Clever" text leaks
+// onto Workwell).
+const buildFallbackCategories = (brandName: string): Record<string, { q: string; a: string }[]> => ({
   "Getting Started": [
     { q: "How do I sign up?", a: "Choose your plan on our pricing page and complete the short online form. You'll be matched with your dedicated accountant within 24 hours — most clients are fully set up within a week." },
     { q: "Are there any setup fees?", a: "No. There are absolutely no setup fees. You start paying your monthly fee from the date you sign up, and there's nothing on top." },
@@ -40,7 +52,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
     { q: "Do I get a dedicated accountant?", a: "Yes. Every client is matched with a named, dedicated accountant who specialises in their business type. They're your main point of contact for everything — not a call centre, not a ticket queue." },
     { q: "Is the advice really unlimited?", a: "Absolutely. Call or email your accountant as often as you need. There are no per-question charges and no limits — that's the whole point of a fixed monthly fee." },
     { q: "What if my accountant is on leave?", a: "Every accountant has a named backup who knows your account. If something urgent comes up while yours is away, the cover knows your business and can help straight away." },
-    { q: "Where are your accountants based?", a: "All our accountants are UK-based, working from our Leeds office. No offshore call centres." },
+    { q: "Where are your accountants based?", a: "All our accountants are UK-based. No offshore call centres." },
   ],
   "Pricing & Billing": [
     { q: "How much does it cost?", a: "Sole Trader packages start from £42.50/month. Limited Company, Contractor and Freelancer packages start from £104.50/month. All prices are plus VAT. Full pricing detail is on our /pricing page." },
@@ -51,7 +63,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
   ],
   "Switching to Us": [
     { q: "Can I switch from my current accountant?", a: "Absolutely — we handle the whole switch. You give your old firm a one-line email saying you're moving, and we take it from there: professional clearance letter, records transfer, HMRC re-authorisation, all of it." },
-    { q: "Is there a cost to switch?", a: "No. Switching to Clever Accounts is completely free. There are no setup fees or transfer charges, and you can switch at any point in the year." },
+    { q: "Is there a cost to switch?", a: `No. Switching to ${brandName} is completely free. There are no setup fees or transfer charges, and you can switch at any point in the year.` },
     { q: "How long does switching take?", a: "Typically 3–6 weeks from sign-up to fully transferred. You can start using FreeAgent immediately while we handle the handover with your previous firm in the background." },
     { q: "Will there be any disruption?", a: "No. Both firms coordinate via professional clearance rules (ICAEW/ACCA) and your accounting continues without a gap. We pick up exactly where the previous firm left off." },
     { q: "What if I'm mid-year-end?", a: "Most switches happen mid-year and it's straightforward. We coordinate with your previous firm on the year-end work, take over for the next year, and make sure nothing is missed in the handover." },
@@ -72,7 +84,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
   "Contractor / IR35": [
     { q: "What's the difference between inside and outside IR35?", a: "Outside IR35: your limited company receives the full contract rate, you pay yourself a small salary plus dividends, taxed at lower rates. Inside IR35: you run the full day rate through payroll — income tax + NI on the lot. The tax difference is typically 15–25% of gross income." },
     { q: "Are IR35 contract reviews included?", a: "Yes — unlimited contract reviews are included in our contractor package at £104.50/month. Many providers cap free reviews or charge per contract." },
-    { q: "What is Clever FLEX?", a: "Clever FLEX lets you switch between operating through your PSC (outside IR35) and our umbrella (inside IR35) within the same Clever Accounts relationship — no second provider, no setup fees, no payment gap when a contract status changes mid-year." },
+    { q: "Can I switch between PSC and umbrella?", a: `Yes — you can switch between operating through your PSC (outside IR35) and our umbrella (inside IR35) within the same ${brandName} relationship — no second provider, no setup fees, no payment gap when a contract status changes mid-year.` },
     { q: "What happens if a contract is determined inside IR35?", a: "Only that contract is affected. Your limited company continues to exist, and other contracts are assessed separately. We model the tax impact and recommend whether to run it through your PSC or via umbrella." },
   ],
   "VAT": [
@@ -89,13 +101,14 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
   ],
   "Software": [
     { q: "What accounting software do you use?", a: "We include FreeAgent free with every package. It's HMRC-recognised, MTD-compliant, cloud-based, and lets you manage invoices, expenses and bank feeds on any device. Your accountant works in the same FreeAgent — no separate logins." },
-    { q: "Is FreeAgent included free?", a: "Yes, completely free with every Clever Accounts package. Retail price is £19/month, so it's effectively £228/year of value bundled in. There's no extra charge or add-on." },
+    { q: "Is FreeAgent included free?", a: `Yes, completely free with every ${brandName} package. Retail price is £19/month, so it's effectively £228/year of value bundled in. There's no extra charge or add-on.` },
     { q: "Can I integrate FreeAgent with my bank?", a: "Yes — open banking is built in with 25+ UK banks. Transactions flow into FreeAgent automatically, you categorise them in seconds, and your accountant sees everything in real time." },
     { q: "Does FreeAgent have a mobile app?", a: "Yes — iOS and Android. Snap photos of receipts to capture expenses, send invoices from anywhere, and see your tax position on the go." },
   ],
-};
+});
 
 export default async function FAQPage() {
+  const brand = await getBrand();
   // Try CMS first
   let faqsByCategory: Record<string, { q: string; a: string }[]> = {};
   let usingCMS = false;
@@ -123,7 +136,7 @@ export default async function FAQPage() {
   }
 
   if (!usingCMS) {
-    faqsByCategory = fallbackCategories;
+    faqsByCategory = buildFallbackCategories(brand.name);
   }
 
   // Flatten for JSON-LD
@@ -131,7 +144,7 @@ export default async function FAQPage() {
 
   return (
     <>
-      <FAQPageJsonLd faqs={allFaqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={allFaqs} />}
       <FAQPageClient faqsByCategory={faqsByCategory} />
     </>
   );

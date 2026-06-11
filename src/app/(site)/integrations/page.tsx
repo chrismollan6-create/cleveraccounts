@@ -141,11 +141,11 @@ const mtdConnections = [
 ];
 
 // ── Onboarding steps ──────────────────────────────────────────
-const steps = [
+const getSteps = (brandName: string) => [
   {
     num: "01",
     icon: Users,
-    title: "Sign Up with Clever Accounts",
+    title: `Sign Up with ${brandName}`,
     desc: "Choose your package and complete sign-up online in minutes. No setup fee, no minimum contract. Your dedicated accountant is assigned immediately.",
   },
   {
@@ -164,6 +164,7 @@ const steps = [
 
 export default async function IntegrationsPage() {
   const brand = await getBrand();
+  const steps = getSteps(brand.name);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -183,7 +184,7 @@ export default async function IntegrationsPage() {
               <span className="text-gradient">Integrations</span>
             </h1>
             <p className="text-lg text-white/80 leading-relaxed mb-4">
-              Every Clever Accounts client gets FreeAgent — award-winning
+              Every {brand.name} client gets FreeAgent — award-winning
               accounting software — included free with their package. Connect
               your bank, submit VAT returns directly to HMRC, and manage your
               finances in real time.
@@ -225,20 +226,28 @@ export default async function IntegrationsPage() {
             {/* Left: content */}
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-                FreeAgent Platinum Partner
+                {brand.id !== "workwell" ? "FreeAgent Platinum Partner" : "FreeAgent Included Free"}
               </p>
               <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
                 FreeAgent — Included Free with Every Package
               </h2>
+              {brand.id !== "workwell" ? (
+                <p className="text-text/70 leading-relaxed mb-6">
+                  {brand.name} is a FreeAgent Platinum Partner — the highest
+                  accreditation FreeAgent awards. This means our accountants are
+                  fully trained and certified on FreeAgent, and we&apos;re
+                  recognised as one of the UK&apos;s leading FreeAgent
+                  practices.
+                </p>
+              ) : (
+                <p className="text-text/70 leading-relaxed mb-6">
+                  Our accountants are fully trained and certified on FreeAgent,
+                  so your books are set up and managed by people who know the
+                  software inside out.
+                </p>
+              )}
               <p className="text-text/70 leading-relaxed mb-6">
-                Clever Accounts is a FreeAgent Platinum Partner — the highest
-                accreditation FreeAgent awards. This means our accountants are
-                fully trained and certified on FreeAgent, and we&apos;re
-                recognised as one of the UK&apos;s leading FreeAgent
-                practices.
-              </p>
-              <p className="text-text/70 leading-relaxed mb-6">
-                FreeAgent normally costs up to £33/month. With Clever Accounts,
+                FreeAgent normally costs up to £33/month. With {brand.name},
                 it&apos;s completely free — included as standard in every
                 package, for as long as you&apos;re a client.
               </p>
@@ -269,17 +278,19 @@ export default async function IntegrationsPage() {
 
             {/* Right: award badge + highlights */}
             <div className="space-y-5">
-              {/* Platinum badge */}
+              {/* FreeAgent badge */}
               <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 rounded-3xl p-8 text-center shadow-xl">
                 <Award size={48} className="text-white mx-auto mb-4" />
                 <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-2">
-                  Official Status
+                  {brand.id !== "workwell" ? "Official Status" : "Included Free"}
                 </p>
                 <p className="text-white font-black text-2xl mb-1">
-                  FreeAgent Platinum Partner
+                  {brand.id !== "workwell" ? "FreeAgent Platinum Partner" : "FreeAgent Certified"}
                 </p>
                 <p className="text-white/70 text-sm">
-                  The highest accreditation awarded by FreeAgent
+                  {brand.id !== "workwell"
+                    ? "The highest accreditation awarded by FreeAgent"
+                    : "Award-winning accounting software, set up for you"}
                 </p>
               </div>
 
@@ -310,7 +321,7 @@ export default async function IntegrationsPage() {
                     Already using FreeAgent?
                   </span>{" "}
                   If you&apos;re on FreeAgent with another accountant, switching
-                  to Clever Accounts is straightforward — we take over as your
+                  to {brand.name} is straightforward — we take over as your
                   Practice and you keep all your existing data.
                 </p>
               </div>
@@ -583,16 +594,16 @@ export default async function IntegrationsPage() {
           <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 rounded-3xl p-10 md:p-14 text-center shadow-2xl">
             <Award size={40} className="text-white/80 mx-auto mb-4" />
             <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-3">
-              FreeAgent Platinum Partner
+              {brand.id !== "workwell" ? "FreeAgent Platinum Partner" : "FreeAgent Included Free"}
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-              Get All of This Free with Clever Accounts
+              Get All of This Free with {brand.name}
             </h2>
             <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
               FreeAgent included free. Open banking. MTD-ready. Dedicated
               accountant. No setup fees. No minimum contract. Join{" "}
               {brand.stats.businesses.toLocaleString()}+ businesses already
-              with Clever Accounts.
+              with {brand.name}.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

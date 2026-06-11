@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const keywords = [
+  "self assessment",
+  "self assessment tax return",
+  "HMRC self assessment",
+  "self assessment accountant",
+  "self assessment filing",
+  "sole trader tax return",
+  "landlord self assessment",
+  "31 January deadline",
+  "self assessment UK",
+];
+
+const cleverMetadata: Metadata = {
   title: "Self Assessment Tax Returns | Done For You | Clever Accounts",
   description:
     "Clever Accounts prepares and files your self assessment tax return to HMRC — accurately, on time, and with every allowable expense claimed. Dedicated accountant from £42.50/month. No setup fees.",
-  keywords: [
-    "self assessment",
-    "self assessment tax return",
-    "HMRC self assessment",
-    "self assessment accountant",
-    "self assessment filing",
-    "sole trader tax return",
-    "landlord self assessment",
-    "31 January deadline",
-    "self assessment UK",
-  ],
+  keywords,
   openGraph: {
     title: "Self Assessment Tax Return — Done For You | Clever Accounts",
     description:
@@ -23,6 +26,23 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id !== "workwell") return cleverMetadata;
+  return {
+    title: `Self Assessment Tax Returns | Done For You | ${brand.name}`,
+    description:
+      "We prepare and file your self assessment tax return to HMRC — accurately, on time, and with every allowable expense claimed. Dedicated accountant from £42.50/month. No setup fees.",
+    keywords,
+    openGraph: {
+      title: `Self Assessment Tax Return — Done For You | ${brand.name}`,
+      description:
+        "Stop dreading the 31 January deadline. We prepare and file your self assessment tax return to HMRC. Dedicated accountant, all income sources covered, from £42.50/month.",
+      type: "website",
+    },
+  };
+}
 
 const faqs = [
   {
@@ -59,14 +79,15 @@ const faqs = [
   },
 ];
 
-export default function SelfAssessmentLayout({
+export default async function SelfAssessmentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

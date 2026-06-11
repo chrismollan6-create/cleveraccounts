@@ -278,8 +278,8 @@ export default function SelfAssessmentPage() {
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
                 Whether you&apos;re self-employed, a landlord, a company
-                director, or a high earner, your dedicated Clever Accounts
-                accountant handles everything from start to finish.
+                director, or a high earner, your dedicated {brand.name}
+                {" "}accountant handles everything from start to finish.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -474,7 +474,7 @@ export default function SelfAssessmentPage() {
             </h2>
             <p className="text-white/60 max-w-2xl mx-auto">
               Missing any of these dates results in automatic penalties — even
-              if you owe no tax. With Clever Accounts, every deadline is managed
+              if you owe no tax. With {brand.name}, every deadline is managed
               for you.
             </p>
           </div>
@@ -635,7 +635,7 @@ export default function SelfAssessmentPage() {
           </h2>
           <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
             Join thousands of sole traders, landlords, and individuals who let
-            Clever Accounts handle their self assessment. From just £42.50/month
+            {" "}{brand.name} handle their self assessment. From just £42.50/month
             — no setup fees, no minimum contract.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -95,7 +95,7 @@ const whyItMatters = [
 // ── FAQ ──────────────────────────────────────────────────────
 const faqs = [
   {
-    q: "Is payroll included in my Clever Accounts package?",
+    q: "Is payroll included in my package?",
     a: "Yes — for our Limited Company package (from £104.50/month), payroll for directors and one employee is included as standard. Additional employees are added at a small per-employee monthly cost. Sole traders without employees don't need payroll, so it's only added on if you take on staff.",
   },
   {
@@ -321,7 +321,7 @@ export default function PayrollServicesPage() {
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
               From your first pay run to year-end P60s, here&apos;s how payroll
-              works at Clever Accounts.
+              works at {brand.name}.
             </p>
           </div>
 

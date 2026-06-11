@@ -209,6 +209,18 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function MakingTaxDigitalPage() {
   const brand = useBrand();
+  const brandFaqs = faqs.map(({ q, a }) => ({
+    q,
+    a: a.replace(/Clever Accounts/g, brand.name),
+  }));
+  const brandHowWeHelp = howWeHelp.map((item) => ({
+    ...item,
+    desc: item.desc.replace(/Clever Accounts/g, brand.name),
+  }));
+  const brandTimeline = timeline.map((item) => ({
+    ...item,
+    description: item.description.replace(/Clever Accounts/g, brand.name),
+  }));
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -232,7 +244,7 @@ export default function MakingTaxDigitalPage() {
                 HMRC is replacing the annual self assessment with quarterly digital reporting. It's not optional — and the deadlines are closer than most people think.
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
-                Clever Accounts gets you MTD-ready from day one. Free FreeAgent software included. Dedicated accountant managing every submission.
+                {brand.name} gets you MTD-ready from day one. Free FreeAgent software included. Dedicated accountant managing every submission.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
@@ -266,7 +278,7 @@ export default function MakingTaxDigitalPage() {
                 <div className="flex items-start gap-3">
                   <Award size={18} className="text-secondary shrink-0 mt-0.5" />
                   <p className="text-white/60 text-xs leading-relaxed">
-                    FreeAgent is HMRC-recognised MTD-compatible software — included free with every Clever Accounts package
+                    FreeAgent is HMRC-recognised MTD-compatible software — included free with every {brand.name} package
                   </p>
                 </div>
               </div>
@@ -415,7 +427,7 @@ export default function MakingTaxDigitalPage() {
           </div>
 
           <div className="space-y-6">
-            {timeline.map(({ status, label, date, title, who, description, affects, colour, badgeColour, dotColour }) => (
+            {brandTimeline.map(({ status, label, date, title, who, description, affects, colour, badgeColour, dotColour }) => (
               <div key={title} className={`bg-white/[0.05] backdrop-blur-sm border-l-4 ${colour} border border-white/10 rounded-2xl p-7`}>
                 <div className="flex flex-wrap items-start gap-4 mb-4">
                   <div className="flex items-center gap-3">
@@ -460,14 +472,14 @@ export default function MakingTaxDigitalPage() {
           <div className="text-center mb-14">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Our Approach</p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              How Clever Accounts Gets You<br />MTD-Ready
+              How {brand.name} Gets You<br />MTD-Ready
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
               We don't just tell you about MTD — we handle it for you. Here's exactly what you get.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {howWeHelp.map(({ icon: Icon, title, desc }) => (
+            {brandHowWeHelp.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="bg-white border border-border rounded-2xl p-6 shadow-sm card-hover">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
                   <Icon size={24} />
@@ -486,7 +498,7 @@ export default function MakingTaxDigitalPage() {
             <div className="flex-1 text-center md:text-left">
               <div className="font-black text-dark text-lg mb-1">FreeAgent Platinum Partner</div>
               <p className="text-text-light text-sm leading-relaxed">
-                We're one of FreeAgent's highest-tier partners. FreeAgent is HMRC-recognised for MTD for VAT and MTD for Income Tax — and it's <strong className="text-dark">included free</strong> with every Clever Accounts package. No extra cost, no bridging software, no manual uploads.
+                We're one of FreeAgent's highest-tier partners. FreeAgent is HMRC-recognised for MTD for VAT and MTD for Income Tax — and it's <strong className="text-dark">included free</strong> with every {brand.name} package. No extra cost, no bridging software, no manual uploads.
               </p>
             </div>
             <Link href="/our-services/accounting-software" className="shrink-0 inline-flex items-center gap-2 bg-secondary text-white font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all whitespace-nowrap">
@@ -634,7 +646,7 @@ export default function MakingTaxDigitalPage() {
             <h2 className="text-3xl font-black text-white mb-4">MTD Questions Answered</h2>
           </div>
           <div className="space-y-3">
-            {faqs.map((item) => <FAQItem key={item.q} q={item.q} a={item.a} />)}
+            {brandFaqs.map((item) => <FAQItem key={item.q} q={item.q} a={item.a} />)}
           </div>
         </div>
 

@@ -7,12 +7,23 @@ import {
 } from "lucide-react";
 import { getSiteSettings } from "@/sanity/queries";
 import { promoBadgesByPlanName } from "@/lib/promo";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "Online Accounting Services UK — All Packages | Clever Accounts",
   description:
     "Online accounting services for sole traders, limited companies, contractors, landlords, CIS & more. Dedicated accountant, free FreeAgent software, from £42.50/month. No setup fees.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") return cleverMetadata;
+  return {
+    title: `Online Accounting Services UK — All Packages | ${brand.name}`,
+    description:
+      "Online accounting services for sole traders, limited companies, contractors, landlords, CIS & more. Dedicated accountant, free FreeAgent software, from £42.50/month. No setup fees.",
+  };
+}
 
 const services = [
   {
@@ -39,7 +50,7 @@ const services = [
     icon: Briefcase,
     title: "Contractor",
     subtitle: "PSC & umbrella contractors",
-    description: "IR35 keeping you up at night? Don't let it. Our specialist contractor accountants know exactly how to protect you and our Clever FLEX solution means you can switch between PSC and umbrella seamlessly.",
+    description: "IR35 keeping you up at night? Don't let it. Our specialist contractor accountants know exactly how to protect you and our umbrella solution means you can switch between PSC and umbrella seamlessly.",
     price: "104.50",
     href: "/contractor-accountancy",
     colour: "bg-purple-500/10 text-purple-600 group-hover:bg-purple-500",
@@ -110,6 +121,7 @@ const specialists = [
 export const revalidate = 60;
 
 export default async function ServicesPage() {
+  const brand = await getBrand();
   let promoBadges: Record<string, string> = {};
   try {
     const settings = await getSiteSettings();
@@ -143,14 +155,22 @@ export default async function ServicesPage() {
           </div>
           {/* Social proof strip */}
           <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
-            <div className="flex items-center gap-2 text-white/60 text-sm">
-              <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-secondary text-secondary" />)}</div>
-              <span>4.7 on Trustpilot</span>
-            </div>
-            <div className="w-px h-4 bg-white/20" />
-            <span className="text-white/60 text-sm">10,000+ businesses</span>
-            <div className="w-px h-4 bg-white/20" />
-            <span className="text-white/60 text-sm">20+ years experience</span>
+            {brand.trustpilot && (
+              <>
+                <div className="flex items-center gap-2 text-white/60 text-sm">
+                  <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={14} className="fill-secondary text-secondary" />)}</div>
+                  <span>{brand.trustpilot.rating} on Trustpilot</span>
+                </div>
+                <div className="w-px h-4 bg-white/20" />
+              </>
+            )}
+            {brand.id === "clever" && (
+              <>
+                <span className="text-white/60 text-sm">10,000+ businesses</span>
+                <div className="w-px h-4 bg-white/20" />
+                <span className="text-white/60 text-sm">20+ years experience</span>
+              </>
+            )}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
@@ -223,7 +243,7 @@ export default async function ServicesPage() {
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">Every Package</p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Everything Included.<br />No Hidden Extras.</h2>
-            <p className="text-white/60 max-w-xl mx-auto">You shouldn't have to pay extra every time you pick up the phone. With Clever Accounts, everything is included in your monthly fee.</p>
+            <p className="text-white/60 max-w-xl mx-auto">You shouldn't have to pay extra every time you pick up the phone. With {brand.name}, everything is included in your monthly fee.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {included.map(({ icon: Icon, label, desc }) => (
@@ -279,9 +299,9 @@ export default async function ServicesPage() {
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
               Get Started <ArrowRight size={20} />
             </Link>
-            <a href="tel:01135188800" className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+            <a href={`tel:${brand.phone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
               <Phone size={20} />
-              0113 518 8800
+              {brand.phone}
             </a>
           </div>
         </div>

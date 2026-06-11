@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Startup Accountant — From £104.50/mo | Clever Accounts",
-  description:
-    "Expert accounting for startups and new limited companies from £104.50/month. Company formation, first accounts, director payroll, VAT, and a dedicated accountant who grows with your business. No setup fees.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Startup Accountant — From £104.50/mo | ${brand.name}`,
+    description:
+      "Expert accounting for startups and new limited companies from £104.50/month. Company formation, first accounts, director payroll, VAT, and a dedicated accountant who grows with your business. No setup fees.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -65,10 +69,10 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "Starting a company is overwhelming enough without worrying about HMRC. Clever Accounts took the entire financial side off my plate from day one. I can't recommend them enough.",
+      `Starting a company is overwhelming enough without worrying about HMRC. ${brandName} took the entire financial side off my plate from day one. I can't recommend them enough.`,
     name: "Natasha B.",
     businessType: "SaaS Startup Founder",
   },
@@ -80,7 +84,7 @@ const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "Switched from doing it myself after my first Companies House filing went wrong. Clever Accounts cleaned it all up and I've had zero issues since.",
+      `Switched from doing it myself after my first Companies House filing went wrong. ${brandName} cleaned it all up and I've had zero issues since.`,
     name: "Laura M.",
     businessType: "E-commerce Startup",
   },
@@ -114,7 +118,9 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function StartupLP() {
+export default async function StartupLP() {
+  const brand = await getBrand();
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Startup Accounting — From £104.50/month"

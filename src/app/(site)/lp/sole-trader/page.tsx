@@ -2,17 +2,21 @@ import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
 import { FileText, Calculator, ShieldCheck, MessageSquare, CheckCircle2 } from "lucide-react";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Sole Trader Accountant — From £42.50/mo | Clever Accounts",
-  description:
-    "Expert sole trader accounting from just £42.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Sole Trader Accountant — From £42.50/mo | ${brand.name}`,
+    description:
+      "Expert sole trader accounting from just £42.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
-const whyUs: WhyUsItem[] = [
+const makeWhyUs = (isClever: boolean): WhyUsItem[] => [
   {
-    title: "20+ Years Sole Trader Expertise",
+    title: isClever ? "20+ Years Sole Trader Expertise" : "Sole Trader Tax Specialists",
     description:
       "We've helped thousands of sole traders and self-employed professionals with their tax and accounting. We know exactly what HMRC expects — and how to keep more money in your pocket.",
   },
@@ -66,10 +70,10 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "I was drowning in receipts and dreading January. Clever Accounts took everything off my plate — I don't even think about tax any more. Best money I spend each month.",
+      `I was drowning in receipts and dreading January. ${brandName} took everything off my plate — I don't even think about tax any more. Best money I spend each month.`,
     name: "Sarah T.",
     businessType: "Freelance Graphic Designer",
   },
@@ -115,15 +119,19 @@ const faq: FAQItem[] = [
   },
 ];
 
-const statsSection = (
+const makeStatsSection = (isClever: boolean) => (
   <section className="bg-dark py-14">
     <div className="max-w-5xl mx-auto px-4">
       <p className="text-center text-slate-400 text-sm font-semibold uppercase tracking-widest mb-8">The numbers speak for themselves</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { value: "£1,200", label: "Average annual tax saving per client", colour: "from-primary to-blue-400" },
-          { value: "4,000+", label: "Sole traders and freelancers served", colour: "from-secondary to-emerald-400" },
-          { value: "20+", label: "Years specialising in self-employed tax", colour: "from-amber-500 to-yellow-400" },
+          isClever
+            ? { value: "4,000+", label: "Sole traders and freelancers served", colour: "from-secondary to-emerald-400" }
+            : { value: "1,000s", label: "Sole traders and freelancers served", colour: "from-secondary to-emerald-400" },
+          isClever
+            ? { value: "20+", label: "Years specialising in self-employed tax", colour: "from-amber-500 to-yellow-400" }
+            : { value: "MTD", label: "Ready for Making Tax Digital", colour: "from-amber-500 to-yellow-400" },
           { value: "100%", label: "Returns filed before the HMRC deadline", colour: "from-purple-500 to-pink-400" },
         ].map((s) => (
           <div key={s.value} className={`rounded-2xl bg-gradient-to-br ${s.colour} p-px`}>
@@ -174,14 +182,18 @@ const servicesGrid = (
   </section>
 );
 
-export default function SoleTraderLP() {
+export default async function SoleTraderLP() {
+  const brand = await getBrand();
+  const isClever = brand.id === "clever";
+  const whyUs = makeWhyUs(isClever);
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Sole Trader Accounting From £42.50/month"
       subheadline="Stop worrying about self assessment, expenses, and HMRC. Your own dedicated accountant handles everything — so you can focus on running your business."
       price="42.50"
       targetAudience="For Sole Traders & Self-Employed"
-      urgencyText="Join 4,000+ sole traders who switched this year"
+      urgencyText={isClever ? "Join 4,000+ sole traders who switched this year" : "Join sole traders across the UK who switched this year"}
       features={[
         "Your own dedicated accountant",
         "Self assessment tax return filed for you",
@@ -198,7 +210,7 @@ export default function SoleTraderLP() {
       testimonials={testimonials}
       faq={faq}
     >
-      {statsSection}
+      {makeStatsSection(isClever)}
       {servicesGrid}
     </LandingPageLayout>
   );

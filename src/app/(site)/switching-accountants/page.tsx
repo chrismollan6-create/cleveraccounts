@@ -95,7 +95,7 @@ const faqs = [
   },
   {
     q: "Is there a cost to switch accountants?",
-    a: "Switching to Clever Accounts is completely free — no setup fees, no transfer charges. Your old accountant may charge for any outstanding work not yet billed, but a new firm should never charge you to take you on.",
+    a: "Switching to {{BRAND}} is completely free — no setup fees, no transfer charges. Your old accountant may charge for any outstanding work not yet billed, but a new firm should never charge you to take you on.",
   },
   {
     q: "What is professional clearance and why does it matter?",
@@ -172,7 +172,7 @@ export default function SwitchingAccountantsPage() {
                 href="/sign-up"
                 className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-5 rounded-2xl animate-pulse-glow"
               >
-                Switch to Clever Accounts <ArrowRight size={22} />
+                Switch to {brand.name} <ArrowRight size={22} />
               </Link>
               <a
                 href="#how-to-switch"
@@ -198,7 +198,7 @@ export default function SwitchingAccountantsPage() {
             {[
               "You can switch accountants at any point in the year — no need to wait until year-end.",
               "Your new accountant handles everything: the professional clearance letter, record transfer, and HMRC authorisation.",
-              "Switching to Clever Accounts is free — no setup fees, no transfer charges.",
+              `Switching to ${brand.name} is free — no setup fees, no transfer charges.`,
               "Most switches are complete within 3–6 weeks with no disruption to your compliance position.",
             ].map((point, i) => (
               <li key={i} className="flex items-start gap-3">
@@ -370,7 +370,7 @@ export default function SwitchingAccountantsPage() {
           </div>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <FAQItem key={i} q={faq.q} a={faq.a} />
+              <FAQItem key={i} q={faq.q} a={faq.a.replace(/\{\{BRAND\}\}/g, brand.name)} />
             ))}
           </div>
         </div>

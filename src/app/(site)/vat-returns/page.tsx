@@ -233,6 +233,10 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function VATReturnsPage() {
   const brand = useBrand();
+  const brandFaqs = faqs.map(({ q, a }) => ({
+    q,
+    a: a.replace(/Clever Accounts/g, brand.name),
+  }));
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -261,7 +265,7 @@ export default function VATReturnsPage() {
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
                 Whether you&apos;re newly VAT-registered or looking to switch
-                accountants, your dedicated Clever Accounts expert handles
+                accountants, your dedicated {brand.name} expert handles
                 everything from scheme selection to HMRC submission.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -394,7 +398,7 @@ export default function VATReturnsPage() {
                 ))}
               </ul>
               <p className="text-text-light leading-relaxed">
-                Your Clever Accounts accountant will assess your situation,
+                Your {brand.name} accountant will assess your situation,
                 advise whether voluntary registration makes sense, and handle
                 the entire HMRC registration process for you.
               </p>
@@ -668,7 +672,7 @@ export default function VATReturnsPage() {
                   accepted.
                 </p>
                 <p className="text-text-light leading-relaxed">
-                  With Clever Accounts, there is nothing extra for you to do.
+                  With {brand.name}, there is nothing extra for you to do.
                   FreeAgent is a fully HMRC-approved MTD software platform —
                   included free with every package. Your accountant handles your
                   submission each quarter directly from FreeAgent. No bridging
@@ -732,7 +736,7 @@ export default function VATReturnsPage() {
               VAT is one of the areas where HMRC most actively investigates
               businesses. These are the mistakes that cost UK businesses
               thousands of pounds each year — none of which happen with a
-              Clever Accounts accountant in your corner.
+              {" "}{brand.name} accountant in your corner.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -790,7 +794,7 @@ export default function VATReturnsPage() {
             </h2>
           </div>
           <div className="space-y-3">
-            {faqs.map((faq) => (
+            {brandFaqs.map((faq) => (
               <FAQItem key={faq.q} q={faq.q} a={faq.a} />
             ))}
           </div>

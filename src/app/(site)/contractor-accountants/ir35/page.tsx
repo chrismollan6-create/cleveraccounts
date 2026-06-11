@@ -35,7 +35,7 @@ const faqs = [
   { q: "Who decides my IR35 status?", a: "For public sector and medium/large private sector clients, the end client (your hirer) is responsible for issuing a Status Determination Statement (SDS). For small private sector clients, the PSC contractor makes their own determination. In either case, we help you understand your position and challenge incorrect determinations." },
   { q: "What is a Status Determination Statement (SDS)?", a: "An SDS is the written determination your client must issue when they decide your IR35 status. They must also pass it to any agency in the chain. If the determination is wrong, you have a right to challenge it through the client's formal disagreement process. We help you draft challenges." },
   { q: "What are the key tests for IR35?", a: "HMRC looks at three primary factors: Substitution (can you send someone else to do the work?), Control (how much does the client control how, when and where you work?), and Mutuality of Obligation (is the client obliged to offer work and are you obliged to accept it?). Secondary factors include financial risk, equipment provision, and integration into the client's organisation. We assess all of these." },
-  { q: "What is Clever FLEX?", a: "Clever FLEX is our unique solution that lets contractors switch seamlessly between operating through their own PSC (outside IR35) and an umbrella company (inside IR35) without changing accountant, changing bank accounts, or going through a new onboarding process. It's designed for contractors whose status changes between engagements." },
+  { q: "{{FLEX_Q}}", a: "{{FLEX_NAME}} is our solution that lets contractors switch seamlessly between operating through their own PSC (outside IR35) and an umbrella company (inside IR35) without changing accountant, changing bank accounts, or going through a new onboarding process. It's designed for contractors whose status changes between engagements." },
   { q: "Can I challenge an inside IR35 determination?", a: "Yes. If your client issues an SDS that you believe is wrong, you have the right to raise a formal disagreement. Your client must respond within 45 days. We help you build the case — reviewing your working practices, the contract wording, and the CEST assessment — and draft the formal challenge on your behalf." },
   { q: "What happens if I'm investigated by HMRC?", a: "HMRC IR35 investigations can cover up to 6 years of back tax. Having proper contract reviews, accurate SDS records, and documented working practices is critical. We ensure all of this is in place from the start, and support you through any HMRC enquiry." },
   { q: "Does IR35 affect sole traders?", a: "IR35 applies to contractors who operate through a personal service company (PSC/limited company). Sole traders are generally not affected by IR35 — they are assessed differently by HMRC. If you're unsure of your structure, speak to us." },
@@ -43,6 +43,9 @@ const faqs = [
 
 export default function IR35Page() {
   const brand = useBrand();
+  // Clever keeps its branded "Clever FLEX" product; other brands use generic
+  // umbrella wording so no Clever-specific product name leaks through.
+  const isWorkwell = brand.id === "workwell";
   return (
     <>
       {/* ═══════════════════════════════════
@@ -128,12 +131,19 @@ export default function IR35Page() {
       <section className="bg-white pt-4 pb-14">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-            {[
-              { value: "2,000+", label: "Contractors Supported" },
-              { value: "24hr", label: "Contract Review Turnaround" },
-              { value: "20+", label: "Years IR35 Expertise" },
-              { value: "£0", label: "Setup Fees" },
-            ].map((s) => (
+            {(isWorkwell
+              ? [
+                  { value: "24hr", label: "Contract Review Turnaround" },
+                  { value: "Specialist", label: "IR35 Expertise" },
+                  { value: "£0", label: "Setup Fees" },
+                ]
+              : [
+                  { value: "2,000+", label: "Contractors Supported" },
+                  { value: "24hr", label: "Contract Review Turnaround" },
+                  { value: "20+", label: "Years IR35 Expertise" },
+                  { value: "£0", label: "Setup Fees" },
+                ]
+            ).map((s) => (
               <div key={s.label} className="text-center">
                 <span className="text-3xl font-black text-gradient">{s.value}</span>
                 <p className="text-xs text-text-light mt-1 font-medium">{s.label}</p>
@@ -365,7 +375,7 @@ export default function IR35Page() {
               },
               {
                 Icon: ArrowLeftRight,
-                title: "Clever FLEX",
+                title: isWorkwell ? "Umbrella Switching" : "Clever FLEX",
                 items: ["Seamless PSC to umbrella switching", "No new accountant or onboarding", "Inside IR35 umbrella payroll", "Switch back when status changes"],
               },
               {
@@ -417,18 +427,22 @@ export default function IR35Page() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 bg-secondary/20 border border-secondary/30 rounded-full px-4 py-2 text-sm text-secondary mb-6">
-                <Sparkles size={14} /> Unique to Clever Accounts
+                <Sparkles size={14} /> {isWorkwell ? `Unique to ${brand.name}` : "Unique to Clever Accounts"}
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
-                Introducing <span className="text-gradient">Clever FLEX</span>
+                {isWorkwell ? (
+                  <>Flexible <span className="text-gradient">Umbrella Switching</span></>
+                ) : (
+                  <>Introducing <span className="text-gradient">Clever FLEX</span></>
+                )}
               </h2>
               <p className="text-white/60 leading-relaxed mb-8">
-                The reality of modern contracting is that your IR35 status can change from one engagement to the next. Clever FLEX is our solution — letting you switch between operating through your PSC (outside IR35) and our umbrella company (inside IR35) without any disruption.
+                The reality of modern contracting is that your IR35 status can change from one engagement to the next. {isWorkwell ? "Our umbrella solution" : "Clever FLEX"} lets you switch between operating through your PSC (outside IR35) and our umbrella company (inside IR35) without any disruption.
               </p>
               <div className="space-y-4">
                 {[
                   { title: "Outside IR35 contract?", body: "Operate through your PSC. Maximum take-home, full tax efficiency." },
-                  { title: "Inside IR35 contract?", body: "Switch to Clever FLEX umbrella in one step. Same accountant, same team." },
+                  { title: "Inside IR35 contract?", body: `Switch to ${isWorkwell ? "our umbrella" : "Clever FLEX umbrella"} in one step. Same accountant, same team.` },
                   { title: "Status changes again?", body: "Switch back to PSC instantly. No new onboarding, no hassle." },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-4 bg-white/[0.06] rounded-2xl p-4 border border-white/10">
@@ -445,7 +459,7 @@ export default function IR35Page() {
             </div>
 
             <div className="bg-white/[0.07] backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-              <p className="text-white/50 text-sm uppercase tracking-wider mb-6">Clever FLEX includes</p>
+              <p className="text-white/50 text-sm uppercase tracking-wider mb-6">{isWorkwell ? "Our umbrella solution includes" : "Clever FLEX includes"}</p>
               <ul className="space-y-4">
                 {[
                   "Seamless PSC / umbrella switching",
@@ -467,7 +481,7 @@ export default function IR35Page() {
                 href="/sign-up"
                 className="btn-primary w-full mt-8 inline-flex items-center justify-center gap-2 text-lg py-4 rounded-xl"
               >
-                Get Clever FLEX <ArrowRight size={20} />
+                {isWorkwell ? "Get Started" : "Get Clever FLEX"} <ArrowRight size={20} />
               </Link>
             </div>
           </div>
@@ -493,7 +507,7 @@ export default function IR35Page() {
               <div className="text-6xl font-black text-white my-3">
                 £104.50<span className="text-2xl text-white/60">/month</span>
               </div>
-              <p className="text-white/75 mb-8">Full contractor accounting + end-to-end IR35 support + Clever FLEX. No extras, ever.</p>
+              <p className="text-white/75 mb-8">Full contractor accounting + end-to-end IR35 support + {isWorkwell ? "umbrella switching" : "Clever FLEX"}. No extras, ever.</p>
               <Link
                 href="/sign-up"
                 className="inline-flex items-center gap-2 bg-white text-secondary font-bold px-10 py-4 rounded-2xl text-lg hover:shadow-2xl transition-all"
@@ -516,7 +530,7 @@ export default function IR35Page() {
             ))}
           </div>
           <blockquote className="text-2xl font-bold text-dark leading-relaxed mb-6">
-            &ldquo;I had an inside IR35 determination from a client that I was sure was wrong. Clever Accounts reviewed my working practices, drafted the formal challenge, and it was overturned within three weeks. Saved me over £18,000 a year.&rdquo;
+            &ldquo;I had an inside IR35 determination from a client that I was sure was wrong. {brand.name} reviewed my working practices, drafted the formal challenge, and it was overturned within three weeks. Saved me over £18,000 a year.&rdquo;
           </blockquote>
           <p className="font-bold text-dark">Rob Fletcher</p>
           <p className="text-sm text-text-light">Senior IT Contractor — Outside IR35</p>
@@ -537,9 +551,13 @@ export default function IR35Page() {
             </h2>
           </div>
           <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <FAQItem key={i} q={faq.q} a={faq.a} />
-            ))}
+            {faqs.map((faq, i) => {
+              const q = faq.q
+                .replace(/\{\{FLEX_Q\}\}/g, isWorkwell ? "What is your umbrella solution?" : "What is Clever FLEX?");
+              const a = faq.a
+                .replace(/\{\{FLEX_NAME\}\}/g, isWorkwell ? "Our umbrella solution" : "Clever FLEX");
+              return <FAQItem key={i} q={q} a={a} />;
+            })}
           </div>
         </div>
         <div className="absolute bottom-0 left-0 w-full">

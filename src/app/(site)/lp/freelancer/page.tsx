@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Freelancer Accountant — From £42.50/mo | Clever Accounts",
-  description:
-    "Expert accounting for freelancers from just £42.50/month. Self assessment, invoicing, expense tracking, and unlimited advice from a dedicated accountant. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Freelancer Accountant — From £42.50/mo | ${brand.name}`,
+    description:
+      "Expert accounting for freelancers from just £42.50/month. Self assessment, invoicing, expense tracking, and unlimited advice from a dedicated accountant. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -65,16 +69,16 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "As a freelance developer I had no idea how much to save for tax. My Clever Accounts accountant set up a simple system and I've never been caught short since.",
+      `As a freelance developer I had no idea how much to save for tax. My ${brandName} accountant set up a simple system and I've never been caught short since.`,
     name: "Alex B.",
     businessType: "Freelance Web Developer",
   },
   {
     quote:
-      "I was doing my own self assessment and getting it wrong every year. Switched to Clever Accounts and immediately got a refund from HMRC for over-payments. Brilliant.",
+      `I was doing my own self assessment and getting it wrong every year. Switched to ${brandName} and immediately got a refund from HMRC for over-payments. Brilliant.`,
     name: "Charlotte D.",
     businessType: "Freelance Copywriter",
   },
@@ -114,14 +118,16 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function FreelancerLP() {
+export default async function FreelancerLP() {
+  const brand = await getBrand();
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Freelancer Accounting — From £42.50/month"
       subheadline="Your own dedicated accountant handles self assessment, expense tracking, and tax planning — so you can focus on the work you love, not the paperwork."
       price="42.50"
       targetAudience="For Freelancers & Self-Employed"
-      urgencyText="Thousands of freelancers trust Clever Accounts"
+      urgencyText={`Thousands of freelancers trust ${brand.name}`}
       features={[
         "Your own dedicated accountant",
         "Self assessment tax return filed for you",

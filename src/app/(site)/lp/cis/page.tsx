@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "CIS Accountant for Construction Workers — From £49.95/mo | Clever Accounts",
-  description:
-    "Specialist CIS accounting for subbies and self-employed construction workers. CIS deduction reclaims, monthly returns, self assessment and unlimited advice. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `CIS Accountant for Construction Workers — From £49.95/mo | ${brand.name}`,
+    description:
+      "Specialist CIS accounting for subbies and self-employed construction workers. CIS deduction reclaims, monthly returns, self assessment and unlimited advice. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -65,16 +69,16 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "I had no idea I was owed £3,800 back from HMRC in CIS deductions. Clever Accounts found it, claimed it, and I had the money in six weeks.",
+      `I had no idea I was owed £3,800 back from HMRC in CIS deductions. ${brandName} found it, claimed it, and I had the money in six weeks.`,
     name: "Lee P.",
     businessType: "Self-Employed Electrician",
   },
   {
     quote:
-      "As a small groundworks contractor I was always late with CIS returns. Since switching to Clever Accounts I haven't had a single penalty.",
+      `As a small groundworks contractor I was always late with CIS returns. Since switching to ${brandName} I haven't had a single penalty.`,
     name: "Gary T.",
     businessType: "Groundworks Contractor",
   },
@@ -114,14 +118,16 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function CISLP() {
+export default async function CISLP() {
+  const brand = await getBrand();
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="CIS Accounting for Construction Workers"
       subheadline="We handle CIS deductions, monthly returns, tax reclaims, and self assessment — so you can focus on the job. Many construction workers get money back from HMRC each year. Let us find yours."
       price="49.95"
       targetAudience="For CIS Subbies & Construction Contractors"
-      urgencyText="Join construction workers across the UK who trust Clever Accounts"
+      urgencyText={`Join construction workers across the UK who trust ${brand.name}`}
       features={[
         "Dedicated CIS specialist accountant",
         "CIS deduction reclaim from HMRC",

@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "Payroll Services — RTI, P60s & Auto-Enrolment | Clever Accounts",
   description:
     "Monthly payroll processing for UK limited companies and small businesses. RTI submissions, payslips, P60s, P11Ds and pension auto-enrolment — all handled by your dedicated accountant. Included in our Limited Company package.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return brand.id === "workwell"
+    ? {
+        title: `Payroll Services — RTI, P60s & Auto-Enrolment | ${brand.name}`,
+        description: cleverMetadata.description,
+      }
+    : cleverMetadata;
+}
 
 const faqs = [
   {
@@ -34,10 +45,11 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

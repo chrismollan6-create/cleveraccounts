@@ -186,17 +186,17 @@ const whatsIncluded = [
   { icon: Award, text: "No setup fee and no minimum contract" },
 ];
 
-const testimonials = [
+const buildTestimonials = (brandName: string) => [
   {
     name: "Marcus Reid",
     role: "IT Contractor",
-    quote: "I stayed with my old accountant for five years because switching felt like a faff. Clever Accounts handled the whole thing. Within 3 weeks I had a new accountant, FreeAgent set up, and saved £800 in the first year.",
+    quote: `I stayed with my old accountant for five years because switching felt like a faff. ${brandName} handled the whole thing. Within 3 weeks I had a new accountant, FreeAgent set up, and saved £800 in the first year.`,
     rating: 5,
   },
   {
     name: "Priya Shah",
     role: "Limited Company Director",
-    quote: "My previous accountant barely contacted me. I signed up with Clever Accounts on a Thursday and had an introductory call with my new accountant by Monday. It was seamless.",
+    quote: `My previous accountant barely contacted me. I signed up with ${brandName} on a Thursday and had an introductory call with my new accountant by Monday. It was seamless.`,
     rating: 5,
   },
   {
@@ -227,6 +227,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function SwitchAccountantPage() {
   const brand = useBrand();
+  const testimonials = buildTestimonials(brand.name);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -383,7 +384,7 @@ export default function SwitchAccountantPage() {
             <Zap size={24} className="text-primary mx-auto mb-3" />
             <h3 className="font-bold text-dark mb-2">Your benefits start immediately — not after the transfer</h3>
             <p className="text-text-light text-sm max-w-xl mx-auto">
-              The moment you sign up, you're a Clever Accounts client. Your dedicated accountant is assigned, FreeAgent is set up, and any upcoming deadlines are tracked. The records transfer runs in the background.
+              The moment you sign up, you're a {brand.name} client. Your dedicated accountant is assigned, FreeAgent is set up, and any upcoming deadlines are tracked. The records transfer runs in the background.
             </p>
           </div>
         </div>
@@ -402,7 +403,7 @@ export default function SwitchAccountantPage() {
               <span className="text-gradient">Traditional & Budget Accountants</span>
             </h2>
             <p className="text-white/70 max-w-2xl mx-auto">
-              Traditional firms charge by the hour and disappear until year end. Budget online services cut corners and leave you without real support. Clever Accounts gives you both — expert service at a fixed, fair price.
+              Traditional firms charge by the hour and disappear until year end. Budget online services cut corners and leave you without real support. {brand.name} gives you both — expert service at a fixed, fair price.
             </p>
           </div>
 
@@ -413,7 +414,7 @@ export default function SwitchAccountantPage() {
                   <th className="text-left text-white/60 font-semibold px-6 py-4 rounded-tl-2xl w-1/4">Feature</th>
                   <th className="text-center text-white/60 font-semibold px-4 py-4 w-1/4">Traditional Accountant</th>
                   <th className="text-center text-white/60 font-semibold px-4 py-4 w-1/4">Budget Online</th>
-                  <th className="text-center text-secondary font-bold px-4 py-4 rounded-tr-2xl w-1/4 bg-secondary/10">Clever Accounts</th>
+                  <th className="text-center text-secondary font-bold px-4 py-4 rounded-tr-2xl w-1/4 bg-secondary/10">{brand.name}</th>
                 </tr>
               </thead>
               <tbody>
@@ -493,7 +494,7 @@ export default function SwitchAccountantPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
-              Switch to Clever Accounts <ArrowRight size={20} />
+              Switch to {brand.name} <ArrowRight size={20} />
             </Link>
             <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
               <Phone size={20} /> Call {brand.freephone}

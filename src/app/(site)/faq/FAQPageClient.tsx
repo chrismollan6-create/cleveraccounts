@@ -21,7 +21,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 interface FaqItem {
   q: string;
@@ -89,6 +89,7 @@ function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean
 }
 
 export default function FAQPageClient({ faqsByCategory }: Props) {
+  const brand = useBrand();
   const [query, setQuery] = useState("");
   const [openKey, setOpenKey] = useState<string | null>(null);
 
@@ -132,7 +133,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
             Frequently Asked <span className="text-gradient">Questions</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            Everything you need to know about Clever Accounts — pricing, services,
+            Everything you need to know about {brand.name} — pricing, services,
             switching, software, and the specifics for your business type.
           </p>
 
@@ -293,10 +294,10 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
               Contact Us <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all border border-white/30"
             >
-              <Phone size={20} /> {COMPANY.freephone}
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>

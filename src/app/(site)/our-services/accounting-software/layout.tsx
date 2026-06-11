@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "Free FreeAgent Accounting Software — Platinum Partner | Clever Accounts",
   description: "Every Clever Accounts package includes free FreeAgent accounting software (worth £29/mo). We're a FreeAgent Platinum Partner. MTD compliant, open banking, invoicing and more.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id !== "workwell") return cleverMetadata;
+  return {
+    title: `Free FreeAgent Accounting Software — Platinum Partner | ${brand.name}`,
+    description: `Every ${brand.name} package includes free FreeAgent accounting software (worth £29/mo). We're a FreeAgent Platinum Partner. MTD compliant, open banking, invoicing and more.`,
+  };
+}
 
 const faqs = [
   {
@@ -37,10 +47,11 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

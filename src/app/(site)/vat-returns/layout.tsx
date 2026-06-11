@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "VAT Returns — Handled Every Quarter | Clever Accounts",
   description:
     "Stress-free VAT compliance for UK businesses. Clever Accounts prepares and submits your quarterly VAT returns, handles MTD for VAT via FreeAgent, and advises on the right VAT scheme for your business. From £42.50/month.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id !== "workwell") return cleverMetadata;
+  return {
+    title: `VAT Returns — Handled Every Quarter | ${brand.name}`,
+    description:
+      "Stress-free VAT compliance for UK businesses. We prepare and submit your quarterly VAT returns, handle MTD for VAT via FreeAgent, and advise on the right VAT scheme for your business. From £42.50/month.",
+  };
+}
 
 const faqs = [
   {
@@ -42,10 +53,11 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import LandingPageLayout from "@/components/ui/LandingPageLayout";
 import type { WhyUsItem, PainPointItem, HowItWorksStep, Testimonial, FAQItem } from "@/components/ui/LandingPageLayout";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Landlord Accountant — From £42.50/mo | Clever Accounts",
-  description:
-    "Expert landlord accounting from just £42.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  return {
+    title: `Landlord Accountant — From £42.50/mo | ${brand.name}`,
+    description:
+      "Expert landlord accounting from just £42.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
+    robots: { index: true, follow: true },
+  };
+}
 
 const whyUs: WhyUsItem[] = [
   {
@@ -65,10 +69,10 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "Section 24 was a real shock — I didn't realise how much extra tax I'd be paying. Clever Accounts restructured my portfolio and saved me thousands.",
+      `Section 24 was a real shock — I didn't realise how much extra tax I'd be paying. ${brandName} restructured my portfolio and saved me thousands.`,
     name: "Neil G.",
     businessType: "Residential Landlord (4 properties)",
   },
@@ -114,14 +118,16 @@ const faq: FAQItem[] = [
   },
 ];
 
-export default function LandlordLP() {
+export default async function LandlordLP() {
+  const brand = await getBrand();
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Landlord Accounting — From £42.50/month"
       subheadline="Specialist landlord accounting for buy-to-let and residential property. We handle rental income tax, self assessment, Section 24, and every expense claim — so your investment works harder."
       price="42.50"
       targetAudience="For Landlords & Property Investors"
-      urgencyText="Join landlords across the UK who trust Clever Accounts"
+      urgencyText={`Join landlords across the UK who trust ${brand.name}`}
       features={[
         "Dedicated accountant with landlord expertise",
         "Rental income & expense calculations",

@@ -1,44 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "Privacy Policy | Clever Accounts",
   description: "Clever Accounts privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.",
 };
 
-const sections = [
-  {
-    title: "Information We Collect",
-    content: `Information we collect falls into one of two categories: 'voluntarily provided' information and 'automatically collected' information.
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") return cleverMetadata;
+  return {
+    title: `Privacy Policy | ${brand.name}`,
+    description: `${brand.name} privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.`,
+  };
+}
+
+function buildSections(brand: { legalName: string }) {
+  const { legalName } = brand;
+  return [
+    {
+      title: "Information We Collect",
+      content: `Information we collect falls into one of two categories: 'voluntarily provided' information and 'automatically collected' information.
 
 'Voluntarily provided' information refers to any information you knowingly and actively provide us when using or participating in any of our services and promotions.
 
 'Automatically collected' information refers to any information automatically sent by your devices in the course of accessing our products and services.`,
-  },
-  {
-    title: "Log Data",
-    content: `When you visit our website, our servers may automatically log the standard data provided by your web browser. It may include your device's Internet Protocol (IP) address, your browser type and version, the pages you visit, the time and date of your visit, the time spent on each page, and other details about your visit.
+    },
+    {
+      title: "Log Data",
+      content: `When you visit our website, our servers may automatically log the standard data provided by your web browser. It may include your device's Internet Protocol (IP) address, your browser type and version, the pages you visit, the time and date of your visit, the time spent on each page, and other details about your visit.
 
 Additionally, if you encounter certain errors while using the site, we may automatically collect data about the error and the circumstances surrounding its occurrence. This data may include technical details about your device, what you were trying to do when the error happened, and other technical information relating to the problem. You may or may not receive notice of such errors, even in the moment they occur, that they have occurred, or what the nature of the error is.
 
 Please be aware that while this information may not be personally identifying by itself, it may be possible to combine it with other data to personally identify individual persons.`,
-  },
-  {
-    title: "Personal Information",
-    content: `We may ask for personal information — when you contact us — which may include one or more of the following:
+    },
+    {
+      title: "Personal Information",
+      content: `We may ask for personal information — when you contact us — which may include one or more of the following:
 • Name
 • Email
 • Date of birth
 • Phone/mobile number
 • Home/mailing address`,
-  },
-  {
-    title: "Legitimate Reasons for Processing Your Personal Information",
-    content: `We only collect and use your personal information when we have a legitimate reason for doing so. In which instance we only collect personal information that is reasonably necessary to provide our services to you.`,
-  },
-  {
-    title: "Collection and Use of Information",
-    content: `We may collect personal information from you when you do any of the following on our website:
+    },
+    {
+      title: "Legitimate Reasons for Processing Your Personal Information",
+      content: `We only collect and use your personal information when we have a legitimate reason for doing so. In which instance we only collect personal information that is reasonably necessary to provide our services to you.`,
+    },
+    {
+      title: "Collection and Use of Information",
+      content: `We may collect personal information from you when you do any of the following on our website:
 • Use a mobile device or web browser to access our content
 • Contact us via email, social media, or on any similar technologies
 • When you mention us on social media
@@ -50,24 +62,24 @@ We may collect, hold, use and disclose information for the following purposes, a
 • for internal record keeping and administrative purposes
 
 We may combine voluntarily provided and automatically collected personal information with general information or research data we receive from other trusted sources. For example, our marketing and market research activities may uncover data and insights, which we may combine with information about how visitors use our site to improve our site and your experience on it.`,
-  },
-  {
-    title: "Security of Your Personal Information",
-    content: `When we collect and process personal information, and while we retain this information, we will protect it within commercially acceptable means to prevent loss and theft, as well as unauthorised access, disclosure, copying, use or modification.
+    },
+    {
+      title: "Security of Your Personal Information",
+      content: `When we collect and process personal information, and while we retain this information, we will protect it within commercially acceptable means to prevent loss and theft, as well as unauthorised access, disclosure, copying, use or modification.
 
 Although we will do our best to protect the personal information you provide to us, we advise that no method of electronic transmission or storage is 100% secure and no one can guarantee absolute data security.
 
 You are responsible for selecting any password and its overall security strength, ensuring the security of your own information within the bounds of our services. For example, ensuring you do not make your personal information publicly available via our platform.`,
-  },
-  {
-    title: "How Long We Keep Your Personal Information",
-    content: `We keep your personal information only for as long as we need to. This time period may depend on what we are using your information for, in accordance with this privacy policy. For example, if you have provided us with personal information such as an email address when contacting us about a specific enquiry, we may retain this information for the duration of your enquiry remaining open as well as for our own records so we may effectively address similar enquiries in future. If your personal information is no longer required for this purpose, we will delete it or make it anonymous by removing all details that identify you.
+    },
+    {
+      title: "How Long We Keep Your Personal Information",
+      content: `We keep your personal information only for as long as we need to. This time period may depend on what we are using your information for, in accordance with this privacy policy. For example, if you have provided us with personal information such as an email address when contacting us about a specific enquiry, we may retain this information for the duration of your enquiry remaining open as well as for our own records so we may effectively address similar enquiries in future. If your personal information is no longer required for this purpose, we will delete it or make it anonymous by removing all details that identify you.
 
 However, if necessary, we may retain your personal information for our compliance with a legal, accounting, or reporting obligation or for archiving purposes in the public interest, scientific, or historical research purposes or statistical purposes.`,
-  },
-  {
-    title: "Disclosure of Personal Information to Third Parties",
-    content: `We may disclose personal information to:
+    },
+    {
+      title: "Disclosure of Personal Information to Third Parties",
+      content: `We may disclose personal information to:
 • a parent, subsidiary or affiliate of our company
 • third-party service providers for the purpose of enabling them to provide their services including (without limitation) IT service providers, data storage, hosting and server providers, analytics, error loggers, debt collectors, maintenance or problem-solving providers, professional advisors, and payment systems operators
 • our employees, contractors, and/or related entities
@@ -80,10 +92,10 @@ However, if necessary, we may retain your personal information for our complianc
 
 Third parties we currently use include:
 • Google Analytics`,
-  },
-  {
-    title: "Your Rights and Controlling Your Personal Information",
-    content: `Your choice: By providing personal information to us, you understand we will collect, hold, use, and disclose your personal information in accordance with this privacy policy. You do not have to provide personal information to us, however, if you do not, it may affect your use of our website or the products and/or services offered on or through it.
+    },
+    {
+      title: "Your Rights and Controlling Your Personal Information",
+      content: `Your choice: By providing personal information to us, you understand we will collect, hold, use, and disclose your personal information in accordance with this privacy policy. You do not have to provide personal information to us, however, if you do not, it may affect your use of our website or the products and/or services offered on or through it.
 
 Information from third parties: If we receive personal information about you from a third party, we will protect it as set out in this privacy policy. If you are a third party providing personal information about somebody else, you represent and warrant that you have such person's consent to provide the personal information to us.
 
@@ -100,30 +112,30 @@ Notification of data breaches: We will comply with laws applicable to us in resp
 Complaints: If you believe that we have breached a relevant data protection law and wish to make a complaint, please contact us using the details below and provide us with full details of the alleged breach. We will promptly investigate your complaint and respond to you, in writing, setting out the outcome of our investigation and the steps we will take to deal with your complaint. You also have the right to contact a regulatory body or data protection authority in relation to your complaint.
 
 Unsubscribe: To unsubscribe from our email database or opt-out of communications (including marketing communications), please contact us using the details provided in this privacy policy, or opt-out using the opt-out facilities provided in the communication. We may need to request specific information from you to help us confirm your identity.`,
-  },
-  {
-    title: "Use of Cookies",
-    content: `We use 'cookies' to collect information about you and your activity across our site. A cookie is a small piece of data that our website stores on your computer, and accesses each time you visit, so we can understand how you use our site. This helps us serve you content based on preferences you have specified.`,
-  },
-  {
-    title: "Business Transfers",
-    content: `If we or our assets are acquired, or in the unlikely event that we go out of business or enter bankruptcy, we would include data, including your personal information, among the assets transferred to any parties who acquire us. You acknowledge that such transfers may occur, and that any parties who acquire us may, to the extent permitted by applicable law, continue to use your personal information according to this policy, which they will be required to assume as it is the basis for any ownership or use rights we have over such information.`,
-  },
-  {
-    title: "Limits of Our Policy",
-    content: `Our website may link to external sites that are not operated by us. Please be aware that we have no control over the content and policies of those sites, and cannot accept responsibility or liability for their respective privacy practices.`,
-  },
-  {
-    title: "Changes to This Policy",
-    content: `At our discretion, we may change our privacy policy to reflect updates to our business processes, current acceptable practices, or legislative or regulatory changes. If we decide to change this privacy policy, we will post the changes here at the same link by which you are accessing this privacy policy.
+    },
+    {
+      title: "Use of Cookies",
+      content: `We use 'cookies' to collect information about you and your activity across our site. A cookie is a small piece of data that our website stores on your computer, and accesses each time you visit, so we can understand how you use our site. This helps us serve you content based on preferences you have specified.`,
+    },
+    {
+      title: "Business Transfers",
+      content: `If we or our assets are acquired, or in the unlikely event that we go out of business or enter bankruptcy, we would include data, including your personal information, among the assets transferred to any parties who acquire us. You acknowledge that such transfers may occur, and that any parties who acquire us may, to the extent permitted by applicable law, continue to use your personal information according to this policy, which they will be required to assume as it is the basis for any ownership or use rights we have over such information.`,
+    },
+    {
+      title: "Limits of Our Policy",
+      content: `Our website may link to external sites that are not operated by us. Please be aware that we have no control over the content and policies of those sites, and cannot accept responsibility or liability for their respective privacy practices.`,
+    },
+    {
+      title: "Changes to This Policy",
+      content: `At our discretion, we may change our privacy policy to reflect updates to our business processes, current acceptable practices, or legislative or regulatory changes. If we decide to change this privacy policy, we will post the changes here at the same link by which you are accessing this privacy policy.
 
 If required by law, we will get your permission or give you the opportunity to opt in to or opt out of, as applicable, any new uses of your personal information.`,
-  },
-  {
-    title: "Additional Disclosures for General Data Protection Regulation (GDPR) Compliance (EU)",
-    content: `Data Controller / Data Processor
+    },
+    {
+      title: "Additional Disclosures for General Data Protection Regulation (GDPR) Compliance (EU)",
+      content: `Data Controller / Data Processor
 
-The GDPR distinguishes between organisations that process personal information for their own purposes (known as "data controllers") and organizations that process personal information on behalf of other organizations (known as "data processors"). We, Clever Accounts Ltd, located at the address provided in our Contact Us section, are a Data Controller with respect to the personal information you provide to us.
+The GDPR distinguishes between organisations that process personal information for their own purposes (known as "data controllers") and organizations that process personal information on behalf of other organizations (known as "data processors"). We, ${legalName}, located at the address provided in our Contact Us section, are a Data Controller with respect to the personal information you provide to us.
 
 Legal Bases for Processing Your Personal Information
 
@@ -152,10 +164,15 @@ Objecting to processing: You have the right to object to processing of your pers
 Data portability: You may have the right to request a copy of the personal information we hold about you. Where possible, we will provide this information in CSV format or other easily readable machine format. You may also have the right to request that we transfer this personal information to a third party.
 
 Deletion: You may have a right to request that we delete the personal information we hold about you at any time, and we will take reasonable steps to delete your personal information from our current records. If you ask us to delete your personal information, we will let you know how the deletion affects your use of our website or products and services. There may be exceptions to this right for specific legal reasons which, if applicable, we will set out for you in response to your request. If you terminate or delete your account, we will delete your personal information within 30 days of the deletion of your account. Please be aware that search engines and similar third parties may still retain copies of your personal information that has been made public at least once, like certain profile information and public comments, even after you have deleted the information from our services or deactivated your account.`,
-  },
-];
+    },
+  ];
+}
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  const brand = await getBrand();
+  const sections = buildSections(brand);
+  const siteUrl = `https://${brand.domain}`;
+
   return (
     <>
       <section className="relative overflow-hidden bg-dark py-16 md:py-20">
@@ -176,7 +193,7 @@ export default function PrivacyPolicyPage() {
       <section className="bg-white py-16">
         <div className="max-w-4xl mx-auto px-4">
           <p className="text-text-light leading-relaxed mb-10">
-            Your privacy is important to us. It is Clever Accounts Ltd&apos;s policy to respect your privacy and comply with any applicable law and regulation regarding any personal information we may collect about you, including across our website, <a href="https://cleveraccounts.com" className="text-primary hover:underline">https://cleveraccounts.com</a>, and other sites we own and operate.
+            Your privacy is important to us. It is {brand.legalName}&apos;s policy to respect your privacy and comply with any applicable law and regulation regarding any personal information we may collect about you, including across our website, <a href={siteUrl} className="text-primary hover:underline">{siteUrl}</a>, and other sites we own and operate.
           </p>
           <p className="text-text-light leading-relaxed mb-10">
             Personal information is any information about you which can be used to identify you. This includes information about you as a person (such as name, address, and date of birth), your devices, payment details, and even information about how you use a website or online service.
@@ -199,9 +216,9 @@ export default function PrivacyPolicyPage() {
             <p className="text-text-light text-sm">
               For any questions or concerns regarding your privacy, you may contact us using the following details:
             </p>
-            <p className="text-text-light text-sm mt-2">Chris Mollan</p>
+            <p className="text-text-light text-sm mt-2">{brand.email}</p>
             <Link href="/contact" className="text-primary hover:underline text-sm">
-              https://cleveraccounts.com/contact
+              {siteUrl}/contact
             </Link>
           </div>
         </div>

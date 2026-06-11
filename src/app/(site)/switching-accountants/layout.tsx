@@ -1,30 +1,36 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "How to Switch Accountants UK (2026 Guide) | Clever Accounts",
-  description:
-    "Thinking of switching accountants? Our step-by-step guide covers when to switch, how the professional clearance process works, what to look for in a new firm, and common concerns answered. Updated April 2026.",
-  keywords: [
-    "switch accountant UK",
-    "how to switch accountants",
-    "change accountant UK",
-    "switching accountants mid-year",
-    "professional clearance accountant",
-    "leave my accountant",
-    "new accountant UK",
-    "switch to Clever Accounts",
-  ],
-  openGraph: {
-    title: "How to Switch Accountants UK (2026 Guide)",
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  const isWorkwell = brand.id === "workwell";
+  return {
+    title: `How to Switch Accountants UK (2026 Guide) | ${brand.name}`,
     description:
-      "Step-by-step guide to switching accountants in the UK. Professional clearance, mid-year switching, what to look for — and how Clever Accounts makes it free and seamless.",
-    type: "article",
-  },
-  alternates: {
-    canonical: "https://cleveraccounts.com/switching-accountants",
-  },
-};
+      "Thinking of switching accountants? Our step-by-step guide covers when to switch, how the professional clearance process works, what to look for in a new firm, and common concerns answered. Updated April 2026.",
+    keywords: [
+      "switch accountant UK",
+      "how to switch accountants",
+      "change accountant UK",
+      "switching accountants mid-year",
+      "professional clearance accountant",
+      "leave my accountant",
+      "new accountant UK",
+      `switch to ${brand.name}`,
+    ],
+    openGraph: {
+      title: "How to Switch Accountants UK (2026 Guide)",
+      description: isWorkwell
+        ? `Step-by-step guide to switching accountants in the UK. Professional clearance, mid-year switching, what to look for — and how ${brand.name} makes it free and seamless.`
+        : "Step-by-step guide to switching accountants in the UK. Professional clearance, mid-year switching, what to look for — and how Clever Accounts makes it free and seamless.",
+      type: "article",
+    },
+    alternates: {
+      canonical: `https://${brand.domain}/switching-accountants`,
+    },
+  };
+}
 
 const faqs = [
   {
@@ -37,7 +43,7 @@ const faqs = [
   },
   {
     q: "Is there a cost to switch accountants?",
-    a: "Switching to Clever Accounts is completely free — no setup fees, no transfer charges. Your old accountant may charge for producing final records or outstanding work not yet billed, but a new firm should never charge you to take you on.",
+    a: "Switching to {{BRAND}} is completely free — no setup fees, no transfer charges. Your old accountant may charge for producing final records or outstanding work not yet billed, but a new firm should never charge you to take you on.",
   },
   {
     q: "What is professional clearance and why does it matter?",
@@ -69,10 +75,12 @@ const faqs = [
   },
 ];
 
-export default function SwitchingAccountantsLayout({ children }: { children: React.ReactNode }) {
+export default async function SwitchingAccountantsLayout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
+  const brandFaqs = faqs.map((f) => ({ ...f, a: f.a.replace(/\{\{BRAND\}\}/g, brand.name) }));
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      <FAQPageJsonLd faqs={brandFaqs} />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "/" },
