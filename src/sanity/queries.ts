@@ -72,6 +72,17 @@ export async function getServicePage(slug: string, brandId?: BrandId) {
   );
 }
 
+// Page-builder pages (/p/{slug}).
+export async function getFlexiblePage(slug: string, brandId?: BrandId) {
+  if (!brandId) {
+    return client.fetch(`*[_type == "flexiblePage" && slug.current == $slug][0]`, { slug });
+  }
+  return client.fetch(
+    `*[_type == "flexiblePage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
+    { slug, brandId }
+  );
+}
+
 // Home page content.
 //
 // homePage is a per-brand singleton (one fixed document per brand, pinned by

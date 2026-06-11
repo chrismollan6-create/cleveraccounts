@@ -100,6 +100,9 @@ export default defineConfig({
 
             // ── Marketing & Pages ────────────────────────────────────────
             S.listItem()
+              .title("🧩 Pages (builder)")
+              .child(S.documentTypeList("flexiblePage").title("Pages (builder)")),
+            S.listItem()
               .title("🚀 Landing Pages (CMS)")
               .child(S.documentTypeList("landingPage").title("Landing Pages")),
             S.listItem()

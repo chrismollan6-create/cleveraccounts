@@ -461,6 +461,7 @@ body {
   --color-surface-alt: #fafbec;
   --color-text: #32535a;
   --color-text-light: #6a7b82;
+  --color-dark: #1a2426;
   --font-sans: "Montserrat Alternates", ui-sans-serif, system-ui, sans-serif;
 }
 
