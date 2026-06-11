@@ -1,4 +1,4 @@
-import { defineConfig } from "sanity";
+import { defineConfig, buildLegacyTheme } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { Search } from "lucide-react";
@@ -8,12 +8,37 @@ import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
 
 const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage", "knowledgeArticle"];
 
+// Branded Studio theme — a calmer, on-brand look (teal accent, deep-teal
+// navbar) instead of the default Sanity grey. Purely cosmetic.
+const theme = buildLegacyTheme({
+  "--black": "#1f2d31",
+  "--white": "#ffffff",
+  "--gray": "#64748b",
+  "--gray-base": "#64748b",
+  "--component-bg": "#ffffff",
+  "--component-text-color": "#1f2d31",
+  "--brand-primary": "#1A7A9B",
+  "--default-button-color": "#64748b",
+  "--default-button-primary-color": "#1A7A9B",
+  "--default-button-success-color": "#16a34a",
+  "--default-button-warning-color": "#f59e0b",
+  "--default-button-danger-color": "#e11d48",
+  "--state-info-color": "#1A7A9B",
+  "--state-success-color": "#16a34a",
+  "--state-warning-color": "#f59e0b",
+  "--state-danger-color": "#e11d48",
+  "--main-navigation-color": "#16282e",
+  "--main-navigation-color--inverted": "#ffffff",
+  "--focus-color": "#1A7A9B",
+});
+
 export default defineConfig({
   name: "clever-accounts",
   title: "Clever Accounts CMS",
   projectId: "sgaod5tg",
   dataset: "production",
   basePath: "/studio",
+  theme,
   plugins: [
     dashboardPlugin(),
     seoPlugin(),
