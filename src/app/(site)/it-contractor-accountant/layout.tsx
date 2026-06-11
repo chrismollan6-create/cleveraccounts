@@ -1,30 +1,40 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Best Accountant for IT Contractors UK (2026 Guide) | Clever Accounts",
-  description:
-    "Compare the 8 leading contractor accountants for UK IT contractors. Honest pricing, IR35 review policies, software included, and named accountant comparison. Updated April 2026.",
-  keywords: [
-    "IT contractor accountant",
-    "best accountant for IT contractors UK",
-    "contractor accountant comparison",
-    "IR35 accountant",
-    "limited company contractor accountant",
-    "FreeAgent contractor accountant",
-    "outside IR35 accountant",
-    "contractor accountant 2026",
-  ],
-  openGraph: {
-    title: "Best Accountant for IT Contractors UK (2026 Guide)",
+const keywords = [
+  "IT contractor accountant",
+  "best accountant for IT contractors UK",
+  "contractor accountant comparison",
+  "IR35 accountant",
+  "limited company contractor accountant",
+  "FreeAgent contractor accountant",
+  "outside IR35 accountant",
+  "contractor accountant 2026",
+];
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  const ogTitle = "Best Accountant for IT Contractors UK (2026 Guide)";
+  return {
+    title:
+      brand.id === "clever"
+        ? `${ogTitle} | Clever Accounts`
+        : `${ogTitle} | ${brand.name}`,
     description:
-      "An honest comparison of the 8 leading contractor accountants — pricing, IR35 reviews, software, and a decision framework. Updated April 2026.",
-    type: "article",
-  },
-  alternates: {
-    canonical: "https://cleveraccounts.com/it-contractor-accountant",
-  },
-};
+      "Compare the 8 leading contractor accountants for UK IT contractors. Honest pricing, IR35 review policies, software included, and named accountant comparison. Updated April 2026.",
+    keywords,
+    openGraph: {
+      title: ogTitle,
+      description:
+        "An honest comparison of the 8 leading contractor accountants — pricing, IR35 reviews, software, and a decision framework. Updated April 2026.",
+      type: "article",
+    },
+    alternates: {
+      canonical: `https://${brand.domain}/it-contractor-accountant`,
+    },
+  };
+}
 
 const faqs = [
   {

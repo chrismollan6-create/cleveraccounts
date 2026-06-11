@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title: "UK Tax Deadlines 2025/26 — Key Dates for Your Diary | Clever Accounts",
   description:
     "Complete guide to UK tax deadlines for 2025/26: Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD. Never miss an HMRC deadline again — Clever Accounts handles it all.",
 };
 
-const faqs = [
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") return cleverMetadata;
+  return {
+    title: `UK Tax Deadlines 2025/26 — Key Dates for Your Diary | ${brand.name}`,
+    description:
+      `Complete guide to UK tax deadlines for 2025/26: Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD. Never miss an HMRC deadline again — ${brand.name} handles it all.`,
+  };
+}
+
+const faqs = (brandName: string) => [
   {
     q: "When is the self assessment tax return deadline?",
     a: "The online self assessment deadline is 31 January each year. Paper returns must be filed by 31 October. Any tax owed must also be paid by 31 January. If you're newly self-employed or have a new source of untaxed income, you must register with HMRC by 5 October following the end of the relevant tax year.",
@@ -38,14 +49,15 @@ const faqs = [
   },
   {
     q: "How can I make sure I never miss a tax deadline?",
-    a: "The simplest way is to use a dedicated accountant who manages all your deadlines for you. Clever Accounts monitors every filing and payment deadline for all clients, sends proactive reminders, and handles submissions on your behalf — so you never face a penalty for something that could have been avoided.",
+    a: `The simplest way is to use a dedicated accountant who manages all your deadlines for you. ${brandName} monitors every filing and payment deadline for all clients, sends proactive reminders, and handles submissions on your behalf — so you never face a penalty for something that could have been avoided.`,
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      <FAQPageJsonLd faqs={faqs(brand.name)} />
       {children}
     </>
   );

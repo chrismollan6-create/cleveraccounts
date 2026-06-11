@@ -17,6 +17,7 @@ import {
   Loader2,
   RotateCcw,
 } from "lucide-react";
+import { useBrand } from "@/lib/useBrand";
 
 interface ReferralItem {
   id: string;
@@ -54,6 +55,7 @@ function formatDate(dateStr: string | null): string {
 }
 
 function ReferralPageContent() {
+  const brand = useBrand();
   const searchParams = useSearchParams();
   const ref = searchParams.get("ref");
 
@@ -74,7 +76,7 @@ function ReferralPageContent() {
   const [requestError, setRequestError] = useState<string | null>(null);
 
   const shareLink = data
-    ? `https://www.cleveraccounts.com/sign-up?ref=${data.referralCode}`
+    ? `https://www.${brand.domain}/sign-up?ref=${data.referralCode}`
     : "";
 
   const loadReferralData = useCallback(async () => {
@@ -289,7 +291,7 @@ function ReferralPageContent() {
               <div className="bg-dark rounded-2xl p-8 text-center">
                 <h2 className="text-lg font-black text-white mb-2">Not a client yet?</h2>
                 <p className="text-white/70 text-sm mb-5">
-                  Join Clever Accounts and you&apos;ll get your own referral link — earn up to £250 for every friend you refer.
+                  Join {brand.name} and you&apos;ll get your own referral link — earn up to £250 for every friend you refer.
                 </p>
                 <a
                   href="/sign-up"
@@ -299,7 +301,7 @@ function ReferralPageContent() {
                 </a>
               </div>
 
-              <HowItWorks />
+              <HowItWorks brandName={brand.name} />
             </div>
           )}
 
@@ -312,7 +314,7 @@ function ReferralPageContent() {
                 {/* Share link — takes more width */}
                 <div className="md:col-span-3 bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 rounded-2xl p-6">
                   <h2 className="text-base font-black text-dark mb-1">Your Referral Link</h2>
-                  <p className="text-sm text-text-light mb-4">Share this with anyone you think would benefit from Clever Accounts.</p>
+                  <p className="text-sm text-text-light mb-4">Share this with anyone you think would benefit from {brand.name}.</p>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 bg-white border border-border rounded-xl px-4 py-3 text-sm text-text font-mono truncate select-all">
                       {shareLink}
@@ -536,7 +538,7 @@ function ReferralPageContent() {
               </div>
 
               {/* ── HOW IT WORKS ────────────────────────────────── */}
-              <HowItWorks />
+              <HowItWorks brandName={brand.name} />
 
             </div>
           )}
@@ -546,7 +548,7 @@ function ReferralPageContent() {
   );
 }
 
-function HowItWorks() {
+function HowItWorks({ brandName }: { brandName: string }) {
   const steps = [
     {
       icon: <Copy size={20} />,
@@ -556,7 +558,7 @@ function HowItWorks() {
     {
       icon: <Users size={20} />,
       title: "They sign up",
-      desc: "They sign up using your link and become a Clever Accounts client.",
+      desc: `They sign up using your link and become a ${brandName} client.`,
     },
     {
       icon: <Clock size={20} />,

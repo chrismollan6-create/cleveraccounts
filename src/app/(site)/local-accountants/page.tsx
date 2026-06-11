@@ -1,20 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, X } from "lucide-react";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: "Online vs Local Accountant",
-  description: "Why switch from your local accountant to Clever Accounts? Better service, lower costs, free software, unlimited support. Compare and switch today.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") {
+    return {
+      title: "Online vs Local Accountant",
+      description: "Why switch from your local accountant to Clever Accounts? Better service, lower costs, free software, unlimited support. Compare and switch today.",
+    };
+  }
+  return {
+    title: `Online vs Local Accountant | ${brand.name}`,
+    description: `Why switch from your local accountant to ${brand.name}? Better service, lower costs, free software, unlimited support. Compare and switch today.`,
+  };
+}
 
-export default function LocalAccountantsPage() {
+export default async function LocalAccountantsPage() {
+  const brand = await getBrand();
   return (
     <>
       <section className="gradient-hero-subtle py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4">Why Switch from Your Local Accountant?</h1>
           <p className="text-lg text-text-light max-w-2xl mx-auto">
-            Get more for less. Online accounting with Clever Accounts gives you better service, lower costs, and modern software — all without leaving your desk.
+            Get more for less. Online accounting with {brand.name} gives you better service, lower costs, and modern software — all without leaving your desk.
           </p>
         </div>
       </section>
@@ -54,7 +65,7 @@ export default function LocalAccountantsPage() {
             ))}
             <div className="flex items-center gap-4 p-2">
               <span className="flex-1" />
-              <div className="w-32 text-center text-xs font-bold text-primary uppercase">Clever Accounts</div>
+              <div className="w-32 text-center text-xs font-bold text-primary uppercase">{brand.name}</div>
               <div className="w-32 text-center text-xs font-bold text-text-light uppercase">Local Accountant</div>
             </div>
           </div>

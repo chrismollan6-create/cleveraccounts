@@ -13,9 +13,26 @@ export const dynamic = "force-static";
 // Trustpilot uses qualitative bands: "Excellent" (4.5+), "Great" (4.0–4.4), "Average" (3.5–3.9).
 // We display bands rather than raw scores because point-in-time numeric scores fluctuate weekly
 // and 0.1 differences on small samples aren't material.
-const providers = [
-  {
-    name: "Clever Accounts",
+interface Provider {
+  name: string;
+  fee: string;
+  software: string;
+  namedAccountant: boolean;
+  ir35Included: boolean;
+  trustpilot: string;
+  bestFor: string;
+  highlight: boolean;
+  notes: string;
+  watchouts: string | null;
+}
+
+// The featured provider is the current brand. Clever keeps its full
+// history/stats + Clever FLEX; Workwell gets a brand-correct equivalent with
+// no Clever-specific claims.
+function featuredProvider(brand: { id: string; name: string }): Provider {
+  const isClever = brand.id === "clever";
+  return {
+    name: brand.name,
     fee: "£104.50/mo",
     software: "FreeAgent",
     namedAccountant: true,
@@ -23,10 +40,14 @@ const providers = [
     trustpilot: "Excellent",
     bestFor: "IT contractors who want full-service plus PSC ↔ umbrella flexibility",
     highlight: true,
-    notes:
-      "Specialist contractor accountant with 20+ years' experience and 10,000+ UK businesses served. UK-based Leeds office — no offshore support. The only provider in this list with Clever FLEX: seamless switching between your PSC and our umbrella when a contract status changes, with no extra admin, no second provider, and no payment gap. Unlimited IR35 reviews, FreeAgent, payroll, VAT, year-end accounts, CT600 and personal Self Assessment are all included at one flat monthly fee.",
+    notes: isClever
+      ? "Specialist contractor accountant with 20+ years' experience and 10,000+ UK businesses served. UK-based Leeds office — no offshore support. The only provider in this list with Clever FLEX: seamless switching between your PSC and our umbrella when a contract status changes, with no extra admin, no second provider, and no payment gap. Unlimited IR35 reviews, FreeAgent, payroll, VAT, year-end accounts, CT600 and personal Self Assessment are all included at one flat monthly fee."
+      : "Specialist UK contractor accountant with a dedicated, named contractor team. Seamless switching between your PSC and our umbrella when a contract status changes, with no extra admin, no second provider, and no payment gap. Unlimited IR35 reviews, FreeAgent, payroll, VAT, year-end accounts, CT600 and personal Self Assessment are all included at one flat monthly fee.",
     watchouts: null,
-  },
+  };
+}
+
+const competitors: Provider[] = [
   {
     name: "Crunch",
     fee: "From £82/mo",
@@ -195,6 +216,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function ITContractorAccountantPage() {
   const brand = useBrand();
+  const isClever = brand.id === "clever";
+  const providers = [featuredProvider(brand), ...competitors];
   return (
     <>
       {/* ── Hero ─────────────────────────────────────── */}
@@ -216,7 +239,7 @@ export default function ITContractorAccountantPage() {
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
               How the 8 leading UK contractor accountants compare on the things IT contractors
-              actually rely on — and why we built Clever Accounts to win on every one.
+              actually rely on — and why we built {brand.name} to win on every one.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -247,7 +270,9 @@ export default function ITContractorAccountantPage() {
           <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Quick Summary</p>
           <ul className="space-y-3">
             {[
-              "Clever Accounts is the only provider in this list with Clever FLEX — seamless switching between your PSC and our umbrella when IR35 status changes, with no second provider and no payment gap.",
+              isClever
+                ? "Clever Accounts is the only provider in this list with Clever FLEX — seamless switching between your PSC and our umbrella when IR35 status changes, with no second provider and no payment gap."
+                : `${brand.name} offers seamless switching between your PSC and our umbrella when IR35 status changes, with no second provider and no payment gap.`,
               "Three checks matter most when comparing contractor accountants: named accountant included (not portal-only), unlimited IR35 reviews (not charged per contract), and FreeAgent bundled (not £19/mo extra). We bundle all three at £104.50/mo.",
               "IT contractors typically pay £85–£130/month for a specialist contractor accountant. Cheaper headline prices usually mean portal-led support or per-item charges that surface later.",
               "Switching accountants mid-year is straightforward — your new firm handles the professional clearance letter. No reason to wait for year-end.",
@@ -279,7 +304,7 @@ export default function ITContractorAccountantPage() {
               { icon: Users, title: "Monthly payroll", desc: "Running a small salary to maintain your NI record without triggering large PAYE bills." },
               { icon: BarChart2, title: "Dividend planning", desc: "Advising when and how much to draw as dividends to stay within basic rate tax bands." },
               { icon: Shield, title: "IR35 contract reviews", desc: "Reviewing your contracts to confirm inside or outside IR35 status before you sign." },
-              { icon: Zap, title: "Clever FLEX (CA only)", desc: "Seamless switching between PSC and umbrella when contract status changes — no admin, no gaps." },
+              { icon: Zap, title: isClever ? "Clever FLEX (CA only)" : "PSC ↔ umbrella switch", desc: "Seamless switching between PSC and umbrella when contract status changes — no admin, no gaps." },
               { icon: UserCheck, title: "Year-end accounts & CT600", desc: "Statutory accounts filed at Companies House, Corporation Tax return filed with HMRC." },
               { icon: FileText, title: "Self Assessment", desc: "Your personal tax return filed annually, incorporating dividends, salary, and any other income." },
             ].map(({ icon: Icon, title, desc }) => (
@@ -395,32 +420,56 @@ export default function ITContractorAccountantPage() {
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto">
               We&apos;re not the cheapest in the table below — and we don&apos;t want to be. Here&apos;s what
-              £104.50/month buys an IT contractor at Clever Accounts that the rest of the list doesn&apos;t match.
+              £104.50/month buys an IT contractor at {brand.name} that the rest of the list doesn&apos;t match.
             </p>
           </div>
           <div className="space-y-4">
-            {[
-              {
-                title: "Clever FLEX — the only PSC ↔ umbrella switch in the market",
-                desc: "When a contract goes inside IR35, most providers leave you to find an umbrella separately, sort the handover, and pay setup fees on both sides. Clever FLEX moves you between PSC and umbrella inside the same Clever Accounts relationship — no extra admin, no payment gap, no second provider to chase.",
-              },
-              {
-                title: "Unlimited IR35 contract reviews — no per-review charges, ever",
-                desc: "Take as many contracts as you want, review every one before signing, and never see a per-review invoice. Several providers in the table cap free reviews and charge £50–£200 thereafter — ask them directly before signing up.",
-              },
-              {
-                title: "FreeAgent included free — not £19/month extra, not locked to a proprietary platform",
-                desc: "FreeAgent at retail is £19/month, and inniAccounts ties you to their own platform with no FreeAgent export. We bundle FreeAgent and a named contractor specialist together — no add-on, no lock-in.",
-              },
-              {
-                title: "20+ years of contractor specialism, 10,000+ UK businesses, UK-staffed",
-                desc: "UK-based Leeds office, dedicated contractor team, no offshore call centre. Your named accountant has done your kind of work before — for hundreds of IT contractors operating inside and outside IR35.",
-              },
-              {
-                title: "One published flat fee — no surcharges on the moments that matter",
-                desc: "£104.50/month covers limited company accounts, CT600, payroll, VAT, personal Self Assessment, unlimited IR35 reviews, FreeAgent and Clever FLEX. No setup fee, no per-review charge, no mortgage-reference surcharge when you need one for a property purchase.",
-              },
-            ].map((item, i) => (
+            {(isClever
+              ? [
+                  {
+                    title: "Clever FLEX — the only PSC ↔ umbrella switch in the market",
+                    desc: "When a contract goes inside IR35, most providers leave you to find an umbrella separately, sort the handover, and pay setup fees on both sides. Clever FLEX moves you between PSC and umbrella inside the same Clever Accounts relationship — no extra admin, no payment gap, no second provider to chase.",
+                  },
+                  {
+                    title: "Unlimited IR35 contract reviews — no per-review charges, ever",
+                    desc: "Take as many contracts as you want, review every one before signing, and never see a per-review invoice. Several providers in the table cap free reviews and charge £50–£200 thereafter — ask them directly before signing up.",
+                  },
+                  {
+                    title: "FreeAgent included free — not £19/month extra, not locked to a proprietary platform",
+                    desc: "FreeAgent at retail is £19/month, and inniAccounts ties you to their own platform with no FreeAgent export. We bundle FreeAgent and a named contractor specialist together — no add-on, no lock-in.",
+                  },
+                  {
+                    title: "20+ years of contractor specialism, 10,000+ UK businesses, UK-staffed",
+                    desc: "UK-based Leeds office, dedicated contractor team, no offshore call centre. Your named accountant has done your kind of work before — for hundreds of IT contractors operating inside and outside IR35.",
+                  },
+                  {
+                    title: "One published flat fee — no surcharges on the moments that matter",
+                    desc: "£104.50/month covers limited company accounts, CT600, payroll, VAT, personal Self Assessment, unlimited IR35 reviews, FreeAgent and Clever FLEX. No setup fee, no per-review charge, no mortgage-reference surcharge when you need one for a property purchase.",
+                  },
+                ]
+              : [
+                  {
+                    title: "A seamless PSC ↔ umbrella switch under one roof",
+                    desc: `When a contract goes inside IR35, most providers leave you to find an umbrella separately, sort the handover, and pay setup fees on both sides. ${brand.name} moves you between PSC and umbrella inside the same relationship — no extra admin, no payment gap, no second provider to chase.`,
+                  },
+                  {
+                    title: "Unlimited IR35 contract reviews — no per-review charges, ever",
+                    desc: "Take as many contracts as you want, review every one before signing, and never see a per-review invoice. Several providers in the table cap free reviews and charge £50–£200 thereafter — ask them directly before signing up.",
+                  },
+                  {
+                    title: "FreeAgent included free — not £19/month extra, not locked to a proprietary platform",
+                    desc: "FreeAgent at retail is £19/month, and inniAccounts ties you to their own platform with no FreeAgent export. We bundle FreeAgent and a named contractor specialist together — no add-on, no lock-in.",
+                  },
+                  {
+                    title: "A dedicated, UK-based contractor team",
+                    desc: "A dedicated contractor team and your own named accountant — someone who has done your kind of work before, for IT contractors operating inside and outside IR35.",
+                  },
+                  {
+                    title: "One published flat fee — no surcharges on the moments that matter",
+                    desc: "£104.50/month covers limited company accounts, CT600, payroll, VAT, personal Self Assessment, unlimited IR35 reviews, FreeAgent and the PSC ↔ umbrella switch. No setup fee, no per-review charge, no mortgage-reference surcharge when you need one for a property purchase.",
+                  },
+                ]
+            ).map((item, i) => (
               <div key={i} className="flex items-start gap-4 bg-white/[0.03] border border-white/10 rounded-2xl p-6">
                 <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 font-black text-sm">
                   {i + 1}
@@ -693,7 +742,7 @@ export default function ITContractorAccountantPage() {
             The contractor accountant built for IT professionals
           </h2>
           <p className="text-white/80 mb-8 max-w-2xl mx-auto">
-            Dedicated accountant · FreeAgent included · Unlimited IR35 reviews · Clever FLEX — all for £104.50/month.
+            Dedicated accountant · FreeAgent included · Unlimited IR35 reviews · {isClever ? "Clever FLEX" : "PSC ↔ umbrella switch"} — all for £104.50/month.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

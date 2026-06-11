@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { getBrand } from "@/lib/brand";
 
-export const metadata: Metadata = {
+const cleverMetadata: Metadata = {
   title:
     "FreeAgent Accountants — Sole Trader & Limited Company | Clever Accounts",
   description:
@@ -14,6 +15,24 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrand();
+  if (brand.id === "clever") return cleverMetadata;
+  return {
+    title: `FreeAgent Accountants — Sole Trader & Limited Company | ${brand.name}`,
+    description:
+      `${brand.name} is FreeAgent certified, with accountants fully trained on FreeAgent. All-inclusive accounting for sole traders from £42.50+VAT and limited companies from £84.50+VAT a month — FreeAgent software included free.`,
+    alternates: { canonical: "/freeagent" },
+    openGraph: {
+      title: "FreeAgent Accountants — Sole Trader & Limited Company",
+      description:
+        "FreeAgent certified accountants. All-inclusive accounting for sole traders from £42.50+VAT and limited companies from £84.50+VAT a month — keep your FreeAgent data, switch in minutes.",
+      url: "/freeagent",
+      type: "website",
+    },
+  };
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

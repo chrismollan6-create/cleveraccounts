@@ -43,8 +43,10 @@ const limitedCompanyIncludes = [
   "Free FreeAgent software included",
 ];
 
-// ── Why FreeAgent users choose Clever Accounts ───────────────────
-const whyUs = [
+// ── Why FreeAgent users choose us ────────────────────────────────
+// Clever leans on its FreeAgent Platinum Partner / Co-Pilot relationship;
+// Workwell uses neutral "FreeAgent certified" wording.
+const cleverWhyUs = [
   {
     icon: Award,
     title: "FreeAgent Platinum Partner",
@@ -67,13 +69,40 @@ const whyUs = [
   },
 ];
 
+const workwellWhyUs = [
+  {
+    icon: Award,
+    title: "FreeAgent Certified",
+    desc: "Every one of our accountants is fully trained and certified on FreeAgent, so you get an expert who knows the software inside out.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "FreeAgent Included Free",
+    desc: "FreeAgent software is included free with every package — there's no separate subscription to pay.",
+  },
+  {
+    icon: Clock,
+    title: "Set Up in Minutes",
+    desc: "We link to your existing FreeAgent account as your Practice. Nothing is migrated and nothing is lost.",
+  },
+  {
+    icon: Users,
+    title: "Built Around FreeAgent",
+    desc: "Sole traders and limited companies alike run their accounting on FreeAgent with us, for one simple monthly fee.",
+  },
+];
+
 // ── How taking over works ────────────────────────────────────────
-const steps = [
+// `isClever` gates the Co-Pilot panel route (a Clever-only FreeAgent
+// relationship); Workwell gets a neutral "get in touch" first step.
+const makeSteps = (brandName: string, isClever: boolean) => [
   {
     num: "1",
     icon: Sparkles,
-    title: "Choose Us in FreeAgent",
-    desc: "Select Clever Accounts from the Co-Pilot panel inside your FreeAgent account and start an enquiry. That's the only step you need to take.",
+    title: isClever ? "Choose Us in FreeAgent" : "Get in Touch",
+    desc: isClever
+      ? `Select ${brandName} from the Co-Pilot panel inside your FreeAgent account and start an enquiry. That's the only step you need to take.`
+      : "Get in touch and let us know you use FreeAgent. Starting an enquiry is the only step you need to take.",
   },
   {
     num: "2",
@@ -90,26 +119,26 @@ const steps = [
 ];
 
 // ── FAQ ──────────────────────────────────────────────────────────
-const faqs = [
+const makeFaqs = (brandName: string, isClever: boolean) => [
   {
     q: "I'm a sole trader — what's included for £42.50+VAT?",
     a: "Everything a sole trader needs: your own dedicated accountant, year-end sole trader accounts, your Self Assessment tax return prepared and filed with HMRC, bookkeeping reviews, proactive tax advice, and FreeAgent software included free. One fixed monthly fee, with no setup costs.",
   },
   {
     q: "Who is the £84.50+VAT limited company rate for?",
-    a: "It's an exclusive rate for non-VAT-registered limited companies who join Clever Accounts through FreeAgent. The vast majority of FreeAgent businesses we speak to aren't VAT registered, so we've built a package that reflects that — all the limited company accounting you need, without paying for VAT return work you don't.",
+    a: `It's an exclusive rate for non-VAT-registered limited companies who join ${brandName} for FreeAgent accounting. The vast majority of FreeAgent businesses we speak to aren't VAT registered, so we've built a package that reflects that — all the limited company accounting you need, without paying for VAT return work you don't.`,
   },
   {
     q: "What if I'm VAT registered, or register later?",
     a: "If your business is VAT registered we'll quote our standard all-inclusive rate, which includes quarterly Making Tax Digital VAT returns. If you register for VAT after joining, we'll simply add VAT returns then — there are no penalties for switching, and no minimum contract.",
   },
   {
-    q: "Will I lose my FreeAgent data if I switch to Clever Accounts?",
+    q: `Will I lose my FreeAgent data if I switch to ${brandName}?`,
     a: "No. You keep your existing FreeAgent account, all its history, and your logins. We link to it as your accountancy Practice — the software is identical to what you use today. Nothing is migrated or lost.",
   },
   {
     q: "Do I still get FreeAgent for free?",
-    a: "Yes. FreeAgent is included free for as long as you're a Clever Accounts client — there's no separate software subscription to pay. FreeAgent normally costs up to £33/month direct.",
+    a: `Yes. FreeAgent is included free for as long as you're a ${brandName} client — there's no separate software subscription to pay. FreeAgent normally costs up to £33/month direct.`,
   },
   {
     q: "Is there a setup fee or minimum contract?",
@@ -117,13 +146,19 @@ const faqs = [
   },
   {
     q: "How do I get started?",
-    a: "If you use FreeAgent, you'll find Clever Accounts in the Co-Pilot panel inside your account — choose us there to start an enquiry. If you'd like to talk it through first, call our team and we'll happily answer any questions.",
+    a: isClever
+      ? "If you use FreeAgent, you'll find Clever Accounts in the Co-Pilot panel inside your account — choose us there to start an enquiry. If you'd like to talk it through first, call our team and we'll happily answer any questions."
+      : "If you use FreeAgent, just get in touch and let us know — we'll take it from there. If you'd like to talk it through first, call our team and we'll happily answer any questions.",
   },
 ];
 
 export default async function FreeAgentPage() {
   const brand = await getBrand();
+  const isClever = brand.id === "clever";
   const telHref = `tel:${brand.freephone.replace(/\s/g, "")}`;
+  const whyUs = isClever ? cleverWhyUs : workwellWhyUs;
+  const steps = makeSteps(brand.name, isClever);
+  const faqs = makeFaqs(brand.name, isClever);
 
   return (
     <>
@@ -139,30 +174,46 @@ export default async function FreeAgentPage() {
             <div>
               <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/40 text-orange-400 rounded-full px-4 py-2 text-sm font-semibold mb-6">
                 <Award size={15} />
-                FreeAgent Platinum Partner &amp; Co-Pilot Member
+                {isClever
+                  ? "FreeAgent Platinum Partner & Co-Pilot Member"
+                  : "FreeAgent Certified Accountants"}
               </div>
               <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-                The Accountant{" "}
-                <span className="text-gradient">FreeAgent Recommends</span>
+                {isClever ? (
+                  <>
+                    The Accountant{" "}
+                    <span className="text-gradient">FreeAgent Recommends</span>
+                  </>
+                ) : (
+                  <>
+                    Expert{" "}
+                    <span className="text-gradient">FreeAgent Accountants</span>
+                  </>
+                )}
               </h1>
               <p className="text-lg text-white/80 leading-relaxed mb-4">
-                Clever Accounts has worked hand in hand with FreeAgent for many
-                years — as a Platinum Partner and a member of FreeAgent&apos;s
-                Co-Pilot panel, the small group of accountancy firms FreeAgent
-                recommends directly to its own users.
+                {isClever
+                  ? "Clever Accounts has worked hand in hand with FreeAgent for many years — as a Platinum Partner and a member of FreeAgent's Co-Pilot panel, the small group of accountancy firms FreeAgent recommends directly to its own users."
+                  : `${brand.name} pairs FreeAgent's award-winning software with a dedicated, FreeAgent-certified accountant — so you get the tools you already love and the expert support to go with them.`}
               </p>
               <p className="text-white/60 leading-relaxed mb-8">
-                Over 5,000 businesses already run their books on FreeAgent with
-                us, from sole traders to limited companies. Whichever way you
-                work, we&apos;ll take over your accounting for one simple
-                monthly fee.
+                {isClever
+                  ? "Over 5,000 businesses already run their books on FreeAgent with us, from sole traders to limited companies. Whichever way you work, we'll take over your accounting for one simple monthly fee."
+                  : "Sole traders and limited companies alike run their books on FreeAgent with us. Whichever way you work, we'll take over your accounting for one simple monthly fee."}
               </p>
               <div className="flex flex-wrap gap-6 text-sm">
-                {[
-                  { value: "5,000+", label: "FreeAgent businesses" },
-                  { value: "Platinum", label: "FreeAgent partner status" },
-                  { value: "20+", label: "Years of expertise" },
-                ].map((s) => (
+                {(isClever
+                  ? [
+                      { value: "5,000+", label: "FreeAgent businesses" },
+                      { value: "Platinum", label: "FreeAgent partner status" },
+                      { value: "20+", label: "Years of expertise" },
+                    ]
+                  : [
+                      { value: "Free", label: "FreeAgent software" },
+                      { value: "Certified", label: "FreeAgent accountants" },
+                      { value: "Fixed", label: "Simple monthly fee" },
+                    ]
+                ).map((s) => (
                   <div key={s.label}>
                     <div className="text-2xl font-black text-white">
                       {s.value}
@@ -177,7 +228,7 @@ export default async function FreeAgentPage() {
             <div className="bg-white rounded-3xl p-7 md:p-8 shadow-2xl border border-border">
               <div className="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary rounded-full px-3 py-1 text-xs font-bold mb-4">
                 <Sparkles size={12} />
-                FreeAgent Co-Pilot Pricing
+                {isClever ? "FreeAgent Co-Pilot Pricing" : "FreeAgent Accounting"}
               </div>
               <h2 className="text-xl font-black text-dark mb-1">
                 All-Inclusive Accounting
@@ -248,8 +299,9 @@ export default async function FreeAgentPage() {
                   Already a FreeAgent user?
                 </p>
                 <p className="text-xs text-text-light">
-                  Choose Clever Accounts from the Co-Pilot panel inside your
-                  FreeAgent account — that&apos;s all it takes.
+                  {isClever
+                    ? "Choose Clever Accounts from the Co-Pilot panel inside your FreeAgent account — that's all it takes."
+                    : "Get in touch and let us know you use FreeAgent — that's all it takes."}
                 </p>
               </div>
             </div>
@@ -275,31 +327,52 @@ export default async function FreeAgentPage() {
             {/* Left: story */}
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-                A Genuine FreeAgent Partnership
+                {isClever ? "A Genuine FreeAgent Partnership" : "FreeAgent Done Properly"}
               </p>
               <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-                Not Just a FreeAgent Accountant — One That FreeAgent Chose
+                {isClever
+                  ? "Not Just a FreeAgent Accountant — One That FreeAgent Chose"
+                  : "An Accountant Who Knows FreeAgent Inside Out"}
               </h2>
-              <p className="text-text/70 leading-relaxed mb-4">
-                Plenty of accountants offer FreeAgent. Very few have the
-                relationship with FreeAgent that Clever Accounts has. We&apos;re
-                a <span className="font-semibold text-dark">Platinum
-                Partner</span> — FreeAgent&apos;s highest accreditation — and
-                one of the longest-serving accountancy partners FreeAgent has
-                worked with.
-              </p>
-              <p className="text-text/70 leading-relaxed mb-4">
-                That track record is why FreeAgent invited us onto its{" "}
-                <span className="font-semibold text-dark">Co-Pilot
-                panel</span>: a small, hand-selected group of accountancy firms
-                FreeAgent recommends directly to its own users, right inside the
-                FreeAgent app. It&apos;s an endorsement FreeAgent doesn&apos;t
-                give lightly.
-              </p>
+              {isClever ? (
+                <>
+                  <p className="text-text/70 leading-relaxed mb-4">
+                    Plenty of accountants offer FreeAgent. Very few have the
+                    relationship with FreeAgent that Clever Accounts has.
+                    We&apos;re a{" "}
+                    <span className="font-semibold text-dark">
+                      Platinum Partner
+                    </span>{" "}
+                    — FreeAgent&apos;s highest accreditation — and one of the
+                    longest-serving accountancy partners FreeAgent has worked
+                    with.
+                  </p>
+                  <p className="text-text/70 leading-relaxed mb-4">
+                    That track record is why FreeAgent invited us onto its{" "}
+                    <span className="font-semibold text-dark">
+                      Co-Pilot panel
+                    </span>
+                    : a small, hand-selected group of accountancy firms FreeAgent
+                    recommends directly to its own users, right inside the
+                    FreeAgent app. It&apos;s an endorsement FreeAgent
+                    doesn&apos;t give lightly.
+                  </p>
+                </>
+              ) : (
+                <p className="text-text/70 leading-relaxed mb-4">
+                  Plenty of accountants offer FreeAgent. Our accountants are
+                  fully{" "}
+                  <span className="font-semibold text-dark">
+                    FreeAgent certified
+                  </span>{" "}
+                  and trained on the software, so you get an expert who lives and
+                  breathes the tools you already use — with FreeAgent included
+                  free as part of your package.
+                </p>
+              )}
               <p className="text-text/70 leading-relaxed mb-6">
                 For you, that means an accountant who lives and breathes the
-                software you already use — and a team FreeAgent itself trusts
-                with its customers.
+                software you already use.
               </p>
               <a
                 href={COPILOT_URL}
@@ -307,7 +380,7 @@ export default async function FreeAgentPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
               >
-                Learn about FreeAgent Co-Pilot <ArrowRight size={16} />
+                Learn about FreeAgent <ArrowRight size={16} />
               </a>
             </div>
 
@@ -316,22 +389,32 @@ export default async function FreeAgentPage() {
               <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 rounded-3xl p-8 text-center shadow-xl">
                 <Award size={48} className="text-white mx-auto mb-4" />
                 <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-2">
-                  Official Status
+                  {isClever ? "Official Status" : "FreeAgent"}
                 </p>
                 <p className="text-white font-black text-2xl mb-1">
-                  FreeAgent Platinum Partner
+                  {isClever ? "FreeAgent Platinum Partner" : "FreeAgent Certified"}
                 </p>
                 <p className="text-white/70 text-sm">
-                  The highest accreditation awarded by FreeAgent
+                  {isClever
+                    ? "The highest accreditation awarded by FreeAgent"
+                    : "Accountants fully trained and certified on FreeAgent"}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: Handshake, label: "Co-Pilot Panel Member" },
-                  { icon: Clock, label: "One of the Longest-Serving" },
-                  { icon: Users, label: "5,000+ FreeAgent Clients" },
-                  { icon: Star, label: "Rated 4.7 on Trustpilot" },
-                ].map(({ icon: Icon, label }) => (
+                {(isClever
+                  ? [
+                      { icon: Handshake, label: "Co-Pilot Panel Member" },
+                      { icon: Clock, label: "One of the Longest-Serving" },
+                      { icon: Users, label: "5,000+ FreeAgent Clients" },
+                      { icon: Star, label: "Rated 4.7 on Trustpilot" },
+                    ]
+                  : [
+                      { icon: BadgeCheck, label: "FreeAgent Certified" },
+                      { icon: Sparkles, label: "FreeAgent Included Free" },
+                      { icon: Users, label: "Sole Trader & Limited Co." },
+                      { icon: ShieldCheck, label: "No Minimum Contract" },
+                    ]
+                ).map(({ icon: Icon, label }) => (
                   <div
                     key={label}
                     className="bg-white border border-border rounded-2xl p-4 flex flex-col items-center gap-2 text-center shadow-sm"
@@ -500,8 +583,9 @@ export default async function FreeAgentPage() {
               An Accountant Who Knows FreeAgent Inside Out
             </h2>
             <p className="text-lg text-text/70 max-w-2xl mx-auto">
-              You&apos;ve already picked great software. Pair it with an
-              accountant FreeAgent itself recommends.
+              {isClever
+                ? "You've already picked great software. Pair it with an accountant FreeAgent itself recommends."
+                : "You've already picked great software. Pair it with a FreeAgent-certified accountant who knows it inside out."}
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -584,9 +668,9 @@ export default async function FreeAgentPage() {
           <Quote size={40} className="text-primary/30 mx-auto mb-5" />
           <p className="text-xl md:text-2xl font-semibold text-dark leading-relaxed mb-6">
             &ldquo;I&apos;d used FreeAgent for years and loved it — I just
-            needed an accountant who understood it as well as I did. Clever
-            Accounts took over without me changing a thing. Same software, far
-            less to worry about.&rdquo;
+            needed an accountant who understood it as well as I did. {brand.name}{" "}
+            took over without me changing a thing. Same software, far less to
+            worry about.&rdquo;
           </p>
           <div className="flex items-center justify-center gap-1 mb-2">
             {[...Array(5)].map((_, i) => (
@@ -657,17 +741,27 @@ export default async function FreeAgentPage() {
           <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 rounded-3xl p-10 md:p-14 text-center shadow-2xl">
             <Award size={40} className="text-white/80 mx-auto mb-4" />
             <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-3">
-              FreeAgent Co-Pilot Partner
+              {isClever ? "FreeAgent Co-Pilot Partner" : "FreeAgent Certified Accountants"}
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
               Ready to Put a Real Accountant Behind Your FreeAgent?
             </h2>
             <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-              Sole trader or limited company, if you use FreeAgent you&apos;ll
-              find Clever Accounts in the{" "}
-              <span className="font-bold">Co-Pilot panel</span> inside your
-              account — start an enquiry there to get going. Got a question
-              first? Our team is happy to help.
+              {isClever ? (
+                <>
+                  Sole trader or limited company, if you use FreeAgent
+                  you&apos;ll find Clever Accounts in the{" "}
+                  <span className="font-bold">Co-Pilot panel</span> inside your
+                  account — start an enquiry there to get going. Got a question
+                  first? Our team is happy to help.
+                </>
+              ) : (
+                <>
+                  Sole trader or limited company, if you use FreeAgent just get
+                  in touch and let us know — we&apos;ll take it from there. Got a
+                  question first? Our team is happy to help.
+                </>
+              )}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a
@@ -677,7 +771,7 @@ export default async function FreeAgentPage() {
                 className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-6 py-4 rounded-xl border border-white/30 hover:bg-white/25 transition-all"
               >
                 <MessageSquare size={20} />
-                How FreeAgent Co-Pilot works
+                {isClever ? "How FreeAgent Co-Pilot works" : "About FreeAgent"}
               </a>
               <a
                 href={telHref}
