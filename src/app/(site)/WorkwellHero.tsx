@@ -42,8 +42,8 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
   const rating = brand.trustpilot?.rating ?? "4.6";
 
   const included = [
-    "Your own dedicated accountant",
-    "Unlimited phone & email advice",
+    "Your own named accountant — not a call centre",
+    "Unlimited advice, answered fast",
     "Free accounting software",
     "All your tax returns filed",
     "Proactive tax-saving advice",
@@ -153,7 +153,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
 
                 <div className="p-7">
                   <p className="text-2xl font-extrabold text-[#2c4a51] mb-6">
-                    One accountant. One simple fee.
+                    One accountant who actually replies.
                   </p>
 
                   <ul className="space-y-3.5 mb-7">
