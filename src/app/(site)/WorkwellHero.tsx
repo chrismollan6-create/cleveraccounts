@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   CheckCircle2,
@@ -133,6 +134,24 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#9cbf50]" /> No minimum contract</span>
               <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#71c5d6]" /> Switch in minutes</span>
             </p>
+
+            {/* Human proof — reinforces the "we actually answer" promise */}
+            <div className="flex items-center gap-3.5 mt-8">
+              <div className="relative w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-white shadow-md shrink-0">
+                <Image
+                  src="/images/hero-accountant.jpg"
+                  alt="Speak to a real accountant by phone"
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
+              </div>
+              <p className="text-sm text-[#5a6f74] leading-snug">
+                <span className="font-bold text-[#2c4a51]">Speak to a real person</span>
+                <br />
+                A named accountant on the line — never a call centre, never a bot.
+              </p>
+            </div>
           </div>
 
           {/* ── Right: layered card visual ────────────────────────────── */}
