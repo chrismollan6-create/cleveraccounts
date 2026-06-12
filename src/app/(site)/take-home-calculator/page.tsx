@@ -146,7 +146,7 @@ function pct(n: number) {
   return `${n.toFixed(1)}%`;
 }
 
-const faqs = [
+const cleverFaqs = [
   { q: "How accurate is this calculator?", a: "This calculator uses the 2025/26 UK tax rates and thresholds including income tax bands, National Insurance rates, dividend tax, and corporation tax. It assumes the optimal director salary strategy for limited companies. It's a guide — your actual position may differ based on pension contributions, other income sources, allowances, and specific circumstances." },
   { q: "Why is take-home usually higher through a limited company?", a: "A limited company allows you to pay yourself a combination of salary and dividends. Dividends are taxed at lower rates than income tax and don't attract National Insurance. The company also pays corporation tax (19–25%) on profits before they're distributed, but the combined tax burden is typically lower than sole trader National Insurance + income tax." },
   { q: "What expenses can I deduct?", a: "Allowable expenses reduce your taxable profit. For sole traders and limited companies, these include office costs, travel, equipment, professional fees, software subscriptions, marketing costs, and more. Your dedicated accountant will ensure you claim everything you're entitled to." },
@@ -154,6 +154,16 @@ const faqs = [
   { q: "Does this include VAT?", a: "No — this calculator shows income tax, National Insurance, and corporation tax only. VAT is separate and depends on whether you're VAT-registered and which scheme you use." },
   { q: "Should I be a sole trader or limited company?", a: "It depends on your income level, risk appetite, IR35 status (for contractors), and long-term plans. Generally, limited company becomes more tax-efficient above around £30,000 profit, but there's more admin involved. Speak to your dedicated accountant for personalised advice." },
   { q: "Are pension contributions included?", a: "Not in this basic calculator. Pension contributions can significantly reduce your tax bill — both employer contributions (company) and personal contributions. Talk to your accountant about the most tax-efficient pension strategy." },
+];
+
+const workwellFaqs = [
+  { q: "Can I rely on these figures?", a: "Every result is modelled on the 2025/26 UK tax year — income tax bands, National Insurance, dividend tax and corporation tax all reflect the current rates and thresholds, with the most efficient director salary assumed for limited companies. Treat it as an informed estimate: your real numbers will shift once pension contributions, additional income streams, allowances and your own circumstances are factored in." },
+  { q: "Why does a limited company normally leave you with more?", a: "Running through a limited company lets you draw a blend of salary and dividends, and dividends carry lower tax rates than salary while sitting outside National Insurance entirely. Profits are subject to corporation tax (19–25%) before they reach you, yet the total tax taken still tends to come in below the income tax and National Insurance a sole trader pays." },
+  { q: "Which costs count as deductible?", a: "Anything that qualifies as an allowable expense brings your taxable profit down. Whether you trade as a sole trader or a limited company, that covers things like office costs, travel, equipment, professional fees, software, marketing and a good deal more. Your dedicated accountant makes sure nothing legitimate is left unclaimed." },
+  { q: "What salary should a limited company director take?", a: "Through 2025/26 the common approach is a £12,570 salary, which uses up the full personal allowance. The result is no income tax on that salary, only minimal employee NI, and a figure the company can deduct as a cost. Everything beyond that is drawn as dividends." },
+  { q: "Is VAT factored in here?", a: "It isn't — the figures cover income tax, National Insurance and corporation tax alone. VAT sits separately and hinges on whether you've registered and the scheme you've opted into." },
+  { q: "Sole trader or limited company — which suits me?", a: "That turns on how much you earn, your appetite for risk, your IR35 position if you contract, and where you want the business to go. A limited company usually starts paying off beyond roughly £30,000 of profit, though it brings extra administration with it. Your dedicated accountant can talk you through what fits your situation." },
+  { q: "Do pensions feature in the numbers?", a: "Not in this straightforward version. Pension contributions — whether paid by the company or personally — can take a real chunk off your tax bill, so it's worth asking your accountant how to structure them most efficiently." },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -204,6 +214,8 @@ function calculatorJsonLd(brand: { name: string; domain: string }) {
 
 export default function TakeHomeCalculatorPage() {
   const brand = useBrand();
+  const isWorkwell = brand.id === "workwell";
+  const faqs = isWorkwell ? workwellFaqs : cleverFaqs;
   const [income, setIncome] = useState(60000);
   const [expenses, setExpenses] = useState(5000);
   const [activeTab, setActiveTab] = useState<"comparison" | "soletrader" | "ltd">("comparison");
@@ -230,13 +242,14 @@ export default function TakeHomeCalculatorPage() {
             2025/26 Tax Year
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-5">
-            Take Home Pay<br />
-            <span className="text-gradient">Calculator</span>
+            {isWorkwell ? <>Take-Home Pay<br /><span className="text-gradient">Estimator</span></> : <>Take Home Pay<br /><span className="text-gradient">Calculator</span></>}
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-4">
-            See your estimated take-home pay as a sole trader vs a limited company director. Compare side-by-side using 2025/26 UK tax rates.
+            {isWorkwell
+              ? "Find out what you'd actually keep as a sole trader versus a limited company director, set side by side on the 2025/26 UK tax rates."
+              : "See your estimated take-home pay as a sole trader vs a limited company director. Compare side-by-side using 2025/26 UK tax rates."}
           </p>
-          <p className="text-white/40 text-sm">Includes income tax, National Insurance, corporation tax & dividend tax</p>
+          <p className="text-white/40 text-sm">{isWorkwell ? "Covers income tax, National Insurance, corporation tax and dividend tax" : "Includes income tax, National Insurance, corporation tax & dividend tax"}</p>
         </div>
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
           <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
@@ -251,12 +264,12 @@ export default function TakeHomeCalculatorPage() {
 
           {/* Inputs */}
           <div className="bg-white border border-border rounded-3xl p-8 shadow-sm mb-8">
-            <h2 className="text-xl font-black text-dark mb-6">Enter Your Details</h2>
+            <h2 className="text-xl font-black text-dark mb-6">{isWorkwell ? "Tell Us Your Numbers" : "Enter Your Details"}</h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <label className="block text-sm font-bold text-dark mb-2">
                   Annual Income / Revenue
-                  <span className="text-text-light font-normal ml-2">— your total invoiced income</span>
+                  <span className="text-text-light font-normal ml-2">{isWorkwell ? "— everything you invoice in a year" : "— your total invoiced income"}</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-dark font-bold">£</span>
@@ -290,7 +303,7 @@ export default function TakeHomeCalculatorPage() {
               <div>
                 <label className="block text-sm font-bold text-dark mb-2">
                   Annual Business Expenses
-                  <span className="text-text-light font-normal ml-2">— allowable deductions</span>
+                  <span className="text-text-light font-normal ml-2">{isWorkwell ? "— costs you can claim against tax" : "— allowable deductions"}</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-dark font-bold">£</span>
@@ -324,7 +337,7 @@ export default function TakeHomeCalculatorPage() {
 
             <div className="mt-4 flex items-start gap-2 text-xs text-text-light">
               <Info size={14} className="shrink-0 mt-0.5" />
-              <span>Calculations use 2025/26 rates. Limited company assumes optimal director salary of £12,570 with remaining profit taken as dividends. This is for guidance only — speak to your accountant for personalised advice.</span>
+              <span>{isWorkwell ? "Figures are based on 2025/26 rates. For the limited company route we assume the efficient £12,570 director salary, with whatever profit is left drawn as dividends. Use it as a guide and check the detail with your accountant." : "Calculations use 2025/26 rates. Limited company assumes optimal director salary of £12,570 with remaining profit taken as dividends. This is for guidance only — speak to your accountant for personalised advice."}</span>
             </div>
           </div>
 
@@ -335,8 +348,8 @@ export default function TakeHomeCalculatorPage() {
                 <TrendingUp size={24} />
               </div>
               <div>
-                <div className="font-black text-dark text-lg">You could take home <span className="text-secondary">{fmt(saving)} more</span> per year as a limited company</div>
-                <div className="text-text-light text-sm">Based on the figures entered above using 2025/26 tax rates</div>
+                <div className="font-black text-dark text-lg">{isWorkwell ? <>A limited company could leave you <span className="text-secondary">{fmt(saving)} better off</span> each year</> : <>You could take home <span className="text-secondary">{fmt(saving)} more</span> per year as a limited company</>}</div>
+                <div className="text-text-light text-sm">{isWorkwell ? "Worked out from the numbers you entered, on 2025/26 tax rates" : "Based on the figures entered above using 2025/26 tax rates"}</div>
               </div>
             </div>
           )}
@@ -494,8 +507,8 @@ export default function TakeHomeCalculatorPage() {
           {/* CTA below calculator */}
           <div className="mt-8 bg-white border border-border rounded-2xl p-6 flex flex-col md:flex-row items-center gap-5">
             <div className="flex-1">
-              <div className="font-black text-dark mb-1">Want a personalised tax plan?</div>
-              <p className="text-text-light text-sm">Your dedicated {brand.name} accountant will review your actual figures, factor in expenses, pension contributions, and help you structure your income for maximum take-home.</p>
+              <div className="font-black text-dark mb-1">{isWorkwell ? "Ready for a plan built around your numbers?" : "Want a personalised tax plan?"}</div>
+              <p className="text-text-light text-sm">{isWorkwell ? `Your own ${brand.name} accountant will go through your real figures, bring your expenses and pension contributions into the picture, and structure how you draw income so you keep as much as possible.` : `Your dedicated ${brand.name} accountant will review your actual figures, factor in expenses, pension contributions, and help you structure your income for maximum take-home.`}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-6 py-3 rounded-xl hover:bg-secondary/90 transition-all whitespace-nowrap">
@@ -513,16 +526,20 @@ export default function TakeHomeCalculatorPage() {
       <section className="bg-white py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Tax Planning</p>
-            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">What Can Improve Your Take-Home</h2>
-            <p className="text-text-light max-w-xl mx-auto">The calculator gives you a baseline — a good accountant can improve on it.</p>
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">{isWorkwell ? "Smart Tax Planning" : "Tax Planning"}</p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">{isWorkwell ? "Where Your Take-Home Can Grow" : "What Can Improve Your Take-Home"}</h2>
+            <p className="text-text-light max-w-xl mx-auto">{isWorkwell ? "Think of the calculator as your starting point — the right accountant moves it further." : "The calculator gives you a baseline — a good accountant can improve on it."}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            {[
+            {(isWorkwell ? [
+              { icon: TrendingDown, title: "Claim Every Cost You're Owed", desc: "Plenty of businesses leave money on the table by under-claiming. Equipment, software, travel, a home office, training, your phone — your accountant makes sure every legitimate cost goes in." },
+              { icon: RefreshCw, title: "The Right Salary and Dividend Mix", desc: "How a director splits pay between salary and dividends has a real effect on the tax due. We work out the most efficient balance for the income level you're at." },
+              { icon: Star, title: "Putting Money Into a Pension", desc: "Company pension contributions count as a tax-free business cost. Paying in through the company trims your corporation tax and steers clear of NI — which can add up to thousands saved." },
+            ] : [
               { icon: TrendingDown, title: "Claim All Allowable Expenses", desc: "Most businesses underclaim on expenses. Equipment, software, travel, home office, professional development, phone — your accountant ensures you claim everything legitimately." },
               { icon: RefreshCw, title: "Optimal Salary/Dividend Split", desc: "For limited company directors, the split between salary and dividends significantly affects your tax. We model the optimal structure for your specific income level." },
               { icon: Star, title: "Pension Contributions", desc: "Employer pension contributions are a tax-free company expense. Contributing through the company reduces corporation tax and doesn't attract NI — potentially saving thousands." },
-            ].map(({ icon: Icon, title, desc }) => (
+            ]).map(({ icon: Icon, title, desc }) => (
               <div key={title} className="bg-white border border-border rounded-2xl p-6 shadow-sm card-hover">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
                   <Icon size={24} />
@@ -543,10 +560,12 @@ export default function TakeHomeCalculatorPage() {
         </div>
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-            Stop leaving money on the table.
+            {isWorkwell ? "Keep more of what you earn." : "Stop leaving money on the table."}
           </h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-            A dedicated {brand.name} accountant will build a personalised tax plan around your actual income, expenses, and goals. From £42.50/month.
+            {isWorkwell
+              ? `A ${brand.name} accountant of your own will shape a tax plan around your real income, your costs and where you're heading. From £42.50/month.`
+              : `A dedicated ${brand.name} accountant will build a personalised tax plan around your actual income, expenses, and goals. From £42.50/month.`}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
@@ -557,7 +576,7 @@ export default function TakeHomeCalculatorPage() {
             </a>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-6 text-white/70 text-sm">
-            {["No setup fee", "Dedicated accountant", "Free FreeAgent software", "Cancel anytime"].map((t) => (
+            {(isWorkwell ? ["Nothing to set up", "Your own accountant", "FreeAgent included free", "Leave whenever you like"] : ["No setup fee", "Dedicated accountant", "Free FreeAgent software", "Cancel anytime"]).map((t) => (
               <span key={t} className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-white/60" />{t}</span>
             ))}
           </div>
@@ -572,7 +591,7 @@ export default function TakeHomeCalculatorPage() {
         <div className="relative max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">FAQ</p>
-            <h2 className="text-3xl font-black text-white mb-4">Calculator Questions</h2>
+            <h2 className="text-3xl font-black text-white mb-4">{isWorkwell ? "Your Questions, Answered" : "Calculator Questions"}</h2>
           </div>
           <div className="space-y-3">
             {faqs.map((f) => <FAQItem key={f.q} q={f.q} a={f.a} />)}
@@ -588,8 +607,8 @@ export default function TakeHomeCalculatorPage() {
       {/* ── BOTTOM CTA ───────────────────────────────────────── */}
       <section className="bg-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-black text-dark mb-4">Ready to maximise your take-home?</h2>
-          <p className="text-text-light mb-8 max-w-xl mx-auto">Join 10,000+ UK businesses with a dedicated accountant handling their tax.</p>
+          <h2 className="text-3xl font-black text-dark mb-4">{isWorkwell ? "Ready to take home more?" : "Ready to maximise your take-home?"}</h2>
+          <p className="text-text-light mb-8 max-w-xl mx-auto">{isWorkwell ? "Sit alongside 10,000+ UK businesses whose tax is handled by an accountant of their own." : "Join 10,000+ UK businesses with a dedicated accountant handling their tax."}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-primary/90 transition-all shadow-lg">
               Get Started <ArrowRight size={20} />

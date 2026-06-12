@@ -34,21 +34,25 @@ const values = [
     icon: Users,
     title: "People First",
     description: "Every client gets a dedicated accountant who genuinely knows their business. You're never passed around a call centre or left waiting weeks for an answer.",
+    descriptionWorkwell: "You work with one dedicated accountant who understands your business from the outset. No call-centre queues, no being handed between strangers, and no waiting weeks for a straight answer.",
   },
   {
     icon: Award,
     title: "Excellence",
     description: "We hold ourselves to the highest professional standards — from the quality of our tax advice to the software we include with every package.",
+    descriptionWorkwell: "We set a high bar and hold to it — across the tax advice we give, the way we work, and the software bundled into every package.",
   },
   {
     icon: Heart,
     title: "Transparency",
     description: "One fixed monthly fee, no hidden extras, no jargon. You always know exactly what you're paying and exactly what you're getting.",
+    descriptionWorkwell: "One fixed fee each month — no hidden extras, no jargon, no surprises. You always know precisely what you pay and exactly what you receive in return.",
   },
   {
     icon: Zap,
     title: "Innovation",
     description: "We were early adopters of cloud accounting and MTD. We keep investing in technology so our clients always have the best tools at their fingertips.",
+    descriptionWorkwell: "Modern, cloud-first accounting is built into how we work. We keep investing in the right technology so you always have powerful, up-to-date tools within reach.",
   },
 ];
 
@@ -66,20 +70,35 @@ export default async function AboutPage() {
   const isClever = brand.id === "clever";
   const city = brand.offices[0]?.city ?? "the UK";
 
-  const whyUs = [
-    "Dedicated accountant who knows your business",
-    "Unlimited phone and email support",
-    isClever ? "Free FreeAgent accounting software (Platinum Partner)" : "Free FreeAgent accounting software",
-    "No setup fees, no minimum contract",
-    "Proactive tax efficiency advice",
-    "All HMRC filings and returns handled",
-    "Specialist IR35 and contractor support",
-    "MTD-compliant from day one",
-    "Open banking with 25+ UK banks",
-    "Real-time financial dashboard on any device",
-    `UK-based ${city} office`,
-    isClever ? "20+ years UK accounting experience" : "Qualified, regulated UK accountants",
-  ];
+  const whyUs = isClever
+    ? [
+        "Dedicated accountant who knows your business",
+        "Unlimited phone and email support",
+        "Free FreeAgent accounting software (Platinum Partner)",
+        "No setup fees, no minimum contract",
+        "Proactive tax efficiency advice",
+        "All HMRC filings and returns handled",
+        "Specialist IR35 and contractor support",
+        "MTD-compliant from day one",
+        "Open banking with 25+ UK banks",
+        "Real-time financial dashboard on any device",
+        `UK-based ${city} office`,
+        "20+ years UK accounting experience",
+      ]
+    : [
+        "Your own accountant who knows your numbers",
+        "Phone and email support without the meter running",
+        "FreeAgent cloud software at no extra cost",
+        "Zero setup fees and no tie-in contract",
+        "Forward-looking advice to keep your tax efficient",
+        "Every HMRC return and filing taken care of",
+        "Expert IR35 guidance for contractors",
+        "Ready for Making Tax Digital from day one",
+        "Open banking links with 25+ UK banks",
+        "Live financial dashboard on any device",
+        `${city}-based UK team`,
+        "Qualified, regulated UK accountants",
+      ];
 
   const stats = isClever
     ? [
@@ -184,10 +203,14 @@ export default async function AboutPage() {
                     : `${brand.name} exists for one reason: to make professional accounting accessible, affordable, and genuinely useful for small UK businesses.`}
                 </p>
                 <p>
-                  We saw that too many sole traders, contractors, and limited companies were either overpaying for traditional firms that barely communicated, or underserved by budget online services that left them without real support.
+                  {isClever
+                    ? "We saw that too many sole traders, contractors, and limited companies were either overpaying for traditional firms that barely communicated, or underserved by budget online services that left them without real support."
+                    : "Too many sole traders, contractors and limited companies face the same poor choice: pay over the odds for a traditional firm that rarely picks up the phone, or settle for a cut-price online service that leaves them without any real support."}
                 </p>
                 <p>
-                  So we built something in between — and better. Expert, dedicated accountants. Powerful cloud software included free. A fixed monthly price with no surprises.
+                  {isClever
+                    ? "So we built something in between — and better. Expert, dedicated accountants. Powerful cloud software included free. A fixed monthly price with no surprises."
+                    : "We bridge that gap with something better on both counts: an expert accountant dedicated to you, powerful cloud software included at no extra cost, and one fixed monthly price with nothing hidden."}
                 </p>
                 <p>
                   {isClever
@@ -232,13 +255,13 @@ export default async function AboutPage() {
             <p className="text-text-light max-w-xl mx-auto">The principles that guide every decision we make and every client relationship we build.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map(({ icon: Icon, title, description }) => (
+            {values.map(({ icon: Icon, title, description, descriptionWorkwell }) => (
               <div key={title} className="bg-white border border-border rounded-2xl p-7 shadow-sm card-hover text-center">
                 <div className="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5">
                   <Icon size={28} />
                 </div>
                 <h3 className="text-lg font-black text-dark mb-3">{title}</h3>
-                <p className="text-sm text-text-light leading-relaxed">{description}</p>
+                <p className="text-sm text-text-light leading-relaxed">{isClever ? description : descriptionWorkwell}</p>
               </div>
             ))}
           </div>

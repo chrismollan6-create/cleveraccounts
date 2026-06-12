@@ -37,6 +37,13 @@ export const WORKWELL_INDEXABLE_PATHS: readonly string[] = [
   "/tax-returns",
   // Quick win — reviews page is substantially unique (shows Workwell's own reviews)
   "/reviews",
+  // Bespoke rewrites — copy reworded for Workwell, overlap measured <12%
+  "/about-us",
+  "/how-it-works",
+  "/our-services",
+  "/faq",
+  "/compare",
+  "/take-home-calculator",
 ];
 
 const SET = new Set(WORKWELL_INDEXABLE_PATHS);

@@ -70,8 +70,16 @@ const pricing = {
   diy: "£15–£50/mo (software only)",
 };
 
-// Differentiator content shown under the table — turns checkmarks into a story
-const differentiators = [
+// Differentiator content shown under the table — turns checkmarks into a story.
+// Built per-brand: Clever keeps its original copy; Workwell gets a reworded
+// version with every figure (£19/mo, 2–3× cost) kept identical.
+interface Differentiator {
+  title: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  desc: string;
+}
+
+const cleverDifferentiators: Differentiator[] = [
   {
     title: "A named accountant — not a portal",
     icon: UserCheck,
@@ -94,6 +102,29 @@ const differentiators = [
   },
 ];
 
+const workwellDifferentiators: Differentiator[] = [
+  {
+    title: "A named accountant — not a portal",
+    icon: UserCheck,
+    desc: "Call us and you get straight through to your own accountant, someone who already understands your business — not a generic call centre or a chatbot working a ticket queue. High-street firms can offer the same, but usually at 2–3× the cost, and DIY software offers nothing of the sort.",
+  },
+  {
+    title: "Unlimited advice — not pay-per-call",
+    icon: MessageCircle,
+    desc: "Pick up the phone as often as you like. Email a question mid-morning and hear back by lunchtime. Nothing is metered and no quick chat lands you a surprise bill. Traditional firms tend to charge by the hour, and DIY software gives you no one to ask at all.",
+  },
+  {
+    title: "FreeAgent included free — £19/mo saved",
+    icon: Zap,
+    desc: "FreeAgent costs £19/month at retail. We include it. That's HMRC-recognised, MTD-compliant software with full bank feeds, invoicing and expenses, plus your accountant working in the very same system — no separate logins and no monthly software bill.",
+  },
+  {
+    title: "One flat fee — no surprises",
+    icon: BadgeCheck,
+    desc: "You pay exactly what's quoted on the pricing page. Tax returns, payroll, VAT, IR35 reviews and mortgage reference letters are all in. No setup fees, no charge per call, and no &ldquo;you-went-over-your-allowance&rdquo; invoice landing in February.",
+  },
+];
+
 function Cell({ value, highlight = false }: { value: CellValue; highlight?: boolean }) {
   if (value === true)
     return <CheckCircle2 size={22} className={`mx-auto ${highlight ? "text-primary" : "text-success"}`} />;
@@ -103,6 +134,8 @@ function Cell({ value, highlight = false }: { value: CellValue; highlight?: bool
 
 export default async function ComparePage() {
   const brand = await getBrand();
+  const isWorkwell = brand.id === "workwell";
+  const differentiators = isWorkwell ? workwellDifferentiators : cleverDifferentiators;
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -119,11 +152,20 @@ export default async function ComparePage() {
               : `Why UK businesses choose ${brand.name}`}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
-            Compare. <span className="text-gradient">Don&apos;t settle.</span>
+            {isWorkwell ? (
+              <>
+                Compare first. <span className="text-gradient">Then decide.</span>
+              </>
+            ) : (
+              <>
+                Compare. <span className="text-gradient">Don&apos;t settle.</span>
+              </>
+            )}
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            How we stack up against the traditional local accountant and DIY accounting
-            software — across the things that actually matter when you&apos;re running a UK business.
+            {isWorkwell
+              ? "See how we measure up against a traditional local accountant and DIY accounting software — on the points that genuinely count when you're running a UK business."
+              : "How we stack up against the traditional local accountant and DIY accounting software — across the things that actually matter when you're running a UK business."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -160,14 +202,17 @@ export default async function ComparePage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-              Side-by-Side
+              {isWorkwell ? "At a Glance" : "Side-by-Side"}
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              Three ways to handle your accounting — only one keeps everything in one place
+              {isWorkwell
+                ? "Three routes to managing your accounting — and only one brings it all together"
+                : "Three ways to handle your accounting — only one keeps everything in one place"}
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
-              You can hire a local high-street firm, you can run your own books in DIY software,
-              or you can use us. Here&apos;s what each looks like.
+              {isWorkwell
+                ? "You could appoint a local high-street firm, keep your own books in DIY software, or come to us. Here's how each one shapes up."
+                : "You can hire a local high-street firm, you can run your own books in DIY software, or you can use us. Here's what each looks like."}
             </p>
           </div>
 
@@ -315,14 +360,17 @@ export default async function ComparePage() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-              Why It Matters
+              {isWorkwell ? "What It Means" : "Why It Matters"}
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              A check in a column is one thing — what it means in practice is another
+              {isWorkwell
+                ? "A tick in a column says little — what it delivers day to day says everything"
+                : "A check in a column is one thing — what it means in practice is another"}
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
-              The differences between the three options aren&apos;t small. Here&apos;s what
-              each row actually buys you with {brand.name}.
+              {isWorkwell
+                ? `The gaps between the three options are anything but minor. Here's what each row genuinely gets you with ${brand.name}.`
+                : `The differences between the three options aren't small. Here's what each row actually buys you with ${brand.name}.`}
             </p>
           </div>
 
@@ -352,16 +400,20 @@ export default async function ComparePage() {
         </div>
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-4">
-            The Smart Choice
+            {isWorkwell ? "The Sensible Move" : "The Smart Choice"}
           </p>
           <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-5">
-            Everything in one place. One flat fee. No surprises.
+            {isWorkwell
+              ? "One place for everything. One flat fee. No nasty surprises."
+              : "Everything in one place. One flat fee. No surprises."}
           </h2>
           <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
             {brand.id === "clever"
               ? "Join 10,000+ UK businesses who chose Clever Accounts."
-              : `Join the UK businesses who chose ${brand.name}.`}{" "}
-            Dedicated accountant, FreeAgent included, no setup fees, no minimum contract — from £42.50/month.
+              : `Become one of the UK businesses that chose ${brand.name}.`}{" "}
+            {isWorkwell
+              ? "A dedicated accountant, FreeAgent included, no setup fees and no minimum contract — from £42.50/month."
+              : "Dedicated accountant, FreeAgent included, no setup fees, no minimum contract — from £42.50/month."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
