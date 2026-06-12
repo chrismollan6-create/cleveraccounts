@@ -35,6 +35,8 @@ export const WORKWELL_INDEXABLE_PATHS: readonly string[] = [
   "/local-accountants",
   "/integrations",
   "/tax-returns",
+  // Quick win — reviews page is substantially unique (shows Workwell's own reviews)
+  "/reviews",
 ];
 
 const SET = new Set(WORKWELL_INDEXABLE_PATHS);
