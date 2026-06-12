@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
   title: "Free FreeAgent Accounting Software — Platinum Partner | Clever Accounts",
@@ -9,11 +10,7 @@ const cleverMetadata: Metadata = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  if (brand.id !== "workwell") return cleverMetadata;
-  return {
-    title: `Free FreeAgent Accounting Software — Platinum Partner | ${brand.name}`,
-    description: `Every ${brand.name} package includes free FreeAgent accounting software (worth £29/mo). We're a FreeAgent Platinum Partner. MTD compliant, open banking, invoicing and more.`,
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("accounting-software") : cleverMetadata;
 }
 
 const faqs = [

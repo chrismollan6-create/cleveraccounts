@@ -26,6 +26,11 @@ const PAGES = {
   "self-assessment": { title: "Self Assessment Tax Returns", price: "42.50", audience: "anyone who must file a UK Self Assessment tax return", focus: "who needs to file, the registration and filing deadlines (paper vs online, 31 January), payments on account, what income must be declared, allowable expenses, and HMRC penalties for late filing and payment" },
   "making-tax-digital": { title: "Making Tax Digital", price: "104.50", audience: "UK businesses, sole traders and landlords affected by Making Tax Digital", focus: "Making Tax Digital for VAT (already mandatory), Making Tax Digital for Income Tax Self Assessment and the phased start dates and income thresholds, what quarterly updates involve, MTD-compatible software (FreeAgent), and how to prepare without disruption" },
   "payroll-services": { title: "Payroll Services", price: "104.50", audience: "UK limited company directors and small employers", focus: "running payroll and RTI submissions, payslips, P60s and P11Ds, the most tax-efficient director salary for the current tax year, pension auto-enrolment duties, and adding employees" },
+  // Batch 2
+  "switching-accountants": { title: "Switching Accountants", price: "42.50", audience: "UK businesses thinking about changing their accountant", focus: "how switching actually works (professional clearance, your old accountant hands over records), that you can switch at any point in the year with no gap in compliance, what to check before you move, and why the common worries about cost, hassle and timing are usually unfounded. Frame this as a clear how-to guide." },
+  "accountant-switch": { title: "Switch Accountants", price: "42.50", audience: "UK businesses ready to move to a better accountant", focus: "how Workwell handles the entire switch for you, for free — professional clearance with your current accountant, transferring your records and accounting software, no disruption to deadlines or compliance, and being set up within days. Frame this as the done-for-you service, distinct from a general how-to guide." },
+  "accounting-software": { title: "Accounting Software", price: "42.50", audience: "small UK businesses and the self-employed choosing accounting software", focus: "FreeAgent included free with every package, what it does (invoicing, expense capture, bank feeds, real-time tax estimates, Self Assessment and VAT filing), that it is Making Tax Digital compatible, the real-time view of your tax position, and that it works on any device with your accountant alongside" },
+  "it-contractor-accountant": { title: "IT Contractor Accountants", price: "104.50", audience: "UK IT and technology contractors", focus: "limited company (PSC) vs umbrella for IT contractors, IR35 and off-payroll working for technology roles, tax-efficient dividend planning, the expenses IT contractors can legitimately claim, and having a dedicated accountant who understands contracting" },
 };
 
 async function gen(p) {
@@ -61,8 +66,8 @@ Return ONLY one JSON object (no markdown/fences/commentary) with exactly:
 const key = (pfx, i) => `${pfx}-${i}`;
 
 async function run() {
-  const only = process.argv[2];
-  for (const slug of only ? [only] : Object.keys(PAGES)) {
+  const only = process.argv.slice(2);
+  for (const slug of only.length ? only : Object.keys(PAGES)) {
     const p = PAGES[slug];
     if (!p) { console.log("skip", slug); continue; }
     try {

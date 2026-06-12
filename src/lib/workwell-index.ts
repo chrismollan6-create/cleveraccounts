@@ -25,6 +25,11 @@ export const WORKWELL_INDEXABLE_PATHS: readonly string[] = [
   "/self-assessment",
   "/making-tax-digital",
   "/payroll-services",
+  // Batch 2
+  "/switching-accountants",
+  "/our-services/accountant-switch",
+  "/our-services/accounting-software",
+  "/it-contractor-accountant",
 ];
 
 const SET = new Set(WORKWELL_INDEXABLE_PATHS);

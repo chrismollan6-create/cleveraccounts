@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const keywords = [
   "IT contractor accountant",
@@ -13,27 +14,27 @@ const keywords = [
   "contractor accountant 2026",
 ];
 
+const ogTitle = "Best Accountant for IT Contractors UK (2026 Guide)";
+
+const cleverMetadata: Metadata = {
+  title: `${ogTitle} | Clever Accounts`,
+  description:
+    "Compare the 8 leading contractor accountants for UK IT contractors. Honest pricing, IR35 review policies, software included, and named accountant comparison. Updated April 2026.",
+  keywords,
+  openGraph: {
+    title: ogTitle,
+    description:
+      "An honest comparison of the 8 leading contractor accountants — pricing, IR35 reviews, software, and a decision framework. Updated April 2026.",
+    type: "article",
+  },
+  alternates: {
+    canonical: "https://cleveraccounts.com/it-contractor-accountant",
+  },
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  const ogTitle = "Best Accountant for IT Contractors UK (2026 Guide)";
-  return {
-    title:
-      brand.id === "clever"
-        ? `${ogTitle} | Clever Accounts`
-        : `${ogTitle} | ${brand.name}`,
-    description:
-      "Compare the 8 leading contractor accountants for UK IT contractors. Honest pricing, IR35 review policies, software included, and named accountant comparison. Updated April 2026.",
-    keywords,
-    openGraph: {
-      title: ogTitle,
-      description:
-        "An honest comparison of the 8 leading contractor accountants — pricing, IR35 reviews, software, and a decision framework. Updated April 2026.",
-      type: "article",
-    },
-    alternates: {
-      canonical: `https://${brand.domain}/it-contractor-accountant`,
-    },
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("it-contractor-accountant") : cleverMetadata;
 }
 
 const faqs = [
@@ -79,17 +80,22 @@ const faqs = [
   },
 ];
 
-export default function ITContractorGuideLayout({ children }: { children: React.ReactNode }) {
+export default async function ITContractorGuideLayout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: "/" },
-          { name: "Contractor Accountancy", url: "/contractor-accountancy" },
-          { name: "IT Contractor Guide 2026", url: "/it-contractor-accountant" },
-        ]}
-      />
+      {brand.id !== "workwell" && (
+        <>
+          <FAQPageJsonLd faqs={faqs} />
+          <BreadcrumbJsonLd
+            items={[
+              { name: "Home", url: "/" },
+              { name: "Contractor Accountancy", url: "/contractor-accountancy" },
+              { name: "IT Contractor Guide 2026", url: "/it-contractor-accountant" },
+            ]}
+          />
+        </>
+      )}
       {children}
     </>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
   title: "Switch Accountant — Seamless Transfer, Benefits From Day One | Clever Accounts",
@@ -9,11 +10,7 @@ const cleverMetadata: Metadata = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  if (brand.id !== "workwell") return cleverMetadata;
-  return {
-    title: `Switch Accountant — Seamless Transfer, Benefits From Day One | ${brand.name}`,
-    description: "Switching accountants is easier than you think. We contact your old accountant, transfer your records, and you benefit immediately. No setup fee, no hassle.",
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("accountant-switch") : cleverMetadata;
 }
 
 const faqs = [
