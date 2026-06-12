@@ -129,6 +129,13 @@ export interface BrandConfig {
     reviewCount?: string;
   };
   /**
+   * EmbedSocial widget reference for the Google reviews widget. Each brand has
+   * its own widget (connected to its own Google Business Profile). Omit for a
+   * brand without one — GoogleReviewsWidget then shows that brand's fallback
+   * reviews (or nothing) rather than another brand's reviews.
+   */
+  reviewsWidgetRef?: string;
+  /**
    * Legal page URLs shown in footers. Use relative paths ("/terms") for pages
    * the brand's own Next site serves, or absolute URLs for externally-hosted
    * pages (e.g. Workwell's live on its WordPress marketing site).
@@ -198,6 +205,7 @@ export const BRANDS = {
       url: 'https://uk.trustpilot.com/review/cleveraccounts.com',
       reviewCount: '700+',
     },
+    reviewsWidgetRef: 'f1e784fdf537d9876ef24e119a197eda526c4ced',
     legal: {
       privacyUrl: '/privacy',
       termsUrl: '/terms',
@@ -270,6 +278,10 @@ export const BRANDS = {
       rating: '4.6',
       url: 'https://uk.trustpilot.com/review/workwellsolutions.com',
     },
+    // TODO: set up Workwell's EmbedSocial reviews widget (connected to its
+    // Google Business Profile) and add the ref here. Until then,
+    // GoogleReviewsWidget shows Workwell's real-review fallback (not Clever's).
+    // reviewsWidgetRef: '<workwell-embedsocial-ref>',
     legal: {
       // Workwell's legal pages live on its WordPress marketing site.
       privacyUrl: 'https://workwellaccountancy.com/privacy-data-cookie-policy/',
