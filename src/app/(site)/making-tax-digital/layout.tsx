@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
   title: "Making Tax Digital (MTD) — Are You Ready? | Clever Accounts",
@@ -10,12 +11,7 @@ const cleverMetadata: Metadata = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  if (brand.id !== "workwell") return cleverMetadata;
-  return {
-    title: `Making Tax Digital (MTD) — Are You Ready? | ${brand.name}`,
-    description:
-      `Making Tax Digital is coming for sole traders, landlords, and CIS subcontractors. Find out what MTD means, who's affected, the key deadlines, and how ${brand.name} gets you ready — with free FreeAgent software included.`,
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("making-tax-digital") : cleverMetadata;
 }
 
 const faqs = [

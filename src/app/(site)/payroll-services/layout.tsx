@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
   title: "Payroll Services — RTI, P60s & Auto-Enrolment | Clever Accounts",
@@ -10,12 +11,7 @@ const cleverMetadata: Metadata = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  return brand.id === "workwell"
-    ? {
-        title: `Payroll Services — RTI, P60s & Auto-Enrolment | ${brand.name}`,
-        description: cleverMetadata.description,
-      }
-    : cleverMetadata;
+  return brand.id === "workwell" ? workwellServiceMetadata("payroll-services") : cleverMetadata;
 }
 
 const faqs = [

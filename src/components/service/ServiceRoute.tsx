@@ -58,28 +58,28 @@ function deClever(s: string, brandName: string): string {
     .replace(/\bClever FLEX\b/gi, "umbrella");
 }
 
-function mergeContent(cms: CmsServicePage | null, fb: ServicePageData, brandName: string): ServiceContent {
-  // De-Clever EVERYTHING (CMS or fallback). Existing shared/Clever servicePage
-  // docs get picked up by the Workwell query; a genuine Workwell doc never
-  // contains these terms, so applying it to CMS content too is safe.
+function mergeContent(cms: CmsServicePage | null, fb: ServicePageData | undefined, brandName: string): ServiceContent {
+  // De-Clever EVERYTHING (CMS or fallback). `fb` is optional — newer Workwell
+  // service docs are CMS-only with no legacy fallback, so every fb access is
+  // guarded.
   const dc = (s?: string) => (s ? deClever(s, brandName) : "");
   const faqsSrc = cms?.faqs?.length
     ? cms.faqs.map((f) => ({ q: f.question ?? "", a: f.answer ?? "" }))
-    : fb.faqs;
+    : fb?.faqs ?? [];
   const benefitsSrc = cms?.benefits?.length
     ? cms.benefits.map((b) => ({ title: b.title ?? "", description: b.description ?? "" }))
-    : fb.benefits;
-  const testimonialSrc = cms?.testimonial?.quote ? cms.testimonial : fb.testimonial;
+    : fb?.benefits ?? [];
+  const testimonialSrc = cms?.testimonial?.quote ? cms.testimonial : fb?.testimonial;
   return {
-    title: dc(cms?.title || fb.title),
-    headline: dc(cms?.headline || fb.headline),
-    description: dc(cms?.description || fb.description),
-    price: cms?.price || fb.price,
-    features: (cms?.features?.length ? cms.features : fb.features).map((f) => dc(f)),
+    title: dc(cms?.title || fb?.title || ""),
+    headline: dc(cms?.headline || fb?.headline || ""),
+    description: dc(cms?.description || fb?.description || ""),
+    price: cms?.price || fb?.price || "",
+    features: (cms?.features?.length ? cms.features : fb?.features ?? []).map((f) => dc(f)),
     benefits: benefitsSrc.map((b) => ({ title: dc(b.title), description: dc(b.description) })),
     faqs: faqsSrc.map((f) => ({ q: dc(f.q), a: dc(f.a) })),
-    stats: (cms?.stats?.length ? cms.stats : fb.stats)?.map((s) => ({ value: s.value, label: dc(s.label) })),
-    serviceCategories: (cms?.serviceCategories?.length ? cms.serviceCategories : fb.serviceCategories)?.map((c) => ({
+    stats: (cms?.stats?.length ? cms.stats : fb?.stats)?.map((s) => ({ value: s.value, label: dc(s.label) })),
+    serviceCategories: (cms?.serviceCategories?.length ? cms.serviceCategories : fb?.serviceCategories)?.map((c) => ({
       title: dc(c.title),
       items: c.items.map((it) => dc(it)),
     })),
@@ -111,11 +111,11 @@ export async function workwellServiceMetadata(slug: string): Promise<Metadata> {
   // Titles can bake in a brand suffix ("| Clever Accounts"); strip it (the
   // (site) layout's title template appends the active brand) and de-Clever
   // whatever source the title/description came from (CMS or fallback).
-  const rawTitle = cms?.metaTitle || cms?.title || fb.title;
+  const rawTitle = cms?.metaTitle || cms?.title || fb?.title || "";
   const stripped = rawTitle.replace(/\s*\|\s*(Clever Accounts|Workwell Accountancy)\s*$/i, "").trim();
   return {
     title: deClever(stripped, brand.name),
-    description: deClever(cms?.metaDescription || fb.metaDescription, brand.name),
+    description: deClever(cms?.metaDescription || fb?.metaDescription || "", brand.name),
   };
 }
 
@@ -138,7 +138,7 @@ export async function serviceMetadata(slug: string): Promise<Metadata> {
   const fb = servicePages[slug];
   const brand = await getBrand();
   if (brand.id === "workwell") return workwellServiceMetadata(slug);
-  return { title: fb.title, description: fb.metaDescription };
+  return { title: fb?.title, description: fb?.metaDescription };
 }
 
 /** Brand-aware renderer for the simple pages (no Clever-only extras). */

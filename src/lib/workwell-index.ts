@@ -20,6 +20,11 @@ export const WORKWELL_INDEXABLE_PATHS: readonly string[] = [
   "/ecommerce-accounting",
   "/cis-accounting",
   "/small-business-accountant",
+  // Batch 1 — specialist pages rewritten with unique grounded content
+  "/vat-returns",
+  "/self-assessment",
+  "/making-tax-digital",
+  "/payroll-services",
 ];
 
 const SET = new Set(WORKWELL_INDEXABLE_PATHS);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
   title: "VAT Returns — Handled Every Quarter | Clever Accounts",
@@ -10,12 +11,7 @@ const cleverMetadata: Metadata = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  if (brand.id !== "workwell") return cleverMetadata;
-  return {
-    title: `VAT Returns — Handled Every Quarter | ${brand.name}`,
-    description:
-      "Stress-free VAT compliance for UK businesses. We prepare and submit your quarterly VAT returns, handle MTD for VAT via FreeAgent, and advise on the right VAT scheme for your business. From £42.50/month.",
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("vat-returns") : cleverMetadata;
 }
 
 const faqs = [

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const keywords = [
   "self assessment",
@@ -29,19 +30,7 @@ const cleverMetadata: Metadata = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  if (brand.id !== "workwell") return cleverMetadata;
-  return {
-    title: `Self Assessment Tax Returns | Done For You | ${brand.name}`,
-    description:
-      "We prepare and file your self assessment tax return to HMRC — accurately, on time, and with every allowable expense claimed. Dedicated accountant from £42.50/month. No setup fees.",
-    keywords,
-    openGraph: {
-      title: `Self Assessment Tax Return — Done For You | ${brand.name}`,
-      description:
-        "Stop dreading the 31 January deadline. We prepare and file your self assessment tax return to HMRC. Dedicated accountant, all income sources covered, from £42.50/month.",
-      type: "website",
-    },
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("self-assessment") : cleverMetadata;
 }
 
 const faqs = [
