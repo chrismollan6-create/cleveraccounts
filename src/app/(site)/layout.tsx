@@ -15,6 +15,7 @@ import PromoBanner from "@/components/layout/PromoBanner";
 import BrandProvider from "@/components/brand/BrandProvider";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
+import { isWorkwellIndexable } from "@/lib/workwell-index";
 import "../globals.css";
 
 /**
@@ -24,6 +25,12 @@ import "../globals.css";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   const isWorkwell = brand.id === 'workwell';
+
+  // SEO safety net: on Workwell, noindex any page that doesn't yet have unique
+  // content (it's still Clever's copy, brand-swapped) so duplicate content can't
+  // hurt us. As pages are rewritten they're added to WORKWELL_INDEXABLE_PATHS.
+  const pathname = (await headers()).get('x-pathname') ?? '/';
+  const noindex = isWorkwell && !isWorkwellIndexable(pathname);
 
   const titleDefault = isWorkwell
     ? `${brand.name} | Award-Winning Accountancy for Contractors & Small Business`
@@ -70,10 +77,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
     },
     robots: {
-      index: true,
+      index: !noindex,
       follow: true,
       googleBot: {
-        index: true,
+        index: !noindex,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",
