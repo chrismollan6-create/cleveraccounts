@@ -87,9 +87,9 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                 gradientLastWord(home.heroHeadline)
               ) : (
                 <>
-                  Accounting that lets you get on with{" "}
+                  An accountant who actually{" "}
                   <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
-                    business.
+                    answers.
                   </span>
                 </>
               )}
@@ -97,7 +97,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
 
             <p className="text-lg sm:text-xl text-[#5a6f74] leading-relaxed mb-7 max-w-xl">
               {home?.heroSubheadline ||
-                "A dedicated accountant, unlimited advice and free software — all for one simple monthly fee. Built for the self-employed, limited companies and contractors."}
+                "No call centres. No chasing for replies. Just a dedicated accountant who knows your business inside out — and everything handled for one simple monthly fee."}
             </p>
 
             {/* Audience — coloured chips */}
