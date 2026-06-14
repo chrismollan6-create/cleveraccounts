@@ -66,7 +66,8 @@ function gradientLastWord(text: string) {
  * `servicePage` Sanity doc, falling back to de-Clevered legacy content so the
  * page looks right before it's authored in Studio.
  */
-export default function WorkwellServicePage({ content, heroImage }: { content: ServiceContent; heroImage?: string }) {
+export default function WorkwellServicePage({ content, heroImage, variant = 0 }: { content: ServiceContent; heroImage?: string; variant?: number }) {
+  const v = variant % 3;
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
   const { title, headline, description, price, features, benefits, faqs, stats, serviceCategories, guide, testimonial, sections } = content;
@@ -196,7 +197,7 @@ export default function WorkwellServicePage({ content, heroImage }: { content: S
                 {s.featuresHeading || `What you get with ${title}`}
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5 max-w-3xl mx-auto">
+            <div className={`grid grid-cols-1 gap-x-8 gap-y-3.5 mx-auto ${v === 1 ? "sm:grid-cols-3 max-w-4xl" : "sm:grid-cols-2 max-w-3xl"}`}>
               {features.map((f) => (
                 <div key={f} className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full bg-[#9cbf50]/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -210,40 +211,94 @@ export default function WorkwellServicePage({ content, heroImage }: { content: S
         </section>
       )}
 
-      {/* ── Key things to know (grounded, scannable panels) ───────────── */}
-      {guide && guide.length > 0 && (
-        <section className="bg-white pb-20 md:pb-24 -mt-4">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.guideEyebrow || "The detail"}</span>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
-                {s.guideHeading || `${title}: what you need to know`}
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {guide.map((g, i) => (
-                <div key={g.heading} className="bg-[#f8faf2] rounded-3xl p-7 border border-[#e4ecd6]">
-                  <h3 className="text-lg md:text-xl font-bold text-[#2c4a51] mb-2.5 flex items-center gap-3">
-                    <span className={`w-9 h-9 rounded-xl ${TINTS[i % TINTS.length]} flex items-center justify-center shrink-0`}>
-                      <CheckCircle2 size={18} />
-                    </span>
-                    {g.heading}
-                  </h3>
-                  {g.intro && <p className="text-[#5a6f74] text-sm leading-relaxed mb-4">{g.intro}</p>}
-                  <ul className="space-y-2.5">
-                    {g.points.map((pt, j) => (
-                      <li key={j} className="flex items-start gap-2.5 text-sm text-[#3f565b] leading-relaxed">
-                        <CheckCircle2 size={15} className="text-[#6f8052] shrink-0 mt-0.5" />
-                        <span>{pt}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+      {/* ── Key things to know (grounded; layout varies per page) ─────── */}
+      {guide && guide.length > 0 && (() => {
+        const gd = [
+          { eyebrow: "The detail", heading: `${title}: what you need to know` },
+          { eyebrow: "The essentials", heading: `Key things to know about ${title.toLowerCase()}` },
+          { eyebrow: "Good to know", heading: `${title}, explained` },
+        ][v];
+        const Header = (
+          <div className="text-center mb-12">
+            <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.guideEyebrow || gd.eyebrow}</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">{s.guideHeading || gd.heading}</h2>
           </div>
-        </section>
-      )}
+        );
+        const bullet = (pt: string, j: number) => (
+          <li key={j} className="flex items-start gap-2.5 text-sm text-[#3f565b] leading-relaxed">
+            <CheckCircle2 size={15} className="text-[#6f8052] shrink-0 mt-0.5" />
+            <span>{pt}</span>
+          </li>
+        );
+
+        // Variant 1 — numbered white cards on a soft-green band
+        if (v === 1) {
+          return (
+            <section className="bg-[#f4f8ec] py-20 md:py-24">
+              <div className="max-w-4xl mx-auto px-4">
+                {Header}
+                <div className="space-y-5">
+                  {guide.map((g, i) => (
+                    <div key={g.heading} className="bg-white rounded-3xl border border-[#e4ecd6] p-7 md:p-8 shadow-[0_10px_30px_-12px_rgba(44,74,81,0.12)]">
+                      <div className="flex items-start gap-4">
+                        <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#9cbf50] to-[#71c5d6] text-white font-extrabold flex items-center justify-center shrink-0">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-bold text-[#2c4a51] mb-1.5">{g.heading}</h3>
+                          {g.intro && <p className="text-[#5a6f74] text-sm leading-relaxed mb-4">{g.intro}</p>}
+                          <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5">{g.points.map(bullet)}</ul>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // Variant 2 — coloured left-border list in a narrow reading column
+        if (v === 2) {
+          return (
+            <section className="bg-white pb-20 md:pb-24 -mt-4">
+              <div className="max-w-3xl mx-auto px-4">
+                {Header}
+                <div className="space-y-7">
+                  {guide.map((g, i) => (
+                    <div key={g.heading} className={`border-l-4 pl-5 sm:pl-6 ${["border-[#9cbf50]", "border-[#71c5d6]", "border-[#32535a]"][i % 3]}`}>
+                      <h3 className="text-xl font-bold text-[#2c4a51] mb-1.5">{g.heading}</h3>
+                      {g.intro && <p className="text-[#5a6f74] text-sm leading-relaxed mb-3">{g.intro}</p>}
+                      <ul className="space-y-2.5">{g.points.map(bullet)}</ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // Variant 0 — tinted icon cards, two columns
+        return (
+          <section className="bg-white pb-20 md:pb-24 -mt-4">
+            <div className="max-w-6xl mx-auto px-4">
+              {Header}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {guide.map((g, i) => (
+                  <div key={g.heading} className="bg-[#f8faf2] rounded-3xl p-7 border border-[#e4ecd6]">
+                    <h3 className="text-lg md:text-xl font-bold text-[#2c4a51] mb-2.5 flex items-center gap-3">
+                      <span className={`w-9 h-9 rounded-xl ${TINTS[i % TINTS.length]} flex items-center justify-center shrink-0`}>
+                        <CheckCircle2 size={18} />
+                      </span>
+                      {g.heading}
+                    </h3>
+                    {g.intro && <p className="text-[#5a6f74] text-sm leading-relaxed mb-4">{g.intro}</p>}
+                    <ul className="space-y-2.5">{g.points.map(bullet)}</ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* ── Benefits ──────────────────────────────────────────────────── */}
       {benefits && benefits.length > 0 && (

@@ -150,10 +150,12 @@ export async function WorkwellServiceRoute({ slug, breadcrumb }: { slug: string;
   const brand = await getBrand();
   const cms = (await getServicePage(slug, "workwell").catch(() => null)) as CmsServicePage | null;
   const content = mergeContent(cms, fb, brand.name);
+  // Deterministic per-slug layout variant (0-2) so pages don't all look identical.
+  const variant = [...slug].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 3;
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumb} />
-      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} />
+      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} variant={variant} />
     </>
   );
 }
