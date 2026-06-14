@@ -64,14 +64,29 @@ Return ONLY one JSON object (no markdown/fences/commentary) with exactly:
 }`;
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_KEY}`, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } }),
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.7, maxOutputTokens: 16384 } }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(`Gemini ${res.status}: ${JSON.stringify(data).slice(0, 200)}`);
   let text = (data?.candidates?.[0]?.content?.parts || []).map((x) => x.text).filter(Boolean).join("");
-  text = text.replace(/```json/gi, "").replace(/```/g, "").trim();
-  let json = text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
-  json = json.replace(/,(\s*[}\]])/g, "$1"); // tolerate trailing commas the model sometimes emits
+  text = text.replace(/```json/gi, "").replace(/```/g, "");
+  // Brace-match the first complete top-level object (respecting strings/escapes),
+  // ignoring any prose the model emits before/after the JSON.
+  const start = text.indexOf("{");
+  if (start < 0) throw new Error("no JSON object in response");
+  let depth = 0, inStr = false, esc = false, end = -1;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+    } else if (ch === '"') inStr = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}" && --depth === 0) { end = i + 1; break; }
+  }
+  if (end < 0) throw new Error("unterminated JSON object");
+  const json = text.slice(start, end).replace(/,(\s*[}\]])/g, "$1"); // drop trailing commas
   return JSON.parse(json);
 }
 const key = (pfx, i) => `${pfx}-${i}`;
