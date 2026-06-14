@@ -23,7 +23,7 @@ export type ServiceContent = {
   faqs: { q: string; a: string }[];
   stats?: { value: string; label: string }[];
   serviceCategories?: { title: string; items: string[] }[];
-  guide?: { heading: string; body: string[] }[];
+  guide?: { heading: string; intro?: string; points: string[] }[];
   testimonial?: { name: string; role: string; quote: string };
   sections?: {
     featuresEyebrow?: string;
@@ -210,29 +210,35 @@ export default function WorkwellServicePage({ content, heroImage }: { content: S
         </section>
       )}
 
-      {/* ── In-depth guide (long-form, grounded) ──────────────────────── */}
+      {/* ── Key things to know (grounded, scannable panels) ───────────── */}
       {guide && guide.length > 0 && (
         <section className="bg-white pb-20 md:pb-24 -mt-4">
-          <div className="max-w-3xl mx-auto px-4">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-12">
               <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.guideEyebrow || "The detail"}</span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
                 {s.guideHeading || `${title}: what you need to know`}
               </h2>
             </div>
-            <div className="space-y-10">
-              {guide.map((g) => (
-                <article key={g.heading}>
-                  <h3 className="text-xl md:text-2xl font-bold text-[#2c4a51] mb-3 flex items-center gap-3">
-                    <span className="w-8 h-1.5 rounded-full bg-gradient-to-r from-[#9cbf50] to-[#71c5d6] shrink-0" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {guide.map((g, i) => (
+                <div key={g.heading} className="bg-[#f8faf2] rounded-3xl p-7 border border-[#e4ecd6]">
+                  <h3 className="text-lg md:text-xl font-bold text-[#2c4a51] mb-2.5 flex items-center gap-3">
+                    <span className={`w-9 h-9 rounded-xl ${TINTS[i % TINTS.length]} flex items-center justify-center shrink-0`}>
+                      <CheckCircle2 size={18} />
+                    </span>
                     {g.heading}
                   </h3>
-                  <div className="space-y-3.5 sm:pl-11">
-                    {g.body.map((para, i) => (
-                      <p key={i} className="text-[#4f6469] leading-relaxed">{para}</p>
+                  {g.intro && <p className="text-[#5a6f74] text-sm leading-relaxed mb-4">{g.intro}</p>}
+                  <ul className="space-y-2.5">
+                    {g.points.map((pt, j) => (
+                      <li key={j} className="flex items-start gap-2.5 text-sm text-[#3f565b] leading-relaxed">
+                        <CheckCircle2 size={15} className="text-[#6f8052] shrink-0 mt-0.5" />
+                        <span>{pt}</span>
+                      </li>
                     ))}
-                  </div>
-                </article>
+                  </ul>
+                </div>
               ))}
             </div>
           </div>

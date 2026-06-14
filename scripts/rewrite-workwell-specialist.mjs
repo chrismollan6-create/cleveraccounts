@@ -45,7 +45,7 @@ ${VOICE}
 Audience: ${p.audience}.
 Topics to genuinely help with: ${p.focus}.
 
-Write ORIGINAL, DIFFERENTIATED, genuinely INFORMATIVE copy that leads with the SPECIFIC real concerns of this audience — not generic accountant boilerplate. This page should teach the reader something useful, with the depth of a good explainer article.
+Write ORIGINAL, DIFFERENTIATED, genuinely INFORMATIVE copy that leads with the SPECIFIC real concerns of this audience — not generic accountant boilerplate. Be concise and scannable: short sentences, key facts and figures over long prose. The reader should be able to skim and learn the essentials quickly.
 
 GROUNDING (critical): Use Google Search to ground EVERY factual claim — thresholds, rates, allowances, deadlines, dates, scheme rules — in CURRENT, authoritative UK sources (prefer gov.uk and HMRC). State the figures that apply to the 2025/26 and 2026/27 tax years. If a figure is uncertain, disputed or changing, describe it qualitatively and point the reader to where to check, rather than stating a number that may be wrong. Do NOT invent statistics, client numbers, ratings, awards or testimonials. Do NOT include citation markers, footnotes, links or markdown in the copy. British English throughout.
 
@@ -55,7 +55,7 @@ Return ONLY one JSON object (no markdown/fences/commentary) with exactly:
   "description": "2-sentence hero paragraph, specific to this audience",
   "features": ["8-10 short 'what we handle' lines"],
   "benefits": [{"title":"3-5 words","description":"1-2 sentences"} x4],
-  "guide": [{"heading":"clear, specific section title","body":["2-3 substantial paragraphs that genuinely explain this part of the topic using current UK rules and figures — each item in the array is one full paragraph"]} x4-5 — this is the in-depth, informative heart of the page; be accurate, concrete and current],
+  "guide": [{"heading":"clear topic title, 3-6 words","intro":"one short plain-English sentence introducing the topic","points":["3-4 short, specific bullet facts — the key numbers, thresholds, dates and rules a reader needs; ONE fact per bullet, roughly 12-20 words, no fluff"]} x4 — SCANNABLE key points, NOT long paragraphs; accurate and current],
   "serviceCategories": [{"title":"3-4 word column title","items":["4-6 short bullet lines"]} x4 — how Workwell handles this service, grouped],
   "faqs": [{"question":"real question this audience asks","answer":"2-4 accurate, current sentences"} x8],
   "stats": [{"value":"e.g. £0","label":"e.g. Setup fees"} x4 — TRUE claims only, never invented metrics],
@@ -70,7 +70,9 @@ Return ONLY one JSON object (no markdown/fences/commentary) with exactly:
   if (!res.ok) throw new Error(`Gemini ${res.status}: ${JSON.stringify(data).slice(0, 200)}`);
   let text = (data?.candidates?.[0]?.content?.parts || []).map((x) => x.text).filter(Boolean).join("");
   text = text.replace(/```json/gi, "").replace(/```/g, "").trim();
-  return JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+  let json = text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
+  json = json.replace(/,(\s*[}\]])/g, "$1"); // tolerate trailing commas the model sometimes emits
+  return JSON.parse(json);
 }
 const key = (pfx, i) => `${pfx}-${i}`;
 
@@ -80,7 +82,11 @@ async function run() {
     const p = PAGES[slug];
     if (!p) { console.log("skip", slug); continue; }
     try {
-      const c = await gen(p);
+      let c;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try { c = await gen(p); break; }
+        catch (e) { if (attempt === 3) throw e; console.log(`  retry ${slug} (${String(e.message).slice(0, 60)})`); }
+      }
       await sanity.createOrReplace({
         _id: `servicePage-${slug}`,
         _type: "servicePage",
@@ -92,7 +98,7 @@ async function run() {
         description: c.description,
         features: (c.features || []).slice(0, 12),
         benefits: (c.benefits || []).slice(0, 4).map((b, i) => ({ _key: key("ben", i), title: b.title, description: b.description })),
-        guide: (c.guide || []).slice(0, 6).map((g, i) => ({ _key: key("guide", i), heading: g.heading, body: (g.body || []).slice(0, 4) })),
+        guide: (c.guide || []).slice(0, 4).map((g, i) => ({ _key: key("guide", i), heading: g.heading, intro: g.intro, points: (g.points || []).slice(0, 5) })),
         serviceCategories: (c.serviceCategories || []).slice(0, 4).map((sc, i) => ({ _key: key("cat", i), title: sc.title, items: (sc.items || []).slice(0, 6) })),
         faqs: (c.faqs || []).slice(0, 10).map((f, i) => ({ _key: key("faq", i), question: f.question, answer: f.answer })),
         stats: (c.stats || []).slice(0, 4).map((st, i) => ({ _key: key("stat", i), value: st.value, label: st.label })),

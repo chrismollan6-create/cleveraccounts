@@ -32,7 +32,7 @@ type CmsServicePage = {
   faqs?: { question?: string; answer?: string }[];
   stats?: { value: string; label: string }[];
   serviceCategories?: { title: string; items: string[] }[];
-  guide?: { heading?: string; body?: string[] }[];
+  guide?: { heading?: string; intro?: string; points?: string[] }[];
   testimonial?: { name?: string; role?: string; quote?: string };
   sections?: {
     featuresEyebrow?: string;
@@ -104,7 +104,7 @@ function mergeContent(cms: CmsServicePage | null, fb: ServicePageData | undefine
       items: c.items.map((it) => dc(it)),
     })),
     guide: cms?.guide?.length
-      ? cms.guide.map((g) => ({ heading: dc(g.heading), body: (g.body ?? []).map((p) => dc(p)) }))
+      ? cms.guide.map((g) => ({ heading: dc(g.heading), intro: dc(g.intro), points: (g.points ?? []).map((p) => dc(p)) }))
       : undefined,
     testimonial: testimonialSrc?.quote
       ? { name: dc(testimonialSrc.name), role: dc(testimonialSrc.role), quote: dc(testimonialSrc.quote) }

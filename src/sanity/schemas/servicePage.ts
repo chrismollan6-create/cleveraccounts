@@ -125,16 +125,17 @@ export default defineType({
     }),
     defineField({
       name: "guide",
-      title: "In-depth guide (optional)",
-      description: "Long-form, genuinely useful sections — each a heading plus a few paragraphs explaining the topic.",
+      title: "Key things to know (optional)",
+      description: "Scannable panels — each a heading, a one-line intro, and a few bullet points covering the key facts.",
       type: "array",
       group: "content",
       of: [
         {
           type: "object",
           fields: [
-            { name: "heading", type: "string", title: "Section heading" },
-            { name: "body", type: "array", of: [{ type: "text", rows: 4 }], title: "Paragraphs" },
+            { name: "heading", type: "string", title: "Panel heading" },
+            { name: "intro", type: "text", rows: 2, title: "Intro line (optional)" },
+            { name: "points", type: "array", of: [{ type: "string" }], title: "Bullet points" },
           ],
           preview: { select: { title: "heading" } },
         },
