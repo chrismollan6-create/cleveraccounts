@@ -135,96 +135,93 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#71c5d6]" /> Switch in minutes</span>
             </p>
 
-            {/* Human proof — reinforces the "we actually answer" promise */}
-            <div className="flex items-center gap-3.5 mt-8">
-              <div className="relative w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-white shadow-md shrink-0">
-                <Image
-                  src="/images/hero-accountant.jpg"
-                  alt="Speak to a real accountant by phone"
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
-              </div>
-              <p className="text-sm text-[#5a6f74] leading-snug">
-                <span className="font-bold text-[#2c4a51]">Speak to a real person</span>
-                <br />
-                A named accountant on the line — never a call centre, never a bot.
-              </p>
-            </div>
           </div>
 
-          {/* ── Right: layered card visual ────────────────────────────── */}
-          <div className="relative lg:pl-4">
-            {/* Decorative colour ring behind the card */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[118%] h-[118%] rounded-[3rem] bg-gradient-to-tr from-[#9cbf50]/10 via-[#71c5d6]/15 to-[#9cbf50]/10 blur-2xl hidden sm:block" />
+          {/* ── Right: a real person + the offer, layered ─────────────── */}
+          <div className="relative lg:pl-4 max-w-md mx-auto lg:max-w-none">
+            {/* Decorative colour glow behind the visual */}
+            <div className="absolute -inset-3 rounded-[3rem] bg-gradient-to-tr from-[#9cbf50]/10 via-[#71c5d6]/15 to-[#9cbf50]/10 blur-2xl hidden sm:block" />
 
-            {/* card + tilted backdrop, dropped down to leave headroom for top chips */}
-            <div className="relative mt-14 sm:mt-12">
-              <div className="absolute inset-0 translate-x-4 translate-y-5 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#71c5d6]/40 to-[#9cbf50]/40 hidden sm:block" />
+            {/* Relatable photo — dropped down to leave headroom for top chips */}
+            <div className="relative mt-12 sm:mt-10">
+              <div className="absolute inset-0 translate-x-4 -translate-y-3 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#71c5d6]/40 to-[#9cbf50]/40 hidden sm:block" />
 
-              <div className="relative bg-white rounded-[2rem] shadow-2xl shadow-[#2c4a51]/15 border border-white overflow-hidden">
-                {/* Gradient header strip */}
-                <div className="bg-gradient-to-r from-[#32535a] via-[#3f6b73] to-[#71c5d6] px-7 py-5 flex items-center gap-2 text-white">
-                  <Sparkles size={18} />
-                  <span className="text-sm font-bold uppercase tracking-wider">Everything included</span>
+              <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl shadow-[#2c4a51]/25 border-4 border-white">
+                <Image
+                  src="/images/hero-accountant.jpg"
+                  alt="Speak to a real Workwell accountant"
+                  fill
+                  sizes="(max-width: 1024px) 90vw, 520px"
+                  className="object-cover"
+                  priority
+                />
+                {/* Soft gradient at the foot so the overhanging card reads cleanly */}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#2c4a51]/30 to-transparent" />
+              </div>
+
+              {/* Floating chip — Trustpilot (top-left, over the photo) */}
+              <div className="absolute -top-5 left-1 sm:-left-5 bg-white rounded-2xl px-4 py-2.5 shadow-xl border border-[#e4ecd6] -rotate-3 animate-float z-30">
+                <div className="flex items-center gap-1.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
+                  ))}
+                  <span className="text-sm font-bold text-[#2c4a51] ml-1">{rating}</span>
                 </div>
+                <p className="text-[11px] text-[#6a7b80] mt-0.5">Excellent on Trustpilot</p>
+              </div>
 
-                <div className="p-7">
-                  <p className="text-2xl font-extrabold text-[#2c4a51] mb-6">
-                    One accountant who actually replies.
-                  </p>
+              {/* Floating chip — MTD ready (cyan, top-right, over the photo) */}
+              <div className="absolute -top-3 right-1 sm:-right-4 bg-[#71c5d6] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-30">
+                <FileCheck2 size={18} />
+                <div>
+                  <p className="text-xs font-bold leading-tight">Making Tax Digital</p>
+                  <p className="text-[11px] text-white/85">Ready &amp; compliant</p>
+                </div>
+              </div>
+            </div>
 
-                  <ul className="space-y-3.5 mb-7">
-                    {included.map((item, i) => (
-                      <li key={item} className="flex items-center gap-3">
-                        <span
-                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                            i % 2 === 0 ? "bg-[#9cbf50]/20 text-[#6f8052]" : "bg-[#71c5d6]/25 text-[#2c6470]"
-                          }`}
-                        >
-                          <CheckCircle2 size={15} />
-                        </span>
-                        <span className="text-[#3f565b] font-medium">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+            {/* Offer card — overhangs the photo's bottom, offset for a layered feel */}
+            <div className="relative -mt-14 sm:-mt-16 ml-2 sm:ml-10 mr-2 sm:mr-0 bg-white rounded-[1.5rem] shadow-2xl shadow-[#2c4a51]/20 border border-white overflow-hidden z-20">
+              {/* Gradient header strip */}
+              <div className="bg-gradient-to-r from-[#32535a] via-[#3f6b73] to-[#71c5d6] px-6 py-4 flex items-center gap-2 text-white">
+                <Sparkles size={16} />
+                <span className="text-xs font-bold uppercase tracking-wider">Everything included</span>
+              </div>
 
-                  <div className="flex items-end justify-between pt-6 border-t border-[#eef2e4]">
-                    <div>
-                      <p className="text-xs text-[#6a7b80] font-medium">Plans from</p>
-                      <p className="text-3xl font-extrabold text-[#2c4a51]">
-                        £42.50<span className="text-base font-semibold text-[#6a7b80]">/mo + VAT</span>
-                      </p>
-                    </div>
-                    <Link
-                      href="/pricing"
-                      className="inline-flex items-center gap-1.5 bg-[#9cbf50]/15 text-[#5d7038] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-[#9cbf50]/25 transition-colors"
-                    >
-                      See pricing <ArrowRight size={15} />
-                    </Link>
+              <div className="p-6">
+                <p className="text-xl font-extrabold text-[#2c4a51] mb-4">
+                  One accountant who actually replies.
+                </p>
+
+                <ul className="space-y-2.5 mb-5">
+                  {included.map((item, i) => (
+                    <li key={item} className="flex items-center gap-2.5">
+                      <span
+                        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                          i % 2 === 0 ? "bg-[#9cbf50]/20 text-[#6f8052]" : "bg-[#71c5d6]/25 text-[#2c6470]"
+                        }`}
+                      >
+                        <CheckCircle2 size={13} />
+                      </span>
+                      <span className="text-[#3f565b] font-medium text-sm">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex items-end justify-between pt-4 border-t border-[#eef2e4]">
+                  <div>
+                    <p className="text-xs text-[#6a7b80] font-medium">Plans from</p>
+                    <p className="text-2xl font-extrabold text-[#2c4a51]">
+                      £42.50<span className="text-sm font-semibold text-[#6a7b80]">/mo + VAT</span>
+                    </p>
                   </div>
+                  <Link
+                    href="/pricing"
+                    className="inline-flex items-center gap-1.5 bg-[#9cbf50]/15 text-[#5d7038] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-[#9cbf50]/25 transition-colors"
+                  >
+                    See pricing <ArrowRight size={15} />
+                  </Link>
                 </div>
-              </div>
-            </div>
-
-            {/* Floating chip — Trustpilot (above card, top-left) */}
-            <div className="absolute top-0 left-2 sm:left-6 bg-white rounded-2xl px-4 py-2.5 shadow-xl border border-[#e4ecd6] -rotate-3 animate-float z-20">
-              <div className="flex items-center gap-1.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
-                ))}
-                <span className="text-sm font-bold text-[#2c4a51] ml-1">{rating}</span>
-              </div>
-              <p className="text-[11px] text-[#6a7b80] mt-0.5">Excellent on Trustpilot</p>
-            </div>
-
-            {/* Floating chip — MTD ready (cyan, above card, top-right) */}
-            <div className="absolute top-1 right-2 sm:right-4 bg-[#71c5d6] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-20">
-              <FileCheck2 size={18} />
-              <div>
-                <p className="text-xs font-bold leading-tight">Making Tax Digital</p>
-                <p className="text-[11px] text-white/85">Ready &amp; compliant</p>
               </div>
             </div>
 
