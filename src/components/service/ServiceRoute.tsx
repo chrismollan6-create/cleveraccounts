@@ -54,7 +54,7 @@ type Breadcrumb = { name: string; url: string }[];
 /** Relatable audience photo per service page (B2C warmth). Falls back to the
  *  "accountant on the phone" shot for pages without a specific audience image. */
 const SLUG_IMAGE: Record<string, string> = {
-  "sole-trader": "/images/sole-trader-tradesperson.jpg",
+  "sole-trader": "/images/sole-trader.jpg",
   "cis-accounting": "/images/sole-trader-tradesperson.jpg",
   "freelancer-accountancy": "/images/freelancer-home.jpg",
   "landlord-accounting": "/images/landlord-property.jpg",
