@@ -8,6 +8,7 @@ import {
 import { getSiteSettings } from "@/sanity/queries";
 import { promoBadgesByPlanName } from "@/lib/promo";
 import { getBrand } from "@/lib/brand";
+import type { BrandId } from "@/lib/constants";
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
@@ -18,12 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const services = [
+const buildServices = (isWorkwell: boolean) => [
   {
     icon: User,
     title: "Sole Trader",
     subtitle: "Self-employed & freelancers",
-    description: "Stop worrying about your accounts. Your dedicated accountant handles your self assessment, expenses and tax so you can focus on the work.",
+    description: isWorkwell
+      ? "Put your accounts out of your mind. Your named accountant takes care of your self assessment, expenses and tax, leaving you free to get on with the work."
+      : "Stop worrying about your accounts. Your dedicated accountant handles your self assessment, expenses and tax so you can focus on the work.",
     price: "42.50",
     href: "/sole-trader",
     colour: "bg-blue-500/10 text-blue-600 group-hover:bg-blue-500",
@@ -33,7 +36,9 @@ const services = [
     icon: Building2,
     title: "Limited Company",
     subtitle: "Ltd directors & growing businesses",
-    description: "Year-end accounts, corporation tax, VAT, payroll — all handled. One fixed monthly fee, one dedicated accountant, zero surprises.",
+    description: isWorkwell
+      ? "Year-end accounts, corporation tax, VAT and payroll, all taken care of. A single fixed monthly fee, one named accountant, and no nasty surprises."
+      : "Year-end accounts, corporation tax, VAT, payroll — all handled. One fixed monthly fee, one dedicated accountant, zero surprises.",
     price: "104.50",
     href: "/limited-company",
     colour: "bg-primary/10 text-primary group-hover:bg-primary",
@@ -43,7 +48,9 @@ const services = [
     icon: Briefcase,
     title: "Contractor",
     subtitle: "PSC & umbrella contractors",
-    description: "IR35 keeping you up at night? Don't let it. Our specialist contractor accountants know exactly how to protect you and our Clever FLEX solution means you can switch between PSC and umbrella seamlessly.",
+    description: isWorkwell
+      ? "Worried about IR35? You needn't be. Our contractor specialists understand the rules in detail, and our flexible solution lets you move between PSC and umbrella without friction."
+      : "IR35 keeping you up at night? Don't let it. Our specialist contractor accountants know exactly how to protect you and our Clever FLEX solution means you can switch between PSC and umbrella seamlessly.",
     price: "104.50",
     href: "/contractor-accountancy",
     colour: "bg-purple-500/10 text-purple-600 group-hover:bg-purple-500",
@@ -53,7 +60,9 @@ const services = [
     icon: Home,
     title: "Landlord",
     subtitle: "Property investors & landlords",
-    description: "Rental income, allowable expenses, mortgage interest, capital gains — property tax has a lot of moving parts. We keep you compliant and as tax-efficient as the rules allow.",
+    description: isWorkwell
+      ? "Rental income, allowable costs, mortgage interest, capital gains — property tax has plenty of moving parts. We keep you compliant and as tax-efficient as the rules permit."
+      : "Rental income, allowable expenses, mortgage interest, capital gains — property tax has a lot of moving parts. We keep you compliant and as tax-efficient as the rules allow.",
     price: "42.50",
     href: "/landlord-accounting",
     colour: "bg-green-500/10 text-green-600 group-hover:bg-green-500",
@@ -63,7 +72,9 @@ const services = [
     icon: HardHat,
     title: "CIS / Construction",
     subtitle: "Contractors & subcontractors",
-    description: "Keeping on top of CIS deductions, monthly returns and tax rebates is a lot. We handle everything, and make sure you're never paying more than you owe.",
+    description: isWorkwell
+      ? "CIS deductions, monthly returns and tax rebates add up to a real burden. We take it all on and make certain you never pay a penny more than you should."
+      : "Keeping on top of CIS deductions, monthly returns and tax rebates is a lot. We handle everything, and make sure you're never paying more than you owe.",
     price: "42.50",
     href: "/cis-accounting",
     colour: "bg-amber-500/10 text-amber-600 group-hover:bg-amber-500",
@@ -73,7 +84,9 @@ const services = [
     icon: Rocket,
     title: "Startup",
     subtitle: "New businesses & entrepreneurs",
-    description: "Get your business off to the best start. From company formation to your first accounts, we're with you from day one.",
+    description: isWorkwell
+      ? "Give your new venture the strongest possible start. From forming the company to filing your first accounts, we're alongside you from day one."
+      : "Get your business off to the best start. From company formation to your first accounts, we're with you from day one.",
     price: "104.50",
     href: "/accounting-for-startups",
     colour: "bg-secondary/10 text-secondary group-hover:bg-secondary",
@@ -83,7 +96,9 @@ const services = [
     icon: ShoppingCart,
     title: "Ecommerce",
     subtitle: "Online sellers & retailers",
-    description: "Selling on Amazon, Shopify or Etsy? We understand the complexities of ecommerce accounting such as VAT, OSS/IOSS, marketplace fees and all.",
+    description: isWorkwell
+      ? "Trading on Amazon, Shopify or Etsy? We know the quirks of ecommerce accounting inside out — VAT, OSS/IOSS, marketplace fees and the rest."
+      : "Selling on Amazon, Shopify or Etsy? We understand the complexities of ecommerce accounting such as VAT, OSS/IOSS, marketplace fees and all.",
     price: "104.50",
     href: "/ecommerce-accounting",
     colour: "bg-pink-500/10 text-pink-600 group-hover:bg-pink-500",
@@ -91,30 +106,34 @@ const services = [
   },
 ];
 
-const included = [
-  { icon: HeadphonesIcon, label: "Dedicated accountant", desc: "Your own named accountant who knows your business" },
-  { icon: Phone, label: "Unlimited advice", desc: "Call or email as often as you need, no extra charge" },
-  { icon: Monitor, label: "Free FreeAgent software", desc: "Accounting software by FreeAgent — free with every package" },
-  { icon: BadgePoundSterling, label: "No setup fees", desc: "No upfront charges. Your first call with your accountant can be today" },
-  { icon: Shield, label: "No minimum contract", desc: "Cancel anytime — stay because you want to" },
-  { icon: Zap, label: "Real-time dashboard", desc: "Phone or laptop — your numbers are always in sync" },
-  { icon: FileCheck, label: "All filings & submissions", desc: "HMRC, Companies House and VAT — all handled for you" },
-  { icon: CheckCircle2, label: "Tax efficiency advice", desc: "Proactive planning so you keep more of what you earn" },
+const buildIncluded = (isWorkwell: boolean) => [
+  { icon: HeadphonesIcon, label: "Dedicated accountant", desc: isWorkwell ? "A named accountant of your own who understands your business" : "Your own named accountant who knows your business" },
+  { icon: Phone, label: "Unlimited advice", desc: isWorkwell ? "Phone or email whenever you need to, at no extra cost" : "Call or email as often as you need, no extra charge" },
+  { icon: Monitor, label: "Free FreeAgent software", desc: isWorkwell ? "FreeAgent accounting software, included free with every package" : "Accounting software by FreeAgent — free with every package" },
+  { icon: BadgePoundSterling, label: "No setup fees", desc: isWorkwell ? "Nothing to pay up front, and your first call can happen today" : "No upfront charges. Your first call with your accountant can be today" },
+  { icon: Shield, label: "No minimum contract", desc: isWorkwell ? "Roll month to month and stay only as long as it suits you" : "Cancel anytime — stay because you want to" },
+  { icon: Zap, label: "Real-time dashboard", desc: isWorkwell ? "On your phone or your laptop, your figures stay up to date" : "Phone or laptop — your numbers are always in sync" },
+  { icon: FileCheck, label: "All filings & submissions", desc: isWorkwell ? "HMRC, Companies House and VAT submissions, all dealt with for you" : "HMRC, Companies House and VAT — all handled for you" },
+  { icon: CheckCircle2, label: "Tax efficiency advice", desc: isWorkwell ? "Forward planning that helps you hold on to more of what you earn" : "Proactive planning so you keep more of what you earn" },
 ];
 
-const specialists = [
-  { title: "Accounting Software", desc: "FreeAgent is rated the UK's #1 accounting software for small businesses.", href: "/our-services/accounting-software", tag: "Platinum Partner" },
-  { title: "Switch Accountant", desc: "Already have an accountant? Switching to us is painless. We handle the transfer and you don't lose a day.", href: "/our-services/accountant-switch", tag: "We Handle Everything" },
-  { title: "IR35 Specialist", desc: "The most complex area of contractor tax. Our specialists know it inside out.", href: "/contractor-accountants/ir35", tag: "Contractors" },
-  { title: "Making Tax Digital", desc: "MTD is coming for everyone. We'll make sure you're ready and compliant from day one.", href: "/making-tax-digital", tag: "From April 2026" },
-  { title: "Self Assessment", desc: "Stressed about your tax return? Hand it over. We'll file it accurately and on time.", href: "/self-assessment", tag: "Sole Traders" },
-  { title: "VAT Returns", desc: "We prepare and submit your VAT returns, and keep you on the right scheme for your business.", href: "/vat-returns", tag: "All Packages" },
+const buildSpecialists = (isWorkwell: boolean) => [
+  { title: "Accounting Software", desc: isWorkwell ? "FreeAgent ranks as the UK's number one accounting software for small businesses." : "FreeAgent is rated the UK's #1 accounting software for small businesses.", href: "/our-services/accounting-software", tag: "Platinum Partner" },
+  { title: "Switch Accountant", desc: isWorkwell ? "Got an accountant already? Moving over to us is effortless — we manage the handover and you lose no time at all." : "Already have an accountant? Switching to us is painless. We handle the transfer and you don't lose a day.", href: "/our-services/accountant-switch", tag: "We Handle Everything" },
+  { title: "IR35 Specialist", desc: isWorkwell ? "The trickiest corner of contractor tax — and an area our specialists know thoroughly." : "The most complex area of contractor tax. Our specialists know it inside out.", href: "/contractor-accountants/ir35", tag: "Contractors" },
+  { title: "Making Tax Digital", desc: isWorkwell ? "MTD will reach everyone in time. We'll have you ready and compliant well before it does." : "MTD is coming for everyone. We'll make sure you're ready and compliant from day one.", href: "/making-tax-digital", tag: "From April 2026" },
+  { title: "Self Assessment", desc: isWorkwell ? "Dreading your tax return? Pass it our way. We'll prepare it correctly and file it on time." : "Stressed about your tax return? Hand it over. We'll file it accurately and on time.", href: "/self-assessment", tag: "Sole Traders" },
+  { title: "VAT Returns", desc: isWorkwell ? "We prepare and file your VAT returns and make sure you're on the scheme that suits your business best." : "We prepare and submit your VAT returns, and keep you on the right scheme for your business.", href: "/vat-returns", tag: "All Packages" },
 ];
 
 export const revalidate = 60;
 
 export default async function ServicesPage() {
   const brand = await getBrand();
+  const isWorkwell = brand.id === ("workwell" as BrandId);
+  const services = buildServices(isWorkwell);
+  const included = buildIncluded(isWorkwell);
+  const specialists = buildSpecialists(isWorkwell);
   let promoBadges: Record<string, string> = {};
   try {
     const settings = await getSiteSettings();
@@ -130,17 +149,28 @@ export default async function ServicesPage() {
           <div className="absolute -bottom-20 -left-40 w-[400px] h-[400px] rounded-full bg-secondary/10 blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">What We Do</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-4">{isWorkwell ? "Our Services" : "What We Do"}</p>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-            Accounting Packages<br />
-            <span className="text-gradient">for Every Business</span>
+            {isWorkwell ? (
+              <>
+                A Package to Suit<br />
+                <span className="text-gradient">Every Kind of Business</span>
+              </>
+            ) : (
+              <>
+                Accounting Packages<br />
+                <span className="text-gradient">for Every Business</span>
+              </>
+            )}
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            One fixed monthly fee. Your own dedicated accountant. Free software. No setup costs, no minimum contract.
+            {isWorkwell
+              ? "A single fixed monthly fee, a named accountant who's yours, and free software included. Nothing to pay to set up and no tie-in period."
+              : "One fixed monthly fee. Your own dedicated accountant. Free software. No setup costs, no minimum contract."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary hover:bg-secondary-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition-all shadow-lg">
-              Get Started Today <ArrowRight size={20} />
+              {isWorkwell ? "Register Today" : "Get Started Today"} <ArrowRight size={20} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all border border-white/20">
               View Pricing
@@ -169,8 +199,8 @@ export default async function ServicesPage() {
       <section className="bg-surface py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">Find Your Package</h2>
-            <p className="text-text-light max-w-xl mx-auto">Every package includes a dedicated accountant, free software and unlimited support. Pick the one that fits your business.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">{isWorkwell ? "Choose Your Package" : "Find Your Package"}</h2>
+            <p className="text-text-light max-w-xl mx-auto">{isWorkwell ? "Every package comes with a named accountant, free software and support without limits. Choose whichever suits your business." : "Every package includes a dedicated accountant, free software and unlimited support. Pick the one that fits your business."}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => {
@@ -227,8 +257,8 @@ export default async function ServicesPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">Every Package</p>
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Everything Included.<br />No Hidden Extras.</h2>
-            <p className="text-white/60 max-w-xl mx-auto">You shouldn&apos;t have to pay extra every time you pick up the phone. With {brand.name}, everything is included in your monthly fee.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">{isWorkwell ? <>All In One Fee.<br />No Hidden Extras.</> : <>Everything Included.<br />No Hidden Extras.</>}</h2>
+            <p className="text-white/60 max-w-xl mx-auto">{isWorkwell ? <>Picking up the phone should never cost you more. At {brand.name}, your monthly fee covers it all.</> : <>You shouldn&apos;t have to pay extra every time you pick up the phone. With {brand.name}, everything is included in your monthly fee.</>}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {included.map(({ icon: Icon, label, desc }) => (
@@ -249,8 +279,8 @@ export default async function ServicesPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">More From Us</p>
-            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">Specialist Services</h2>
-            <p className="text-text-light max-w-xl mx-auto">Beyond the core packages, we cover IR35, VAT, MTD, self assessment, switching and more.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">{isWorkwell ? "Specialist Support" : "Specialist Services"}</h2>
+            <p className="text-text-light max-w-xl mx-auto">{isWorkwell ? "Alongside the core packages, we also handle IR35, VAT, MTD, self assessment, switching and plenty more." : "Beyond the core packages, we cover IR35, VAT, MTD, self assessment, switching and more."}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {specialists.map((s) => (
@@ -276,13 +306,15 @@ export default async function ServicesPage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Not Sure Which Package?</h2>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">{isWorkwell ? "Unsure Which One Fits?" : "Not Sure Which Package?"}</h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-            Give us a call — we'll point you in the right direction. No sales pitch, just honest advice.
+            {isWorkwell
+              ? "Pick up the phone and we'll help you find the right fit. No hard sell — just straight, honest guidance."
+              : "Give us a call — we'll point you in the right direction. No sales pitch, just honest advice."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
-              Get Started <ArrowRight size={20} />
+              {isWorkwell ? "Register Now" : "Get Started"} <ArrowRight size={20} />
             </Link>
             <a href="tel:01135188800" className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
               <Phone size={20} />

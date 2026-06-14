@@ -27,7 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
     title: `Compare ${brand.name} vs Local Accountants vs DIY Software | ${brand.name}`,
-    description: `How ${brand.name} compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance. See why 10,000+ UK businesses chose us.`,
+    description:
+      brand.id === "workwell"
+        ? `See how ${brand.name} measures up against a traditional local accountant and DIY accounting software — on service, software, pricing and compliance. Find out why 10,000+ UK businesses picked us.`
+        : `How ${brand.name} compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance. See why 10,000+ UK businesses chose us.`,
   };
 }
 
@@ -88,6 +91,31 @@ const differentiators = [
   },
 ];
 
+// Workwell-voiced version of the same four differentiators. Reworded prose only —
+// every factual claim (£19/mo FreeAgent, 2–3× local cost, what's included) matches.
+const differentiatorsWorkwell = [
+  {
+    title: "Your own accountant — not a portal",
+    icon: UserCheck,
+    desc: "Call us and you'll speak to your dedicated accountant, who already understands your business — not a faceless call centre or a bot working through a ticket queue. High-street firms can offer the same, but usually at 2–3× the price, and DIY software doesn't offer it at all.",
+  },
+  {
+    title: "Advice without limits — not pay-per-call",
+    icon: MessageCircle,
+    desc: "Phone whenever you need to. Send a question mid-morning and have an answer by lunchtime. Nothing's metered and no surprise bill lands for a quick chat. Traditional firms tend to charge by the hour, and DIY software gives you no one to ask.",
+  },
+  {
+    title: "FreeAgent free — that's £19/mo you keep",
+    icon: Zap,
+    desc: "FreeAgent retails at £19/month and we include it. You get HMRC-recognised, MTD-compliant software with full bank feeds, invoicing and expenses, and your accountant working in the very same system — no separate logins and no monthly software bill.",
+  },
+  {
+    title: "A single flat fee — nothing hidden",
+    icon: BadgeCheck,
+    desc: "You pay what the pricing page says, full stop. Tax returns, payroll, VAT, IR35 reviews and mortgage reference letters are all part of it. No setup fees, no charge per call, and no &ldquo;you-went-over-your-allowance&rdquo; invoice arriving in February.",
+  },
+];
+
 function Cell({ value, highlight = false }: { value: CellValue; highlight?: boolean }) {
   if (value === true)
     return <CheckCircle2 size={22} className={`mx-auto ${highlight ? "text-primary" : "text-success"}`} />;
@@ -97,6 +125,8 @@ function Cell({ value, highlight = false }: { value: CellValue; highlight?: bool
 
 export default async function ComparePage() {
   const brand = await getBrand();
+  const isWorkwell = brand.id === "workwell";
+  const diffs = isWorkwell ? differentiatorsWorkwell : differentiators;
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -108,14 +138,25 @@ export default async function ComparePage() {
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-6">
             <Sparkles size={15} />
-            Why 10,000+ UK businesses chose {brand.name}
+            {isWorkwell
+              ? `Why 10,000+ UK businesses picked ${brand.name}`
+              : `Why 10,000+ UK businesses chose ${brand.name}`}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
-            Compare. <span className="text-gradient">Don&apos;t settle.</span>
+            {isWorkwell ? (
+              <>
+                Weigh it up. <span className="text-gradient">Choose well.</span>
+              </>
+            ) : (
+              <>
+                Compare. <span className="text-gradient">Don&apos;t settle.</span>
+              </>
+            )}
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            How we stack up against the traditional local accountant and DIY accounting
-            software — across the things that actually matter when you&apos;re running a UK business.
+            {isWorkwell
+              ? "See how we measure up to the traditional high-street accountant and DIY accounting software — on the things that genuinely count when you're running a UK business."
+              : "How we stack up against the traditional local accountant and DIY accounting software — across the things that actually matter when you're running a UK business."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -128,7 +169,7 @@ export default async function ComparePage() {
               href="#comparison"
               className="inline-flex items-center justify-center gap-2 border-2 border-white/20 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all"
             >
-              See the comparison
+              {isWorkwell ? "View the comparison" : "See the comparison"}
             </a>
           </div>
         </div>
@@ -152,14 +193,17 @@ export default async function ComparePage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-              Side-by-Side
+              {isWorkwell ? "Compared Directly" : "Side-by-Side"}
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              Three ways to handle your accounting — only one keeps everything in one place
+              {isWorkwell
+                ? "Three approaches to your accounting — only one brings it all together"
+                : "Three ways to handle your accounting — only one keeps everything in one place"}
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
-              You can hire a local high-street firm, you can run your own books in DIY software,
-              or you can use us. Here&apos;s what each looks like.
+              {isWorkwell
+                ? "Engage a high-street firm, keep your own books in DIY software, or come to us. Here's how each one shapes up."
+                : "You can hire a local high-street firm, you can run your own books in DIY software, or you can use us. Here's what each looks like."}
             </p>
           </div>
 
@@ -238,7 +282,9 @@ export default async function ComparePage() {
                 Recommended
               </div>
               <h3 className="font-black text-xl mb-1 mt-1">{brand.name}</h3>
-              <p className="text-white/80 text-sm mb-5">From £42.50/month — everything in</p>
+              <p className="text-white/80 text-sm mb-5">
+                {isWorkwell ? "From £42.50/month — all of it included" : "From £42.50/month — everything in"}
+              </p>
               <ul className="space-y-2.5">
                 {featureRows.map((row) => (
                   <li key={row.feature} className="flex items-center gap-2 text-sm">
@@ -258,7 +304,9 @@ export default async function ComparePage() {
             {/* Local Accountant card */}
             <div className="bg-white border border-border rounded-2xl p-6">
               <h3 className="font-black text-xl text-dark mb-1">Local Accountant</h3>
-              <p className="text-text-light text-sm mb-5">£100–£300+ /month, plus extras</p>
+              <p className="text-text-light text-sm mb-5">
+                {isWorkwell ? "£100–£300+ /month, with extras on top" : "£100–£300+ /month, plus extras"}
+              </p>
               <ul className="space-y-2.5">
                 {featureRows.map((row) => (
                   <li key={row.feature} className="flex items-center gap-2 text-sm">
@@ -278,7 +326,9 @@ export default async function ComparePage() {
             {/* DIY Software card */}
             <div className="bg-white border border-border rounded-2xl p-6">
               <h3 className="font-black text-xl text-dark mb-1">DIY Software</h3>
-              <p className="text-text-light text-sm mb-5">£15–£50 /month — software only, no accountant</p>
+              <p className="text-text-light text-sm mb-5">
+                {isWorkwell ? "£15–£50 /month — just the software, no accountant" : "£15–£50 /month — software only, no accountant"}
+              </p>
               <ul className="space-y-2.5">
                 {featureRows.map((row) => (
                   <li key={row.feature} className="flex items-center gap-2 text-sm">
@@ -297,7 +347,9 @@ export default async function ComparePage() {
           </div>
 
           <p className="text-center text-text-light text-xs mt-6 max-w-2xl mx-auto">
-            Comparison reflects typical offerings in the UK market. Individual local accountants and software products vary.
+            {isWorkwell
+              ? "This comparison is based on typical offerings across the UK market. Individual local accountants and software products will differ."
+              : "Comparison reflects typical offerings in the UK market. Individual local accountants and software products vary."}
           </p>
         </div>
       </section>
@@ -307,19 +359,22 @@ export default async function ComparePage() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
-              Why It Matters
+              {isWorkwell ? "Why It Counts" : "Why It Matters"}
             </p>
             <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">
-              A check in a column is one thing — what it means in practice is another
+              {isWorkwell
+                ? "A tick in a column is one thing — what it actually means day to day is another"
+                : "A check in a column is one thing — what it means in practice is another"}
             </h2>
             <p className="text-text-light max-w-2xl mx-auto">
-              The differences between the three options aren&apos;t small. Here&apos;s what
-              each row actually buys you with {brand.name}.
+              {isWorkwell
+                ? `The gaps between the three options are real, not marginal. Here's what each row genuinely gives you with ${brand.name}.`
+                : `The differences between the three options aren't small. Here's what each row actually buys you with ${brand.name}.`}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
-            {differentiators.map(({ title, icon: Icon, desc }) => (
+            {diffs.map(({ title, icon: Icon, desc }) => (
               <div key={title} className="bg-white border border-border rounded-2xl p-6 shadow-sm card-hover">
                 <div className="flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -344,14 +399,17 @@ export default async function ComparePage() {
         </div>
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-4">
-            The Smart Choice
+            {isWorkwell ? "The Sensible Choice" : "The Smart Choice"}
           </p>
           <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-5">
-            Everything in one place. One flat fee. No surprises.
+            {isWorkwell
+              ? "All in one place. One flat fee. Nothing hidden."
+              : "Everything in one place. One flat fee. No surprises."}
           </h2>
           <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-            Join 10,000+ UK businesses who chose Clever Accounts. Dedicated accountant,
-            FreeAgent included, no setup fees, no minimum contract — from £42.50/month.
+            {isWorkwell
+              ? `Join the 10,000+ UK businesses who picked ${brand.name}. A dedicated accountant, FreeAgent included, no setup fees and no minimum contract — from £42.50/month.`
+              : `Join 10,000+ UK businesses who chose ${brand.name}. Dedicated accountant, FreeAgent included, no setup fees, no minimum contract — from £42.50/month.`}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

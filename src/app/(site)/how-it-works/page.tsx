@@ -22,6 +22,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
+import type { BrandId } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "How It Works — 3 Simple Steps | Clever Accounts",
@@ -29,20 +30,28 @@ export const metadata: Metadata = {
     "Getting started with Clever Accounts takes minutes. Sign up, get matched with a dedicated accountant, then focus on your business. Everything else is handled for you.",
 };
 
-const steps = [
+const buildSteps = (isWorkwell: boolean) => [
   {
     step: "01",
     icon: UserPlus,
-    label: "Getting Started",
-    title: "Sign Up in Minutes",
-    description:
-      "Choose the plan that fits your business — Sole Trader, Limited Company, or Contractor. Our online sign-up takes just a few minutes. No paperwork, no lengthy forms, no setup fees.",
-    points: [
-      "Fixed-fee transparent pricing from £42.50/month",
-      "No minimum contract — cancel anytime",
-      "Immediate access to your online dashboard",
-      "Free FreeAgent accounting software activated instantly",
-    ],
+    label: isWorkwell ? "Step One" : "Getting Started",
+    title: isWorkwell ? "Register Online in Minutes" : "Sign Up in Minutes",
+    description: isWorkwell
+      ? "Pick the package built around how you work — Sole Trader, Limited Company, or Contractor. Registering online takes only a few minutes, with no forms to print, nothing to post, and no setup charge."
+      : "Choose the plan that fits your business — Sole Trader, Limited Company, or Contractor. Our online sign-up takes just a few minutes. No paperwork, no lengthy forms, no setup fees.",
+    points: isWorkwell
+      ? [
+          "Clear fixed-fee pricing starting at £42.50 a month",
+          "Roll on a month-to-month basis — leave whenever you like",
+          "Your online dashboard is live straight away",
+          "Free FreeAgent software switched on the moment you join",
+        ]
+      : [
+          "Fixed-fee transparent pricing from £42.50/month",
+          "No minimum contract — cancel anytime",
+          "Immediate access to your online dashboard",
+          "Free FreeAgent accounting software activated instantly",
+        ],
     colour: "from-primary/20 to-primary/5",
     accent: "text-primary",
     accentBg: "bg-primary/10",
@@ -50,16 +59,24 @@ const steps = [
   {
     step: "02",
     icon: Users,
-    label: "Your Accountant",
-    title: "Meet Your Dedicated Accountant",
-    description:
-      "Within one working day, you're matched with a dedicated accountant who specialises in your type of business. They'll get to know you, your goals, and your finances — and stay with you for the long haul.",
-    points: [
-      "Matched to a specialist in your business type",
-      "Onboarding call booked within 24 hours",
-      "Available by phone and email — no call centres",
-      "Proactive advice, not just year-end number crunching",
-    ],
+    label: isWorkwell ? "Step Two" : "Your Accountant",
+    title: isWorkwell ? "Get Paired With Your Own Accountant" : "Meet Your Dedicated Accountant",
+    description: isWorkwell
+      ? "Inside one working day we pair you with a named accountant who understands businesses like yours. They take the time to learn your goals and your numbers, and they remain your point of contact for years, not just one tax season."
+      : "Within one working day, you're matched with a dedicated accountant who specialises in your type of business. They'll get to know you, your goals, and your finances — and stay with you for the long haul.",
+    points: isWorkwell
+      ? [
+          "Paired with someone who knows your line of work",
+          "Welcome call arranged inside 24 hours",
+          "Reach them directly by phone or email — never a call centre",
+          "Guidance throughout the year, not only at year end",
+        ]
+      : [
+          "Matched to a specialist in your business type",
+          "Onboarding call booked within 24 hours",
+          "Available by phone and email — no call centres",
+          "Proactive advice, not just year-end number crunching",
+        ],
     colour: "from-secondary/20 to-secondary/5",
     accent: "text-secondary",
     accentBg: "bg-secondary/10",
@@ -67,16 +84,24 @@ const steps = [
   {
     step: "03",
     icon: PartyPopper,
-    label: "Sit Back",
-    title: "We Handle Everything",
-    description:
-      "From the moment you're set up, your accountant takes care of your accounts, tax returns, VAT, payroll, and all HMRC and Companies House filings. You focus on your business — we handle the rest.",
-    points: [
-      "All deadlines tracked and submissions handled",
-      "Quarterly check-ins and proactive tax planning",
-      "Real-time financial dashboard on any device",
-      "Unlimited advice whenever you need it",
-    ],
+    label: isWorkwell ? "Step Three" : "Sit Back",
+    title: isWorkwell ? "Leave the Rest to Us" : "We Handle Everything",
+    description: isWorkwell
+      ? "Once you're set up, your accountant looks after your accounts, tax returns, VAT, payroll, and every HMRC and Companies House filing. Your time goes back into the business while the admin sits with us."
+      : "From the moment you're set up, your accountant takes care of your accounts, tax returns, VAT, payroll, and all HMRC and Companies House filings. You focus on your business — we handle the rest.",
+    points: isWorkwell
+      ? [
+          "Every deadline monitored and every submission filed",
+          "Regular check-ins and forward-looking tax planning",
+          "A live financial dashboard you can open on any device",
+          "Advice on tap whenever a question comes up",
+        ]
+      : [
+          "All deadlines tracked and submissions handled",
+          "Quarterly check-ins and proactive tax planning",
+          "Real-time financial dashboard on any device",
+          "Unlimited advice whenever you need it",
+        ],
     colour: "from-green-500/20 to-green-500/5",
     accent: "text-green-500",
     accentBg: "bg-green-500/10",
@@ -96,15 +121,26 @@ const included = [
   { icon: ShieldCheck, text: "No minimum contract" },
 ];
 
-const timeline = [
-  { when: "Day 1", title: "Sign up online", desc: "Choose your plan and complete our simple sign-up form." },
-  { when: "Within 24 hrs", title: "Accountant assigned", desc: "Your dedicated accountant is matched and will reach out to book your welcome call." },
-  { when: "Week 1", title: "Onboarding call", desc: "Your accountant gets to know your business, sets up FreeAgent, and captures any outstanding deadlines." },
-  { when: "Ongoing", title: "Everything handled", desc: "Accounts, tax returns, VAT, payroll, and proactive advice — all taken care of month after month." },
-];
+const buildTimeline = (isWorkwell: boolean) =>
+  isWorkwell
+    ? [
+        { when: "Day 1", title: "Register online", desc: "Pick your package and fill in our short online form." },
+        { when: "Within 24 hrs", title: "Your accountant is paired", desc: "We assign your named accountant, who gets in touch to arrange your welcome call." },
+        { when: "Week 1", title: "Welcome call", desc: "Your accountant learns how your business runs, configures FreeAgent, and notes any deadlines still outstanding." },
+        { when: "Ongoing", title: "Looked after month to month", desc: "Accounts, tax returns, VAT, payroll, and forward planning — handled for you every month." },
+      ]
+    : [
+        { when: "Day 1", title: "Sign up online", desc: "Choose your plan and complete our simple sign-up form." },
+        { when: "Within 24 hrs", title: "Accountant assigned", desc: "Your dedicated accountant is matched and will reach out to book your welcome call." },
+        { when: "Week 1", title: "Onboarding call", desc: "Your accountant gets to know your business, sets up FreeAgent, and captures any outstanding deadlines." },
+        { when: "Ongoing", title: "Everything handled", desc: "Accounts, tax returns, VAT, payroll, and proactive advice — all taken care of month after month." },
+      ];
 
 export default async function HowItWorksPage() {
   const brand = await getBrand();
+  const isWorkwell = brand.id === ("workwell" as BrandId);
+  const steps = buildSteps(isWorkwell);
+  const timeline = buildTimeline(isWorkwell);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────── */}
@@ -116,18 +152,29 @@ export default async function HowItWorksPage() {
         <div className="relative max-w-7xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white/80 rounded-full px-4 py-2 text-sm font-semibold mb-6">
             <Zap size={15} className="text-secondary" />
-            Up and running in as little as 24 hours
+            {isWorkwell ? "Set up and supported within 24 hours" : "Up and running in as little as 24 hours"}
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6">
-            Three Steps to<br />
-            <span className="text-gradient">Brilliant Accounting</span>
+            {isWorkwell ? (
+              <>
+                Three Steps to<br />
+                <span className="text-gradient">Accounting That Works</span>
+              </>
+            ) : (
+              <>
+                Three Steps to<br />
+                <span className="text-gradient">Brilliant Accounting</span>
+              </>
+            )}
           </h1>
           <p className="text-lg text-white/75 max-w-2xl mx-auto mb-8">
-            No complicated onboarding. No piles of paperwork. Just sign up, meet your accountant, and get back to running your business.
+            {isWorkwell
+              ? "No drawn-out onboarding and nothing to wade through. Register, get paired with your accountant, and put your attention back where it belongs — your business."
+              : "No complicated onboarding. No piles of paperwork. Just sign up, meet your accountant, and get back to running your business."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
-              Get Started <ArrowRight size={20} />
+              {isWorkwell ? "Register Now" : "Get Started"} <ArrowRight size={20} />
             </Link>
             <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
               <Phone size={20} /> {brand.freephone}
@@ -143,6 +190,7 @@ export default async function HowItWorksPage() {
       </section>
 
       {/* ── THREE STEPS ──────────────────────────────────────────── */}
+      {/* (step copy is brand-aware via buildSteps) */}
       <section className="bg-white py-16 md:py-28">
         <div className="max-w-6xl mx-auto px-4">
           <div className="space-y-24">
@@ -187,9 +235,11 @@ export default async function HowItWorksPage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Timeline</p>
-            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">What Happens When</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">{isWorkwell ? "Your First Few Weeks" : "What Happens When"}</h2>
             <p className="text-text-light max-w-xl mx-auto">
-              From signing up to fully sorted — here's what the first few weeks look like.
+              {isWorkwell
+                ? "From the moment you register to being fully set up — here is how the opening weeks unfold."
+                : "From signing up to fully sorted — here's what the first few weeks look like."}
             </p>
           </div>
 
@@ -228,11 +278,22 @@ export default async function HowItWorksPage() {
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">All Inclusive</p>
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-              Everything's Included.<br />
-              <span className="text-gradient">No Extras, No Surprises.</span>
+              {isWorkwell ? (
+                <>
+                  It's All In There.<br />
+                  <span className="text-gradient">Nothing Extra to Pay.</span>
+                </>
+              ) : (
+                <>
+                  Everything's Included.<br />
+                  <span className="text-gradient">No Extras, No Surprises.</span>
+                </>
+              )}
             </h2>
             <p className="text-white/60 max-w-xl mx-auto">
-              One fixed monthly fee covers all of this. No hourly billing, no surprise invoices.
+              {isWorkwell
+                ? "A single fixed monthly fee covers the lot. No billing by the hour, no invoices you didn't see coming."
+                : "One fixed monthly fee covers all of this. No hourly billing, no surprise invoices."}
             </p>
           </div>
 
@@ -260,7 +321,7 @@ export default async function HowItWorksPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Real Clients</p>
-            <h2 className="text-3xl font-black text-dark mb-4">Hear From People Who've Done It</h2>
+            <h2 className="text-3xl font-black text-dark mb-4">{isWorkwell ? "What Our Clients Say" : "Hear From People Who've Done It"}</h2>
           </div>
           <GoogleReviewsWidget />
         </div>
@@ -275,24 +336,26 @@ export default async function HowItWorksPage() {
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 text-white rounded-full px-4 py-2 text-sm font-semibold mb-6">
             <HeartHandshake size={16} />
-            Dedicated accountant assigned within 24 hours
+            {isWorkwell ? "Your named accountant paired within 24 hours" : "Dedicated accountant assigned within 24 hours"}
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-            Ready to Get Started?
+            {isWorkwell ? "Ready When You Are" : "Ready to Get Started?"}
           </h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
-            Join 10,000+ UK businesses. Sign up in minutes — your accountant does the rest.
+            {isWorkwell
+              ? "Thousands of UK businesses already rely on us. Register in minutes and your accountant takes it from there."
+              : "Join 10,000+ UK businesses. Sign up in minutes — your accountant does the rest."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
-              Get Started — Free <ArrowRight size={20} />
+              {isWorkwell ? "Register Free" : "Get Started — Free"} <ArrowRight size={20} />
             </Link>
             <a href={`tel:${brand.freephone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
               <Phone size={20} /> {brand.freephone}
             </a>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-white/70 text-sm">
-            {["No setup fee", "No minimum contract", "Cancel anytime"].map((t) => (
+            {(isWorkwell ? ["Nothing to pay to set up", "No tie-in period", "Leave whenever you like"] : ["No setup fee", "No minimum contract", "Cancel anytime"]).map((t) => (
               <div key={t} className="flex items-center gap-1.5">
                 <CheckCircle2 size={14} className="text-white/60" /> {t}
               </div>

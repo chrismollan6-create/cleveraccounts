@@ -28,43 +28,67 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const values = [
+const getValues = (isClever: boolean) => [
   {
     icon: Users,
     title: "People First",
-    description: "Every client gets a dedicated accountant who genuinely knows their business. You're never passed around a call centre or left waiting weeks for an answer.",
+    description: isClever
+      ? "Every client gets a dedicated accountant who genuinely knows their business. You're never passed around a call centre or left waiting weeks for an answer."
+      : "You work with one named accountant who takes the time to understand how your business actually runs. No anonymous ticket queues, no being handed between departments, no chasing for a reply.",
   },
   {
     icon: Award,
     title: "Excellence",
-    description: "We hold ourselves to the highest professional standards — from the quality of our tax advice to the software we include with every package.",
+    description: isClever
+      ? "We hold ourselves to the highest professional standards — from the quality of our tax advice to the software we include with every package."
+      : "We set a high bar and hold to it, whether that's the advice we give or the tools we put in your hands. Getting the detail right is simply how we work.",
   },
   {
     icon: Heart,
     title: "Transparency",
-    description: "One fixed monthly fee, no hidden extras, no jargon. You always know exactly what you're paying and exactly what you're getting.",
+    description: isClever
+      ? "One fixed monthly fee, no hidden extras, no jargon. You always know exactly what you're paying and exactly what you're getting."
+      : "A single monthly price covers everything, with nothing buried in the small print and no jargon to decode. What you see is precisely what you pay and what you receive.",
   },
   {
     icon: Zap,
     title: "Innovation",
-    description: "We were early adopters of cloud accounting and MTD. We keep investing in technology so our clients always have the best tools at their fingertips.",
+    description: isClever
+      ? "We were early adopters of cloud accounting and MTD. We keep investing in technology so our clients always have the best tools at their fingertips."
+      : "We moved to cloud accounting and Making Tax Digital ahead of the curve, and we keep backing the technology that puts powerful, up-to-date tools within your reach.",
   },
 ];
 
-const whyUs = [
-  "Dedicated accountant who knows your business",
-  "Unlimited phone and email support",
-  "Free FreeAgent accounting software (Platinum Partner)",
-  "No setup fees, no minimum contract",
-  "Proactive tax efficiency advice",
-  "All HMRC filings and returns handled",
-  "Specialist IR35 and contractor support",
-  "MTD-compliant from day one",
-  "Open banking with 25+ UK banks",
-  "Real-time financial dashboard on any device",
-  "UK-based Leeds office",
-  "20+ years UK accounting experience",
-];
+const getWhyUs = (isClever: boolean) =>
+  isClever
+    ? [
+        "Dedicated accountant who knows your business",
+        "Unlimited phone and email support",
+        "Free FreeAgent accounting software (Platinum Partner)",
+        "No setup fees, no minimum contract",
+        "Proactive tax efficiency advice",
+        "All HMRC filings and returns handled",
+        "Specialist IR35 and contractor support",
+        "MTD-compliant from day one",
+        "Open banking with 25+ UK banks",
+        "Real-time financial dashboard on any device",
+        "UK-based Leeds office",
+        "20+ years UK accounting experience",
+      ]
+    : [
+        "One named accountant who understands your business",
+        "Phone and email support whenever you need it",
+        "FreeAgent software included at no extra cost (Platinum Partner)",
+        "Nothing to pay upfront and no minimum tie-in",
+        "Forward-looking advice to keep your tax efficient",
+        "Every HMRC return and filing taken care of",
+        "Expert guidance on IR35 and contracting",
+        "Ready for Making Tax Digital from the outset",
+        "Open banking links to 25+ UK banks",
+        "Live financial dashboard on any device",
+        "A UK team based in Leeds",
+        "Over 20 years of UK accounting experience",
+      ];
 
 const timeline = [
   { year: "2004", event: "Founded in Leeds with a simple mission: make accounting accessible and affordable for every UK business." },
@@ -76,6 +100,9 @@ const timeline = [
 
 export default async function AboutPage() {
   const brand = await getBrand();
+  const isClever = brand.id === "clever";
+  const values = getValues(isClever);
+  const whyUs = getWhyUs(isClever);
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
@@ -157,10 +184,14 @@ export default async function AboutPage() {
                   Clever Accounts was founded in Leeds in 2004 with a straightforward mission: make professional accounting accessible, affordable, and genuinely useful for small UK businesses.
                 </p>
                 <p>
-                  We saw that too many sole traders, contractors, and limited companies were either overpaying for traditional firms that barely communicated, or underserved by budget online services that left them without real support.
+                  {isClever
+                    ? "We saw that too many sole traders, contractors, and limited companies were either overpaying for traditional firms that barely communicated, or underserved by budget online services that left them without real support."
+                    : "We kept meeting sole traders, contractors and limited companies stuck between two poor options: pricey high-street firms that rarely got in touch, and cut-price online services that left them to fend for themselves."}
                 </p>
                 <p>
-                  So we built something in between — and better. Expert, dedicated accountants. Powerful cloud software included free. A fixed monthly price with no surprises.
+                  {isClever
+                    ? "So we built something in between — and better. Expert, dedicated accountants. Powerful cloud software included free. A fixed monthly price with no surprises."
+                    : "Our answer was to combine the best of both, and improve on it: a qualified accountant who's yours, capable cloud software at no extra charge, and one predictable monthly fee with no nasty surprises."}
                 </p>
                 <p>
                   Today we serve over 10,000 businesses across the UK from our offices in Leeds. We're specialists in sole trader, limited company, contractor, and landlord accounting — and we've been preparing our clients for Making Tax Digital long before it became mandatory.

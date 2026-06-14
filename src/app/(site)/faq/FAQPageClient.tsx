@@ -128,14 +128,17 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-6">
             <Sparkles size={15} />
-            Quick answers to common questions
+            {brand.id === "workwell"
+              ? "Clear answers, straight away"
+              : "Quick answers to common questions"}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
             Frequently Asked <span className="text-gradient">Questions</span>
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
-            Everything you need to know about {brand.name} — pricing, services,
-            switching, software, and the specifics for your business type.
+            {brand.id === "workwell"
+              ? `The detail that matters about ${brand.name} — what it costs, what's included, how switching works, the software, and what's relevant to your kind of business.`
+              : `Everything you need to know about ${brand.name} — pricing, services, switching, software, and the specifics for your business type.`}
           </p>
 
           {/* Search */}
@@ -148,7 +151,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search questions…"
+              placeholder={brand.id === "workwell" ? "Search for an answer…" : "Search questions…"}
               aria-label="Search FAQ"
               className="w-full pl-12 pr-12 py-4 rounded-2xl bg-white/[0.08] backdrop-blur-sm border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors"
             />
@@ -219,9 +222,13 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
               <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mx-auto mb-4">
                 <Search size={28} className="text-text-light" />
               </div>
-              <h2 className="text-xl font-black text-dark mb-2">No matching questions</h2>
+              <h2 className="text-xl font-black text-dark mb-2">
+                {brand.id === "workwell" ? "Nothing matched your search" : "No matching questions"}
+              </h2>
               <p className="text-text-light text-sm max-w-md mx-auto mb-6">
-                Try a different search term, or get in touch and we&apos;ll answer it directly.
+                {brand.id === "workwell"
+                  ? "Try another wording, or contact us and we'll answer you directly."
+                  : "Try a different search term, or get in touch and we'll answer it directly."}
               </p>
               <button
                 onClick={() => setQuery("")}
@@ -277,15 +284,17 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
         </div>
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-4">
-            Still Have Questions?
+            {brand.id === "workwell" ? "Something Not Covered?" : "Still Have Questions?"}
           </p>
           <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-5">
-            Talk to someone who knows your business
+            {brand.id === "workwell"
+              ? "Speak to an accountant who understands your business"
+              : "Talk to someone who knows your business"}
           </h2>
           <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-            Our team responds in under 2 hours during business hours. No call
-            centres, no scripted answers — just a UK accountant who can give
-            you a straight answer.
+            {brand.id === "workwell"
+              ? "During business hours we reply in under 2 hours. No call centres and no scripted lines — just a UK accountant giving you a clear, direct answer."
+              : "Our team responds in under 2 hours during business hours. No call centres, no scripted answers — just a UK accountant who can give you a straight answer."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
