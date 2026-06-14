@@ -194,7 +194,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                 </p>
 
                 <ul className="space-y-2.5 mb-5">
-                  {included.map((item, i) => (
+                  {included.slice(0, 3).map((item, i) => (
                     <li key={item} className="flex items-center gap-2.5">
                       <span
                         className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
