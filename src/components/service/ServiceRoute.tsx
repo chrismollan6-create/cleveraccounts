@@ -56,15 +56,15 @@ type Breadcrumb = { name: string; url: string }[];
 const SLUG_IMAGE: Record<string, string> = {
   "sole-trader": "/images/sole-trader-tradesperson.jpg",
   "cis-accounting": "/images/sole-trader-tradesperson.jpg",
-  "freelancer-accountancy": "/images/sole-trader-lifestyle.jpg",
-  "landlord-accounting": "/images/sole-trader-lifestyle.jpg",
-  "ecommerce-accounting": "/images/sole-trader-lifestyle.jpg",
+  "freelancer-accountancy": "/images/freelancer-home.jpg",
+  "landlord-accounting": "/images/landlord-property.jpg",
+  "ecommerce-accounting": "/images/ecommerce-seller.jpg",
   "limited-company": "/images/limited-company-director.jpg",
-  "small-business-accountant": "/images/limited-company-director.jpg",
-  "accounting-for-startups": "/images/limited-company-director.jpg",
-  "contractor-accountancy": "/images/limited-company-director.jpg",
-  "it-contractor-accountant": "/images/limited-company-director.jpg",
-  ir35: "/images/limited-company-director.jpg",
+  "small-business-accountant": "/images/startup-team.jpg",
+  "accounting-for-startups": "/images/startup-team.jpg",
+  "contractor-accountancy": "/images/contractor-it.jpg",
+  "it-contractor-accountant": "/images/contractor-it.jpg",
+  ir35: "/images/contractor-it.jpg",
 };
 const DEFAULT_IMAGE = "/images/hero-accountant.jpg";
 
