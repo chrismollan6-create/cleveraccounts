@@ -51,6 +51,23 @@ type CmsServicePage = {
 
 type Breadcrumb = { name: string; url: string }[];
 
+/** Relatable audience photo per service page (B2C warmth). Falls back to the
+ *  "accountant on the phone" shot for pages without a specific audience image. */
+const SLUG_IMAGE: Record<string, string> = {
+  "sole-trader": "/images/sole-trader-tradesperson.jpg",
+  "cis-accounting": "/images/sole-trader-tradesperson.jpg",
+  "freelancer-accountancy": "/images/sole-trader-lifestyle.jpg",
+  "landlord-accounting": "/images/sole-trader-lifestyle.jpg",
+  "ecommerce-accounting": "/images/sole-trader-lifestyle.jpg",
+  "limited-company": "/images/limited-company-director.jpg",
+  "small-business-accountant": "/images/limited-company-director.jpg",
+  "accounting-for-startups": "/images/limited-company-director.jpg",
+  "contractor-accountancy": "/images/limited-company-director.jpg",
+  "it-contractor-accountant": "/images/limited-company-director.jpg",
+  ir35: "/images/limited-company-director.jpg",
+};
+const DEFAULT_IMAGE = "/images/hero-accountant.jpg";
+
 function deClever(s: string, brandName: string): string {
   return s
     .replace(/Clever Accounts/g, brandName)
@@ -128,7 +145,7 @@ export async function WorkwellServiceRoute({ slug, breadcrumb }: { slug: string;
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumb} />
-      <WorkwellServicePage content={content} />
+      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} />
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   CheckCircle2,
@@ -62,7 +63,7 @@ function gradientLastWord(text: string) {
  * `servicePage` Sanity doc, falling back to de-Clevered legacy content so the
  * page looks right before it's authored in Studio.
  */
-export default function WorkwellServicePage({ content }: { content: ServiceContent }) {
+export default function WorkwellServicePage({ content, heroImage }: { content: ServiceContent; heroImage?: string }) {
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
   const { title, headline, description, price, features, benefits, faqs, stats, serviceCategories, testimonial, sections } = content;
@@ -78,42 +79,82 @@ export default function WorkwellServicePage({ content }: { content: ServiceConte
           <div className="absolute -bottom-40 -left-24 w-[520px] h-[420px] rounded-full bg-[#32535a]/18 blur-[120px]" />
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 pt-16 md:pt-20 pb-20 md:pb-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/85 backdrop-blur border border-white shadow-sm rounded-full pl-2 pr-4 py-1.5 text-sm text-[#2c4a51] font-semibold mb-6">
-            <span className="flex items-center gap-0.5 bg-gradient-to-r from-[#9cbf50]/20 to-[#71c5d6]/20 rounded-full px-2 py-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
-              ))}
-            </span>
-            <span>Rated {rating} on Trustpilot</span>
-          </div>
+        <div className="relative max-w-7xl mx-auto px-4 pt-14 md:pt-20 pb-24 md:pb-28">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: message */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-white/85 backdrop-blur border border-white shadow-sm rounded-full pl-2 pr-4 py-1.5 text-sm text-[#2c4a51] font-semibold mb-6">
+                <span className="flex items-center gap-0.5 bg-gradient-to-r from-[#9cbf50]/20 to-[#71c5d6]/20 rounded-full px-2 py-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
+                  ))}
+                </span>
+                <span>Rated {rating} on Trustpilot</span>
+              </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#2c4a51] leading-[1.07] tracking-tight mb-5">
-            {gradientLastWord(headline)}
-          </h1>
-          <p className="text-lg sm:text-xl text-[#5a6f74] leading-relaxed mb-8 max-w-2xl mx-auto">
-            {description}
-          </p>
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] xl:text-6xl font-extrabold text-[#2c4a51] leading-[1.05] tracking-tight mb-5">
+                {gradientLastWord(headline)}
+              </h1>
+              <p className="text-lg sm:text-xl text-[#5a6f74] leading-relaxed mb-7 max-w-xl mx-auto lg:mx-0">
+                {description}
+              </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/sign-up"
-              className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3.5 rounded-xl shadow-lg shadow-[#9cbf50]/30"
-            >
-              Get Started <ArrowRight size={18} />
-            </Link>
-            <RequestCallback
-              inline
-              label="Request a callback"
-              className="inline-flex items-center gap-2 bg-white hover:bg-[#eef4e2] border border-[#71c5d6]/40 text-[#2c4a51] font-semibold text-base px-6 py-3.5 rounded-xl transition-colors"
-            />
+              <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
+                <Link
+                  href="/sign-up"
+                  className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3.5 rounded-xl shadow-lg shadow-[#9cbf50]/30"
+                >
+                  Get Started <ArrowRight size={18} />
+                </Link>
+                <RequestCallback
+                  inline
+                  label="Request a callback"
+                  className="inline-flex items-center gap-2 bg-white hover:bg-[#eef4e2] border border-[#71c5d6]/40 text-[#2c4a51] font-semibold text-base px-6 py-3.5 rounded-xl transition-colors"
+                />
+              </div>
+
+              <p className="text-[#6a7b80] text-sm mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2">
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#71c5d6]" /> Free to set up</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#9cbf50]" /> No minimum contract</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#71c5d6]" /> Switch in minutes</span>
+              </p>
+            </div>
+
+            {/* Right: a real, relatable client */}
+            <div className="relative max-w-md mx-auto lg:max-w-none w-full">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#9cbf50]/15 via-[#71c5d6]/20 to-[#9cbf50]/10 rounded-[2.5rem] blur-2xl hidden sm:block" />
+              <div className="relative">
+                <div className="absolute inset-0 translate-x-4 translate-y-5 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#71c5d6]/40 to-[#9cbf50]/40 hidden sm:block" />
+                <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl shadow-[#2c4a51]/20 border-4 border-white">
+                  <Image
+                    src={heroImage || "/images/hero-accountant.jpg"}
+                    alt={`${title} with Workwell`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 560px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+
+                {price && (
+                  <div className="absolute -bottom-5 -left-3 sm:-left-6 bg-white rounded-2xl px-5 py-3 shadow-xl border border-[#e4ecd6] -rotate-2 animate-float z-20">
+                    <p className="text-[11px] text-[#6a7b80] font-medium">All-inclusive from</p>
+                    <p className="text-xl font-extrabold text-[#2c4a51]">
+                      £{price}<span className="text-xs font-semibold text-[#6a7b80]">/mo + VAT</span>
+                    </p>
+                  </div>
+                )}
+
+                <div className="absolute -top-4 -right-2 sm:-right-5 bg-[#71c5d6] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-20">
+                  <PhoneCall size={16} />
+                  <div>
+                    <p className="text-xs font-bold leading-tight">Your own accountant</p>
+                    <p className="text-[11px] text-white/85">One call away</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          {price && (
-            <p className="mt-5 text-[#6a7b80] text-sm">
-              All-inclusive from{" "}
-              <span className="text-lg font-extrabold text-[#2c4a51]">£{price}</span>/month + VAT
-            </p>
-          )}
         </div>
 
         <div className="absolute bottom-0 left-0 w-full leading-[0]">
