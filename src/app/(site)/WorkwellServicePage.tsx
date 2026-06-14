@@ -23,6 +23,7 @@ export type ServiceContent = {
   faqs: { q: string; a: string }[];
   stats?: { value: string; label: string }[];
   serviceCategories?: { title: string; items: string[] }[];
+  guide?: { heading: string; body: string[] }[];
   testimonial?: { name: string; role: string; quote: string };
   sections?: {
     featuresEyebrow?: string;
@@ -31,6 +32,8 @@ export type ServiceContent = {
     benefitsHeading?: string;
     categoriesEyebrow?: string;
     categoriesHeading?: string;
+    guideEyebrow?: string;
+    guideHeading?: string;
     faqEyebrow?: string;
     faqHeading?: string;
     ctaHeading?: string;
@@ -66,7 +69,7 @@ function gradientLastWord(text: string) {
 export default function WorkwellServicePage({ content, heroImage }: { content: ServiceContent; heroImage?: string }) {
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
-  const { title, headline, description, price, features, benefits, faqs, stats, serviceCategories, testimonial, sections } = content;
+  const { title, headline, description, price, features, benefits, faqs, stats, serviceCategories, guide, testimonial, sections } = content;
   const s = sections ?? {};
 
   return (
@@ -201,6 +204,35 @@ export default function WorkwellServicePage({ content, heroImage }: { content: S
                   </span>
                   <span className="text-[#3f565b] font-medium">{f}</span>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── In-depth guide (long-form, grounded) ──────────────────────── */}
+      {guide && guide.length > 0 && (
+        <section className="bg-white pb-20 md:pb-24 -mt-4">
+          <div className="max-w-3xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">{s.guideEyebrow || "The detail"}</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-[#2c4a51] mt-3">
+                {s.guideHeading || `${title}: what you need to know`}
+              </h2>
+            </div>
+            <div className="space-y-10">
+              {guide.map((g) => (
+                <article key={g.heading}>
+                  <h3 className="text-xl md:text-2xl font-bold text-[#2c4a51] mb-3 flex items-center gap-3">
+                    <span className="w-8 h-1.5 rounded-full bg-gradient-to-r from-[#9cbf50] to-[#71c5d6] shrink-0" />
+                    {g.heading}
+                  </h3>
+                  <div className="space-y-3.5 sm:pl-11">
+                    {g.body.map((para, i) => (
+                      <p key={i} className="text-[#4f6469] leading-relaxed">{para}</p>
+                    ))}
+                  </div>
+                </article>
               ))}
             </div>
           </div>

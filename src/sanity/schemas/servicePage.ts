@@ -124,6 +124,23 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "guide",
+      title: "In-depth guide (optional)",
+      description: "Long-form, genuinely useful sections — each a heading plus a few paragraphs explaining the topic.",
+      type: "array",
+      group: "content",
+      of: [
+        {
+          type: "object",
+          fields: [
+            { name: "heading", type: "string", title: "Section heading" },
+            { name: "body", type: "array", of: [{ type: "text", rows: 4 }], title: "Paragraphs" },
+          ],
+          preview: { select: { title: "heading" } },
+        },
+      ],
+    }),
+    defineField({
       name: "testimonial",
       title: "Testimonial (optional)",
       description: "A single client quote shown mid-page.",
@@ -167,6 +184,8 @@ export default defineType({
         { name: "benefitsHeading", title: "Benefits — heading", type: "string" },
         { name: "categoriesEyebrow", title: "What we do — small label", type: "string" },
         { name: "categoriesHeading", title: "What we do — heading", type: "string" },
+        { name: "guideEyebrow", title: "In-depth guide — small label", type: "string" },
+        { name: "guideHeading", title: "In-depth guide — heading", type: "string" },
         { name: "faqEyebrow", title: "FAQ — small label", type: "string" },
         { name: "faqHeading", title: "FAQ — heading", type: "string" },
         { name: "ctaHeading", title: "Closing call-to-action — heading", type: "string" },

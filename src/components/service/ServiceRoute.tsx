@@ -32,6 +32,7 @@ type CmsServicePage = {
   faqs?: { question?: string; answer?: string }[];
   stats?: { value: string; label: string }[];
   serviceCategories?: { title: string; items: string[] }[];
+  guide?: { heading?: string; body?: string[] }[];
   testimonial?: { name?: string; role?: string; quote?: string };
   sections?: {
     featuresEyebrow?: string;
@@ -40,6 +41,8 @@ type CmsServicePage = {
     benefitsHeading?: string;
     categoriesEyebrow?: string;
     categoriesHeading?: string;
+    guideEyebrow?: string;
+    guideHeading?: string;
     faqEyebrow?: string;
     faqHeading?: string;
     ctaHeading?: string;
@@ -100,6 +103,9 @@ function mergeContent(cms: CmsServicePage | null, fb: ServicePageData | undefine
       title: dc(c.title),
       items: c.items.map((it) => dc(it)),
     })),
+    guide: cms?.guide?.length
+      ? cms.guide.map((g) => ({ heading: dc(g.heading), body: (g.body ?? []).map((p) => dc(p)) }))
+      : undefined,
     testimonial: testimonialSrc?.quote
       ? { name: dc(testimonialSrc.name), role: dc(testimonialSrc.role), quote: dc(testimonialSrc.quote) }
       : undefined,
@@ -111,6 +117,8 @@ function mergeContent(cms: CmsServicePage | null, fb: ServicePageData | undefine
           benefitsHeading: dc(cms.sections.benefitsHeading),
           categoriesEyebrow: dc(cms.sections.categoriesEyebrow),
           categoriesHeading: dc(cms.sections.categoriesHeading),
+          guideEyebrow: dc(cms.sections.guideEyebrow),
+          guideHeading: dc(cms.sections.guideHeading),
           faqEyebrow: dc(cms.sections.faqEyebrow),
           faqHeading: dc(cms.sections.faqHeading),
           ctaHeading: dc(cms.sections.ctaHeading),

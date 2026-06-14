@@ -45,7 +45,9 @@ ${VOICE}
 Audience: ${p.audience}.
 Topics to genuinely help with: ${p.focus}.
 
-Write ORIGINAL, DIFFERENTIATED copy that leads with the SPECIFIC real concerns of this audience — not generic accountant boilerplate. Use CURRENT UK tax facts for the 2025/26 and 2026/27 tax years, grounded in up-to-date web sources; if unsure of a current figure, describe it qualitatively rather than state a wrong number. Do NOT invent statistics, client numbers, ratings, awards or testimonials. British English.
+Write ORIGINAL, DIFFERENTIATED, genuinely INFORMATIVE copy that leads with the SPECIFIC real concerns of this audience — not generic accountant boilerplate. This page should teach the reader something useful, with the depth of a good explainer article.
+
+GROUNDING (critical): Use Google Search to ground EVERY factual claim — thresholds, rates, allowances, deadlines, dates, scheme rules — in CURRENT, authoritative UK sources (prefer gov.uk and HMRC). State the figures that apply to the 2025/26 and 2026/27 tax years. If a figure is uncertain, disputed or changing, describe it qualitatively and point the reader to where to check, rather than stating a number that may be wrong. Do NOT invent statistics, client numbers, ratings, awards or testimonials. Do NOT include citation markers, footnotes, links or markdown in the copy. British English throughout.
 
 Return ONLY one JSON object (no markdown/fences/commentary) with exactly:
 {
@@ -53,14 +55,16 @@ Return ONLY one JSON object (no markdown/fences/commentary) with exactly:
   "description": "2-sentence hero paragraph, specific to this audience",
   "features": ["8-10 short 'what we handle' lines"],
   "benefits": [{"title":"3-5 words","description":"1-2 sentences"} x4],
-  "faqs": [{"question":"real question","answer":"2-4 accurate sentences"} x5],
+  "guide": [{"heading":"clear, specific section title","body":["2-3 substantial paragraphs that genuinely explain this part of the topic using current UK rules and figures — each item in the array is one full paragraph"]} x4-5 — this is the in-depth, informative heart of the page; be accurate, concrete and current],
+  "serviceCategories": [{"title":"3-4 word column title","items":["4-6 short bullet lines"]} x4 — how Workwell handles this service, grouped],
+  "faqs": [{"question":"real question this audience asks","answer":"2-4 accurate, current sentences"} x8],
   "stats": [{"value":"e.g. £0","label":"e.g. Setup fees"} x4 — TRUE claims only, never invented metrics],
   "metaTitle": "<= 60 chars incl service",
   "metaDescription": "120-160 chars"
 }`;
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_KEY}`, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.7 } }),
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(`Gemini ${res.status}: ${JSON.stringify(data).slice(0, 200)}`);
@@ -88,7 +92,9 @@ async function run() {
         description: c.description,
         features: (c.features || []).slice(0, 12),
         benefits: (c.benefits || []).slice(0, 4).map((b, i) => ({ _key: key("ben", i), title: b.title, description: b.description })),
-        faqs: (c.faqs || []).slice(0, 6).map((f, i) => ({ _key: key("faq", i), question: f.question, answer: f.answer })),
+        guide: (c.guide || []).slice(0, 6).map((g, i) => ({ _key: key("guide", i), heading: g.heading, body: (g.body || []).slice(0, 4) })),
+        serviceCategories: (c.serviceCategories || []).slice(0, 4).map((sc, i) => ({ _key: key("cat", i), title: sc.title, items: (sc.items || []).slice(0, 6) })),
+        faqs: (c.faqs || []).slice(0, 10).map((f, i) => ({ _key: key("faq", i), question: f.question, answer: f.answer })),
         stats: (c.stats || []).slice(0, 4).map((st, i) => ({ _key: key("stat", i), value: st.value, label: st.label })),
         testimonial: REVIEW,
         metaTitle: c.metaTitle,
