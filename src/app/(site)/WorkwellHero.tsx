@@ -148,8 +148,8 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
 
               <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl shadow-[#2c4a51]/25 border-4 border-white">
                 <Image
-                  src="/images/hero-accountant.jpg"
-                  alt="Speak to a real Workwell accountant"
+                  src="/images/workwell-home.jpg"
+                  alt="A small business owner managing her finances with Workwell"
                   fill
                   sizes="(max-width: 1024px) 90vw, 520px"
                   className="object-cover"
