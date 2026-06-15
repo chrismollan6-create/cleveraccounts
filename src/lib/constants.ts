@@ -271,6 +271,9 @@ export const BRANDS = {
     ],
     stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },
     social: {},
+    // Workwell's own GTM container — keeps its funnel/Ads tracking separate from
+    // Clever's (which falls back to the NEXT_PUBLIC_GTM_ID env var).
+    analytics: { gtmId: 'GTM-TGF9NPJ6' },
     // TODO: add Workwell's Trustpilot score + review count once confirmed —
     // Trustpilot blocks automated lookup. Profile URL is known; fill in the
     // rating and the funnel trust pill will show the Trustpilot segment.
