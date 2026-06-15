@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
+import { useBrand } from "@/lib/useBrand";
 import { FAQPageJsonLd, HowToJsonLd, ReviewJsonLd } from "@/components/seo/StructuredData";
 
 export function HtmlEmbedBlock({ html }: { html: string }) {
@@ -97,6 +98,7 @@ export function ReviewBlockRenderer({
   reviewBody: string;
   itemReviewed?: string;
 }) {
+  const brand = useBrand();
   return (
     <figure className="my-8 border-l-4 border-primary pl-5 py-2">
       <ReviewJsonLd
@@ -104,6 +106,7 @@ export function ReviewBlockRenderer({
         rating={rating}
         reviewBody={reviewBody}
         itemReviewed={itemReviewed}
+        orgName={brand.name}
       />
       {reviewBody && (
         <blockquote className="italic text-text leading-relaxed">&ldquo;{reviewBody}&rdquo;</blockquote>

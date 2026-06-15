@@ -198,7 +198,7 @@ interface BlogPostingProps {
   imageUrl?: string;
 }
 
-export function BlogPostingJsonLd({
+export async function BlogPostingJsonLd({
   title,
   description,
   publishedAt,
@@ -207,6 +207,8 @@ export function BlogPostingJsonLd({
   url,
   imageUrl,
 }: BlogPostingProps) {
+  const brand = await getBrand();
+  const base = `https://${brand.domain}`;
   const data = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -218,17 +220,17 @@ export function BlogPostingJsonLd({
     },
     publisher: {
       "@type": "Organization",
-      name: "Clever Accounts",
+      name: brand.name,
       logo: {
         "@type": "ImageObject",
-        url: "https://cleveraccounts.com/images/logo.png",
+        url: `${base}${brand.assets.logo}`,
       },
     },
     datePublished: publishedAt,
     dateModified: modifiedAt ?? publishedAt,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://cleveraccounts.com${url}`,
+      "@id": `${base}${url}`,
     },
     ...(imageUrl ? { image: imageUrl } : {}),
   };
@@ -251,7 +253,7 @@ interface ServiceJsonLdProps {
   serviceUrl?: string;
 }
 
-export function ServiceJsonLd({
+export async function ServiceJsonLd({
   name,
   description,
   price,
@@ -260,6 +262,8 @@ export function ServiceJsonLd({
   areaServed = "United Kingdom",
   serviceUrl,
 }: ServiceJsonLdProps) {
+  const brand = await getBrand();
+  const base = `https://${brand.domain}`;
   const billingDuration =
     billingInterval === "year" ? "P1Y" : billingInterval === "one-off" ? undefined : "P1M";
   const data = {
@@ -267,9 +271,9 @@ export function ServiceJsonLd({
     "@type": "Service",
     name,
     ...(description ? { description } : {}),
-    provider: { "@type": "Organization", name: "Clever Accounts", url: "https://cleveraccounts.com" },
+    provider: { "@type": "Organization", name: brand.name, url: base },
     areaServed: { "@type": "Country", name: areaServed },
-    ...(serviceUrl ? { url: `https://cleveraccounts.com${serviceUrl}` } : {}),
+    ...(serviceUrl ? { url: `${base}${serviceUrl}` } : {}),
     ...(price
       ? {
           offers: {
@@ -288,7 +292,7 @@ export function ServiceJsonLd({
                 }
               : {}),
             availability: "https://schema.org/InStock",
-            seller: { "@type": "Organization", name: "Clever Accounts" },
+            seller: { "@type": "Organization", name: brand.name },
           },
         }
       : {}),
@@ -302,9 +306,11 @@ interface ReviewJsonLdProps {
   reviewBody: string;
   datePublished?: string;
   itemReviewed?: string;
+  /** Org name for the default itemReviewed (client callers pass the active brand). */
+  orgName?: string;
 }
 
-export function ReviewJsonLd({ author, rating, reviewBody, datePublished, itemReviewed }: ReviewJsonLdProps) {
+export function ReviewJsonLd({ author, rating, reviewBody, datePublished, itemReviewed, orgName }: ReviewJsonLdProps) {
   const data = {
     "@context": "https://schema.org",
     "@type": "Review",
@@ -314,7 +320,7 @@ export function ReviewJsonLd({ author, rating, reviewBody, datePublished, itemRe
     ...(datePublished ? { datePublished } : {}),
     ...(itemReviewed
       ? { itemReviewed: { "@type": "Service", name: itemReviewed } }
-      : { itemReviewed: { "@type": "Organization", name: "Clever Accounts" } }),
+      : { itemReviewed: { "@type": "Organization", name: orgName ?? "Clever Accounts" } }),
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
 }
@@ -350,7 +356,7 @@ interface LocalBusinessJsonLdProps {
   addressCountry?: string;
 }
 
-export function LocalBusinessJsonLd({
+export async function LocalBusinessJsonLd({
   name,
   telephone,
   addressLocality,
@@ -358,10 +364,11 @@ export function LocalBusinessJsonLd({
   postalCode,
   addressCountry = "GB",
 }: LocalBusinessJsonLdProps) {
+  const brand = await getBrand();
   const data = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: name ?? "Clever Accounts",
+    name: name ?? brand.name,
     ...(telephone ? { telephone } : {}),
     address: {
       "@type": "PostalAddress",
