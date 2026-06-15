@@ -389,7 +389,9 @@ export function RawJsonLd({ json }: { json: string }) {
   );
 }
 
-export function BreadcrumbJsonLd({ items }: { items: { name: string; url: string }[] }) {
+export async function BreadcrumbJsonLd({ items }: { items: { name: string; url: string }[] }) {
+  const brand = await getBrand();
+  const base = `https://${brand.domain}`;
   const data = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -397,7 +399,7 @@ export function BreadcrumbJsonLd({ items }: { items: { name: string; url: string
       "@type": "ListItem",
       position: i + 1,
       name: item.name,
-      item: `https://cleveraccounts.com${item.url}`,
+      item: `${base}${item.url}`,
     })),
   };
 
