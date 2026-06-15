@@ -87,7 +87,11 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-snippet": -1,
       },
     },
-    alternates: { canonical: `https://${brand.domain}` },
+    // Self-referencing canonical per page. Without the pathname here, every
+    // page inherits the layout's canonical and points at the homepage — which
+    // tells Google all pages are duplicates of "/". Pages that need a different
+    // canonical can still override this in their own generateMetadata.
+    alternates: { canonical: `https://${brand.domain}${pathname === '/' ? '' : pathname}` },
     icons: brand.assets.favicon,
   };
 }
