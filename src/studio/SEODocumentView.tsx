@@ -238,6 +238,7 @@ export function SEODocumentView({ document: docBundle }) {
           metaDescription: doc.metaDescription ?? "",
           excerpt: doc.excerpt ?? doc.summary ?? doc.heroSubheadline ?? "",
           slug: doc.slug?.current ?? "",
+          brand: doc.brand ?? "clever",
         }),
       });
       if (!res.ok) {

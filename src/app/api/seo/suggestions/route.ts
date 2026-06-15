@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { getBrandById } from "@/lib/brand";
+import type { BrandId } from "@/lib/constants";
 
-const BASE_URL = "https://cleveraccounts.com";
-
-function liveUrl(docType: string, slug: string): string | null {
-  if (docType === "homePage") return BASE_URL + "/";
-  if (docType === "blogPost") return slug ? `${BASE_URL}/blog/${slug}` : null;
-  if (docType === "servicePage") return slug ? `${BASE_URL}/${slug}` : null;
-  if (docType === "landingPage") return slug ? `${BASE_URL}/lp/${slug}` : null;
+function liveUrl(base: string, docType: string, slug: string): string | null {
+  if (docType === "homePage") return base + "/";
+  if (docType === "blogPost") return slug ? `${base}/blog/${slug}` : null;
+  if (docType === "servicePage") return slug ? `${base}/${slug}` : null;
+  if (docType === "landingPage") return slug ? `${base}/lp/${slug}` : null;
   return null;
 }
 
@@ -51,15 +51,20 @@ export async function POST(request: NextRequest) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   try {
-    const { docType, title, metaTitle, metaDescription, excerpt, slug } =
+    const { docType, title, metaTitle, metaDescription, excerpt, slug, brand } =
       await request.json();
 
     if (!title) {
       return NextResponse.json({ error: "title is required" }, { status: 400 });
     }
 
+    // Audit against the correct brand site (Sanity docs carry a `brand` field).
+    const brandId: BrandId = brand === "workwell" ? "workwell" : "clever";
+    const brandConf = getBrandById(brandId);
+    const BASE_URL = `https://${brandConf.domain}`;
+
     let pageContent = "";
-    const url = liveUrl(docType ?? "", slug ?? "");
+    const url = liveUrl(BASE_URL, docType ?? "", slug ?? "");
     if (url) {
       try {
         pageContent = await fetchPageText(url);
@@ -68,7 +73,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const prompt = `You are a senior digital marketing consultant auditing a page for Clever Accounts — a UK online accounting firm serving sole traders, limited companies, contractors, and freelancers. Prices start from £42.50/month.
+    const prompt = `You are a senior digital marketing consultant auditing a page for ${brandConf.name} — a UK online accounting firm serving sole traders, limited companies, contractors, and freelancers. Prices start from £42.50/month.
 
 PAGE DETAILS
 Type: ${docType ?? "page"}
@@ -93,7 +98,7 @@ Perform a full page health audit across 5 areas. For each finding include the pr
 
 Respond ONLY with this exact JSON structure — no markdown, no code fences:
 {
-  "suggestedTitle": "30-60 char meta title including primary keyword, ending with | Clever Accounts",
+  "suggestedTitle": "30-60 char meta title including primary keyword, ending with | ${brandConf.name}",
   "suggestedDescription": "120-160 char meta description with a specific benefit or number, ending with a CTA",
   "categories": [
     {
