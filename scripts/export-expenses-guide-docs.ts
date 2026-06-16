@@ -252,7 +252,7 @@ function filename(
   sector: ExpensesSector,
   prior: boolean,
 ): string {
-  const parts = [brand, variant];
+  const parts: string[] = [brand, variant];
   if (clientType) parts.push(clientType.toLowerCase());
   parts.push(sector);
   if (prior) parts.push('switcher');
