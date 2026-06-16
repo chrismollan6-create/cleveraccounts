@@ -80,8 +80,10 @@ GATE 1 - Personal service and right of substitution (ESM7030, ESM0533, ESM0535):
 GATE 2 - Control: the right over WHAT, HOW, WHEN and WHERE (ESM0516):
   Control is a necessary pre-condition of employment. If the client has NO right of
   control whatsoever, that points strongly to outside. Otherwise assess all four
-  dimensions as one weighted pointer (a "sufficient framework of control" can exist
-  even with little day-to-day intervention - PGMOL).
+  dimensions as one weighted pointer - per PGMOL, a "sufficient framework of control"
+  can exist even where the engager rarely intervenes day-to-day, provided the right
+  to control is retained "so far as there is scope for it". Some control must always
+  exist for employment; do not read PGMOL as authority for a vanishingly low threshold.
 
 STAGE 3 - In business on your own account (Market Investigations, ESM7040; ESM0515):
   Stand back and ask: is this person in business on their own account? Weigh the
@@ -159,16 +161,26 @@ point isn't covered by a case on this list, cite the ESM page instead (ESM7030, 
   - Express and Echo Publications v Tanton
       A genuine, unfettered right of substitution is decisive against personal service.
   - Autoclenz v Belcher
-      A clause may be disregarded as a sham - but the bar is high; the onus is on
-      the challenger. Use sparingly.
+      In employment / work-status contexts a tribunal may look past written terms
+      to the "true agreement" between the parties without proving fraudulent
+      intent (rejects the strict Snook common-intention-to-deceive sham test).
+      A favourable written clause that the parties did not really intend can be
+      disregarded. Cite when the contract dresses up reality - not as a "high bar"
+      defence of the paper.
   - PGMOL v HMRC
       The minimum MOO (engager pays for work done) is a GATEWAY only and is not a
-      differentiator of status. A "sufficient framework of control" can be light-touch.
+      differentiator of status. Control must always exist but is assessed flexibly
+      and in context - the engager need not micro-manage day-to-day, provided they
+      retain the right to control "so far as there is scope for it" (a "sufficient
+      framework of control").
   - Market Investigations v Minister of Social Security
       "Is the person in business on their own account?" - the secondary-factors test.
   - James v Greenwich London Borough Council
-      Absence of any obligation to offer or accept further work - useful where the
-      contract is silent on future engagements.
+      An agency-worker / implied-contract authority - SECONDARY to the IR35 line.
+      May be cited by analogy for the absence of any obligation to offer or accept
+      further work where the contract is silent; carries weak weight post-PGMOL.
+      Use only when no stronger authority on the point is available, and never as
+      the principal authority on MOO.
   - Atholl House / Kickabout (2022)
       Construe the contract in light of the surrounding circumstances; disregard sham,
       unrealistic or never-used clauses. NOT a blanket "reality always overrides" rule.
