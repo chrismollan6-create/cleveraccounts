@@ -137,7 +137,11 @@ const CONTRACT_STATUS_OPTIONS = [
   { value: "Renewal / extension", label: "Renewal / extension", description: "An extension or renewal of an existing engagement." },
 ];
 
-const ACCEPTED_FILE = ".pdf,.jpg,.jpeg,.tif,.tiff,.doc,.docx,.bmp,.gif";
+// PDF-only: the AI review path (Gemini multimodal) accepts PDF natively;
+// Word docs were being silently dropped by the Apex queueable and reviewed
+// from the questionnaire answers only. Asking for PDF up-front means the
+// uploaded contract is actually read.
+const ACCEPTED_FILE = ".pdf,application/pdf";
 const MAX_FILE_BYTES = 4 * 1024 * 1024; // 4MB — keeps the base64 body under Vercel's ~4.5MB limit
 
 interface ContractRow {
@@ -206,6 +210,14 @@ function IR35Form() {
       setFile(null);
       setFileError("Please upload a file smaller than 4MB.");
       return;
+    }
+    if (f) {
+      const isPdf = f.type === "application/pdf" || /\.pdf$/i.test(f.name);
+      if (!isPdf) {
+        setFile(null);
+        setFileError("Please upload a PDF. In Word, use File → Save As → PDF (or File → Export → PDF) and re-upload.");
+        return;
+      }
     }
     setFile(f);
   };
@@ -288,11 +300,12 @@ function IR35Form() {
               </FieldWrapper>
             </div>
             <FieldWrapper label="Upload a copy of your contract"
-              hint="The single biggest help to our review. PDF, JPG, TIFF, DOC, DOCX, BMP or GIF — max 4MB.">
+              hint="The single biggest help to our review. PDF only, max 4MB. If your contract is in Word, save it as PDF first (File → Save As → PDF)."
+            >
               <label className="flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 px-4 py-3.5 cursor-pointer hover:border-primary hover:bg-primary/[0.02] transition-all">
                 <UploadCloud className="w-5 h-5 text-primary shrink-0" />
                 <span className="text-sm text-text-light truncate">
-                  {file ? file.name : "Click to choose a file"}
+                  {file ? file.name : "Click to choose a PDF"}
                 </span>
                 <input type="file" accept={ACCEPTED_FILE} className="hidden"
                   onChange={(e) => onFileChange(e.target.files?.[0] ?? null)} />
