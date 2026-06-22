@@ -136,7 +136,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       </section>
 
       {/* ═══════════════ HERO FIGURES ═══════════════ */}
-      <section className="-mt-12 grid grid-cols-3 gap-5 px-[20mm]">
+      <section className="grid grid-cols-3 gap-5 px-[20mm] pt-[10mm]">
         <StatTile label="Total income" value={fmtMoney(data.totals.totalIncome)} color={c.primary} />
         <StatTile
           label="Total expenses"
