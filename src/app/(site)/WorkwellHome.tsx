@@ -183,6 +183,11 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
                   className={`group relative flex flex-col bg-white rounded-3xl border border-[#e4ecd6] ${a.hover} hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden`}
                 >
                   <div className={`h-1.5 w-full bg-gradient-to-r ${a.bar}`} />
+                  {promoBadges[seg.label] && (
+                    <span className="absolute top-4 right-4 z-10 inline-flex items-center whitespace-nowrap rounded-full bg-[#8db74e] text-white text-[11px] font-bold px-2.5 py-1 shadow-sm">
+                      {promoBadges[seg.label]}
+                    </span>
+                  )}
                   <div className="p-8 flex flex-col flex-1">
                     <span className={`w-14 h-14 rounded-2xl ${a.chip} flex items-center justify-center mb-5`}>
                       {seg.icon}

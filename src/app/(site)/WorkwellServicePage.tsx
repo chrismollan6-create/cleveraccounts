@@ -7,6 +7,11 @@ import {
   CheckCircle2,
   Star,
   PhoneCall,
+  X,
+  PoundSterling,
+  TrendingUp,
+  Clock,
+  ShieldCheck,
 } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 import PricingFAQ from "@/components/ui/PricingFAQ";
@@ -45,6 +50,38 @@ const TINTS = [
   "bg-[#8db74e]/20 text-[#5f8a3e]",
   "bg-[#8db74e]/25 text-[#2f5560]",
   "bg-[#29484f]/12 text-[#29484f]",
+];
+
+/**
+ * "Doing it yourself vs with us" comparison rows — the real decision a sole
+ * trader (or any self-employed person) is weighing up: software cost, tax
+ * saved, time saved, and the knowledge/compliance gap.
+ */
+const COMPARE = [
+  {
+    Icon: PoundSterling,
+    dim: "Accounting software",
+    diy: "Pay for FreeAgent yourself — that's £100s a year on top.",
+    us: "FreeAgent included free, set up and ready to go.",
+  },
+  {
+    Icon: TrendingUp,
+    dim: "Tax savings",
+    diy: "Easy to miss allowable expenses, reliefs and allowances.",
+    us: "Proactive planning to claim every allowance — often saving more than we cost.",
+  },
+  {
+    Icon: Clock,
+    dim: "Your time",
+    diy: "Evenings lost to receipts, spreadsheets and HMRC admin.",
+    us: "We handle the books and filing, so you get your evenings back.",
+  },
+  {
+    Icon: ShieldCheck,
+    dim: "Knowledge & deadlines",
+    diy: "MTD, National Insurance and filing dates — costly to get wrong.",
+    us: "A named accountant keeps you compliant and filed on time, every time.",
+  },
 ];
 
 /** Final word of the headline in the Workwell lime→cyan→teal gradient. */
@@ -161,9 +198,11 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0 }:
           </div>
         </div>
 
+        {/* Wave fills into whatever follows: the dark stats band (when present)
+            or the white section below — so there's no light/dark seam. */}
         <div className="absolute bottom-0 left-0 w-full leading-[0]">
           <svg viewBox="0 0 1440 100" fill="none" preserveAspectRatio="none" className="w-full h-10 md:h-14">
-            <path d="M0,60 C360,100 1080,10 1440,60 L1440,100 L0,100 Z" fill="#ffffff" />
+            <path d="M0,60 C360,100 1080,10 1440,60 L1440,100 L0,100 Z" fill={stats && stats.length > 0 ? "#15282d" : "#ffffff"} />
           </svg>
         </div>
       </section>
@@ -197,9 +236,12 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0 }:
                 {s.featuresHeading || `What you get with ${title}`}
               </h2>
             </div>
-            <div className={`grid grid-cols-1 gap-x-8 gap-y-3.5 mx-auto ${v === 1 ? "sm:grid-cols-3 max-w-4xl" : "sm:grid-cols-2 max-w-3xl"}`}>
+            {/* CSS columns auto-balance the bullets by height (and read
+                top-to-bottom) rather than a row-flow grid that leaves the last
+                column short with a gap. */}
+            <div className={`mx-auto gap-x-8 ${v === 1 ? "max-w-4xl sm:columns-3" : "max-w-3xl sm:columns-2"}`}>
               {features.map((f) => (
-                <div key={f} className="flex items-start gap-3">
+                <div key={f} className="flex items-start gap-3 break-inside-avoid mb-3.5">
                   <span className="w-6 h-6 rounded-full bg-[#8db74e]/20 flex items-center justify-center shrink-0 mt-0.5">
                     <CheckCircle2 size={15} className="text-[#5f8a3e]" />
                   </span>
@@ -327,6 +369,119 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0 }:
           </div>
         </section>
       )}
+
+      {/* ── DIY vs done-for-you comparison ────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#f3f8e8] via-white to-white py-20 md:py-24">
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[680px] h-72 bg-[#8db74e]/15 rounded-full blur-[120px] pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12 md:mb-16">
+            <span className="inline-block rounded-full bg-[#8db74e]/15 text-[#5f8a3e] font-extrabold text-xs uppercase tracking-[0.18em] px-3.5 py-1.5">DIY vs done-for-you</span>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-[#29484f] mt-5 tracking-tight">
+              Going it alone vs having us in your corner
+            </h2>
+            <p className="text-[#5a6f74] mt-4 text-lg max-w-2xl mx-auto">
+              You can absolutely do your own books. Here&apos;s what actually changes when a
+              dedicated accountant takes it off your plate.
+            </p>
+          </div>
+
+          <div className="relative grid md:grid-cols-2 gap-5 lg:gap-12 max-w-5xl mx-auto items-stretch">
+            {/* On your own — muted "loser" */}
+            <div className="rounded-3xl border-2 border-[#e4ecd6] bg-[#f7f8f3] p-7 md:p-8">
+              <div className="flex items-center gap-3 mb-7">
+                <span className="w-11 h-11 rounded-2xl bg-[#d9846f]/15 text-[#c75f47] flex items-center justify-center">
+                  <X size={22} strokeWidth={2.5} />
+                </span>
+                <h3 className="text-xl font-extrabold text-[#5a6f74]">Doing it yourself</h3>
+              </div>
+              <div className="divide-y divide-[#e4ecd6]">
+                {COMPARE.map((row) => (
+                  <div key={row.dim} className="flex gap-3.5 py-4 first:pt-0 last:pb-0 min-h-[96px]">
+                    <span className="w-11 h-11 shrink-0 rounded-2xl bg-white border border-[#e4ecd6] text-[#9aa6a0] flex items-center justify-center mt-0.5">
+                      <row.Icon size={19} />
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-extrabold text-[#465c61]">{row.dim}</p>
+                        <X size={15} strokeWidth={3} className="text-[#d9846f] shrink-0" />
+                      </div>
+                      <p className="text-[#6a7b80] text-sm leading-relaxed mt-1">{row.diy}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* VS badge */}
+            <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-14 h-14 rounded-full bg-[#29484f] ring-4 ring-white shadow-xl items-center justify-center">
+              <span className="text-sm font-extrabold tracking-wider text-[#e0e48e]">VS</span>
+            </div>
+
+            {/* With us — bold dark-teal winner */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#29484f] via-[#29484f] to-[#16282d] p-7 md:p-8 shadow-2xl shadow-[#29484f]/40 ring-1 ring-[#8db74e]/40">
+              <div className="absolute -top-12 -right-10 w-56 h-56 bg-[#8db74e]/25 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-10 w-56 h-56 bg-[#e0e48e]/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-7 gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-11 h-11 rounded-2xl bg-[#8db74e] text-white flex items-center justify-center shadow-lg shadow-[#8db74e]/30">
+                      <CheckCircle2 size={22} strokeWidth={2.5} />
+                    </span>
+                    <h3 className="text-xl font-extrabold text-white whitespace-nowrap">With {brand.name.split(" ")[0]}</h3>
+                  </div>
+                  <span className="hidden sm:inline-flex shrink-0 rounded-full bg-[#e0e48e] text-[#29484f] text-[10px] font-extrabold uppercase tracking-wider px-3 py-1.5 shadow">
+                    Recommended
+                  </span>
+                </div>
+                <div className="divide-y divide-white/10">
+                  {COMPARE.map((row) => (
+                    <div key={row.dim} className="flex gap-3.5 py-4 first:pt-0 last:pb-0 min-h-[96px]">
+                      <span className="w-11 h-11 shrink-0 rounded-2xl bg-[#8db74e]/25 text-[#e0e48e] flex items-center justify-center mt-0.5">
+                        <row.Icon size={19} />
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-extrabold text-white">{row.dim}</p>
+                          <CheckCircle2 size={15} strokeWidth={3} className="text-[#bce26a] shrink-0" />
+                        </div>
+                        <p className="text-white/80 text-sm leading-relaxed mt-1">{row.us}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom-line verdict — the powerful close */}
+          <div className="relative overflow-hidden mt-10 md:mt-12 max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-[#29484f] via-[#29484f] to-[#16282d] p-8 md:p-11 ring-1 ring-[#8db74e]/40 shadow-2xl shadow-[#29484f]/40">
+            <div className="absolute -top-16 right-0 w-72 h-72 bg-[#8db74e]/25 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-10 w-72 h-72 bg-[#e0e48e]/12 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative flex flex-col lg:flex-row items-center justify-between gap-7 text-center lg:text-left">
+              <div>
+                <p className="text-[#e0e48e] font-extrabold text-xs uppercase tracking-[0.18em] mb-3">The bottom line</p>
+                <p className="text-white text-2xl md:text-[2rem] font-extrabold leading-[1.15] max-w-2xl">
+                  Free software, more tax saved and your time back
+                  {price ? (
+                    <> — for just <span className="text-[#bce26a]">£{price}/mo</span>.</>
+                  ) : (
+                    <> — for one simple monthly fee.</>
+                  )}
+                </p>
+                <p className="text-white/70 mt-3 text-sm md:text-base">
+                  Most clients save more in tax and software than they pay us. Switching takes minutes.
+                </p>
+              </div>
+              <Link
+                href="/sign-up"
+                className="shrink-0 inline-flex items-center gap-2 bg-[#8db74e] hover:bg-[#7ba63f] text-white font-bold text-base md:text-lg px-8 py-4 rounded-xl shadow-lg shadow-[#8db74e]/30 transition-colors"
+              >
+                Get started free <ArrowRight size={20} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── What we do (service categories, optional) ─────────────────── */}
       {serviceCategories && serviceCategories.length > 0 && (
