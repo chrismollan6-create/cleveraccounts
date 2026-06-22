@@ -2,13 +2,9 @@
  * MtdSummary — the MTD client-summary one-pager.
  *
  * Server component, rendered at A4 width and turned into a PDF by headless
- * Chrome (see /api/mtd-summary/pdf). Visual language matches the expenses
- * guide / onboarding guide: brand-gradient hero with logo card, big stat
- * tiles, designed callouts. Brand theming via data-brand + inline CSS vars
- * — same mechanism the other PDFs use.
- *
- * Deliberately single-page: the MTD return summary is meant to fit on one
- * sheet so a client can scan it in 20 seconds.
+ * Chrome (see /api/mtd-summary/pdf). Designed as a formal financial-document
+ * style: branded but restrained — no decorative shapes, no marketing
+ * gradients, clear section rules and typography. Single page.
  */
 
 import { BRANDS } from '@/lib/constants';
@@ -48,11 +44,6 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
   const brand = BRANDS[data.brandId];
   const logo = `/brand/${data.brandId}/logo.png`;
   const c = brand.colors;
-  const isWorkwell = data.brandId === 'workwell';
-
-  const heroGradient = isWorkwell
-    ? `linear-gradient(135deg, ${c.primary} 0%, ${c.primaryDark} 60%, ${c.secondary} 100%)`
-    : `linear-gradient(135deg, ${c.primary} 0%, ${c.primaryDark} 100%)`;
 
   const periodLabel = `${data.period.quarter ? data.period.quarter + ' ' : ''}${
     data.period.taxYear ?? ''
@@ -82,61 +73,54 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         } as React.CSSProperties
       }
     >
-      {/* ═══════════════ HERO ═══════════════ */}
-      <section
-        className="relative overflow-hidden text-white"
-        style={{ backgroundImage: heroGradient }}
-      >
-        {/* top accent stripe */}
-        <span className="block h-[6px] w-full" style={{ backgroundColor: c.secondary }} />
+      {/* ═══════════════ DOCUMENT HEAD ═══════════════ */}
+      <header className="px-[18mm] pt-[16mm]">
+        <div className="flex items-start justify-between">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logo} alt={data.brandName} className="h-8 w-auto" />
+          <div className="text-right">
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.22em]"
+              style={{ color: c.primary }}
+            >
+              Quarterly MTD Return
+            </p>
+            <p className="mt-1 text-[10px] font-semibold text-text-light">
+              {data.isDraft ? 'Draft for client review' : 'Submitted to HMRC'}
+            </p>
+          </div>
+        </div>
 
-        {/* decorative shapes */}
-        <span className="absolute -right-24 -top-20 h-[280px] w-[280px] rounded-full bg-white/[0.08]" />
-        <span className="absolute right-16 top-32 h-32 w-32 rounded-full border-[1.5px] border-white/[0.15]" />
+        {/* primary-coloured rule under the header */}
         <span
-          className="absolute -bottom-24 -left-20 h-[240px] w-[240px] rounded-full"
-          style={{ backgroundColor: hexAlpha(c.secondary, isWorkwell ? 0.45 : 0.22) }}
+          className="mt-5 block h-[3px] w-full rounded-full"
+          style={{ backgroundColor: c.primary }}
         />
 
-        <div className="relative flex items-start justify-between px-[20mm] pt-[16mm]">
-          {/* logo in white card */}
-          <span className="inline-flex rounded-xl bg-white px-4 py-2.5 shadow-xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo} alt={data.brandName} className="h-7 w-auto" />
-          </span>
-
-          {/* status pill */}
-          <span
-            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/[0.12] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] backdrop-blur-sm"
-          >
-            <span
-              className="block h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: data.isDraft ? c.secondary : '#10B981' }}
-            />
-            {data.isDraft ? 'Draft for review' : 'Submitted'}
-          </span>
+        {/* client + period */}
+        <div className="mt-6 flex items-end justify-between gap-6">
+          <div>
+            <h1 className="text-[28px] font-extrabold leading-[1.1] tracking-tight text-text">
+              {data.client.businessName || data.client.name}
+            </h1>
+            {data.client.businessName && data.client.name !== data.client.businessName && (
+              <p className="mt-1 text-[12px] font-medium text-text-light">{data.client.name}</p>
+            )}
+          </div>
+          <div className="shrink-0 text-right">
+            <p
+              className="text-[9px] font-bold uppercase tracking-[0.2em] text-text-light"
+            >
+              Period
+            </p>
+            <p className="mt-1 text-[13px] font-extrabold text-text">{periodLabel || '—'}</p>
+            <p className="text-[10.5px] text-text-light">{periodDates}</p>
+          </div>
         </div>
+      </header>
 
-        <div className="relative px-[20mm] pb-[16mm] pt-[10mm]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/65">
-            Quarterly MTD Return
-          </p>
-          <h1 className="mt-3 text-[36px] font-extrabold leading-[1.05] tracking-tight">
-            {data.client.businessName || data.client.name}
-          </h1>
-          {data.client.businessName && data.client.name !== data.client.businessName && (
-            <p className="mt-1 text-[13px] font-medium text-white/70">{data.client.name}</p>
-          )}
-          <div className="mt-5 h-[4px] w-16 rounded-full" style={{ backgroundColor: c.secondary }} />
-          <p className="mt-5 text-[15px] font-semibold text-white/90">
-            {periodLabel ? `${periodLabel} · ` : ''}
-            {periodDates}
-          </p>
-        </div>
-      </section>
-
-      {/* ═══════════════ HERO FIGURES ═══════════════ */}
-      <section className="grid grid-cols-3 gap-5 px-[20mm] pt-[10mm]">
+      {/* ═══════════════ HEADLINE FIGURES ═══════════════ */}
+      <section className="grid grid-cols-3 gap-4 px-[18mm] pt-[10mm]">
         <StatTile label="Total income" value={fmtMoney(data.totals.totalIncome)} color={c.primary} />
         <StatTile
           label="Total expenses"
@@ -152,57 +136,38 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       </section>
 
       {/* ═══════════════ CAVEAT STRIP ═══════════════ */}
-      <section className="px-[20mm] pt-[8mm]">
+      <section className="px-[18mm] pt-[6mm]">
         <div
-          className="flex items-start gap-3 rounded-xl border-l-4 px-4 py-3"
+          className="flex items-start gap-3 rounded-md border-l-[3px] px-3.5 py-2.5"
           style={{
             borderLeftColor: c.secondary,
-            backgroundColor: hexAlpha(c.secondary, 0.07),
+            backgroundColor: hexAlpha(c.secondary, 0.06),
           }}
         >
           <span
-            className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white"
-            style={{ backgroundColor: c.secondary }}
+            className="mt-px text-[11px] font-extrabold"
+            style={{ color: c.secondary }}
           >
             !
           </span>
-          <p className="text-[11px] leading-[1.6] text-text">
-            <span className="font-extrabold">Indicative figures — use as a guide.</span>{' '}
-            These totals can change: if you add, alter or amend transactions in FreeAgent after this
-            return was prepared, or if our year-end review surfaces adjustments. Final figures are
-            confirmed on the year-end Self Assessment.
+          <p className="text-[10px] leading-[1.55] text-text">
+            <span className="font-bold">Indicative figures — use as a guide.</span> These totals
+            can change if you add, alter or amend transactions in FreeAgent after this return is
+            prepared, or if our year-end review surfaces adjustments. Final figures are confirmed
+            on the year-end Self Assessment.
           </p>
         </div>
       </section>
 
       {/* ═══════════════ MONTHLY BREAKDOWN ═══════════════ */}
       {data.monthly.length > 0 && (
-        <section className="px-[20mm] pt-[14mm]">
-          <div className="flex items-baseline gap-3">
-            <span
-              className="text-[34px] font-extrabold leading-[0.8]"
-              style={{ color: c.primary, opacity: 0.14 }}
-            >
-              01
-            </span>
-            <div>
-              <p
-                className="text-[10px] font-bold uppercase tracking-[0.24em]"
-                style={{ color: c.primary }}
-              >
-                Inside the quarter
-              </p>
-              <h2 className="mt-1 text-[20px] font-extrabold tracking-tight text-text">
-                Monthly breakdown
-              </h2>
-            </div>
-          </div>
-
+        <section className="px-[18mm] pt-[10mm]">
+          <SectionLabel color={c.primary}>Monthly breakdown</SectionLabel>
           <div
-            className="mt-5 overflow-hidden rounded-2xl border"
-            style={{ borderColor: hexAlpha(c.primary, 0.16) }}
+            className="mt-3 overflow-hidden rounded-md border"
+            style={{ borderColor: hexAlpha(c.primary, 0.18) }}
           >
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[11px]">
               <thead>
                 <tr
                   className="text-left"
@@ -211,16 +176,16 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
                     color: c.primary,
                   }}
                 >
-                  <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.16em]">
+                  <th className="px-4 py-2.5 text-[9px] font-bold uppercase tracking-[0.14em]">
                     Month end
                   </th>
-                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.16em]">
+                  <th className="px-4 py-2.5 text-right text-[9px] font-bold uppercase tracking-[0.14em]">
                     Income
                   </th>
-                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.16em]">
+                  <th className="px-4 py-2.5 text-right text-[9px] font-bold uppercase tracking-[0.14em]">
                     Expenses
                   </th>
-                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.16em]">
+                  <th className="px-4 py-2.5 text-right text-[9px] font-bold uppercase tracking-[0.14em]">
                     Net profit
                   </th>
                 </tr>
@@ -232,11 +197,11 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
                     className="border-t"
                     style={{ borderColor: hexAlpha(c.primary, 0.08) }}
                   >
-                    <td className="px-5 py-3 font-semibold text-text">{fmtMonthShort(m.monthEnd)}</td>
-                    <td className="px-5 py-3 text-right text-text-light">{fmtMoney(m.income)}</td>
-                    <td className="px-5 py-3 text-right text-text-light">{fmtMoney(m.expense)}</td>
+                    <td className="px-4 py-2.5 font-semibold text-text">{fmtMonthShort(m.monthEnd)}</td>
+                    <td className="px-4 py-2.5 text-right text-text-light">{fmtMoney(m.income)}</td>
+                    <td className="px-4 py-2.5 text-right text-text-light">{fmtMoney(m.expense)}</td>
                     <td
-                      className="px-5 py-3 text-right font-extrabold"
+                      className="px-4 py-2.5 text-right font-extrabold"
                       style={{ color: c.primary }}
                     >
                       {fmtMoney(m.profit)}
@@ -250,91 +215,75 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       )}
 
       {/* ═══════════════ ABOUT MTD ═══════════════ */}
-      <section className="px-[20mm] pt-[12mm]">
-        <div className="flex items-baseline gap-3">
-          <span
-            className="text-[34px] font-extrabold leading-[0.8]"
-            style={{ color: c.primary, opacity: 0.14 }}
-          >
-            02
-          </span>
+      <section className="px-[18mm] pt-[10mm]">
+        <SectionLabel color={c.primary}>About this return</SectionLabel>
+        <div className="mt-3 grid grid-cols-2 gap-6">
           <div>
             <p
-              className="text-[10px] font-bold uppercase tracking-[0.24em]"
-              style={{ color: c.primary }}
+              className="text-[9px] font-bold uppercase tracking-[0.16em] text-text-light"
             >
-              About this return
-            </p>
-            <h2 className="mt-1 text-[20px] font-extrabold tracking-tight text-text">
-              Making Tax Digital — Income Tax
-            </h2>
-          </div>
-        </div>
-
-        <div
-          className="mt-5 grid grid-cols-2 gap-5 rounded-2xl border p-6"
-          style={{
-            borderColor: hexAlpha(c.primary, 0.16),
-            backgroundColor: hexAlpha(c.primary, 0.035),
-          }}
-        >
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-light">
               Why every quarter
             </p>
-            <p className="mt-2 text-[12px] leading-[1.7] text-text-light">
-              Making Tax Digital for Income Tax requires sole traders and landlords with qualifying
-              income to submit a summary of business income and expenses to HMRC every quarter, in
-              addition to the end-of-year return.
+            <p className="mt-1.5 text-[10.5px] leading-[1.65] text-text-light">
+              Making Tax Digital for Income Tax requires sole traders and landlords with
+              qualifying income to submit a summary of business income and expenses to HMRC every
+              quarter, in addition to the end-of-year return.
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-light">
+            <p
+              className="text-[9px] font-bold uppercase tracking-[0.16em] text-text-light"
+            >
               Where these figures came from
             </p>
-            <p className="mt-2 text-[12px] leading-[1.7] text-text-light">
+            <p className="mt-1.5 text-[10.5px] leading-[1.65] text-text-light">
               Drawn from your FreeAgent bookkeeping at the period end, prepared by{' '}
-              <span className="font-bold text-text">{data.brandName}</span>. Please review and flag
-              anything unexpected — missing income, mis-categorised expenses — so we can correct it
-              before submission.
+              <span className="font-bold text-text">{data.brandName}</span>. Please review and
+              flag anything unexpected — missing income, mis-categorised expenses — so we can
+              correct it before submission.
             </p>
           </div>
         </div>
       </section>
 
       {/* ═══════════════ WHAT HAPPENS NEXT ═══════════════ */}
-      <section className="px-[20mm] pt-[12mm]">
-        <div
-          className="overflow-hidden rounded-2xl"
-          style={{ backgroundImage: heroGradient }}
-        >
-          <div className="px-7 py-6 text-white">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/70">
-              What happens next
-            </p>
-            <h3 className="mt-2 text-[17px] font-extrabold tracking-tight">
-              Reply to confirm — or flag any queries
-            </h3>
-            <p className="mt-2 text-[12.5px] leading-[1.7] text-white/85">
-              Reply to your accountant confirming you&rsquo;re happy with the figures, or note any
-              queries. Once approved we&rsquo;ll submit the return to HMRC on your behalf and
-              confirm.
-            </p>
-          </div>
-        </div>
+      <section className="px-[18mm] pt-[10mm]">
+        <SectionLabel color={c.primary}>What happens next</SectionLabel>
+        <p className="mt-2 text-[11px] leading-[1.7] text-text">
+          Reply to your accountant confirming you&rsquo;re happy with the figures, or note any
+          queries. Once approved we&rsquo;ll submit the return to HMRC on your behalf and confirm
+          receipt.
+        </p>
       </section>
 
       {/* ═══════════════ FOOTER ═══════════════ */}
-      <footer className="mt-auto flex items-center justify-between px-[20mm] pb-[16mm] pt-[10mm] text-[10px] text-text-light">
-        <div className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logo} alt={data.brandName} className="h-4 w-auto opacity-80" />
-          <span className="font-semibold uppercase tracking-[0.18em] text-text-light">
-            {data.brandName}
-          </span>
+      <div className="mt-auto px-[18mm] pb-[14mm] pt-[14mm]">
+        <span className="block h-px w-full bg-border" />
+        <div className="mt-3 flex items-center justify-between text-[9px] text-text-light">
+          <span className="font-semibold uppercase tracking-[0.18em]">{data.brandName}</span>
+          <span>Prepared {fmtDateLong(data.preparedAt)}</span>
         </div>
-        <span>Prepared {fmtDateLong(data.preparedAt)}</span>
-      </footer>
+      </div>
+    </div>
+  );
+}
+
+function SectionLabel({
+  children,
+  color,
+}: {
+  children: React.ReactNode;
+  color: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="block h-[2px] w-6" style={{ backgroundColor: color }} />
+      <h2
+        className="text-[11px] font-bold uppercase tracking-[0.2em]"
+        style={{ color }}
+      >
+        {children}
+      </h2>
     </div>
   );
 }
@@ -352,14 +301,14 @@ function StatTile({
 }) {
   return (
     <div
-      className="rounded-2xl border bg-white px-5 py-5 shadow-[0_10px_25px_-15px_rgba(15,23,42,0.25)]"
+      className="rounded-md border bg-white px-4 py-4"
       style={{
-        borderColor: emphasise ? hexAlpha(color, 0.4) : hexAlpha(color, 0.14),
-        backgroundColor: emphasise ? hexAlpha(color, 0.04) : '#ffffff',
+        borderColor: emphasise ? hexAlpha(color, 0.35) : hexAlpha(color, 0.15),
+        backgroundColor: emphasise ? hexAlpha(color, 0.035) : '#ffffff',
       }}
     >
       <p
-        className="text-[10px] font-bold uppercase tracking-[0.18em]"
+        className="text-[9px] font-bold uppercase tracking-[0.18em]"
         style={{ color: emphasise ? color : '#6b7280' }}
       >
         {label}
@@ -368,7 +317,7 @@ function StatTile({
         className="mt-2 font-extrabold tracking-tight"
         style={{
           color: emphasise ? color : '#0f172a',
-          fontSize: emphasise ? '28px' : '24px',
+          fontSize: emphasise ? '24px' : '21px',
           lineHeight: 1.05,
         }}
       >
