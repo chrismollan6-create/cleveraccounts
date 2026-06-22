@@ -86,6 +86,11 @@ const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   // also has no Clerk session, so the API route needs to pass through too.
   /^\/learn(\/.*)?$/,
   /^\/api\/learn-feedback(\/.*)?$/,
+  // Salesforce-triggered PDF rendering endpoints. They authenticate via a
+  // shared-secret header (validated inside the route), so the Clerk auth gate
+  // must let them pass. No portal collisions — portal APIs live under
+  // /api/portal/*.
+  /^\/api\/mtd-summary(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {
