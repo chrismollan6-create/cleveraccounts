@@ -170,8 +170,8 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                 <p className="text-[11px] text-[#6a7b80] mt-0.5">Excellent on Trustpilot</p>
               </div>
 
-              {/* Floating chip — MTD ready (cyan, top-right, over the photo) */}
-              <div className="absolute -top-3 right-1 sm:-right-4 bg-[#8db74e] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-30">
+              {/* Floating chip — MTD ready (dark teal, top-right, over the photo) */}
+              <div className="absolute -top-3 right-1 sm:-right-4 bg-[#29484f] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-30">
                 <FileCheck2 size={18} />
                 <div>
                   <p className="text-xs font-bold leading-tight">Making Tax Digital</p>
