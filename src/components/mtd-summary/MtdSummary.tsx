@@ -1,15 +1,26 @@
 /**
- * MtdSummary — one-page branded PDF body. A4, fits on a single sheet.
+ * MtdSummary — the MTD client-summary one-pager.
  *
- * Renders into the (pdf) route segment, which has its own minimal layout. The
- * outer @page CSS in the layout fixes A4 size. Headless Chrome screenshots
- * this and returns the PDF bytes.
+ * Server component, rendered at A4 width and turned into a PDF by headless
+ * Chrome (see /api/mtd-summary/pdf). Visual language matches the expenses
+ * guide / onboarding guide: brand-gradient hero with logo card, big stat
+ * tiles, designed callouts. Brand theming via data-brand + inline CSS vars
+ * — same mechanism the other PDFs use.
  *
- * Brand-aware via inline data-brand wrapper so colours pick up the right
- * tokens from globals.css ([data-brand="workwell"] overrides).
+ * Deliberately single-page: the MTD return summary is meant to fit on one
+ * sheet so a client can scan it in 20 seconds.
  */
 
+import { BRANDS } from '@/lib/constants';
 import type { MtdSummaryData } from '@/content/mtd-summary';
+
+function hexAlpha(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 function fmtMoney(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';
@@ -34,6 +45,15 @@ function fmtMonthShort(iso: string | null): string {
 }
 
 export default function MtdSummary({ data }: { data: MtdSummaryData }) {
+  const brand = BRANDS[data.brandId];
+  const logo = `/brand/${data.brandId}/logo.png`;
+  const c = brand.colors;
+  const isWorkwell = data.brandId === 'workwell';
+
+  const heroGradient = isWorkwell
+    ? `linear-gradient(135deg, ${c.primary} 0%, ${c.primaryDark} 60%, ${c.secondary} 100%)`
+    : `linear-gradient(135deg, ${c.primary} 0%, ${c.primaryDark} 100%)`;
+
   const periodLabel = `${data.period.quarter ? data.period.quarter + ' ' : ''}${
     data.period.taxYear ?? ''
   }`.trim();
@@ -42,201 +62,294 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
   return (
     <div
       data-brand={data.brandId}
-      style={{
-        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-        color: '#1f2937',
-        padding: '24mm 18mm',
-        fontSize: '11pt',
-        lineHeight: 1.45,
-      }}
+      className="mx-auto bg-white font-sans text-text"
+      style={
+        {
+          width: '210mm',
+          minHeight: '297mm',
+          '--color-primary': c.primary,
+          '--color-primary-dark': c.primaryDark,
+          '--color-primary-light': c.primaryLight,
+          '--color-primary-50': c.primary50,
+          '--color-secondary': c.secondary,
+          '--color-secondary-dark': c.secondaryDark,
+          '--color-secondary-light': c.secondaryLight,
+          '--color-accent': c.accent,
+          '--color-surface': c.surface,
+          '--color-surface-alt': c.surfaceAlt,
+          '--color-text': c.text,
+          '--color-text-light': c.textLight,
+        } as React.CSSProperties
+      }
     >
-      {/* Header */}
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          borderBottom: '2px solid var(--color-primary, #1A7A9B)',
-          paddingBottom: '8mm',
-          marginBottom: '8mm',
-        }}
+      {/* ═══════════════ HERO ═══════════════ */}
+      <section
+        className="relative overflow-hidden text-white"
+        style={{ backgroundImage: heroGradient }}
       >
-        <div>
-          <div
-            style={{
-              fontSize: '9pt',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#6b7280',
-              marginBottom: '2mm',
-            }}
+        {/* top accent stripe */}
+        <span className="block h-[6px] w-full" style={{ backgroundColor: c.secondary }} />
+
+        {/* decorative shapes */}
+        <span className="absolute -right-24 -top-20 h-[280px] w-[280px] rounded-full bg-white/[0.08]" />
+        <span className="absolute right-16 top-32 h-32 w-32 rounded-full border-[1.5px] border-white/[0.15]" />
+        <span
+          className="absolute -bottom-24 -left-20 h-[240px] w-[240px] rounded-full"
+          style={{ backgroundColor: hexAlpha(c.secondary, isWorkwell ? 0.45 : 0.22) }}
+        />
+
+        <div className="relative flex items-start justify-between px-[20mm] pt-[16mm]">
+          {/* logo in white card */}
+          <span className="inline-flex rounded-xl bg-white px-4 py-2.5 shadow-xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logo} alt={data.brandName} className="h-7 w-auto" />
+          </span>
+
+          {/* status pill */}
+          <span
+            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/[0.12] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] backdrop-blur-sm"
           >
-            Quarterly MTD return — {data.isDraft ? 'Draft for review' : 'Submitted'}
-          </div>
-          <h1 style={{ fontSize: '20pt', margin: 0, color: '#0f172a' }}>
+            <span
+              className="block h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: data.isDraft ? c.secondary : '#10B981' }}
+            />
+            {data.isDraft ? 'Draft for review' : 'Submitted'}
+          </span>
+        </div>
+
+        <div className="relative px-[20mm] pb-[16mm] pt-[10mm]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/65">
+            Quarterly MTD Return
+          </p>
+          <h1 className="mt-3 text-[36px] font-extrabold leading-[1.05] tracking-tight">
             {data.client.businessName || data.client.name}
           </h1>
           {data.client.businessName && data.client.name !== data.client.businessName && (
-            <div style={{ color: '#6b7280', marginTop: '1mm' }}>{data.client.name}</div>
+            <p className="mt-1 text-[13px] font-medium text-white/70">{data.client.name}</p>
           )}
-          <div style={{ marginTop: '3mm', fontSize: '10pt' }}>
-            <strong>{periodLabel || 'Period'}</strong> · {periodDates}
-          </div>
+          <div className="mt-5 h-[4px] w-16 rounded-full" style={{ backgroundColor: c.secondary }} />
+          <p className="mt-5 text-[15px] font-semibold text-white/90">
+            {periodLabel ? `${periodLabel} · ` : ''}
+            {periodDates}
+          </p>
         </div>
-        <div style={{ textAlign: 'right', fontSize: '9pt', color: '#6b7280' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/brand/${data.brandId}/logo.png`}
-            alt={data.brandName}
-            style={{ height: '14mm', width: 'auto', marginBottom: '2mm' }}
-          />
-          <div>Prepared {fmtDateLong(data.preparedAt)}</div>
-        </div>
-      </header>
-
-      {/* Hero numbers */}
-      <section
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '6mm',
-          marginBottom: '8mm',
-        }}
-      >
-        <Tile label="Total income" value={fmtMoney(data.totals.totalIncome)} />
-        <Tile label="Total expenses" value={fmtMoney(data.totals.totalExpenses)} />
-        <Tile label="Net profit" value={fmtMoney(data.totals.netProfit)} emphasise />
       </section>
 
-      {/* Monthly breakdown */}
+      {/* ═══════════════ HERO FIGURES ═══════════════ */}
+      <section className="-mt-12 grid grid-cols-3 gap-5 px-[20mm]">
+        <StatTile label="Total income" value={fmtMoney(data.totals.totalIncome)} color={c.primary} />
+        <StatTile
+          label="Total expenses"
+          value={fmtMoney(data.totals.totalExpenses)}
+          color={c.primary}
+        />
+        <StatTile
+          label="Net profit"
+          value={fmtMoney(data.totals.netProfit)}
+          color={c.primary}
+          emphasise
+        />
+      </section>
+
+      {/* ═══════════════ MONTHLY BREAKDOWN ═══════════════ */}
       {data.monthly.length > 0 && (
-        <section style={{ marginBottom: '8mm' }}>
-          <h2 style={sectionHeading}>Monthly breakdown</h2>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '10pt',
-              marginTop: '3mm',
-            }}
+        <section className="px-[20mm] pt-[14mm]">
+          <div className="flex items-baseline gap-3">
+            <span
+              className="text-[34px] font-extrabold leading-[0.8]"
+              style={{ color: c.primary, opacity: 0.14 }}
+            >
+              01
+            </span>
+            <div>
+              <p
+                className="text-[10px] font-bold uppercase tracking-[0.24em]"
+                style={{ color: c.primary }}
+              >
+                Inside the quarter
+              </p>
+              <h2 className="mt-1 text-[20px] font-extrabold tracking-tight text-text">
+                Monthly breakdown
+              </h2>
+            </div>
+          </div>
+
+          <div
+            className="mt-5 overflow-hidden rounded-2xl border"
+            style={{ borderColor: hexAlpha(c.primary, 0.16) }}
           >
-            <thead>
-              <tr style={{ borderBottom: '1px solid #e5e7eb', color: '#6b7280' }}>
-                <th style={{ ...th, textAlign: 'left' }}>Month end</th>
-                <th style={{ ...th, textAlign: 'right' }}>Income</th>
-                <th style={{ ...th, textAlign: 'right' }}>Expenses</th>
-                <th style={{ ...th, textAlign: 'right' }}>Net profit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.monthly.map((m) => (
-                <tr key={m.monthEnd ?? Math.random()} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                  <td style={td}>{fmtMonthShort(m.monthEnd)}</td>
-                  <td style={{ ...td, textAlign: 'right' }}>{fmtMoney(m.income)}</td>
-                  <td style={{ ...td, textAlign: 'right' }}>{fmtMoney(m.expense)}</td>
-                  <td style={{ ...td, textAlign: 'right', fontWeight: 600 }}>
-                    {fmtMoney(m.profit)}
-                  </td>
+            <table className="w-full text-[12px]">
+              <thead>
+                <tr
+                  className="text-left"
+                  style={{
+                    backgroundColor: hexAlpha(c.primary, 0.05),
+                    color: c.primary,
+                  }}
+                >
+                  <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.16em]">
+                    Month end
+                  </th>
+                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.16em]">
+                    Income
+                  </th>
+                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.16em]">
+                    Expenses
+                  </th>
+                  <th className="px-5 py-3 text-right text-[10px] font-bold uppercase tracking-[0.16em]">
+                    Net profit
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.monthly.map((m, i) => (
+                  <tr
+                    key={m.monthEnd ?? i}
+                    className="border-t"
+                    style={{ borderColor: hexAlpha(c.primary, 0.08) }}
+                  >
+                    <td className="px-5 py-3 font-semibold text-text">{fmtMonthShort(m.monthEnd)}</td>
+                    <td className="px-5 py-3 text-right text-text-light">{fmtMoney(m.income)}</td>
+                    <td className="px-5 py-3 text-right text-text-light">{fmtMoney(m.expense)}</td>
+                    <td
+                      className="px-5 py-3 text-right font-extrabold"
+                      style={{ color: c.primary }}
+                    >
+                      {fmtMoney(m.profit)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
 
-      {/* About MTD */}
-      <section
-        style={{
-          background: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          padding: '5mm 6mm',
-          marginBottom: '6mm',
-          fontSize: '9.5pt',
-          color: '#374151',
-        }}
-      >
-        <h2 style={{ ...sectionHeading, marginTop: 0 }}>About this return</h2>
-        <p style={{ margin: '0 0 2mm' }}>
-          Making Tax Digital (MTD) for Income Tax requires sole traders and landlords with qualifying
-          income to submit a summary of business income and expenses to HMRC every quarter, in
-          addition to the end-of-year return.
-        </p>
-        <p style={{ margin: 0 }}>
-          The figures above are drawn from your FreeAgent bookkeeping at the period end, prepared by{' '}
-          {data.brandName}. Please review and confirm they look right before we submit on your
-          behalf — flag anything unexpected (missing income, mis-categorised expenses) so we can
-          correct it pre-submission.
-        </p>
+      {/* ═══════════════ ABOUT MTD ═══════════════ */}
+      <section className="px-[20mm] pt-[12mm]">
+        <div className="flex items-baseline gap-3">
+          <span
+            className="text-[34px] font-extrabold leading-[0.8]"
+            style={{ color: c.primary, opacity: 0.14 }}
+          >
+            02
+          </span>
+          <div>
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.24em]"
+              style={{ color: c.primary }}
+            >
+              About this return
+            </p>
+            <h2 className="mt-1 text-[20px] font-extrabold tracking-tight text-text">
+              Making Tax Digital — Income Tax
+            </h2>
+          </div>
+        </div>
+
+        <div
+          className="mt-5 grid grid-cols-2 gap-5 rounded-2xl border p-6"
+          style={{
+            borderColor: hexAlpha(c.primary, 0.16),
+            backgroundColor: hexAlpha(c.primary, 0.035),
+          }}
+        >
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-light">
+              Why every quarter
+            </p>
+            <p className="mt-2 text-[12px] leading-[1.7] text-text-light">
+              Making Tax Digital for Income Tax requires sole traders and landlords with qualifying
+              income to submit a summary of business income and expenses to HMRC every quarter, in
+              addition to the end-of-year return.
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-light">
+              Where these figures came from
+            </p>
+            <p className="mt-2 text-[12px] leading-[1.7] text-text-light">
+              Drawn from your FreeAgent bookkeeping at the period end, prepared by{' '}
+              <span className="font-bold text-text">{data.brandName}</span>. Please review and flag
+              anything unexpected — missing income, mis-categorised expenses — so we can correct it
+              before submission.
+            </p>
+          </div>
+        </div>
       </section>
 
-      {/* Footer / next steps */}
-      <footer
-        style={{
-          borderTop: '1px solid #e5e7eb',
-          paddingTop: '4mm',
-          fontSize: '9pt',
-          color: '#6b7280',
-        }}
-      >
-        <strong style={{ color: '#1f2937' }}>What happens next:</strong> reply to your accountant
-        confirming you&apos;re happy with the figures, or note any queries. Once approved we&apos;ll
-        submit the return to HMRC and confirm.
+      {/* ═══════════════ WHAT HAPPENS NEXT ═══════════════ */}
+      <section className="px-[20mm] pt-[12mm]">
+        <div
+          className="overflow-hidden rounded-2xl"
+          style={{ backgroundImage: heroGradient }}
+        >
+          <div className="px-7 py-6 text-white">
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/70">
+              What happens next
+            </p>
+            <h3 className="mt-2 text-[17px] font-extrabold tracking-tight">
+              Reply to confirm — or flag any queries
+            </h3>
+            <p className="mt-2 text-[12.5px] leading-[1.7] text-white/85">
+              Reply to your accountant confirming you&rsquo;re happy with the figures, or note any
+              queries. Once approved we&rsquo;ll submit the return to HMRC on your behalf and
+              confirm.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ FOOTER ═══════════════ */}
+      <footer className="mt-auto flex items-center justify-between px-[20mm] pb-[16mm] pt-[10mm] text-[10px] text-text-light">
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logo} alt={data.brandName} className="h-4 w-auto opacity-80" />
+          <span className="font-semibold uppercase tracking-[0.18em] text-text-light">
+            {data.brandName}
+          </span>
+        </div>
+        <span>Prepared {fmtDateLong(data.preparedAt)}</span>
       </footer>
     </div>
   );
 }
 
-const sectionHeading = {
-  fontSize: '11pt',
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.08em',
-  color: 'var(--color-primary, #1A7A9B)',
-  margin: '0 0 1mm',
-  fontWeight: 600,
-};
-
-const th = { padding: '2mm 1mm', fontWeight: 500, fontSize: '9pt' };
-const td = { padding: '2mm 1mm' };
-
-function Tile({
+function StatTile({
   label,
   value,
+  color,
   emphasise = false,
 }: {
   label: string;
   value: string;
+  color: string;
   emphasise?: boolean;
 }) {
   return (
     <div
+      className="rounded-2xl border bg-white px-5 py-5 shadow-[0_10px_25px_-15px_rgba(15,23,42,0.25)]"
       style={{
-        border: '1px solid #e5e7eb',
-        borderRadius: '4px',
-        padding: '5mm 5mm 4mm',
-        background: emphasise ? 'var(--color-primary-50, #F0F9FF)' : '#ffffff',
+        borderColor: emphasise ? hexAlpha(color, 0.4) : hexAlpha(color, 0.14),
+        backgroundColor: emphasise ? hexAlpha(color, 0.04) : '#ffffff',
       }}
     >
-      <div
-        style={{
-          fontSize: '9pt',
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: '#6b7280',
-          marginBottom: '2mm',
-        }}
+      <p
+        className="text-[10px] font-bold uppercase tracking-[0.18em]"
+        style={{ color: emphasise ? color : '#6b7280' }}
       >
         {label}
-      </div>
-      <div
+      </p>
+      <p
+        className="mt-2 font-extrabold tracking-tight"
         style={{
-          fontSize: emphasise ? '20pt' : '17pt',
-          fontWeight: 700,
-          color: emphasise ? 'var(--color-primary, #1A7A9B)' : '#0f172a',
+          color: emphasise ? color : '#0f172a',
+          fontSize: emphasise ? '28px' : '24px',
+          lineHeight: 1.05,
         }}
       >
         {value}
-      </div>
+      </p>
     </div>
   );
 }
