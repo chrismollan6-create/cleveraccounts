@@ -167,6 +167,38 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         </div>
       </section>
 
+      {/* ═══════════════ THINGS TO LOOK AT ═══════════════ */}
+      {data.issues && data.issues.length > 0 && (
+        <section className="px-[18mm] pt-[9mm]">
+          <SectionLabel color={c.primary}>Things to look at</SectionLabel>
+          <div
+            className="mt-3 overflow-hidden rounded-md border"
+            style={{ borderColor: hexAlpha(c.primary, 0.18) }}
+          >
+            <ul className="divide-y" style={{ borderColor: hexAlpha(c.primary, 0.1) }}>
+              {data.issues.map((it, i) => (
+                <li
+                  key={`${it.title}-${i}`}
+                  className="flex items-start gap-3 px-4 py-3"
+                  style={{
+                    backgroundColor: i % 2 === 1 ? hexAlpha(c.primary, 0.025) : 'transparent',
+                  }}
+                >
+                  <span
+                    className="mt-1 block h-2 w-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: c.secondary }}
+                  />
+                  <div>
+                    <p className="text-[11.5px] font-bold text-text">{it.title}</p>
+                    <p className="mt-0.5 text-[11px] leading-[1.55] text-text-light">{it.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
       {/* ═══════════════ MONTHLY BREAKDOWN ═══════════════ */}
       {data.monthly.length > 0 && (
         <section className="px-[18mm] pt-[9mm]">

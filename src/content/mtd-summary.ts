@@ -19,6 +19,11 @@ export interface MtdMonthRow {
   profit: number | null;
 }
 
+export interface MtdSummaryIssue {
+  title: string;
+  detail: string;
+}
+
 export interface MtdSummaryData {
   kind: 'mtd';
   brandId: MtdBrandId;
@@ -39,6 +44,13 @@ export interface MtdSummaryData {
 
   totals: MtdSummaryTotals;
   monthly: MtdMonthRow[];
+
+  /**
+   * Factual prompts auto-derived from the review (unreconciled counts,
+   * duplicates, empty months, etc.). Empty when there's nothing to flag —
+   * the PDF hides the section entirely in that case.
+   */
+  issues?: MtdSummaryIssue[];
 
   verdict?: string | null;       // Pass / Refer / Fail (deterministic)
   humanVerdict?: string | null;  // Approved / etc.
@@ -66,6 +78,18 @@ const sampleClever: MtdSummaryData = {
     { monthEnd: '2026-05-05', income: 7817.59, expense: 354.87, profit: 7462.72 },
     { monthEnd: '2026-06-05', income: 6396.83, expense: 149.72, profit: 6247.11 },
     { monthEnd: '2026-07-05', income: 0, expense: 0, profit: 0 },
+  ],
+  issues: [
+    {
+      title: 'Unreconciled transactions',
+      detail:
+        '5 transactions in FreeAgent are still unreconciled. Most recent dated 2026-05-12.',
+    },
+    {
+      title: 'Possible duplicates',
+      detail:
+        '2 transactions flagged by FreeAgent as a potential duplicate — worth a sense-check.',
+    },
   ],
   verdict: 'Pass',
   humanVerdict: null,
