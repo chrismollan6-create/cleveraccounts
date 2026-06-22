@@ -56,7 +56,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
-          borderBottom: '2px solid var(--brand-primary, #1A7A9B)',
+          borderBottom: '2px solid var(--color-primary, #1A7A9B)',
           paddingBottom: '8mm',
           marginBottom: '8mm',
         }}
@@ -84,7 +84,12 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
           </div>
         </div>
         <div style={{ textAlign: 'right', fontSize: '9pt', color: '#6b7280' }}>
-          <div style={{ fontWeight: 600, color: '#1f2937', fontSize: '11pt' }}>{data.brandName}</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/brand/${data.brandId}/logo.png`}
+            alt={data.brandName}
+            style={{ height: '14mm', width: 'auto', marginBottom: '2mm' }}
+          />
           <div>Prepared {fmtDateLong(data.preparedAt)}</div>
         </div>
       </header>
@@ -186,7 +191,7 @@ const sectionHeading = {
   fontSize: '11pt',
   textTransform: 'uppercase' as const,
   letterSpacing: '0.08em',
-  color: 'var(--brand-primary, #1A7A9B)',
+  color: 'var(--color-primary, #1A7A9B)',
   margin: '0 0 1mm',
   fontWeight: 600,
 };
@@ -209,7 +214,7 @@ function Tile({
         border: '1px solid #e5e7eb',
         borderRadius: '4px',
         padding: '5mm 5mm 4mm',
-        background: emphasise ? 'var(--brand-primary-50, #F0F9FF)' : '#ffffff',
+        background: emphasise ? 'var(--color-primary-50, #F0F9FF)' : '#ffffff',
       }}
     >
       <div
@@ -227,7 +232,7 @@ function Tile({
         style={{
           fontSize: emphasise ? '20pt' : '17pt',
           fontWeight: 700,
-          color: emphasise ? 'var(--brand-primary, #1A7A9B)' : '#0f172a',
+          color: emphasise ? 'var(--color-primary, #1A7A9B)' : '#0f172a',
         }}
       >
         {value}
