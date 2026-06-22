@@ -151,6 +151,30 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         />
       </section>
 
+      {/* ═══════════════ CAVEAT STRIP ═══════════════ */}
+      <section className="px-[20mm] pt-[8mm]">
+        <div
+          className="flex items-start gap-3 rounded-xl border-l-4 px-4 py-3"
+          style={{
+            borderLeftColor: c.secondary,
+            backgroundColor: hexAlpha(c.secondary, 0.07),
+          }}
+        >
+          <span
+            className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold text-white"
+            style={{ backgroundColor: c.secondary }}
+          >
+            !
+          </span>
+          <p className="text-[11px] leading-[1.6] text-text">
+            <span className="font-extrabold">Indicative figures — use as a guide.</span>{' '}
+            These totals can change: if you add, alter or amend transactions in FreeAgent after this
+            return was prepared, or if our year-end review surfaces adjustments. Final figures are
+            confirmed on the year-end Self Assessment.
+          </p>
+        </div>
+      </section>
+
       {/* ═══════════════ MONTHLY BREAKDOWN ═══════════════ */}
       {data.monthly.length > 0 && (
         <section className="px-[20mm] pt-[14mm]">
