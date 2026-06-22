@@ -1,4 +1,9 @@
-import { getBrand } from "@/lib/brand";
+// Lazy-load brand to keep `next/headers` off the static module graph.
+// FAQPageJsonLd/HowToJsonLd/ReviewJsonLd in this file are imported by the
+// `"use client"` PortableTextBlocks; a top-level `getBrand` import was
+// dragging server-only code into that boundary and crashing prod SSR for
+// blog posts that contained faqBlock/howToBlock blocks.
+const getBrand = () => import("@/lib/brand").then((m) => m.getBrand());
 
 export async function OrganizationJsonLd() {
   const brand = await getBrand();
