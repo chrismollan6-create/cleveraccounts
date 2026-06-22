@@ -91,6 +91,10 @@ const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   // must let them pass. No portal collisions — portal APIs live under
   // /api/portal/*.
   /^\/api\/mtd-summary(\/.*)?$/,
+  // The doc/preview pages that headless Chrome screenshots must also be
+  // reachable without auth. Data travels in the base64 `d` query param the
+  // API route encoded, so there's no PII leak from this being public.
+  /^\/mtd-summary(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {
