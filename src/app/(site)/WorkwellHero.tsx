@@ -17,7 +17,7 @@ import type { CmsHomePage } from "./HomePageClient";
 function gradientLastWord(text: string) {
   const words = text.trim().split(/\s+/);
   const grad =
-    "bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent";
+    "bg-gradient-to-r from-[#8db74e] via-[#8db74e] to-[#29484f] bg-clip-text text-transparent";
   if (words.length <= 1) return <span className={grad}>{text}</span>;
   const last = words.pop();
   return (
@@ -51,31 +51,31 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
   ];
 
   const audience: { label: string; tint: string }[] = [
-    { label: "Sole Traders", tint: "bg-[#9cbf50]/25 text-[#566a33]" },
-    { label: "Limited Companies", tint: "bg-[#71c5d6]/30 text-[#235c68]" },
-    { label: "Contractors", tint: "bg-[#32535a]/15 text-[#2c4a51]" },
+    { label: "Sole Traders", tint: "bg-[#8db74e]/25 text-[#557d2e]" },
+    { label: "Limited Companies", tint: "bg-[#8db74e]/30 text-[#2f5560]" },
+    { label: "Contractors", tint: "bg-[#29484f]/15 text-[#29484f]" },
   ];
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#eef4e2] via-[#f1f6e6] to-[#e4eed3]">
       {/* ── Vibrant mesh background ──────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#9cbf50]/45 blur-[110px]" />
-        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#71c5d6]/45 blur-[110px]" />
-        <div className="absolute -bottom-44 left-1/4 w-[620px] h-[420px] rounded-full bg-[#32535a]/22 blur-[120px]" />
-        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#4d7079]/20 blur-[120px]" />
-        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#bdd289]/45 blur-[90px]" />
-        <div className="absolute top-1/4 left-1/4 w-3 h-3 rounded-full bg-[#9cbf50] animate-float opacity-70" />
-        <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 rounded-full bg-[#71c5d6] animate-float-delayed opacity-80" />
-        <div className="absolute top-1/2 left-2/3 w-2 h-2 rounded-full bg-[#32535a] animate-float opacity-40" />
+        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#8db74e]/45 blur-[110px]" />
+        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#8db74e]/45 blur-[110px]" />
+        <div className="absolute -bottom-44 left-1/4 w-[620px] h-[420px] rounded-full bg-[#29484f]/22 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#4a6a72]/20 blur-[120px]" />
+        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#e0e48e]/45 blur-[90px]" />
+        <div className="absolute top-1/4 left-1/4 w-3 h-3 rounded-full bg-[#8db74e] animate-float opacity-70" />
+        <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 rounded-full bg-[#8db74e] animate-float-delayed opacity-80" />
+        <div className="absolute top-1/2 left-2/3 w-2 h-2 rounded-full bg-[#29484f] animate-float opacity-40" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 pt-14 md:pt-20 pb-28 md:pb-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* ── Left: message ─────────────────────────────────────────── */}
           <div>
-            <div className="inline-flex items-center gap-2 bg-white/85 backdrop-blur border border-white shadow-sm rounded-full pl-2 pr-4 py-1.5 text-sm text-[#2c4a51] font-semibold mb-7">
-              <span className="flex items-center gap-0.5 bg-gradient-to-r from-[#9cbf50]/20 to-[#71c5d6]/20 rounded-full px-2 py-1">
+            <div className="inline-flex items-center gap-2 bg-white/85 backdrop-blur border border-white shadow-sm rounded-full pl-2 pr-4 py-1.5 text-sm text-[#29484f] font-semibold mb-7">
+              <span className="flex items-center gap-0.5 bg-gradient-to-r from-[#8db74e]/20 to-[#8db74e]/20 rounded-full px-2 py-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
                 ))}
@@ -83,13 +83,13 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               <span>{trustBadge}</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.4rem] font-extrabold text-[#2c4a51] leading-[1.05] tracking-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.4rem] font-extrabold text-[#29484f] leading-[1.05] tracking-tight mb-6">
               {home?.heroHeadline ? (
                 gradientLastWord(home.heroHeadline)
               ) : (
                 <>
                   An accountant who actually{" "}
-                  <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-[#8db74e] via-[#8db74e] to-[#29484f] bg-clip-text text-transparent">
                     answers.
                   </span>
                 </>
@@ -117,7 +117,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <Link
                 href="/sign-up"
-                className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3.5 rounded-xl shadow-lg shadow-[#9cbf50]/30"
+                className="btn-primary inline-flex items-center gap-2 text-base px-7 py-3.5 rounded-xl shadow-lg shadow-[#8db74e]/30"
               >
                 {home?.heroCTA || "Get Started"}
                 <ArrowRight size={18} />
@@ -125,14 +125,14 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
               <RequestCallback
                 inline
                 label="Request a callback"
-                className="inline-flex items-center gap-2 bg-white hover:bg-[#eef4e2] border border-[#71c5d6]/40 text-[#2c4a51] font-semibold text-base px-6 py-3.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-white hover:bg-[#eef4e2] border border-[#8db74e]/40 text-[#29484f] font-semibold text-base px-6 py-3.5 rounded-xl transition-colors"
               />
             </div>
 
             <p className="text-[#6a7b80] text-sm mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-              <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#71c5d6]" /> Free to set up</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#9cbf50]" /> No minimum contract</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#71c5d6]" /> Switch in minutes</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#8db74e]" /> Free to set up</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#8db74e]" /> No minimum contract</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 size={15} className="text-[#8db74e]" /> Switch in minutes</span>
             </p>
 
           </div>
@@ -140,13 +140,13 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
           {/* ── Right: a real person + the offer, layered ─────────────── */}
           <div className="relative lg:pl-4 max-w-md mx-auto lg:max-w-none">
             {/* Decorative colour glow behind the visual */}
-            <div className="absolute -inset-3 rounded-[3rem] bg-gradient-to-tr from-[#9cbf50]/10 via-[#71c5d6]/15 to-[#9cbf50]/10 blur-2xl hidden sm:block" />
+            <div className="absolute -inset-3 rounded-[3rem] bg-gradient-to-tr from-[#8db74e]/10 via-[#8db74e]/15 to-[#8db74e]/10 blur-2xl hidden sm:block" />
 
             {/* Relatable photo — dropped down to leave headroom for top chips */}
             <div className="relative mt-12 sm:mt-10">
-              <div className="absolute inset-0 translate-x-4 -translate-y-3 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#71c5d6]/40 to-[#9cbf50]/40 hidden sm:block" />
+              <div className="absolute inset-0 translate-x-4 -translate-y-3 rotate-3 rounded-[2rem] bg-gradient-to-br from-[#8db74e]/40 to-[#8db74e]/40 hidden sm:block" />
 
-              <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl shadow-[#2c4a51]/25 border-4 border-white">
+              <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden shadow-2xl shadow-[#29484f]/25 border-4 border-white">
                 <Image
                   src="/images/workwell-home.jpg"
                   alt="A small business owner managing her finances with Workwell"
@@ -156,7 +156,7 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                   priority
                 />
                 {/* Soft gradient at the foot so the overhanging card reads cleanly */}
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#2c4a51]/30 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#29484f]/30 to-transparent" />
               </div>
 
               {/* Floating chip — Trustpilot (top-left, over the photo) */}
@@ -165,13 +165,13 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
                   ))}
-                  <span className="text-sm font-bold text-[#2c4a51] ml-1">{rating}</span>
+                  <span className="text-sm font-bold text-[#29484f] ml-1">{rating}</span>
                 </div>
                 <p className="text-[11px] text-[#6a7b80] mt-0.5">Excellent on Trustpilot</p>
               </div>
 
               {/* Floating chip — MTD ready (cyan, top-right, over the photo) */}
-              <div className="absolute -top-3 right-1 sm:-right-4 bg-[#71c5d6] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-30">
+              <div className="absolute -top-3 right-1 sm:-right-4 bg-[#8db74e] text-white rounded-2xl px-4 py-2.5 shadow-lg rotate-2 hidden sm:flex items-center gap-2.5 animate-float-delayed z-30">
                 <FileCheck2 size={18} />
                 <div>
                   <p className="text-xs font-bold leading-tight">Making Tax Digital</p>
@@ -181,15 +181,15 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
             </div>
 
             {/* Offer card — overhangs the photo's bottom, offset for a layered feel */}
-            <div className="relative -mt-14 sm:-mt-16 ml-2 sm:ml-10 mr-2 sm:mr-0 bg-white rounded-[1.5rem] shadow-2xl shadow-[#2c4a51]/20 border border-white overflow-hidden z-20">
+            <div className="relative -mt-14 sm:-mt-16 ml-2 sm:ml-10 mr-2 sm:mr-0 bg-white rounded-[1.5rem] shadow-2xl shadow-[#29484f]/20 border border-white overflow-hidden z-20">
               {/* Gradient header strip */}
-              <div className="bg-gradient-to-r from-[#32535a] via-[#3f6b73] to-[#71c5d6] px-6 py-4 flex items-center gap-2 text-white">
+              <div className="bg-gradient-to-r from-[#29484f] via-[#4a6a72] to-[#8db74e] px-6 py-4 flex items-center gap-2 text-white">
                 <Sparkles size={16} />
                 <span className="text-xs font-bold uppercase tracking-wider">Everything included</span>
               </div>
 
               <div className="p-6">
-                <p className="text-xl font-extrabold text-[#2c4a51] mb-4">
+                <p className="text-xl font-extrabold text-[#29484f] mb-4">
                   One accountant who actually replies.
                 </p>
 
@@ -198,12 +198,12 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                     <li key={item} className="flex items-center gap-2.5">
                       <span
                         className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                          i % 2 === 0 ? "bg-[#9cbf50]/20 text-[#6f8052]" : "bg-[#71c5d6]/25 text-[#2c6470]"
+                          i % 2 === 0 ? "bg-[#8db74e]/20 text-[#5f8a3e]" : "bg-[#8db74e]/25 text-[#2f5560]"
                         }`}
                       >
                         <CheckCircle2 size={13} />
                       </span>
-                      <span className="text-[#3f565b] font-medium text-sm">{item}</span>
+                      <span className="text-[#29484f] font-medium text-sm">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -211,13 +211,13 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
                 <div className="flex items-end justify-between pt-4 border-t border-[#eef2e4]">
                   <div>
                     <p className="text-xs text-[#6a7b80] font-medium">Plans from</p>
-                    <p className="text-2xl font-extrabold text-[#2c4a51]">
+                    <p className="text-2xl font-extrabold text-[#29484f]">
                       £42.50<span className="text-sm font-semibold text-[#6a7b80]">/mo + VAT</span>
                     </p>
                   </div>
                   <Link
                     href="/pricing"
-                    className="inline-flex items-center gap-1.5 bg-[#9cbf50]/15 text-[#5d7038] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-[#9cbf50]/25 transition-colors"
+                    className="inline-flex items-center gap-1.5 bg-[#8db74e]/15 text-[#5f8a3e] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-[#8db74e]/25 transition-colors"
                   >
                     See pricing <ArrowRight size={15} />
                   </Link>

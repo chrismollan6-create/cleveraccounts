@@ -449,43 +449,43 @@ body {
    ═══════════════════════════════════════════════════════════════════════ */
 
 [data-brand="workwell"] {
-  --color-primary: #32535a;
-  --color-primary-dark: #233a40;
-  --color-primary-light: #4d7079;
+  --color-primary: #29484f;
+  --color-primary-dark: #1c333a;
+  --color-primary-light: #4a6a72;
   --color-primary-50: #f6f9f0;
-  --color-secondary: #9cbf50;
-  --color-secondary-dark: #6f8052;
-  --color-secondary-light: #bdd289;
-  --color-accent: #71c5d6;
+  --color-secondary: #8db74e;
+  --color-secondary-dark: #5f8a3e;
+  --color-secondary-light: #e0e48e;
+  --color-accent: #8db74e;
   --color-surface: #edf3e0;
   --color-surface-alt: #fafbec;
-  --color-text: #32535a;
+  --color-text: #29484f;
   --color-text-light: #6a7b82;
-  --color-dark: #1a2426;
+  --color-dark: #15282d;
   --font-sans: "Montserrat Alternates", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Hero / section gradient backgrounds — re-author with WW palette */
 [data-brand="workwell"] .gradient-hero {
-  background: linear-gradient(135deg, #1a2426 0%, #233a40 40%, #32535a 100%);
+  background: linear-gradient(135deg, #15282d 0%, #1c333a 40%, #29484f 100%);
 }
 [data-brand="workwell"] .gradient-hero-warm {
-  background: linear-gradient(135deg, #f6f9f0 0%, #edf3e0 30%, #bdd289 100%);
+  background: linear-gradient(135deg, #f6f9f0 0%, #edf3e0 30%, #e0e48e 100%);
 }
 [data-brand="workwell"] .gradient-hero-subtle {
   background: linear-gradient(135deg, #f6f9f0 0%, #fafbec 100%);
 }
 [data-brand="workwell"] .gradient-cta {
-  background: linear-gradient(135deg, #9cbf50 0%, #6f8052 100%);
+  background: linear-gradient(135deg, #8db74e 0%, #5f8a3e 100%);
 }
 [data-brand="workwell"] .gradient-dark {
-  background: linear-gradient(135deg, #1a2426 0%, #233a40 100%);
+  background: linear-gradient(135deg, #15282d 0%, #1c333a 100%);
 }
 [data-brand="workwell"] .gradient-teal {
-  background: linear-gradient(135deg, #32535a 0%, #233a40 100%);
+  background: linear-gradient(135deg, #29484f 0%, #1c333a 100%);
 }
 [data-brand="workwell"] .gradient-vibrant {
-  background: linear-gradient(135deg, #32535a 0%, #9cbf50 100%);
+  background: linear-gradient(135deg, #29484f 0%, #8db74e 100%);
 }
 [data-brand="workwell"] .gradient-warm-section {
   background: linear-gradient(180deg, #f6f9f0 0%, #ffffff 100%);
@@ -501,14 +501,14 @@ body {
 
 /* Buttons — primary CTA becomes WW lime green; secondary becomes WW teal */
 [data-brand="workwell"] .btn-primary {
-  background: linear-gradient(135deg, #9cbf50, #6f8052);
+  background: linear-gradient(135deg, #8db74e, #5f8a3e);
   box-shadow: 0 4px 15px rgba(156, 191, 80, 0.3);
 }
 [data-brand="workwell"] .btn-primary:hover {
   box-shadow: 0 8px 25px rgba(156, 191, 80, 0.4);
 }
 [data-brand="workwell"] .btn-secondary {
-  background: linear-gradient(135deg, #32535a, #233a40);
+  background: linear-gradient(135deg, #29484f, #1c333a);
   box-shadow: 0 4px 15px rgba(50, 83, 90, 0.2);
 }
 [data-brand="workwell"] .btn-secondary:hover {
@@ -534,34 +534,54 @@ body {
 
 /* Text gradients */
 [data-brand="workwell"] .text-gradient {
-  background: linear-gradient(135deg, #9cbf50, #6f8052);
+  background: linear-gradient(135deg, #8db74e, #5f8a3e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 [data-brand="workwell"] .text-gradient-teal {
-  background: linear-gradient(135deg, #32535a, #233a40);
+  background: linear-gradient(135deg, #29484f, #1c333a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 [data-brand="workwell"] .text-gradient-vibrant {
-  background: linear-gradient(135deg, #32535a, #9cbf50);
+  background: linear-gradient(135deg, #29484f, #8db74e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* On dark sections Workwell uses the featured lime (#e0e48e) for eyebrows and
+   accent heading words, not the green it uses on light surfaces — this keeps the
+   green for CTAs and differentiates the brand on dark backgrounds. Scoped to the
+   shared dark-section wrappers so light-surface headings stay green. */
+[data-brand="workwell"] .bg-dark .text-primary-light,
+[data-brand="workwell"] .gradient-dark .text-primary-light,
+[data-brand="workwell"] .gradient-hero .text-primary-light,
+[data-brand="workwell"] .gradient-teal .text-primary-light {
+  color: #e0e48e;
+}
+[data-brand="workwell"] .bg-dark .text-gradient,
+[data-brand="workwell"] .gradient-dark .text-gradient,
+[data-brand="workwell"] .gradient-hero .text-gradient,
+[data-brand="workwell"] .gradient-teal .text-gradient {
+  background: linear-gradient(135deg, #e0e48e, #8db74e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 [data-brand="workwell"] .border-gradient {
-  background-image: linear-gradient(white, white), linear-gradient(135deg, #9cbf50, #32535a);
+  background-image: linear-gradient(white, white), linear-gradient(135deg, #8db74e, #29484f);
 }
 [data-brand="workwell"] .pattern-dots {
-  background-image: radial-gradient(circle, #32535a 1px, transparent 1px);
+  background-image: radial-gradient(circle, #29484f 1px, transparent 1px);
 }
 
 /* Custom scrollbar tinted to WW primary */
-[data-brand="workwell"] ::-webkit-scrollbar-thumb { background: #32535a; }
-[data-brand="workwell"] ::-webkit-scrollbar-thumb:hover { background: #233a40; }
+[data-brand="workwell"] ::-webkit-scrollbar-thumb { background: #29484f; }
+[data-brand="workwell"] ::-webkit-scrollbar-thumb:hover { background: #1c333a; }
 
 /* ───────────────────────────────────────────────────────────────────────
    Browser autofill — override the lavender/pale-yellow Chrome default
@@ -582,6 +602,6 @@ input:-webkit-autofill:active {
 [data-brand="workwell"] input:-webkit-autofill:hover,
 [data-brand="workwell"] input:-webkit-autofill:focus,
 [data-brand="workwell"] input:-webkit-autofill:active {
-  -webkit-text-fill-color: #32535a !important;
-  caret-color: #32535a;
+  -webkit-text-fill-color: #29484f !important;
+  caret-color: #29484f;
 }

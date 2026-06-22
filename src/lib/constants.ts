@@ -242,21 +242,25 @@ export const BRANDS = {
         apple: '/brand/workwell/apple-touch-icon.png',
       },
     },
-    // Canonical palette extracted from workwellaccountancy.com theme CSS (2026-05-09).
-    // Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488) are
-    // both wrong — should be reconciled to #32535a in a follow-up.
+    // Workwell brand style guide palette (2026-06-22): dark teal #29484F,
+    // mid green #8DB74E, pale lime #E0E48E. Teal is the dark anchor (text /
+    // structure / primary), green is the accent (CTAs / highlights), lime is
+    // the soft highlight. The previous cyan accent (#71c5d6) was off-brand and
+    // has been folded into the green. Primary-dark/light are derived from #29484F.
+    // NOTE: Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488)
+    // carry the old colours — reconcile to #29484f / #8db74e in a follow-up.
     colors: {
-      primary: '#32535a',
-      primaryDark: '#233a40',
-      primaryLight: '#4d7079',
+      primary: '#29484f',
+      primaryDark: '#1c333a',
+      primaryLight: '#4a6a72',
       primary50: '#f6f9f0',
-      secondary: '#9cbf50',
-      secondaryDark: '#6f8052',
-      secondaryLight: '#bdd289',
-      accent: '#71c5d6',
+      secondary: '#8db74e',
+      secondaryDark: '#5f8a3e',
+      secondaryLight: '#e0e48e',
+      accent: '#8db74e',
       surface: '#edf3e0',
       surfaceAlt: '#fafbec',
-      text: '#32535a',
+      text: '#29484f',
       textLight: '#6a7b82',
     },
     font: {

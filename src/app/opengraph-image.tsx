@@ -15,9 +15,9 @@ export default async function Image() {
 
   const background = isClever
     ? "linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)"
-    : "linear-gradient(135deg, #1a2426 0%, #0f1a1c 100%)";
-  const accent = isClever ? "#bfdbfe" : "#9cbf50";
-  const sub = isClever ? "#93c5fd" : "#71c5d6";
+    : "linear-gradient(135deg, #15282d 0%, #0e1f23 100%)";
+  const accent = isClever ? "#bfdbfe" : "#8db74e";
+  const sub = isClever ? "#93c5fd" : "#8db74e";
   const stats = isClever
     ? ["From £42.50/month", "10,000+ businesses", "20 years experience"]
     : ["From £42.50/month", "Dedicated accountant", "Unlimited advice"];
