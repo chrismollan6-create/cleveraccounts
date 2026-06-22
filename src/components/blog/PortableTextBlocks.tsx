@@ -4,12 +4,12 @@ import { useState } from "react";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import { FAQPageJsonLd, HowToJsonLd, ReviewJsonLd } from "@/components/seo/StructuredData";
 
-// HtmlEmbedBlock lives in its own file — its sanitizeHtml dep pulls in
-// isomorphic-dompurify → jsdom → html-encoding-sniffer, which crashes
-// Vercel SSR with ERR_REQUIRE_ESM. Keeping it out of this chunk means
-// FAQ/HowTo/Review posts don't trigger that broken module load.
-// Re-exported so existing imports keep working.
-export { HtmlEmbedBlock } from "./HtmlEmbedBlock";
+// HtmlEmbedBlock now lives in its own file — import it directly:
+//   import { HtmlEmbedBlock } from "@/components/blog/HtmlEmbedBlock";
+// Don't re-export it here: a barrel re-export keeps both modules in the
+// same client chunk, defeating the split that keeps sanitizeHtml
+// (isomorphic-dompurify → jsdom → html-encoding-sniffer, broken on
+// Vercel SSR) out of the FAQ/HowTo/Review path.
 
 export function FaqBlockRenderer({
   heading,

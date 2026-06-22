@@ -6,11 +6,11 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { SchemaRenderer, type PageSchemaItem } from "@/components/seo/SchemaRenderer";
 import {
-  HtmlEmbedBlock,
   FaqBlockRenderer,
   HowToBlockRenderer,
   CtaBlockRenderer,
 } from "@/components/blog/PortableTextBlocks";
+import { HtmlEmbedBlock } from "@/components/blog/HtmlEmbedBlock";
 import { getKnowledgeArticle, getKnowledgeArticleSlugs } from "@/sanity/queries";
 import ArticleToc from "@/components/learn/ArticleToc";
 import { getBrand } from "@/lib/brand";
