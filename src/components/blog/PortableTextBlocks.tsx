@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { ChevronDown, ArrowRight } from "lucide-react";
-import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { FAQPageJsonLd, HowToJsonLd, ReviewJsonLd } from "@/components/seo/StructuredData";
 
-export function HtmlEmbedBlock({ html }: { html: string }) {
-  const safe = sanitizeHtml(html ?? "");
-  return <div className="my-6 prose-html" dangerouslySetInnerHTML={{ __html: safe }} />;
-}
+// HtmlEmbedBlock lives in its own file — its sanitizeHtml dep pulls in
+// isomorphic-dompurify → jsdom → html-encoding-sniffer, which crashes
+// Vercel SSR with ERR_REQUIRE_ESM. Keeping it out of this chunk means
+// FAQ/HowTo/Review posts don't trigger that broken module load.
+// Re-exported so existing imports keep working.
+export { HtmlEmbedBlock } from "./HtmlEmbedBlock";
 
 export function FaqBlockRenderer({
   heading,

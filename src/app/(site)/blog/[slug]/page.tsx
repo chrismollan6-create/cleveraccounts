@@ -5,12 +5,14 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
 import { SchemaRenderer, type PageSchemaItem } from "@/components/seo/SchemaRenderer";
 import {
-  HtmlEmbedBlock,
   FaqBlockRenderer,
   HowToBlockRenderer,
   ReviewBlockRenderer,
   CtaBlockRenderer,
 } from "@/components/blog/PortableTextBlocks";
+// Imported from its own file so its sanitizeHtml → isomorphic-dompurify
+// → jsdom dep stays out of the chunk used by FAQ/HowTo/Review renderers.
+import { HtmlEmbedBlock } from "@/components/blog/HtmlEmbedBlock";
 import { getBlogPost, getBlogSlugs } from "@/lib/sanity";
 import { getSiteSettings } from "@/sanity/queries";
 import { getBrand } from "@/lib/brand";
