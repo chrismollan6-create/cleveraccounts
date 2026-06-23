@@ -167,6 +167,22 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         </div>
       </section>
 
+      {/* ═══════════════ FINANCIAL SUMMARY ═══════════════ */}
+      {data.financialSummary && (
+        <section className="px-[18mm] pt-[9mm]">
+          <SectionLabel color={c.primary}>Summary</SectionLabel>
+          <div
+            className="mt-3 rounded-md border px-5 py-4"
+            style={{
+              borderColor: hexAlpha(c.primary, 0.18),
+              backgroundColor: hexAlpha(c.primary, 0.035),
+            }}
+          >
+            <p className="text-[11.5px] leading-[1.7] text-text">{data.financialSummary}</p>
+          </div>
+        </section>
+      )}
+
       {/* ═══════════════ THINGS TO LOOK AT ═══════════════ */}
       {data.issues && data.issues.length > 0 && (
         <section className="px-[18mm] pt-[9mm]">
