@@ -195,11 +195,10 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
           >
             !
           </span>
-          <p className="text-[11px] leading-[1.55] text-text">
-            <span className="font-bold">Indicative figures — use as a guide.</span> These totals
-            can change if you add, alter or amend transactions in FreeAgent after this return is
-            prepared, or if our year-end review surfaces adjustments. Final figures are confirmed
-            on the year-end Self Assessment.
+          <p className="text-[10.5px] leading-[1.5] text-text">
+            <span className="font-bold">Indicative figures — use as a guide.</span> These can change
+            if transactions are added or amended in FreeAgent, or if our year-end review surfaces
+            adjustments. Final figures are confirmed on the year-end Self Assessment.
           </p>
         </div>
       </section>
@@ -288,16 +287,16 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
                     color: '#ffffff',
                   }}
                 >
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.14em]">
+                  <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.14em]">
                     Month end
                   </th>
-                  <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.14em]">
+                  <th className="px-4 py-2 text-right text-[10px] font-bold uppercase tracking-[0.14em]">
                     Income
                   </th>
-                  <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.14em]">
+                  <th className="px-4 py-2 text-right text-[10px] font-bold uppercase tracking-[0.14em]">
                     Expenses
                   </th>
-                  <th className="px-4 py-3 text-right text-[10px] font-bold uppercase tracking-[0.14em]">
+                  <th className="px-4 py-2 text-right text-[10px] font-bold uppercase tracking-[0.14em]">
                     Net profit
                   </th>
                 </tr>
@@ -312,11 +311,11 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
                       backgroundColor: i % 2 === 1 ? hexAlpha(c.primary, 0.025) : 'transparent',
                     }}
                   >
-                    <td className="px-4 py-2.5 font-semibold text-text">{fmtMonthShort(m.monthEnd)}</td>
-                    <td className="px-4 py-2.5 text-right text-text-light">{fmtMoney(m.income)}</td>
-                    <td className="px-4 py-2.5 text-right text-text-light">{fmtMoney(m.expense)}</td>
+                    <td className="px-4 py-2 font-semibold text-text">{fmtMonthShort(m.monthEnd)}</td>
+                    <td className="px-4 py-2 text-right text-text-light">{fmtMoney(m.income)}</td>
+                    <td className="px-4 py-2 text-right text-text-light">{fmtMoney(m.expense)}</td>
                     <td
-                      className="px-4 py-2.5 text-right font-bold"
+                      className="px-4 py-2 text-right font-bold"
                       style={{ color: (m.profit ?? 0) < 0 ? LOSS : c.primary }}
                     >
                       {fmtMoney(m.profit)}
@@ -333,19 +332,15 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       <section className="px-[18mm] pt-[6mm]">
         <SectionLabel color={c.primary}>What happens next</SectionLabel>
         <div
-          className="mt-3 rounded-md px-5 py-4"
+          className="mt-2.5 rounded-md px-5 py-3"
           style={{ backgroundColor: hexAlpha(c.primary, 0.04) }}
         >
-          <p className="text-[11.5px] leading-[1.65] text-text">
+          <p className="text-[11px] leading-[1.6] text-text">
             Reply to your accountant confirming you&rsquo;re happy with the figures, or note any
-            queries. Once approved we&rsquo;ll submit the return to HMRC on your behalf and confirm
-            receipt.
-          </p>
-          <p className="mt-2 text-[10.5px] leading-[1.6] text-text-light">
-            These figures are drawn from your FreeAgent bookkeeping at the period end and prepared by{' '}
-            <span className="font-semibold text-text">{data.brandName}</span>. Making Tax Digital
-            requires a quarterly summary of business income and expenses to HMRC, in addition to the
-            year-end return.
+            queries — once approved we&rsquo;ll submit the return to HMRC and confirm receipt. These
+            figures are drawn from your FreeAgent bookkeeping and prepared by{' '}
+            <span className="font-semibold">{data.brandName}</span>; MTD requires a quarterly
+            income-and-expense summary to HMRC alongside the year-end return.
           </p>
         </div>
       </section>
