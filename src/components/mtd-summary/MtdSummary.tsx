@@ -89,15 +89,17 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
     data.period.taxYear ?? ''
   }`.trim();
   const periodDates = `${fmtDateLong(data.period.startDate)} → ${fmtDateLong(data.period.endDate)}`;
+  const net = data.totals.netProfit ?? 0;
+  const isLoss = net < 0;
+  const LOSS = '#dc2626'; // red-600
+  const netColor = isLoss ? LOSS : c.primary;
 
   return (
     <div
       data-brand={data.brandId}
-      className="mx-auto bg-white font-sans text-text"
+      className="mx-auto flex min-h-[297mm] w-[210mm] flex-col bg-white font-sans text-text"
       style={
         {
-          width: '210mm',
-          minHeight: '297mm',
           '--color-primary': c.primary,
           '--color-primary-dark': c.primaryDark,
           '--color-primary-light': c.primaryLight,
@@ -113,78 +115,73 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         } as React.CSSProperties
       }
     >
-      {/* ═══════════════ TOP COLOUR STRIPE ═══════════════ */}
-      <span className="block h-[8px] w-full" style={{ backgroundColor: c.primary }} />
-      <span className="block h-[3px] w-full" style={{ backgroundColor: c.secondary }} />
-
-      {/* ═══════════════ DOCUMENT HEAD ═══════════════ */}
-      <header className="px-[18mm] pt-[14mm]">
+      {/* ═══════════════ BRANDED HERO ═══════════════ */}
+      <div
+        className="px-[18mm] pb-[11mm] pt-[15mm]"
+        style={{ background: `linear-gradient(135deg, ${c.primaryDark} 0%, ${c.primary} 100%)` }}
+      >
         <div className="flex items-start justify-between">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logo} alt={data.brandName} className="h-9 w-auto" />
+          <div className="inline-flex rounded-lg bg-white px-3.5 py-2.5 shadow-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logo} alt={data.brandName} className="h-7 w-auto" />
+          </div>
           <div className="text-right">
-            <p
-              className="text-[11px] font-bold uppercase tracking-[0.22em]"
-              style={{ color: c.primary }}
-            >
+            <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-white">
               Quarterly MTD Return
             </p>
-            <p className="mt-1 text-[11px] font-semibold text-text-light">
+            <p className="mt-1 text-[11px] font-medium" style={{ color: hexAlpha('#ffffff', 0.8) }}>
               {data.isDraft ? 'Draft for client review' : 'Submitted to HMRC'}
             </p>
           </div>
         </div>
 
-        {/* client + period row, sat on a soft brand tint */}
-        <div
-          className="mt-6 flex items-end justify-between gap-6 rounded-md border px-5 py-4"
-          style={{
-            backgroundColor: hexAlpha(c.primary, 0.045),
-            borderColor: hexAlpha(c.primary, 0.18),
-          }}
-        >
+        <div className="mt-9 flex items-end justify-between gap-6">
           <div>
-            <h1
-              className="text-[30px] font-bold leading-[1.1] tracking-tight"
-              style={{ color: c.text }}
+            <p
+              className="text-[10px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: c.secondaryLight }}
             >
+              Prepared for
+            </p>
+            <h1 className="mt-1.5 text-[33px] font-bold leading-[1.04] tracking-tight text-white">
               {data.client.businessName || data.client.name}
             </h1>
             {data.client.businessName && data.client.name !== data.client.businessName && (
-              <p className="mt-1 text-[13px] font-medium text-text-light">{data.client.name}</p>
+              <p className="mt-1 text-[13px] font-medium" style={{ color: hexAlpha('#ffffff', 0.75) }}>
+                {data.client.name}
+              </p>
             )}
           </div>
           <div className="shrink-0 text-right">
-            <p
-              className="text-[10px] font-bold uppercase tracking-[0.2em]"
-              style={{ color: c.primary }}
-            >
-              Period
+            {periodLabel && (
+              <span
+                className="inline-block rounded-md px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white"
+                style={{ backgroundColor: hexAlpha('#ffffff', 0.16) }}
+              >
+                {periodLabel}
+              </span>
+            )}
+            <p className="mt-2 text-[11.5px]" style={{ color: hexAlpha('#ffffff', 0.85) }}>
+              {periodDates}
             </p>
-            <p className="mt-1 text-[14px] font-bold text-text">{periodLabel || '—'}</p>
-            <p className="text-[11.5px] text-text-light">{periodDates}</p>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* ═══════════════ HEADLINE FIGURES ═══════════════ */}
-      <section className="grid grid-cols-3 gap-4 px-[18mm] pt-[8mm]">
-        <StatTile label="Total income" value={fmtMoney(data.totals.totalIncome)} color={c.primary} />
+      <section className="grid grid-cols-3 gap-4 px-[18mm] pt-[9mm]">
+        <StatTile label="Total income" value={fmtMoney(data.totals.totalIncome)} accent={c.primary} />
+        <StatTile label="Total expenses" value={fmtMoney(data.totals.totalExpenses)} accent={c.primary} />
         <StatTile
-          label="Total expenses"
-          value={fmtMoney(data.totals.totalExpenses)}
-          color={c.primary}
-        />
-        <StatTile
-          label="Net profit"
+          label={isLoss ? 'Net loss' : 'Net profit'}
           value={fmtMoney(data.totals.netProfit)}
-          color={c.primary}
-          emphasise
+          accent={netColor}
+          solid
         />
       </section>
 
       {/* ═══════════════ CAVEAT STRIP ═══════════════ */}
-      <section className="px-[18mm] pt-[5mm]">
+      <section className="px-[18mm] pt-[6mm]">
         <div
           className="flex items-start gap-3 rounded-md border-l-[4px] px-4 py-3"
           style={{
@@ -212,31 +209,38 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         <section className="px-[18mm] pt-[9mm]">
           <SectionLabel color={c.primary}>Summary</SectionLabel>
           <div
-            className="mt-3 rounded-md border px-5 py-4"
-            style={{
-              borderColor: hexAlpha(c.primary, 0.18),
-              backgroundColor: hexAlpha(c.primary, 0.035),
-            }}
+            className="mt-3 overflow-hidden rounded-md border"
+            style={{ borderColor: hexAlpha(c.primary, 0.18) }}
           >
-            <div className="space-y-2 text-[11.5px] leading-[1.7] text-text">
-              {parseNarrative(data.financialSummary).map((b, i) =>
-                b.type === 'p' ? (
-                  <p key={i}>{b.text}</p>
-                ) : (
-                  <ul key={i} className="list-disc space-y-1 pl-5">
-                    {b.items.map((it, j) => (
-                      <li key={j}>{it}</li>
-                    ))}
-                  </ul>
-                ),
-              )}
+            <div className="flex">
+              <span className="w-[5px] shrink-0" style={{ backgroundColor: c.secondary }} />
+              <div className="space-y-2.5 px-5 py-4 text-[11.5px] leading-[1.7] text-text">
+                {parseNarrative(data.financialSummary).map((b, i) =>
+                  b.type === 'p' ? (
+                    <p key={i}>{b.text}</p>
+                  ) : (
+                    <ul key={i} className="space-y-1.5">
+                      {b.items.map((it, j) => (
+                        <li key={j} className="flex items-start gap-2.5">
+                          <span
+                            className="mt-[6px] block h-[5px] w-[5px] shrink-0 rounded-full"
+                            style={{ backgroundColor: c.secondary }}
+                          />
+                          <span>{it}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                )}
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* ═══════════════ THINGS TO LOOK AT ═══════════════ */}
-      {data.issues && data.issues.length > 0 && (
+      {/* ═══════════════ THINGS TO LOOK AT (fallback only — the AI summary
+           covers actions when present, so we don't repeat them) ═══════════════ */}
+      {!data.financialSummary && data.issues && data.issues.length > 0 && (
         <section className="px-[18mm] pt-[9mm]">
           <SectionLabel color={c.primary}>Things to look at</SectionLabel>
           <div
@@ -313,7 +317,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
                     <td className="px-4 py-2.5 text-right text-text-light">{fmtMoney(m.expense)}</td>
                     <td
                       className="px-4 py-2.5 text-right font-bold"
-                      style={{ color: c.primary }}
+                      style={{ color: (m.profit ?? 0) < 0 ? LOSS : c.primary }}
                     >
                       {fmtMoney(m.profit)}
                     </td>
@@ -325,67 +329,39 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
         </section>
       )}
 
-      {/* ═══════════════ ABOUT MTD ═══════════════ */}
+      {/* ═══════════════ WHAT HAPPENS NEXT (boilerplate, condensed) ═══════════════ */}
       <section className="px-[18mm] pt-[9mm]">
-        <SectionLabel color={c.primary}>About this return</SectionLabel>
+        <SectionLabel color={c.primary}>What happens next</SectionLabel>
         <div
-          className="mt-3 grid grid-cols-2 gap-6 rounded-md border p-5"
-          style={{
-            borderColor: hexAlpha(c.primary, 0.18),
-            backgroundColor: hexAlpha(c.primary, 0.035),
-          }}
+          className="mt-3 rounded-md px-5 py-4"
+          style={{ backgroundColor: hexAlpha(c.primary, 0.04) }}
         >
-          <div>
-            <p
-              className="text-[10px] font-bold uppercase tracking-[0.16em]"
-              style={{ color: c.primary }}
-            >
-              Why every quarter
-            </p>
-            <p className="mt-2 text-[11.5px] leading-[1.65] text-text-light">
-              Making Tax Digital for Income Tax requires sole traders and landlords with
-              qualifying income to submit a summary of business income and expenses to HMRC every
-              quarter, in addition to the end-of-year return.
-            </p>
-          </div>
-          <div>
-            <p
-              className="text-[10px] font-bold uppercase tracking-[0.16em]"
-              style={{ color: c.primary }}
-            >
-              Where these figures came from
-            </p>
-            <p className="mt-2 text-[11.5px] leading-[1.65] text-text-light">
-              Drawn from your FreeAgent bookkeeping at the period end, prepared by{' '}
-              <span className="font-bold text-text">{data.brandName}</span>. Please review and
-              flag anything unexpected — missing income, mis-categorised expenses — so we can
-              correct it before submission.
-            </p>
-          </div>
+          <p className="text-[11.5px] leading-[1.65] text-text">
+            Reply to your accountant confirming you&rsquo;re happy with the figures, or note any
+            queries. Once approved we&rsquo;ll submit the return to HMRC on your behalf and confirm
+            receipt.
+          </p>
+          <p className="mt-2 text-[10.5px] leading-[1.6] text-text-light">
+            These figures are drawn from your FreeAgent bookkeeping at the period end and prepared by{' '}
+            <span className="font-semibold text-text">{data.brandName}</span>. Making Tax Digital
+            requires a quarterly summary of business income and expenses to HMRC, in addition to the
+            year-end return.
+          </p>
         </div>
       </section>
 
-      {/* ═══════════════ WHAT HAPPENS NEXT ═══════════════ */}
-      <section className="px-[18mm] pt-[9mm]">
-        <SectionLabel color={c.primary}>What happens next</SectionLabel>
-        <p className="mt-3 text-[12px] leading-[1.7] text-text">
-          Reply to your accountant confirming you&rsquo;re happy with the figures, or note any
-          queries. Once approved we&rsquo;ll submit the return to HMRC on your behalf and confirm
-          receipt.
-        </p>
-      </section>
-
       {/* ═══════════════ FOOTER ═══════════════ */}
-      <div className="mt-auto px-[18mm] pb-[14mm] pt-[12mm]">
-        <span
-          className="block h-[2px] w-full rounded-full"
-          style={{ backgroundColor: hexAlpha(c.primary, 0.4) }}
-        />
-        <div className="mt-3 flex items-center justify-between text-[10px] text-text-light">
-          <span className="font-bold uppercase tracking-[0.18em]" style={{ color: c.primary }}>
+      <div className="mt-auto px-[18mm] pb-[14mm] pt-[10mm]">
+        <div
+          className="flex items-center justify-between rounded-md px-5 py-3"
+          style={{ backgroundColor: c.primary }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white">
             {data.brandName}
           </span>
-          <span>Prepared {fmtDateLong(data.preparedAt)}</span>
+          <span className="text-[10px]" style={{ color: hexAlpha('#ffffff', 0.8) }}>
+            Prepared {fmtDateLong(data.preparedAt)}
+          </span>
         </div>
       </div>
     </div>
@@ -415,39 +391,38 @@ function SectionLabel({
 function StatTile({
   label,
   value,
-  color,
-  emphasise = false,
+  accent,
+  solid = false,
 }: {
   label: string;
   value: string;
-  color: string;
-  emphasise?: boolean;
+  accent: string;
+  solid?: boolean;
 }) {
+  if (solid) {
+    return (
+      <div className="rounded-lg px-5 py-[18px]" style={{ backgroundColor: accent }}>
+        <p
+          className="text-[10px] font-bold uppercase tracking-[0.18em]"
+          style={{ color: hexAlpha('#ffffff', 0.85) }}
+        >
+          {label}
+        </p>
+        <p className="mt-1.5 text-[25px] font-bold tracking-tight text-white" style={{ lineHeight: 1.05 }}>
+          {value}
+        </p>
+      </div>
+    );
+  }
   return (
-    <div
-      className="rounded-md border px-4 py-4"
-      style={{
-        borderColor: emphasise ? color : hexAlpha(color, 0.18),
-        borderWidth: emphasise ? '1.5px' : '1px',
-        backgroundColor: emphasise ? hexAlpha(color, 0.08) : '#ffffff',
-      }}
-    >
-      <p
-        className="text-[10px] font-bold uppercase tracking-[0.18em]"
-        style={{ color: emphasise ? color : '#6b7280' }}
-      >
-        {label}
-      </p>
-      <p
-        className="mt-2 font-bold tracking-tight"
-        style={{
-          color: emphasise ? color : '#0f172a',
-          fontSize: emphasise ? '26px' : '22px',
-          lineHeight: 1.05,
-        }}
-      >
-        {value}
-      </p>
+    <div className="overflow-hidden rounded-lg border" style={{ borderColor: hexAlpha(accent, 0.2) }}>
+      <span className="block h-[3px] w-full" style={{ backgroundColor: accent }} />
+      <div className="px-5 py-[18px]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-light">{label}</p>
+        <p className="mt-1.5 text-[22px] font-bold tracking-tight" style={{ color: '#0f172a', lineHeight: 1.05 }}>
+          {value}
+        </p>
+      </div>
     </div>
   );
 }
