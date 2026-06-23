@@ -40,6 +40,46 @@ function fmtMonthShort(iso: string | null): string {
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
 }
 
+type NarrativeBlock = { type: 'p'; text: string } | { type: 'ul'; items: string[] };
+
+/** Parse a plain-text summary (newlines + "- " bullets) into paragraphs and lists. */
+function parseNarrative(text: string): NarrativeBlock[] {
+  const blocks: NarrativeBlock[] = [];
+  let para: string[] = [];
+  let list: string[] = [];
+  const flushPara = () => {
+    if (para.length) {
+      blocks.push({ type: 'p', text: para.join(' ') });
+      para = [];
+    }
+  };
+  const flushList = () => {
+    if (list.length) {
+      blocks.push({ type: 'ul', items: list });
+      list = [];
+    }
+  };
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line) {
+      flushPara();
+      flushList();
+      continue;
+    }
+    const m = line.match(/^[-•*]\s+(.*)/);
+    if (m) {
+      flushPara();
+      list.push(m[1]);
+    } else {
+      flushList();
+      para.push(line);
+    }
+  }
+  flushPara();
+  flushList();
+  return blocks;
+}
+
 export default function MtdSummary({ data }: { data: MtdSummaryData }) {
   const brand = BRANDS[data.brandId];
   const logo = `/brand/${data.brandId}/logo.png`;
@@ -178,7 +218,19 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
               backgroundColor: hexAlpha(c.primary, 0.035),
             }}
           >
-            <p className="text-[11.5px] leading-[1.7] text-text">{data.financialSummary}</p>
+            <div className="space-y-2 text-[11.5px] leading-[1.7] text-text">
+              {parseNarrative(data.financialSummary).map((b, i) =>
+                b.type === 'p' ? (
+                  <p key={i}>{b.text}</p>
+                ) : (
+                  <ul key={i} className="list-disc space-y-1 pl-5">
+                    {b.items.map((it, j) => (
+                      <li key={j}>{it}</li>
+                    ))}
+                  </ul>
+                ),
+              )}
+            </div>
           </div>
         </section>
       )}

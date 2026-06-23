@@ -99,7 +99,11 @@ const sampleClever: MtdSummaryData = {
     },
   ],
   financialSummary:
-    'Your income this quarter was £14,214, up 12% on the previous quarter, and your latest month held steady on the one before. Costs were low at £505, leaving a healthy net profit of £13,710. There are a few items to tidy up — 5 transactions still to reconcile and 2 possible duplicates — which we can sort together before the year-end review.',
+    'Your income this quarter was £14,214.42, up 12% on the previous quarter, and your latest month held steady on the one before — a strong, profitable period.\n\n' +
+    '- Income of £14,214.42, up 12% on last quarter.\n' +
+    '- Expenses were low at £504.59, giving a net profit of £13,709.83.\n' +
+    '- 5 transactions still need reconciling — the most recent dated 12 May.\n' +
+    '- We can tidy these up together before the year-end review.',
   verdict: 'Pass',
   humanVerdict: null,
   preparedAt: '2026-06-22T13:00:00Z',
