@@ -117,7 +117,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
     >
       {/* ═══════════════ BRANDED HERO ═══════════════ */}
       <div
-        className="px-[18mm] pb-[11mm] pt-[15mm]"
+        className="px-[18mm] pb-[7mm] pt-[12mm]"
         style={{ background: `linear-gradient(135deg, ${c.primaryDark} 0%, ${c.primary} 100%)` }}
       >
         <div className="flex items-start justify-between">
@@ -135,7 +135,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
           </div>
         </div>
 
-        <div className="mt-9 flex items-end justify-between gap-6">
+        <div className="mt-6 flex items-end justify-between gap-6">
           <div>
             <p
               className="text-[10px] font-bold uppercase tracking-[0.2em]"
@@ -143,7 +143,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
             >
               Prepared for
             </p>
-            <h1 className="mt-1.5 text-[33px] font-bold leading-[1.04] tracking-tight text-white">
+            <h1 className="mt-1.5 text-[29px] font-bold leading-[1.04] tracking-tight text-white">
               {data.client.businessName || data.client.name}
             </h1>
             {data.client.businessName && data.client.name !== data.client.businessName && (
@@ -169,7 +169,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       </div>
 
       {/* ═══════════════ HEADLINE FIGURES ═══════════════ */}
-      <section className="grid grid-cols-3 gap-4 px-[18mm] pt-[9mm]">
+      <section className="grid grid-cols-3 gap-4 px-[18mm] pt-[6mm]">
         <StatTile label="Total income" value={fmtMoney(data.totals.totalIncome)} accent={c.primary} />
         <StatTile label="Total expenses" value={fmtMoney(data.totals.totalExpenses)} accent={c.primary} />
         <StatTile
@@ -206,7 +206,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
 
       {/* ═══════════════ FINANCIAL SUMMARY ═══════════════ */}
       {data.financialSummary && (
-        <section className="px-[18mm] pt-[9mm]">
+        <section className="px-[18mm] pt-[6mm]">
           <SectionLabel color={c.primary}>Summary</SectionLabel>
           <div
             className="mt-3 overflow-hidden rounded-md border"
@@ -241,7 +241,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       {/* ═══════════════ THINGS TO LOOK AT (fallback only — the AI summary
            covers actions when present, so we don't repeat them) ═══════════════ */}
       {!data.financialSummary && data.issues && data.issues.length > 0 && (
-        <section className="px-[18mm] pt-[9mm]">
+        <section className="px-[18mm] pt-[6mm]">
           <SectionLabel color={c.primary}>Things to look at</SectionLabel>
           <div
             className="mt-3 overflow-hidden rounded-md border"
@@ -273,7 +273,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
 
       {/* ═══════════════ MONTHLY BREAKDOWN ═══════════════ */}
       {data.monthly.length > 0 && (
-        <section className="px-[18mm] pt-[9mm]">
+        <section className="px-[18mm] pt-[6mm]">
           <SectionLabel color={c.primary}>Monthly breakdown</SectionLabel>
           <div
             className="mt-3 overflow-hidden rounded-md border"
@@ -330,7 +330,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       )}
 
       {/* ═══════════════ WHAT HAPPENS NEXT (boilerplate, condensed) ═══════════════ */}
-      <section className="px-[18mm] pt-[9mm]">
+      <section className="px-[18mm] pt-[6mm]">
         <SectionLabel color={c.primary}>What happens next</SectionLabel>
         <div
           className="mt-3 rounded-md px-5 py-4"
@@ -351,7 +351,7 @@ export default function MtdSummary({ data }: { data: MtdSummaryData }) {
       </section>
 
       {/* ═══════════════ FOOTER ═══════════════ */}
-      <div className="mt-auto px-[18mm] pb-[14mm] pt-[10mm]">
+      <div className="mt-auto px-[18mm] pb-[9mm] pt-[6mm]">
         <div
           className="flex items-center justify-between rounded-md px-5 py-3"
           style={{ backgroundColor: c.primary }}
@@ -401,7 +401,7 @@ function StatTile({
 }) {
   if (solid) {
     return (
-      <div className="rounded-lg px-5 py-[18px]" style={{ backgroundColor: accent }}>
+      <div className="rounded-lg px-5 py-[13px]" style={{ backgroundColor: accent }}>
         <p
           className="text-[10px] font-bold uppercase tracking-[0.18em]"
           style={{ color: hexAlpha('#ffffff', 0.85) }}
@@ -417,7 +417,7 @@ function StatTile({
   return (
     <div className="overflow-hidden rounded-lg border" style={{ borderColor: hexAlpha(accent, 0.2) }}>
       <span className="block h-[3px] w-full" style={{ backgroundColor: accent }} />
-      <div className="px-5 py-[18px]">
+      <div className="px-5 py-[13px]">
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-light">{label}</p>
         <p className="mt-1.5 text-[22px] font-bold tracking-tight" style={{ color: '#0f172a', lineHeight: 1.05 }}>
           {value}
