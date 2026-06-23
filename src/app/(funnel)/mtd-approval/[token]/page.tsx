@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
+import type { MtdSummaryData } from '@/content/mtd-summary';
 import MtdApprovalClient from './MtdApprovalClient';
 
 export interface MtdApprovalDto {
@@ -20,6 +21,7 @@ export interface MtdApprovalDto {
   approvedAt?: string | null;
   alreadyResponded: boolean;
   isExpired: boolean;
+  summary?: MtdSummaryData | null;
 }
 
 export const dynamic = 'force-dynamic';

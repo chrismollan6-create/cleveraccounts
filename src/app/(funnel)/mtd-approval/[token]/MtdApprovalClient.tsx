@@ -6,10 +6,10 @@ import {
   ShieldCheck,
   MessageSquareWarning,
   Loader2,
-  ExternalLink,
-  FileText,
+  Download,
 } from 'lucide-react';
 import type { MtdApprovalDto } from './page';
+import SummaryView from './SummaryView';
 
 function fmtDate(iso: string | undefined): string {
   if (!iso) return '—';
@@ -113,29 +113,26 @@ export default function MtdApprovalClient({
             </p>
           </div>
 
-          {/* Summary PDF — the document being approved */}
+          {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
           <div className="px-6 sm:px-9 pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-text inline-flex items-center gap-2">
-                <FileText size={16} className="text-primary" />
-                Your quarterly summary
-              </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-text">Your quarterly summary</p>
               <a
                 href={pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                className="text-sm text-primary hover:underline inline-flex items-center gap-1.5"
               >
-                Open in new tab <ExternalLink size={13} />
+                <Download size={14} /> Download PDF
               </a>
             </div>
-            <div className="rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
-              <iframe
-                src={pdfUrl}
-                title="Quarterly MTD summary"
-                className="w-full h-[68vh] min-h-[480px]"
-              />
-            </div>
+            {dto.summary ? (
+              <SummaryView summary={dto.summary} />
+            ) : (
+              <p className="text-sm text-text-light rounded-lg border border-gray-200 px-4 py-6 text-center">
+                Your summary is being prepared — please download the PDF above, or check back shortly.
+              </p>
+            )}
           </div>
 
           <div className="px-6 sm:px-9 py-6">
