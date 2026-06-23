@@ -47,6 +47,16 @@ export default function SummaryView({ summary }: { summary: MtdSummaryData }) {
         />
       </div>
 
+      {/* Financial summary (fact-based narrative) */}
+      {summary.financialSummary && (
+        <div>
+          <SectionLabel>Summary</SectionLabel>
+          <p className="mt-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[13px] leading-relaxed text-text">
+            {summary.financialSummary}
+          </p>
+        </div>
+      )}
+
       {/* Things to look at */}
       {issues.length > 0 && (
         <div>
