@@ -245,7 +245,7 @@ export default function WorkwellPricing({
             <span className="inline-flex items-center gap-2 text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">
               <HeartHandshake size={16} /> Every plan
             </span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#29484f] mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               What&apos;s included as standard
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg">
@@ -283,7 +283,7 @@ export default function WorkwellPricing({
         <div className="absolute -bottom-20 -left-16 w-80 h-80 bg-[#8db74e]/15 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <span className="text-[#8db74e] font-bold text-sm uppercase tracking-wider">Complex needs?</span>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3 mb-5">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3 mb-5">
             Need a bespoke package?
           </h2>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed mb-9">
@@ -315,7 +315,7 @@ export default function WorkwellPricing({
         <div className="relative max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <span className="text-[#8db74e] font-bold text-sm uppercase tracking-wider">FAQ</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
               Pricing questions, answered
             </h2>
           </div>
@@ -330,7 +330,7 @@ export default function WorkwellPricing({
             <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="relative">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5 leading-tight">
                 Ready to get started?
               </h2>
               <p className="text-white/75 text-lg mb-9 max-w-2xl mx-auto">

@@ -165,7 +165,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <span className="text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">Built around you</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#29484f] mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               What kind of business are you?
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg max-w-2xl mx-auto">
@@ -285,7 +285,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
             <span className="inline-flex items-center gap-2 text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">
               <HeartHandshake size={16} /> Less admin, more you
             </span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#29484f] mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               Everything sorted, nothing to worry about
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg">
@@ -319,7 +319,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         <div className="relative max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <span className="text-[#e0e48e] font-bold text-sm uppercase tracking-wider">Getting started</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
               Up and running in minutes
             </h2>
           </div>
@@ -382,7 +382,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
               <span className="inline-flex items-center gap-2 text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">
                 <Sparkles size={16} /> Simple, honest pricing
               </span>
-              <h2 className="text-3xl md:text-5xl font-extrabold text-[#29484f] mt-3 mb-2">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3 mb-2">
                 One fixed monthly fee
               </h2>
               <p className="text-[#5a6f74] text-lg mb-6">
@@ -420,7 +420,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         <div className="relative max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <span className="text-[#e0e48e] font-bold text-sm uppercase tracking-wider">Good to know</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
               Questions, answered
             </h2>
           </div>
@@ -445,7 +445,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
             <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="relative">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5 leading-tight">
                 Ready to stop worrying about your accounts?
               </h2>
               <p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto">

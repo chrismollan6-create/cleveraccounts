@@ -16,6 +16,8 @@ import {
 import { useBrand } from "@/lib/useBrand";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
+import ContractorCalculator from "@/components/ui/ContractorCalculator";
+import WorkwellCisExtras from "./WorkwellCisExtras";
 
 /** Normalised service-page content (CMS doc merged over fallback, de-Clevered). */
 export type ServiceContent = {
@@ -103,7 +105,7 @@ function gradientLastWord(text: string) {
  * `servicePage` Sanity doc, falling back to de-Clevered legacy content so the
  * page looks right before it's authored in Studio.
  */
-export default function WorkwellServicePage({ content, heroImage, variant = 0 }: { content: ServiceContent; heroImage?: string; variant?: number }) {
+export default function WorkwellServicePage({ content, heroImage, variant = 0, slug }: { content: ServiceContent; heroImage?: string; variant?: number; slug?: string }) {
   const v = variant % 3;
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
@@ -374,9 +376,9 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0 }:
       <section className="relative overflow-hidden bg-gradient-to-b from-[#f3f8e8] via-white to-white py-20 md:py-24">
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[680px] h-72 bg-[#8db74e]/15 rounded-full blur-[120px] pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12 md:mb-16">
-            <span className="inline-block rounded-full bg-[#8db74e]/15 text-[#5f8a3e] font-extrabold text-xs uppercase tracking-[0.18em] px-3.5 py-1.5">DIY vs done-for-you</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#29484f] mt-5 tracking-tight">
+          <div className="text-center mb-12 md:mb-14">
+            <span className="text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">DIY vs done-for-you</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               Going it alone vs having us in your corner
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg max-w-2xl mx-auto">
@@ -483,6 +485,10 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0 }:
         </div>
       </section>
 
+      {/* ── Slug-specific sections ────────────────────────────────────── */}
+      {slug === "contractor-accountancy" && <ContractorCalculator />}
+      {slug === "cis-accounting" && <WorkwellCisExtras />}
+
       {/* ── What we do (service categories, optional) ─────────────────── */}
       {serviceCategories && serviceCategories.length > 0 && (
         <section className="bg-white py-20 md:py-24">
@@ -491,7 +497,9 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0 }:
               <span className="text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">{s.categoriesEyebrow || "What we handle"}</span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">{s.categoriesHeading || "Everything, sorted"}</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Column count follows the card count so the last row isn't
+                stranded: 6 cards → balanced 3×2, 4 cards → a single row of 4. */}
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${serviceCategories.length % 3 === 0 ? "lg:grid-cols-3 max-w-5xl mx-auto" : "lg:grid-cols-4"} gap-6`}>
               {serviceCategories.map((cat, i) => (
                 <div key={cat.title} className="rounded-3xl border border-[#e4ecd6] overflow-hidden">
                   <div className={`h-1.5 w-full bg-gradient-to-r ${["from-[#8db74e] to-[#e0e48e]", "from-[#8db74e] to-[#cde3a3]", "from-[#29484f] to-[#4a6a72]", "from-[#8db74e] to-[#8db74e]"][i % 4]}`} />

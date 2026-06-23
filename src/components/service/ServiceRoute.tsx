@@ -155,7 +155,7 @@ export async function WorkwellServiceRoute({ slug, breadcrumb }: { slug: string;
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumb} />
-      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} variant={variant} />
+      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} variant={variant} slug={slug} />
     </>
   );
 }
