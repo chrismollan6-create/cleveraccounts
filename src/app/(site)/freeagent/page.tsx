@@ -386,7 +386,7 @@ export default async function FreeAgentPage() {
 
             {/* Right: badges */}
             <div className="space-y-5">
-              <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 rounded-3xl p-8 text-center shadow-xl">
+              <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 [[data-brand=workwell]_&]:from-[#1c333a] [[data-brand=workwell]_&]:via-[#29484f] [[data-brand=workwell]_&]:to-[#29484f] rounded-3xl p-8 text-center shadow-xl">
                 <Award size={48} className="text-white mx-auto mb-4" />
                 <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-2">
                   {isClever ? "Official Status" : "FreeAgent"}
@@ -738,7 +738,7 @@ export default async function FreeAgentPage() {
       {/* ── FINAL CTA ────────────────────────────────────────── */}
       <section className="py-16 md:py-20">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 rounded-3xl p-10 md:p-14 text-center shadow-2xl">
+          <div className="bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 [[data-brand=workwell]_&]:from-[#1c333a] [[data-brand=workwell]_&]:via-[#29484f] [[data-brand=workwell]_&]:to-[#29484f] rounded-3xl p-10 md:p-14 text-center shadow-2xl">
             <Award size={40} className="text-white/80 mx-auto mb-4" />
             <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-3">
               {isClever ? "FreeAgent Co-Pilot Partner" : "FreeAgent Certified Accountants"}

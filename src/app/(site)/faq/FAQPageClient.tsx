@@ -276,7 +276,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16 md:py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 [[data-brand=workwell]_&]:from-[#1c333a] [[data-brand=workwell]_&]:via-[#29484f] [[data-brand=workwell]_&]:to-[#29484f] py-16 md:py-20">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />

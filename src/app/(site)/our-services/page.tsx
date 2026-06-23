@@ -331,10 +331,10 @@ export default async function ServicesPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16 md:py-20">
+      <section className={`relative overflow-hidden py-16 md:py-20 ${isWorkwell ? "bg-gradient-to-br from-[#1c333a] via-[#29484f] to-[#29484f]" : "bg-gradient-to-br from-secondary via-secondary/90 to-orange-600"}`}>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />
+          <div className={`absolute -top-16 right-0 w-72 h-72 rounded-full blur-3xl ${isWorkwell ? "bg-[#8db74e]/25" : "bg-white/5"}`} />
+          <div className={`absolute -bottom-20 -left-10 w-80 h-80 rounded-full blur-3xl ${isWorkwell ? "bg-[#e0e48e]/12" : "bg-white/5"}`} />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">{isWorkwell ? "Unsure Which to Pick?" : "Not Sure Which Package?"}</h2>
