@@ -87,7 +87,7 @@ export default async function FunnelLayout({
               <div className="hidden md:flex items-center gap-4 text-xs text-text-light">
                 <span className="inline-flex items-center gap-1.5">
                   <Lock size={13} className="text-primary" />
-                  Secure sign-up
+                  Secure &amp; encrypted
                 </span>
                 <span className="text-gray-300">·</span>
                 <span className="inline-flex items-center gap-1.5">

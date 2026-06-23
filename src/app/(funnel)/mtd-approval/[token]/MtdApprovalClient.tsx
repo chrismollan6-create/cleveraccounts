@@ -1,17 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, ShieldCheck, MessageSquareWarning, Loader2 } from 'lucide-react';
+import {
+  CheckCircle2,
+  ShieldCheck,
+  MessageSquareWarning,
+  Loader2,
+  ExternalLink,
+  FileText,
+} from 'lucide-react';
 import type { MtdApprovalDto } from './page';
-
-function fmtMoney(n: number | null | undefined): string {
-  if (n == null || Number.isNaN(n)) return '—';
-  return new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'GBP',
-    maximumFractionDigits: 2,
-  }).format(n);
-}
 
 function fmtDate(iso: string | undefined): string {
   if (!iso) return '—';
@@ -41,19 +39,17 @@ export default function MtdApprovalClient({
 
   const periodLabel = `${dto.quarter ? dto.quarter + ' ' : ''}${dto.taxYear ?? ''}`.trim();
   const heading = dto.businessName || dto.clientName || 'your business';
+  const pdfUrl = `/api/mtd-approval/pdf?t=${encodeURIComponent(token)}`;
 
   async function submit(kind: 'approve' | 'query') {
     setBusy(kind);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/mtd-approval/${kind}?t=${encodeURIComponent(token)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: kind === 'query' ? JSON.stringify({ notes }) : '{}',
-        },
-      );
+      const res = await fetch(`/api/mtd-approval/${kind}?t=${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: kind === 'query' ? JSON.stringify({ notes }) : '{}',
+      });
       const data = await res.json();
       if (!res.ok || data?.error) {
         throw new Error(data?.error || 'Something went wrong. Please try again.');
@@ -74,11 +70,11 @@ export default function MtdApprovalClient({
           <CheckCircle2 size={28} />
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thank you — figures approved</h1>
-        <p className="text-text-light leading-relaxed">
+        <p className="text-text-light leading-relaxed mb-4">
           We&rsquo;ve recorded your approval of the {periodLabel || 'quarterly'} figures for{' '}
-          <span className="font-semibold text-text">{heading}</span>. There&rsquo;s nothing else
-          you need to do — we&rsquo;ll submit your quarterly update to HMRC on your behalf.
+          <span className="font-semibold text-text">{heading}</span>.
         </p>
+        <WhatNext />
         <HelpFooter email={brandEmail} phone={brandPhone} />
       </Centered>
     );
@@ -92,8 +88,9 @@ export default function MtdApprovalClient({
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we&rsquo;ll take a look</h1>
         <p className="text-text-light leading-relaxed">
-          Your query has been sent to your accountant and we&rsquo;ll be in touch. You don&rsquo;t
-          need to do anything else for now.
+          Your query has been sent to your accountant, who will review what you&rsquo;ve flagged
+          before this quarter is submitted. We&rsquo;ll be in touch — there&rsquo;s nothing else you
+          need to do for now.
         </p>
         <HelpFooter email={brandEmail} phone={brandPhone} />
       </Centered>
@@ -102,9 +99,10 @@ export default function MtdApprovalClient({
 
   // ── Active approval view ────────────────────────────────────────
   return (
-    <main className="min-h-[70vh] px-4 py-10">
-      <div className="max-w-2xl mx-auto">
+    <main className="min-h-[70vh] px-4 py-8 sm:py-10">
+      <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+          {/* Context header */}
           <div className="px-6 sm:px-9 pt-8 pb-6 border-b border-gray-100">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
               Quarterly MTD Return{periodLabel ? ` · ${periodLabel}` : ''}
@@ -115,25 +113,44 @@ export default function MtdApprovalClient({
             </p>
           </div>
 
-          {/* Figures */}
-          <div className="grid grid-cols-3 gap-px bg-gray-100">
-            <Figure label="Total income" value={fmtMoney(dto.totalIncome)} />
-            <Figure label="Total expenses" value={fmtMoney(dto.totalExpenses)} />
-            <Figure label="Net profit" value={fmtMoney(dto.netProfit)} emphasise />
+          {/* Summary PDF — the document being approved */}
+          <div className="px-6 sm:px-9 pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-text inline-flex items-center gap-2">
+                <FileText size={16} className="text-primary" />
+                Your quarterly summary
+              </p>
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+              >
+                Open in new tab <ExternalLink size={13} />
+              </a>
+            </div>
+            <div className="rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+              <iframe
+                src={pdfUrl}
+                title="Quarterly MTD summary"
+                className="w-full h-[68vh] min-h-[480px]"
+              />
+            </div>
           </div>
 
           <div className="px-6 sm:px-9 py-6">
             <div className="flex items-start gap-3 rounded-lg bg-amber-50 border-l-4 border-amber-400 px-4 py-3 mb-6">
               <p className="text-[13px] leading-relaxed text-text">
                 <span className="font-bold">Indicative figures — please use as a guide.</span>{' '}
-                These totals can change if you add or amend transactions in FreeAgent after this
-                point, or if our year-end review surfaces adjustments.
+                These can change if you add or amend transactions in FreeAgent after this point, or
+                if our year-end review surfaces adjustments.
               </p>
             </div>
 
             <p className="text-sm text-text-light mb-5">
-              If these look right, approve them below and we&rsquo;ll submit your quarterly update
-              to HMRC. If something looks off, let us know and we&rsquo;ll review before submitting.
+              If your summary looks right, approve it below and we&rsquo;ll submit your quarterly
+              update to HMRC. If something looks off, let us know and we&rsquo;ll review before
+              submitting.
             </p>
 
             {error && (
@@ -193,6 +210,10 @@ export default function MtdApprovalClient({
                 </div>
               </div>
             )}
+
+            <div className="mt-6 pt-5 border-t border-gray-100">
+              <WhatNext />
+            </div>
           </div>
         </div>
 
@@ -207,12 +228,15 @@ export default function MtdApprovalClient({
   );
 }
 
-function Figure({ label, value, emphasise }: { label: string; value: string; emphasise?: boolean }) {
+function WhatNext() {
   return (
-    <div className={`bg-white px-3 sm:px-5 py-5 text-center ${emphasise ? '' : ''}`}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-light">{label}</p>
-      <p className={`mt-1.5 font-bold tracking-tight ${emphasise ? 'text-primary text-lg sm:text-xl' : 'text-text text-base sm:text-lg'}`}>
-        {value}
+    <div>
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-text-light mb-2">
+        What happens next
+      </p>
+      <p className="text-[13px] leading-relaxed text-text-light">
+        Once you approve, we submit your quarterly update to HMRC on your behalf and email you a
+        confirmation. There&rsquo;s nothing else you need to do.
       </p>
     </div>
   );
