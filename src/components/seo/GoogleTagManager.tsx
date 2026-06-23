@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "";
 // When sGTM is live, set NEXT_PUBLIC_SGTM_HOST=metrics.cleveraccounts.com in Netlify env vars.
 // Leave unset to fall back to Google's servers (current behaviour).
@@ -98,12 +96,17 @@ export function GoogleTagManagerHead({ gtmId }: { gtmId?: string } = {}) {
           Sets default consent to denied (UK/EEA legal requirement).
           Google models conversions from unconsented users, recovering 15-30%
           of otherwise invisible conversions. Updated when user accepts/declines
-          via the cookie banner. */}
-      <Script
+          via the cookie banner.
+
+          Rendered as a native inline <script> rather than next/script
+          `beforeInteractive`: that strategy is only valid in the ROOT layout,
+          and here the component lives in the (site) route-group layout body.
+          A native inline script lands in the SSR HTML and runs synchronously,
+          ahead of the afterInteractive GTM script below. */}
+      <script
         id="consent-mode-init"
-        strategy="beforeInteractive"
-      >
-        {`
+        dangerouslySetInnerHTML={{
+          __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){window.dataLayer.push(arguments);}
             var existingConsent = '';
@@ -124,22 +127,25 @@ export function GoogleTagManagerHead({ gtmId }: { gtmId?: string } = {}) {
                 'wait_for_update': 2000,
               });
             }
-          `}
-      </Script>
-      {/* ── Google Tag Manager ──────────────────────────────────────────────── */}
+          `,
+        }}
+      />
+      {/* ── Google Tag Manager — Google's canonical inline snippet. The async
+          gtm.js it injects is what actually defers the load; the bootstrap
+          itself is a native inline script (runs after consent-mode above). ── */}
       {id && (
-        <Script
+        <script
           id="gtm-head"
-          strategy="afterInteractive"
-        >
-          {`
+          dangerouslySetInnerHTML={{
+            __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
               new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               'https://${SGTM_HOST}/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
               })(window,document,'script','dataLayer','${id}');
-            `}
-        </Script>
+            `,
+          }}
+        />
       )}
     </>
   );

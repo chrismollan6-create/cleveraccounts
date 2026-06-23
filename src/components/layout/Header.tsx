@@ -27,6 +27,18 @@ export default function Header({
 } = {}) {
   const brand = useBrand();
   const freephone = freephoneProp ?? brand.freephone;
+
+  // Hide the Integrations entry wherever the nav comes from (CMS or the
+  // NAV_LINKS fallback), at top level and inside the Services mega-menu.
+  const links: NavLink[] = navLinks
+    .filter((l) => l.href !== "/integrations")
+    .map((l) => ({
+      ...l,
+      sections: l.sections
+        ?.map((s) => ({ ...s, items: s.items.filter((it) => it.href !== "/integrations") }))
+        .filter((s) => s.items.length > 0),
+      children: l.children?.filter((c) => c.href !== "/integrations"),
+    }));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -73,7 +85,7 @@ export default function Header({
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {links.map((link) => {
               const hasSections = !!link.sections;
               const hasChildren = !!link.children;
               const isOpen = openDropdown === link.label;
@@ -192,7 +204,7 @@ export default function Header({
       {mobileOpen && (
         <div className="fixed inset-0 z-40 bg-white lg:hidden overflow-y-auto" style={{ top: "72px" }}>
           <nav className="p-4 space-y-1">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <div key={link.label}>
                 {link.sections ? (
                   /* Accordion toggle for items with sections */

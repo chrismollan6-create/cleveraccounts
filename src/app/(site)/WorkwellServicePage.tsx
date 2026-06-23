@@ -18,6 +18,11 @@ import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import ContractorCalculator from "@/components/ui/ContractorCalculator";
 import WorkwellCisExtras from "./WorkwellCisExtras";
+import WorkwellIr35Extras from "./WorkwellIr35Extras";
+import WorkwellSaExtras from "./WorkwellSaExtras";
+import WorkwellVatExtras from "./WorkwellVatExtras";
+import WorkwellMtdExtras from "./WorkwellMtdExtras";
+import WorkwellSwitchExtras from "./WorkwellSwitchExtras";
 
 /** Normalised service-page content (CMS doc merged over fallback, de-Clevered). */
 export type ServiceContent = {
@@ -85,6 +90,17 @@ const COMPARE = [
     us: "A named accountant keeps you compliant and filed on time, every time.",
   },
 ];
+
+/**
+ * Lowercase a title for mid-sentence use ("…get sole trader accountants sorted")
+ * but keep acronyms intact (IR35, CIS, VAT, MTD) so they don't read as "ir35".
+ */
+function softLower(text: string): string {
+  return text
+    .split(" ")
+    .map((w) => (/^[A-Z0-9&/]{2,}$/.test(w) ? w : w.toLowerCase()))
+    .join(" ");
+}
 
 /** Final word of the headline in the Workwell lime→cyan→teal gradient. */
 function gradientLastWord(text: string) {
@@ -255,8 +271,10 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0, s
         </section>
       )}
 
-      {/* ── Key things to know (grounded; layout varies per page) ─────── */}
-      {guide && guide.length > 0 && (() => {
+      {/* ── Key things to know (grounded; layout varies per page) ───────
+          Suppressed where a bespoke slug section covers the same ground
+          more visually (IR35 tests, SA who/deadlines/mistakes). */}
+      {guide && guide.length > 0 && !["ir35", "self-assessment", "vat-returns", "making-tax-digital", "accountant-switch"].includes(slug ?? "") && (() => {
         const gd = [
           { eyebrow: "The detail", heading: `${title}: what you need to know` },
           { eyebrow: "The essentials", heading: `Key things to know about ${title.toLowerCase()}` },
@@ -343,6 +361,16 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0, s
           </section>
         );
       })()}
+
+      {/* ── Page-specific content — lead with the substance, before the
+          generic "why us" / DIY sales sections below. ───────────────────── */}
+      {slug === "ir35" && <WorkwellIr35Extras />}
+      {(slug === "contractor-accountancy" || slug === "ir35") && <ContractorCalculator />}
+      {slug === "cis-accounting" && <WorkwellCisExtras />}
+      {slug === "self-assessment" && <WorkwellSaExtras />}
+      {slug === "vat-returns" && <WorkwellVatExtras />}
+      {slug === "making-tax-digital" && <WorkwellMtdExtras />}
+      {slug === "accountant-switch" && <WorkwellSwitchExtras />}
 
       {/* ── Benefits ──────────────────────────────────────────────────── */}
       {benefits && benefits.length > 0 && (
@@ -485,10 +513,6 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0, s
         </div>
       </section>
 
-      {/* ── Slug-specific sections ────────────────────────────────────── */}
-      {slug === "contractor-accountancy" && <ContractorCalculator />}
-      {slug === "cis-accounting" && <WorkwellCisExtras />}
-
       {/* ── What we do (service categories, optional) ─────────────────── */}
       {serviceCategories && serviceCategories.length > 0 && (
         <section className="bg-white py-20 md:py-24">
@@ -563,7 +587,7 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0, s
             <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5">
-                {s.ctaHeading || `Ready to get ${title.toLowerCase()} sorted?`}
+                {s.ctaHeading || `Ready to get ${softLower(title)} sorted?`}
               </h2>
               <p className="text-white/75 text-lg mb-9 max-w-2xl mx-auto">
                 {s.ctaBody ||

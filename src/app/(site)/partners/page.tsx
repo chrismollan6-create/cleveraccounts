@@ -210,7 +210,13 @@ export default async function PartnersPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16">
+      <section className={`relative overflow-hidden py-16 ${brand.id === "workwell" ? "bg-gradient-to-br from-[#1c333a] via-[#29484f] to-[#29484f]" : "bg-gradient-to-br from-secondary via-secondary/90 to-orange-600"}`}>
+        {brand.id === "workwell" && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-16 right-0 w-72 h-72 rounded-full blur-3xl bg-[#8db74e]/25" />
+            <div className="absolute -bottom-20 -left-10 w-80 h-80 rounded-full blur-3xl bg-[#e0e48e]/12" />
+          </div>
+        )}
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-black text-white mb-4">Already a {brand.name} Client?</h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">

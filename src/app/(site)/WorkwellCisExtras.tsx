@@ -270,12 +270,12 @@ export default function WorkwellCisExtras() {
                   <Sparkles size={15} /> The need-to-know
                 </p>
                 <p className="text-white text-xl md:text-2xl font-extrabold leading-snug max-w-2xl">
-                  FreeAgent is included free — it&apos;s fully MTD-ready, tracks your CIS deductions
-                  and files your quarterly updates automatically.
+                  FreeAgent is included free and fully MTD-ready — tracking your CIS deductions and
+                  keeping your records set up for quarterly digital reporting.
                 </p>
                 <p className="text-white/70 mt-3 text-sm md:text-base">
-                  Real-time deduction tracking means faster, more accurate year-end reclaims — and a
-                  stronger case if you apply for gross payment status.
+                  Real-time deduction tracking means faster, more accurate year-end reclaims. MTD
+                  quarterly filing is available as an add-on — we&apos;ll quote it clearly.
                 </p>
               </div>
               <Link

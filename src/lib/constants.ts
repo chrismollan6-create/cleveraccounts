@@ -324,7 +324,6 @@ export const NAV_LINKS = [
           { label: "VAT Returns", href: "/vat-returns" },
           { label: "Making Tax Digital", href: "/making-tax-digital" },
           { label: "Take Home Calculator", href: "/take-home-calculator" },
-          { label: "Integrations", href: "/integrations" },
           { label: "Switch Accountant", href: "/our-services/accountant-switch" },
           { label: "Partner Services", href: "/partners" },
         ],
