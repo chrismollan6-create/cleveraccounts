@@ -1,5 +1,45 @@
 import type { MtdSummaryData } from '@/content/mtd-summary';
 
+type NarrativeBlock = { type: 'p'; text: string } | { type: 'ul'; items: string[] };
+
+/** Parse a plain-text summary (newlines + "- " bullets) into paragraphs and lists. */
+export function parseNarrative(text: string): NarrativeBlock[] {
+  const blocks: NarrativeBlock[] = [];
+  let para: string[] = [];
+  let list: string[] = [];
+  const flushPara = () => {
+    if (para.length) {
+      blocks.push({ type: 'p', text: para.join(' ') });
+      para = [];
+    }
+  };
+  const flushList = () => {
+    if (list.length) {
+      blocks.push({ type: 'ul', items: list });
+      list = [];
+    }
+  };
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line) {
+      flushPara();
+      flushList();
+      continue;
+    }
+    const m = line.match(/^[-•*]\s+(.*)/);
+    if (m) {
+      flushPara();
+      list.push(m[1]);
+    } else {
+      flushList();
+      para.push(line);
+    }
+  }
+  flushPara();
+  flushList();
+  return blocks;
+}
+
 function fmtMoney(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';
   return new Intl.NumberFormat('en-GB', {
@@ -51,9 +91,19 @@ export default function SummaryView({ summary }: { summary: MtdSummaryData }) {
       {summary.financialSummary && (
         <div>
           <SectionLabel>Summary</SectionLabel>
-          <p className="mt-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[13px] leading-relaxed text-text">
-            {summary.financialSummary}
-          </p>
+          <div className="mt-2 space-y-2.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[13px] leading-relaxed text-text">
+            {parseNarrative(summary.financialSummary).map((b, i) =>
+              b.type === 'p' ? (
+                <p key={i}>{b.text}</p>
+              ) : (
+                <ul key={i} className="list-disc space-y-1 pl-5">
+                  {b.items.map((it, j) => (
+                    <li key={j}>{it}</li>
+                  ))}
+                </ul>
+              ),
+            )}
+          </div>
         </div>
       )}
 
