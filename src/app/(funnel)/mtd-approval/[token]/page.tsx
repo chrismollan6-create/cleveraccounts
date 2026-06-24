@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
-import type { MtdSummaryData } from '@/content/mtd-summary';
+import type { MtdSummaryData } from './summaryTypes';
 import MtdApprovalClient from './MtdApprovalClient';
 
 export interface MtdApprovalDto {

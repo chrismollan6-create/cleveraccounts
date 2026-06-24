@@ -1,4 +1,4 @@
-import type { MtdSummaryData } from '@/content/mtd-summary';
+import type { MtdSummaryData } from './summaryTypes';
 
 type NarrativeBlock = { type: 'p'; text: string } | { type: 'ul'; items: string[] };
 
