@@ -87,22 +87,25 @@ export default function SummaryView({ summary }: { summary: MtdSummaryData }) {
         />
       </div>
 
-      {/* Financial summary (fact-based narrative) */}
+      {/* Financial summary (fact-based narrative) — accented to match the PDF */}
       {summary.financialSummary && (
         <div>
           <SectionLabel>Summary</SectionLabel>
-          <div className="mt-2 space-y-2.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[13px] leading-relaxed text-text">
-            {parseNarrative(summary.financialSummary).map((b, i) =>
-              b.type === 'p' ? (
-                <p key={i}>{b.text}</p>
-              ) : (
-                <ul key={i} className="list-disc space-y-1 pl-5">
-                  {b.items.map((it, j) => (
-                    <li key={j}>{it}</li>
-                  ))}
-                </ul>
-              ),
-            )}
+          <div className="mt-2 flex overflow-hidden rounded-lg border border-gray-200">
+            <span className="w-1.5 shrink-0 bg-primary" />
+            <div className="flex-1 space-y-2.5 bg-primary/[0.03] px-4 py-3.5 text-[13px] leading-relaxed text-text">
+              {parseNarrative(summary.financialSummary).map((b, i) =>
+                b.type === 'p' ? (
+                  <p key={i}>{b.text}</p>
+                ) : (
+                  <ul key={i} className="list-disc space-y-1 pl-5">
+                    {b.items.map((it, j) => (
+                      <li key={j}>{it}</li>
+                    ))}
+                  </ul>
+                ),
+              )}
+            </div>
           </div>
         </div>
       )}

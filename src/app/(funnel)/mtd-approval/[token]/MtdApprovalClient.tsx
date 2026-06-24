@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   CheckCircle2,
   ShieldCheck,
-  MessageSquareWarning,
+  MessageCircleQuestion,
   Loader2,
   Download,
 } from 'lucide-react';
@@ -83,14 +83,13 @@ export default function MtdApprovalClient({
   if (outcome === 'queried') {
     return (
       <Centered>
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 text-amber-600 bg-amber-50">
-          <MessageSquareWarning size={28} />
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 text-primary bg-primary/10">
+          <MessageCircleQuestion size={28} />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we&rsquo;ll take a look</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we&rsquo;ve got your question</h1>
         <p className="text-text-light leading-relaxed">
-          Your query has been sent to your accountant, who will review what you&rsquo;ve flagged
-          before this quarter is submitted. We&rsquo;ll be in touch — there&rsquo;s nothing else you
-          need to do for now.
+          We&rsquo;ve logged it and your accountant will take a look and come back to you before this
+          quarter is submitted. There&rsquo;s nothing else you need to do for now.
         </p>
         <HelpFooter email={brandEmail} phone={brandPhone} />
       </Centered>
@@ -146,8 +145,8 @@ export default function MtdApprovalClient({
 
             <p className="text-sm text-text-light mb-5">
               If your summary looks right, approve it below and we&rsquo;ll submit your quarterly
-              update to HMRC. If something looks off, let us know and we&rsquo;ll review before
-              submitting.
+              update to HMRC. If you have a question about anything, just ask — we&rsquo;ll come back
+              to you before submitting.
             </p>
 
             {error && (
@@ -171,13 +170,13 @@ export default function MtdApprovalClient({
                 disabled={busy !== null}
                 className="w-full mt-3 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
               >
-                <MessageSquareWarning size={17} className="text-amber-500" />
-                Something looks wrong
+                <MessageCircleQuestion size={17} className="text-primary" />
+                Ask a question
               </button>
             ) : (
               <div className="mt-4 rounded-lg border border-gray-200 p-4">
                 <label htmlFor="mtd-query-notes" className="block text-sm font-semibold text-text mb-2">
-                  What looks wrong? (optional)
+                  Your question
                 </label>
                 <textarea
                   id="mtd-query-notes"
@@ -185,17 +184,17 @@ export default function MtdApprovalClient({
                   onChange={(e) => setNotes(e.target.value)}
                   rows={4}
                   maxLength={5000}
-                  placeholder="e.g. my income looks too low, or an expense is missing…"
+                  placeholder="e.g. why are my subcontractor costs so high, or is an invoice missing?"
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => submit('query')}
                     disabled={busy !== null}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
                   >
                     {busy === 'query' ? <Loader2 size={16} className="animate-spin" /> : null}
-                    {busy === 'query' ? 'Sending…' : 'Send query'}
+                    {busy === 'query' ? 'Sending…' : 'Send question'}
                   </button>
                   <button
                     onClick={() => setShowQuery(false)}
