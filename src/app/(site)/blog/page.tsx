@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock, Tag } from "lucide-react";
 import { getBlogPosts } from "@/lib/sanity";
+import { getBrand } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Accounting & Tax Blog — Expert Insights | Clever Accounts",
@@ -102,8 +103,10 @@ function normaliseCategory(raw: string | undefined): string {
 }
 
 export default async function BlogPage() {
-  // Merge Sanity posts (new, at front) with hardcoded posts (fallback)
-  const sanitized = await getBlogPosts().catch(() => []);
+  const brand = await getBrand();
+
+  // Merge Sanity posts (new, at front) with hardcoded posts (fallback).
+  const sanitized = await getBlogPosts(brand.id).catch(() => []);
   const sanityPosts = sanitized.map((p) => ({
     slug: p.slug.current,
     title: p.title,
@@ -117,13 +120,29 @@ export default async function BlogPage() {
     featuredImageUrl: p.featuredImage?.asset?.url ?? null,
   }));
 
+  // The hardcoded fallback posts are Clever-branded — only show them on Clever.
+  const fallback = brand.id === "clever" ? posts : [];
+
   const merged = [
     ...sanityPosts,
-    ...posts.filter((p) => !sanityPosts.find((s) => s.slug === p.slug)),
+    ...fallback.filter((p) => !sanityPosts.find((s) => s.slug === p.slug)),
   ];
 
   const allCategories = ["All", ...Array.from(new Set(merged.map((p) => p.category)))];
   const [featured, ...rest] = merged;
+
+  // No posts for this brand yet — render the hero + an empty state rather than
+  // crashing on an undefined `featured`.
+  if (!featured) {
+    return (
+      <section className="bg-white py-24 text-center">
+        <div className="max-w-2xl mx-auto px-4">
+          <h1 className="text-3xl md:text-4xl font-black text-dark mb-4">Accounting &amp; Tax Blog</h1>
+          <p className="text-text-light">No articles published yet — check back soon.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>

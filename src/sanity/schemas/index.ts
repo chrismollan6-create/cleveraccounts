@@ -27,6 +27,7 @@ import blockCta from "./blocks/blockCta";
 
 import {
   pageSchemas,
+  blogPageSchemas,
   breadcrumbSchema,
   faqPageSchema,
   articleSchema,
@@ -75,6 +76,7 @@ export const schemaTypes = [
   blockCta,
   // structured-data objects
   pageSchemas,
+  blogPageSchemas,
   breadcrumbSchema,
   faqPageSchema,
   articleSchema,

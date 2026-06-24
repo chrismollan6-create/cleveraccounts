@@ -232,3 +232,25 @@ export const pageSchemas = defineType({
     defineArrayMember({ type: "rawJsonLdSchema" }),
   ],
 });
+
+/**
+ * Blog-post variant. Identical to `pageSchemas` but WITHOUT `articleSchema`:
+ * blog posts already auto-emit their own Article/BlogPosting JSON-LD, so
+ * offering it here only led editors to create a second, conflicting Article
+ * entity on the same URL (which broke rich-result detection). The blog post
+ * page also defensively strips any stored articleSchema items at render time.
+ */
+export const blogPageSchemas = defineType({
+  name: "blogPageSchemas",
+  title: "Structured data (schema.org)",
+  type: "array",
+  of: [
+    defineArrayMember({ type: "breadcrumbSchema" }),
+    defineArrayMember({ type: "faqPageSchema" }),
+    defineArrayMember({ type: "serviceSchema" }),
+    defineArrayMember({ type: "reviewSchema" }),
+    defineArrayMember({ type: "howToSchema" }),
+    defineArrayMember({ type: "localBusinessSchema" }),
+    defineArrayMember({ type: "rawJsonLdSchema" }),
+  ],
+});

@@ -173,7 +173,8 @@ export const revalidate = 60;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
 
-  const sanityPost = await getBlogPost(slug).catch(() => null);
+  const brand = await getBrand();
+  const sanityPost = await getBlogPost(slug, brand.id).catch(() => null);
   if (sanityPost) {
     const description = sanityPost.metaDescription || sanityPost.excerpt || "";
     return {
@@ -182,7 +183,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const post = HARDCODED[slug];
+  const post = brand.id === "clever" ? HARDCODED[slug] : undefined;
   if (!post) return { title: "Blog Post" };
   return { title: post.title, description: post.content[0] };
 }
@@ -190,8 +191,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
+  const brand = await getBrand();
+
   // Try Sanity first
-  const sanityPost = await getBlogPost(slug).catch(() => null);
+  const sanityPost = await getBlogPost(slug, brand.id).catch(() => null);
   if (sanityPost) {
     const publishedIso = sanityPost.publishedAt
       ? new Date(sanityPost.publishedAt).toISOString()
@@ -218,7 +221,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           ]}
         />
         <SchemaRenderer
-          schemas={sanityPost.pageSchemas as PageSchemaItem[] | undefined}
+          // Drop any stored Article/BlogPosting items — the page already emits
+          // its own BlogPosting above, so rendering these would create a second,
+          // conflicting Article entity on the same URL (breaks rich results).
+          schemas={(sanityPost.pageSchemas as PageSchemaItem[] | undefined)?.filter(
+            (s) => s._type !== "articleSchema"
+          )}
           fallbackUrl={`/blog/${slug}`}
         />
         <section className="gradient-hero-subtle py-16 md:py-20">
@@ -264,8 +272,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     );
   }
 
-  // Fallback to hardcoded
-  const post = HARDCODED[slug];
+  // Fallback to hardcoded. These are Clever-branded — don't serve them on
+  // other brands (they'd otherwise leak Clever copy onto e.g. Workwell).
+  const post = brand.id === "clever" ? HARDCODED[slug] : undefined;
   if (!post) {
     return (
       <section className="bg-white py-24 text-center">
@@ -277,7 +286,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const publishedIso = new Date(post.date).toISOString();
 
-  const brand = await getBrand();
   let freephone = brand.freephone;
   let email = brand.email;
   try {

@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { Newspaper } from "lucide-react";
+import { brandField } from "./objects/brandField";
 
 /**
  * Blog post / article. Organised into tabs (Content / SEO / Settings) so the
@@ -36,6 +37,7 @@ export default defineType({
       options: { source: "title", maxLength: 96 },
       validation: (Rule) => Rule.required(),
     }),
+    { ...brandField(), group: "settings" },
     defineField({
       name: "excerpt",
       title: "Short summary",
@@ -147,10 +149,10 @@ export default defineType({
     defineField({
       name: "pageSchemas",
       title: "Structured data (advanced)",
-      type: "pageSchemas",
+      type: "blogPageSchemas",
       group: "seo",
       description:
-        "Add one or more JSON-LD schemas to this page. Inline FAQ/HowTo/Review blocks in the body already emit their own schema — only add page-level schemas here.",
+        "Add extra JSON-LD schemas to this page. The page already emits its own Article/BlogPosting and Breadcrumb schema automatically, and inline FAQ/HowTo/Review blocks in the body emit their own — do NOT re-add those here or you'll create duplicate, conflicting markup. Only use this for additional page-level schemas (e.g. Service, Local Business, custom JSON-LD).",
     }),
     defineField({
       name: "metaTitle",
