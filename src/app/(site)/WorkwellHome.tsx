@@ -121,37 +121,50 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
     <>
       <WorkwellHero home={home} trustBadge={trustBadge} />
 
-      {/* ── Refer a friend — inset rounded card on white so it flows ──── */}
-      <section className="bg-white pt-5 pb-0 md:pt-7">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#8db74e] via-[#5f8a3e] to-[#29484f] shadow-xl shadow-[#29484f]/15">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 right-1/4 w-48 h-48 bg-[#8db74e]/25 rounded-full blur-3xl pointer-events-none" />
+      {/* ── Refer a friend — compact band with the real two-tier value
+          (£75 / £250) kept concrete but slim, so it reads as a perk, not
+          a hero-sized section. ─────────────────────────────────────── */}
+      <section className="bg-white pt-6 pb-2 md:pt-8">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#8db74e] via-[#5f8a3e] to-[#29484f] shadow-lg shadow-[#29484f]/15">
+            <div className="absolute -bottom-12 right-1/4 w-44 h-44 bg-[#e0e48e]/15 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative px-6 py-6 md:px-8 md:py-7">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-shrink-0">
-                    <div className="absolute inset-0 bg-[#e0e48e]/40 rounded-2xl blur-md" />
-                    <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-lg">
-                      <Gift size={24} className="text-white" />
-                    </div>
-                  </div>
-                  <div className="text-center sm:text-left">
-                    <p className="text-white font-black text-lg leading-tight tracking-tight">
-                      Refer a friend — earn up to{" "}
-                      <span className="text-[#eef3d6] underline decoration-[#e0e48e]/70 decoration-2 underline-offset-2">£250</span>
+            <div className="relative px-5 py-4 md:px-7 md:py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                {/* Pitch */}
+                <div className="flex items-center gap-3 text-center sm:text-left">
+                  <span className="hidden sm:flex w-10 h-10 rounded-xl bg-white/15 border border-white/25 items-center justify-center shrink-0">
+                    <Gift size={18} className="text-white" />
+                  </span>
+                  <div>
+                    <p className="text-white font-bold text-base leading-tight">
+                      Refer a friend, you both win
                     </p>
-                    <p className="text-white/85 text-sm mt-0.5">
-                      Know someone who needs an accountant? You both benefit.
+                    <p className="text-white/80 text-xs mt-0.5">
+                      Earn a voucher for every business owner who joins.
                     </p>
                   </div>
                 </div>
+
+                {/* Concrete reward tiers — inline pills */}
+                <div className="flex items-center gap-2.5">
+                  <span className="inline-flex items-baseline gap-1 bg-white/12 border border-white/20 rounded-lg px-3 py-1.5">
+                    <span className="text-white font-black text-base">£75</span>
+                    <span className="text-white/75 text-[11px] font-semibold">sole trader</span>
+                  </span>
+                  <span className="inline-flex items-baseline gap-1 bg-white/18 border border-[#e0e48e]/40 rounded-lg px-3 py-1.5">
+                    <span className="text-[#f2f6da] font-black text-base">£250</span>
+                    <span className="text-white/80 text-[11px] font-semibold">limited co.</span>
+                  </span>
+                </div>
+
+                {/* CTA */}
                 <Link
                   href="/refer-a-friend"
-                  className="group inline-flex items-center gap-2 bg-white text-[#29484f] font-bold px-6 py-3 rounded-xl text-sm shadow-lg hover:shadow-xl hover:bg-[#eef4e2] transition-all whitespace-nowrap"
+                  className="group inline-flex items-center gap-1.5 bg-white text-[#29484f] font-bold px-5 py-2.5 rounded-lg text-sm shadow-md hover:bg-[#eef4e2] transition-all whitespace-nowrap shrink-0"
                 >
-                  Find out more
+                  See how it works
                   <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>

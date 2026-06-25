@@ -51,20 +51,23 @@ export default function WorkwellHero({ home, trustBadge }: WorkwellHeroProps) {
   ];
 
   const audience: { label: string; tint: string }[] = [
-    { label: "Sole Traders", tint: "bg-[#8db74e]/25 text-[#557d2e]" },
-    { label: "Limited Companies", tint: "bg-[#8db74e]/30 text-[#2f5560]" },
-    { label: "Contractors", tint: "bg-[#29484f]/15 text-[#29484f]" },
+    { label: "Sole Traders", tint: "bg-[#29484f]/8 text-[#29484f]" },
+    { label: "Limited Companies", tint: "bg-[#29484f]/8 text-[#29484f]" },
+    { label: "Contractors", tint: "bg-[#29484f]/8 text-[#29484f]" },
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#eef4e2] via-[#f1f6e6] to-[#e4eed3]">
-      {/* ── Vibrant mesh background ──────────────────────────────────── */}
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#fbfaf3] via-[#f5f8ee] to-[#eef4e3]">
+      {/* ── Mesh background — warm cream base with the green pooled top-right
+          as a focal glow behind the offer card, so the green reads as energy
+          around the visual rather than a flat wash. Left (the headline) stays
+          warm and light, letting the green CTA be the loudest green here. ── */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#8db74e]/45 blur-[110px]" />
-        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#8db74e]/45 blur-[110px]" />
-        <div className="absolute -bottom-44 left-1/4 w-[620px] h-[420px] rounded-full bg-[#29484f]/22 blur-[120px]" />
-        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#4a6a72]/20 blur-[120px]" />
-        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#e0e48e]/45 blur-[90px]" />
+        <div className="absolute -top-32 -right-20 w-[640px] h-[640px] rounded-full bg-[#8db74e]/35 blur-[110px]" />
+        <div className="absolute top-8 right-1/3 w-[480px] h-[480px] rounded-full bg-[#8db74e]/25 blur-[110px]" />
+        <div className="absolute -bottom-44 left-1/4 w-[620px] h-[420px] rounded-full bg-[#29484f]/15 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-28 w-[560px] h-[560px] rounded-full bg-[#4a6a72]/15 blur-[120px]" />
+        <div className="absolute top-1/3 left-[8%] w-72 h-72 rounded-full bg-[#e0e48e]/30 blur-[90px]" />
         <div className="absolute top-1/4 left-1/4 w-3 h-3 rounded-full bg-[#8db74e] animate-float opacity-70" />
         <div className="absolute top-2/3 right-1/4 w-2.5 h-2.5 rounded-full bg-[#8db74e] animate-float-delayed opacity-80" />
         <div className="absolute top-1/2 left-2/3 w-2 h-2 rounded-full bg-[#29484f] animate-float opacity-40" />
