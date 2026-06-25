@@ -8,9 +8,11 @@ import {
   Clock,
   Coins,
 } from "lucide-react";
+import { redirect } from "next/navigation";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { getApprovalsForCurrentUser } from "@/lib/portal/approvals";
+import { isSurfaceHidden } from "@/lib/portal/features";
 import AccessGate from "@/components/portal/AccessGate";
 import ApprovalActions from "@/components/portal/ApprovalActions";
 import type { PortalApproval } from "@/lib/portal/types";
@@ -23,6 +25,8 @@ export const dynamic = "force-dynamic";
  * items drop into a quiet history. Cache-backed + Aurora style.
  */
 export default async function ApprovalsPage() {
+  if (isSurfaceHidden("/portal/approvals")) redirect("/portal/dashboard");
+
   const [brand, portalUser, result] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),

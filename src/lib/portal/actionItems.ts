@@ -48,7 +48,7 @@ export async function getActionItemsForCurrentUser(): Promise<PortalActionItem[]
   // (a VAT return shows ONCE, as the approval, not also as a deadline).
   const approvedKinds = new Set<string>();
 
-  if (appr.ok) {
+  if (appr.ok && !isSurfaceHidden("/portal/approvals")) {
     for (const a of appr.data) {
       if (a.status !== "pending") continue;
       approvedKinds.add(a.kind);

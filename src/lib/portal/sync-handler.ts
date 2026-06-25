@@ -38,6 +38,8 @@ const ALLOWED_OBJECTS = new Set([
   "Engagement_Letter__c",
   "New_Client_Workflow__c",
   "User",
+  "CH_Company__c",
+  "CH_Company_Officer__c",
 ]);
 
 /**
@@ -162,6 +164,23 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
             raw: s,
           },
         });
+      // Derive VAT + Corporation Tax deadlines from the account's due dates.
+      await upsertDeadline(db, {
+        sfId: `${s.sfId as string}:vat`,
+        accountSfId: s.sfId as string,
+        kind: "vat",
+        title: "VAT return",
+        dueDate: parseDate(s.vatDue),
+        blockedOn: "us",
+      });
+      await upsertDeadline(db, {
+        sfId: `${s.sfId as string}:ct`,
+        accountSfId: s.sfId as string,
+        kind: "corporation_tax",
+        title: "Corporation Tax payment",
+        dueDate: parseDate(s.corpTaxDue),
+        blockedOn: "us",
+      });
       return;
     }
     case "Contact": {
@@ -365,6 +384,98 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
         });
       return;
     }
+    case "CH_Company__c": {
+      const vals = {
+        sfId: s.sfId as string,
+        accountSfId: s.accountSfId as string,
+        companyNumber: (s.companyNumber as string) ?? null,
+        companyName: (s.companyName as string) ?? null,
+        status: (s.status as string) ?? null,
+        statusDetail: (s.statusDetail as string) ?? null,
+        companyType: (s.companyType as string) ?? null,
+        dateOfCreation: parseDate(s.dateOfCreation),
+        dateOfCessation: parseDate(s.dateOfCessation),
+        regPremises: (s.regPremises as string) ?? null,
+        regLine1: (s.regLine1 as string) ?? null,
+        regLine2: (s.regLine2 as string) ?? null,
+        regLocality: (s.regLocality as string) ?? null,
+        regRegion: (s.regRegion as string) ?? null,
+        regPostalCode: (s.regPostalCode as string) ?? null,
+        regCountry: (s.regCountry as string) ?? null,
+        sicCodes: (s.sicCodes as string) ?? null,
+        accountsNextDue: parseDate(s.accountsNextDue),
+        accountsLastMadeUp: parseDate(s.accountsLastMadeUp),
+        accountsNextPeriodEnd: parseDate(s.accountsNextPeriodEnd),
+        accountsOverdue: (s.accountsOverdue as boolean) ?? false,
+        csNextDue: parseDate(s.csNextDue),
+        csLastMadeUp: parseDate(s.csLastMadeUp),
+        csOverdue: (s.csOverdue as boolean) ?? false,
+        lastSynced: parseTimestamp(s.lastSynced),
+        sfUpdatedAt: parseTimestamp(s.sfUpdatedAt),
+        raw: s,
+      };
+      await db
+        .insert(schema.companies)
+        .values(vals)
+        .onConflictDoUpdate({
+          target: schema.companies.sfId,
+          set: { ...vals, updatedAt: new Date() },
+        });
+      // Derive Companies House filing deadlines (annual accounts + CS).
+      await upsertDeadline(db, {
+        sfId: `${vals.sfId}:accounts`,
+        accountSfId: vals.accountSfId,
+        kind: "accounts",
+        title: "Annual accounts",
+        dueDate: vals.accountsNextDue,
+        overdue: vals.accountsOverdue,
+        blockedOn: "us",
+      });
+      await upsertDeadline(db, {
+        sfId: `${vals.sfId}:cs`,
+        accountSfId: vals.accountSfId,
+        kind: "confirmation_statement",
+        title: "Confirmation statement",
+        dueDate: vals.csNextDue,
+        overdue: vals.csOverdue,
+        blockedOn: "us",
+      });
+      return;
+    }
+    case "CH_Company_Officer__c": {
+      const vals = {
+        sfId: s.sfId as string,
+        accountSfId: s.accountSfId as string,
+        companySfId: (s.companySfId as string) ?? null,
+        name: (s.name as string) ?? null,
+        officerRole: (s.officerRole as string) ?? null,
+        appointedOn: parseDate(s.appointedOn),
+        resignedOn: parseDate(s.resignedOn),
+        monthOfBirth: (s.monthOfBirth as string) ?? null,
+        yearOfBirth: (s.yearOfBirth as string) ?? null,
+        occupation: (s.occupation as string) ?? null,
+        nationality: (s.nationality as string) ?? null,
+        countryOfResidence: (s.countryOfResidence as string) ?? null,
+        addrPremises: (s.addrPremises as string) ?? null,
+        addrLine1: (s.addrLine1 as string) ?? null,
+        addrLine2: (s.addrLine2 as string) ?? null,
+        addrLocality: (s.addrLocality as string) ?? null,
+        addrRegion: (s.addrRegion as string) ?? null,
+        addrPostalCode: (s.addrPostalCode as string) ?? null,
+        addrCountry: (s.addrCountry as string) ?? null,
+        idvVerifiedOn: parseDate(s.idvVerifiedOn),
+        sfUpdatedAt: parseTimestamp(s.sfUpdatedAt),
+        raw: s,
+      };
+      await db
+        .insert(schema.officers)
+        .values(vals)
+        .onConflictDoUpdate({
+          target: schema.officers.sfId,
+          set: { ...vals, updatedAt: new Date() },
+        });
+      return;
+    }
   }
 }
 
@@ -387,6 +498,10 @@ async function deleteFromCache(objectType: string, sfId: string): Promise<boolea
       return (await db.delete(schema.workflows).where(eq(schema.workflows.sfId, sfId))).length > 0;
     case "User":
       return (await db.delete(schema.accountants).where(eq(schema.accountants.sfId, sfId))).length > 0;
+    case "CH_Company__c":
+      return (await db.delete(schema.companies).where(eq(schema.companies.sfId, sfId))).length > 0;
+    case "CH_Company_Officer__c":
+      return (await db.delete(schema.officers).where(eq(schema.officers.sfId, sfId))).length > 0;
   }
   return false;
 }
@@ -404,4 +519,55 @@ function parseDate(v: unknown): string | null {
   if (!v) return null;
   if (typeof v !== "string") return null;
   return v;
+}
+
+/** Derive a deadline status from its due date (+ an explicit overdue flag). */
+function deriveDeadlineStatus(dueDate: string, overdue?: boolean): string {
+  if (overdue) return "overdue";
+  const d = new Date(dueDate);
+  if (!Number.isFinite(d.getTime())) return "upcoming";
+  const days = Math.round((d.getTime() - Date.now()) / 86_400_000);
+  if (days < 0) return "overdue";
+  if (days <= 30) return "due_soon";
+  return "upcoming";
+}
+
+/**
+ * Upsert (or clear) a DERIVED deadline row. Deadlines have no SObject of their
+ * own — they're synthesised from CH + Account dates during those objects' sync,
+ * keyed by a deterministic synthetic id (e.g. "<companyId>:accounts") so
+ * re-sync is idempotent. A null due date removes the row (source date cleared).
+ */
+async function upsertDeadline(
+  db: ReturnType<typeof getPortalDb>,
+  p: {
+    sfId: string;
+    accountSfId: string;
+    kind: string;
+    title: string;
+    dueDate: string | null;
+    blockedOn: string;
+    overdue?: boolean;
+  }
+): Promise<void> {
+  const { eq } = await import("drizzle-orm");
+  if (!p.dueDate) {
+    await db.delete(schema.deadlines).where(eq(schema.deadlines.sfId, p.sfId));
+    return;
+  }
+  const vals = {
+    sfId: p.sfId,
+    accountSfId: p.accountSfId,
+    kind: p.kind,
+    title: p.title,
+    dueDate: p.dueDate,
+    periodLabel: null,
+    status: deriveDeadlineStatus(p.dueDate, p.overdue),
+    blockedOn: p.blockedOn,
+    updatedAt: new Date(),
+  };
+  await db
+    .insert(schema.deadlines)
+    .values(vals)
+    .onConflictDoUpdate({ target: schema.deadlines.sfId, set: vals });
 }
