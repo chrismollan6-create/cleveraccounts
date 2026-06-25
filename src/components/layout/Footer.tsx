@@ -59,7 +59,20 @@ const defaultFooterColumns: FooterColumn[] = [
 
 export default function Footer({ brand, columns }: { brand: BrandConfig; columns?: FooterColumn[] }) {
   const year = new Date().getFullYear();
-  const footerColumns = columns?.length ? columns : defaultFooterColumns;
+  const baseColumns = columns?.length ? columns : defaultFooterColumns;
+  // Ensure a Privacy Policy link is always listed in the footer body — even when
+  // columns come from the CMS, which may omit it. Added to the "Company" column
+  // (or the last column as a fallback) if not already present.
+  const privacyHref = brand.legal.privacyUrl;
+  const hasPrivacy = baseColumns.some((c) => c.links?.some((l) => l.href === privacyHref));
+  const footerColumns = hasPrivacy
+    ? baseColumns
+    : baseColumns.map((col, i) => {
+        const isTarget = col.heading === "Company" || (i === baseColumns.length - 1 && !baseColumns.some((c) => c.heading === "Company"));
+        return isTarget
+          ? { ...col, links: [...(col.links ?? []), { label: "Privacy Policy", href: privacyHref }] }
+          : col;
+      });
   const description =
     brand.id === "clever"
       ? "For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support."
