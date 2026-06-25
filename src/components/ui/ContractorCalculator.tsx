@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Calculator, ArrowRight, Sparkles, Info, TrendingDown, PoundSterling, Shield, Zap } from "lucide-react";
+import { useBrand } from "@/lib/useBrand";
 
 /* ────────────────────────────────────────
    UK Tax / NI constants (2025/26)
@@ -88,6 +89,7 @@ function fmt(n: number) {
 }
 
 export default function ContractorCalculator() {
+  const brand = useBrand();
   const [dayRate, setDayRate] = useState(500);
   const [expenses, setExpenses] = useState(3000);
   const [showResults, setShowResults] = useState(false);
@@ -267,7 +269,7 @@ export default function ContractorCalculator() {
 
                   <p className="flex items-start gap-2 text-xs text-text-light">
                     <Info size={14} className="shrink-0 mt-0.5" />
-                    Estimates based on 2025/26 tax rates, {WORKING_DAYS} working days, and umbrella fee of £{UMBRELLA_FEE.toLocaleString()}/year. For illustration only — your actual position may differ. Clever Accounts provides personalised advice.
+                    Estimates based on 2025/26 tax rates, {WORKING_DAYS} working days, and umbrella fee of £{UMBRELLA_FEE.toLocaleString()}/year. For illustration only — your actual position may differ. {brand.name} provides personalised advice.
                   </p>
                 </div>
               )}

@@ -1451,11 +1451,11 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
                 ))}
-                <span className="ml-1 font-bold text-dark">4.7</span>
+                <span className="ml-1 font-bold text-dark">{brand.trustpilot?.rating ?? "4.7"}</span>
               </div>
               <p className="text-sm text-text mb-1">Rated <strong>Excellent</strong> on Trustpilot</p>
-              <p className="text-xs text-text-light mb-auto">By 700+ UK businesses just like yours.</p>
-              <a href="https://uk.trustpilot.com/review/cleveraccounts.co.uk" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:text-primary-dark mt-3 inline-flex items-center gap-1">
+              <p className="text-xs text-text-light mb-auto">By {brand.trustpilot?.reviewCount ?? "700+"} UK businesses just like yours.</p>
+              <a href={brand.trustpilot?.url ?? "https://uk.trustpilot.com/review/cleveraccounts.co.uk"} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-primary hover:text-primary-dark mt-3 inline-flex items-center gap-1">
                 Leave a quick review <ArrowRight size={12} />
               </a>
             </div>

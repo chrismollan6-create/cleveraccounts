@@ -283,6 +283,7 @@ export const BRANDS = {
     // rating and the funnel trust pill will show the Trustpilot segment.
     trustpilot: {
       rating: '4.6',
+      reviewCount: '3,000+',
       url: 'https://uk.trustpilot.com/review/workwellsolutions.com',
     },
     // TODO: set up Workwell's EmbedSocial reviews widget (connected to its

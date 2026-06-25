@@ -57,7 +57,7 @@ export default async function LetterStateMessage({ title, body, variant, downloa
 
         <div className="mt-6 text-xs text-text-light">
           <Link href="/" className="hover:text-primary transition-colors">
-            ← Back to cleveraccounts.com
+            ← Back to {brand.domain}
           </Link>
         </div>
       </div>
