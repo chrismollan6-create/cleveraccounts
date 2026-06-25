@@ -58,8 +58,8 @@ export default async function FunnelLayout({
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased bg-gradient-to-b from-gray-50 to-white">
-        <GoogleTagManagerHead />
-        <GoogleTagManagerBody />
+        <GoogleTagManagerHead gtmId={brand.analytics?.gtmId} />
+        <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
         <UTMCapture />
         <BrandProvider brandId={brand.id}>
           {/* ── Funnel header — clean, focused, no nav distractions ── */}
