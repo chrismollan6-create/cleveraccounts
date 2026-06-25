@@ -291,8 +291,9 @@ export const BRANDS = {
     // GoogleReviewsWidget shows Workwell's real-review fallback (not Clever's).
     // reviewsWidgetRef: '<workwell-embedsocial-ref>',
     legal: {
-      // Workwell's legal pages live on its WordPress marketing site.
-      privacyUrl: 'https://workwellaccountancy.com/privacy-data-cookie-policy/',
+      // Native privacy/data/cookie policy at /privacy (content brought in from
+      // the WordPress marketing site; rendered by WorkwellPrivacy.tsx).
+      privacyUrl: '/privacy',
       // No standalone Workwell terms page exists — termsUrl intentionally
       // omitted, so the footer renders Privacy only for Workwell.
     },

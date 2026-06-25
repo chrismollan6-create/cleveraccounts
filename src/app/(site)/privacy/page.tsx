@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getBrand } from "@/lib/brand";
+import WorkwellPrivacy from "./WorkwellPrivacy";
 
 const cleverMetadata: Metadata = {
   title: "Privacy Policy | Clever Accounts",
@@ -10,6 +11,12 @@ const cleverMetadata: Metadata = {
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") return cleverMetadata;
+  if (brand.id === "workwell") {
+    return {
+      title: `Privacy, Data & Cookie Policy | ${brand.name}`,
+      description: `${brand.name} privacy, data and cookie policy — how we collect, use, and protect your personal information in accordance with UK GDPR.`,
+    };
+  }
   return {
     title: `Privacy Policy | ${brand.name}`,
     description: `${brand.name} privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.`,
@@ -170,6 +177,7 @@ Deletion: You may have a right to request that we delete the personal informatio
 
 export default async function PrivacyPolicyPage() {
   const brand = await getBrand();
+  if (brand.id === "workwell") return <WorkwellPrivacy />;
   const sections = buildSections(brand);
   const siteUrl = `https://${brand.domain}`;
 
