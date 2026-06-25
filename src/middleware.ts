@@ -267,6 +267,16 @@ async function handle(req: NextRequest, getUserId: () => Promise<string | null |
     // entirely — let it fall through to the default response so Next.js
     // serves the (funnel) route. Marketing CSP applies (see below).
     isPublicPassthrough = true;
+  } else if (isPortal && url.pathname.startsWith('/api/')) {
+    // Portal-host API routes live at /api/* (NOT under /portal/*) and each
+    // handler authorizes itself:
+    //   - /api/portal/clerk-webhook   → Svix signature (server-to-server, no session)
+    //   - /api/portal/sync, /invite   → HMAC signature (server-to-server, no session)
+    //   - all other /api/portal/*     → Clerk auth() / withPortalScope (IDOR-scoped)
+    // They must bypass BOTH the `/portal` rewrite (which would 404 them at the
+    // non-existent /portal/api/* path) AND the middleware session gate (which
+    // would 307 legitimate sessionless webhooks to /sign-in). Fall through to
+    // the default response below, which serves the route directly.
   } else if (isPortal) {
     // On a portal hostname every other URL must resolve under /portal/*.
     // Determine the equivalent `/portal/...` path so we can auth-gate it
