@@ -138,9 +138,16 @@ function isPublicPortalPath(portalPath: string): boolean {
 // framework scripts → Clerk's <ClerkProvider>. Scheduled with Foundation 6
 // (prod Clerk + MFA + custom auth domain) since both need careful Clerk
 // testing. Tracked in C:\Users\chris\.claude\plans\portal-foundations-secure-by-default.md.
+// React's dev server + Turbopack require eval() for HMR and error-overlay
+// callstack reconstruction. Allow 'unsafe-eval' ONLY outside production builds
+// — production React never uses eval(), so the hardened prod CSP is unchanged
+// (audit finding #1 stays closed for real deploys).
+const DEV_SCRIPT_EVAL =
+  process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
+
 const PORTAL_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+  `script-src 'self' 'unsafe-inline'${DEV_SCRIPT_EVAL} https://*.clerk.accounts.dev https://challenges.cloudflare.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://*.salesforce.com https://*.cleveraccounts.com https://*.workwellaccountancy.com https://*.clerk.com https://img.clerk.com",
   "font-src 'self' https://fonts.gstatic.com",

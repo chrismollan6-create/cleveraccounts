@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Check, CircleDot, RefreshCw } from "lucide-react";
 import type { PortalMessage, PortalAccountantInfo } from "@/lib/portal/types";
+import AccountantAvatar from "../AccountantAvatar";
 
 interface Props {
   messages: PortalMessage[];
@@ -22,8 +22,22 @@ interface Props {
  * content, not the staff's "Kind regards, …" boilerplate.
  */
 export default function MessageThread({ messages, isRefreshing, accountant }: Props) {
-  // Group consecutive messages by day for date dividers
-  const grouped = groupByDay(messages);
+  // Render oldest→newest (the incoming list is newest-first) so the latest
+  // message sits at the bottom, right above the composer — standard chat order.
+  const ordered = [...messages].reverse();
+  const grouped = groupByDay(ordered);
+
+  // Show the conversation subject ONCE in the header rather than repeating it
+  // above every bubble.
+  const subject =
+    ordered.find((m) => m.caseSubject)?.caseSubject ??
+    ordered.find(
+      (m) =>
+        m.subject &&
+        m.subject !== "Portal message" &&
+        !m.subject.startsWith("Portal — ")
+    )?.subject ??
+    null;
 
   return (
     <section
@@ -32,11 +46,16 @@ export default function MessageThread({ messages, isRefreshing, accountant }: Pr
     >
       {/* Conversation header */}
       <header className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 bg-gradient-to-b from-white to-surface/30">
-        <div className="flex items-center gap-3">
-          <h2 className="text-base font-semibold text-text">Conversation</h2>
-          <span className="text-xs text-text-light/70">
-            {messages.length} {messages.length === 1 ? "message" : "messages"}
-          </span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-text">Conversation</h2>
+            <span className="text-xs text-text-light/70">
+              {messages.length} {messages.length === 1 ? "message" : "messages"}
+            </span>
+          </div>
+          {subject && (
+            <p className="mt-0.5 truncate text-xs text-text-light">{subject}</p>
+          )}
         </div>
         <div className="text-xs text-text-light/60 flex items-center gap-2">
           <span className={isRefreshing ? "text-primary" : "opacity-0"}>
@@ -101,19 +120,6 @@ function Bubble({
           isClient ? "items-end" : "items-start"
         }`}
       >
-        {/* Optional subject line on first/different subjects */}
-        {message.subject &&
-          message.subject !== "Portal message" &&
-          !message.subject.startsWith("Portal — ") && (
-            <p
-              className={`text-[11px] font-medium text-text-light px-1 ${
-                isClient ? "text-right" : "text-left"
-              }`}
-            >
-              {message.subject}
-            </p>
-          )}
-
         <div
           className={`px-4 py-3 rounded-2xl shadow-sm text-sm leading-relaxed ${
             isClient
@@ -205,22 +211,16 @@ function Avatar({
     );
   }
 
-  if (accountant?.photoUrl) {
-    return (
-      <Image
-        src={accountant.photoUrl}
-        alt={accountant.name ?? "Accountant"}
-        width={36}
-        height={36}
-        className="h-9 w-9 rounded-full ring-2 ring-white shadow-sm object-cover bg-gray-100 shrink-0"
-        unoptimized
-      />
-    );
-  }
-
+  // Accountant — uses the shared avatar (proxy photo with a safe initials
+  // fallback, so it never renders a broken image).
   return (
-    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-light to-primary-dark text-white flex items-center justify-center text-xs font-semibold shrink-0 shadow-sm">
-      {initials(fallback)}
+    <div className="shrink-0 shadow-sm rounded-full">
+      <AccountantAvatar
+        name={accountant?.name ?? fallback}
+        hasPhoto={Boolean(accountant?.photoUrl)}
+        sizeClass="h-9 w-9"
+        textClass="text-xs"
+      />
     </div>
   );
 }

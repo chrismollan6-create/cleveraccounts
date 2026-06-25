@@ -9,11 +9,17 @@ import {
   HelpCircle,
   ArrowUpRight,
   CircleAlert,
+  Building2,
+  Bell,
+  CalendarClock,
+  FileCheck,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import type { BrandConfig } from "@/lib/constants";
 import type { PortalAccountantInfo } from "@/lib/portal/types";
 import MobileNav, { type MobileNavItem } from "./MobileNav";
+import AccountantAvatar from "./AccountantAvatar";
+import { isSurfaceHidden } from "@/lib/portal/features";
 
 interface NavItem {
   label: string;
@@ -42,13 +48,19 @@ interface Props {
   accountant?: PortalAccountantInfo | null;
   /** Persistent "what's next" CTA at the bottom of the sidebar. */
   nextAction?: NextAction | null;
+  /** Compact onboarding progress strip — segments are per-stage states. */
+  progress?: { pct: number; segments: string[] } | null;
   children: React.ReactNode;
 }
 
 const PRIMARY_NAV: NavItem[] = [
   { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
+  { label: "Notifications", href: "/portal/notifications", icon: Bell },
+  { label: "Deadlines", href: "/portal/deadlines", icon: CalendarClock },
+  { label: "Approvals", href: "/portal/approvals", icon: FileCheck },
   { label: "Messages", href: "/portal/messages", icon: MessageCircle },
-  { label: "Documents", href: "/portal/documents", icon: FileText, disabled: true, badge: "Soon" },
+  { label: "Your details", href: "/portal/details", icon: Building2 },
+  { label: "Documents", href: "/portal/documents", icon: FileText },
   { label: "Appointments", href: "/portal/appointments", icon: CalendarDays, disabled: true, badge: "Soon" },
 ];
 
@@ -85,12 +97,6 @@ function toMobile(items: NavItem[]): MobileNavItem[] {
   });
 }
 
-function initialsOf(name: string | null | undefined): string {
-  if (!name) return "··";
-  const parts = name.trim().split(/\s+/).slice(0, 2);
-  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("");
-}
-
 /**
  * Portal application shell — redesigned (May 2026).
  *
@@ -115,10 +121,18 @@ export default function PortalShell({
   notifications,
   accountant,
   nextAction,
+  progress,
   children,
 }: Props) {
-  const primary = applyNotifications(PRIMARY_NAV, notifications);
-  const secondary = applyNotifications(SECONDARY_NAV, notifications);
+  // Pilot mode hides surfaces whose SF→cache sync isn't built yet.
+  const primary = applyNotifications(
+    PRIMARY_NAV.filter((i) => !isSurfaceHidden(i.href)),
+    notifications
+  );
+  const secondary = applyNotifications(
+    SECONDARY_NAV.filter((i) => !isSurfaceHidden(i.href)),
+    notifications
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface via-white to-surface-alt/50">
@@ -186,9 +200,12 @@ export default function PortalShell({
               <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
                 <div className="flex items-center gap-2.5">
                   <div className="relative">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary-light to-primary text-[10px] font-bold text-white">
-                      {initialsOf(accountant.name)}
-                    </div>
+                    <AccountantAvatar
+                      name={accountant.name}
+                      hasPhoto={Boolean(accountant.photoUrl)}
+                      sizeClass="h-8 w-8"
+                      textClass="text-[10px]"
+                    />
                     <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-gray-50" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -206,12 +223,12 @@ export default function PortalShell({
                       href={accountant.calendlyUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-dark"
+                      className="inline-flex items-center justify-center gap-1 rounded-md bg-[#F97316] px-2 py-1 text-[10px] font-semibold text-white hover:bg-[#EA580C]"
                     >
                       <CalendarDays size={10} /> Book
                     </a>
                   ) : (
-                    <span className="inline-flex items-center justify-center gap-1 rounded-md bg-primary/40 px-2 py-1 text-[10px] font-semibold text-white">
+                    <span className="inline-flex items-center justify-center gap-1 rounded-md bg-[#F97316]/40 px-2 py-1 text-[10px] font-semibold text-white">
                       <CalendarDays size={10} /> Book
                     </span>
                   )}
@@ -227,7 +244,7 @@ export default function PortalShell({
           )}
 
           {/* Primary nav */}
-          <nav className="flex-1 px-3 pt-4 pb-2 overflow-y-auto">
+          <nav className="px-3 pt-4 pb-2">
             <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-light/70 mb-2">
               Your account
             </p>
@@ -250,6 +267,40 @@ export default function PortalShell({
               ))}
             </ul>
           </nav>
+
+          {/* Compact onboarding progress — fills the rail, persistent across
+              pages. Teal = done, orange = current (brand dual-colour system). */}
+          {progress && (
+            <div className="px-4 pb-1 pt-1">
+              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-light/70">
+                    Onboarding
+                  </span>
+                  <span className="text-[11px] font-bold text-text">
+                    {progress.pct}%
+                  </span>
+                </div>
+                <div className="mt-2 flex gap-1">
+                  {progress.segments.map((st, i) => (
+                    <div
+                      key={i}
+                      className={`h-1.5 flex-1 rounded-full ${
+                        st === "complete"
+                          ? "bg-[#1A7A9B]"
+                          : st === "current"
+                            ? "bg-[#F97316]"
+                            : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Push the reminder + user chip to the bottom of the rail */}
+          <div className="flex-1" />
 
           {/* 4. WHAT'S NEXT REMINDER */}
           {nextAction && (
