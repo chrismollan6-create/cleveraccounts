@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Star, ArrowRight, Quote, Users, Award } from "lucide-react";
 import GoogleReviewsWidget from "@/components/ui/GoogleReviewsWidget";
+import EmbedSocialHashtag from "@/components/ui/EmbedSocialHashtag";
 import { TESTIMONIALS } from "@/lib/constants";
 import { getTestimonials } from "@/sanity/queries";
 import { getBrand } from "@/lib/brand";
@@ -213,6 +214,19 @@ export default async function ReviewsPage() {
               <p className="text-text-light text-sm">4.4 stars · 479 verified Google reviews</p>
             </div>
             <GoogleReviewsWidget dataRef="5f6cc51de97b359b22295360283c5602ac7e7f70" />
+          </div>
+        </section>
+      )}
+
+      {/* ── WORKWELL REVIEWS WIDGET (EmbedSocial hashtag) ────── */}
+      {brand.id === "workwell" && (
+        <section className="bg-white py-16 border-b border-border">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl font-black text-dark">What our clients say</h2>
+              <p className="text-text-light text-sm mt-2">Verified reviews from {brand.name} clients.</p>
+            </div>
+            <EmbedSocialHashtag dataRef="db3eb1fdc4e5800ea8e4f115b74f6c532b68c9c5" />
           </div>
         </section>
       )}
