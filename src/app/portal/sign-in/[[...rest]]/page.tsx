@@ -129,20 +129,17 @@ export default async function PortalSignInPage() {
       {/* ─── RIGHT — Clerk sign-in card ─── */}
       <section className="flex flex-1 flex-col items-center justify-center bg-gradient-to-br from-neutral-50 via-white to-neutral-100 px-6 py-12 lg:flex-[0.9]">
         <div className="w-full max-w-md">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold tracking-tight text-text">
-              Sign in to your portal
-            </h2>
-            <p className="mt-1 text-sm text-text-light">
-              Use your passkey, or we&apos;ll email you a sign-in link.{" "}
-              <Link
-                href="/portal/activate"
-                className="font-semibold text-primary hover:text-primary-dark"
-              >
-                Got an invite?
-              </Link>
-            </p>
-          </div>
+          {/* Clerk renders the step-aware heading inside the card (see
+              clerk-appearance.ts). We keep only the invite helper here. */}
+          <p className="mb-4 text-sm text-text-light">
+            New here?{" "}
+            <Link
+              href="/portal/activate"
+              className="font-semibold text-primary hover:text-primary-dark"
+            >
+              Got an invite?
+            </Link>
+          </p>
 
           <SignIn
             appearance={getPortalClerkAppearance(brand)}

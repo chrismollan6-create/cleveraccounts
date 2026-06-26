@@ -32,10 +32,13 @@ export function getPortalClerkAppearance(brand: BrandConfig) {
       rootBox: "w-full",
       card: "shadow-xl border border-neutral-200 rounded-2xl bg-white px-8 py-7",
 
-      // We provide our own heading outside the card — hide Clerk's
-      header: "hidden",
-      headerTitle: "hidden",
-      headerSubtitle: "hidden",
+      // Clerk owns the heading so it stays in step with the current screen
+      // (e.g. "Sign in" → "Check your email" → "Enter verification code").
+      // A static heading outside the card can't do that, and leaves the
+      // verification step with no instruction above the code input.
+      header: "mb-5 text-left",
+      headerTitle: "text-2xl font-bold tracking-tight text-text",
+      headerSubtitle: "mt-1 text-sm text-text-light",
 
       // OAuth / social row (Continue with Google etc.)
       socialButtonsBlockButton:
