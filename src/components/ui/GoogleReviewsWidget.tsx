@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useEffect, useRef } from "react";
 import { Star } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
+import EmbedSocialHashtag from "@/components/ui/EmbedSocialHashtag";
 
 const CLEVER_DEFAULT_REF = "f1e784fdf537d9876ef24e119a197eda526c4ced";
 
@@ -79,6 +80,12 @@ export default function GoogleReviewsWidget({ dataRef }: Props = {}) {
       window.clearTimeout(giveUp);
     };
   }, [widgetRef]);
+
+  // Brand whose social proof is an EmbedSocial Hashtag album → render that
+  // widget instead of the Google reviews widget/fallback (e.g. Workwell).
+  if (brand.reviewsHashtagRef) {
+    return <EmbedSocialHashtag dataRef={brand.reviewsHashtagRef} />;
+  }
 
   // No live widget for this brand → show its real-review fallback (or nothing).
   if (!widgetRef) {

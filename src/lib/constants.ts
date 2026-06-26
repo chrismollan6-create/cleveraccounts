@@ -136,6 +136,14 @@ export interface BrandConfig {
    */
   reviewsWidgetRef?: string;
   /**
+   * EmbedSocial *Hashtag* (ht.js) widget ref. When set, the "Don't take our
+   * word for it" reviews section renders this hashtag widget for the brand
+   * (instead of the Google reviews widget / fallback). Used where a brand's
+   * social-proof lives in an EmbedSocial Hashtag album rather than a Google
+   * reviews widget.
+   */
+  reviewsHashtagRef?: string;
+  /**
    * Legal page URLs shown in footers. Use relative paths ("/terms") for pages
    * the brand's own Next site serves, or absolute URLs for externally-hosted
    * pages (e.g. Workwell's live on its WordPress marketing site).
@@ -286,10 +294,9 @@ export const BRANDS = {
       reviewCount: '3,000+',
       url: 'https://uk.trustpilot.com/review/workwellsolutions.com',
     },
-    // TODO: set up Workwell's EmbedSocial reviews widget (connected to its
-    // Google Business Profile) and add the ref here. Until then,
-    // GoogleReviewsWidget shows Workwell's real-review fallback (not Clever's).
-    // reviewsWidgetRef: '<workwell-embedsocial-ref>',
+    // Workwell's social proof lives in an EmbedSocial Hashtag album (ht.js), so
+    // the reviews section renders that widget rather than a Google reviews one.
+    reviewsHashtagRef: '5eff37174d01c8e606aaf97fef731a32a05b137e',
     legal: {
       // Native privacy/data/cookie policy at /privacy (content brought in from
       // the WordPress marketing site; rendered by WorkwellPrivacy.tsx).

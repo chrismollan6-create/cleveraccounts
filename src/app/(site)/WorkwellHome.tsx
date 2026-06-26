@@ -24,6 +24,7 @@ import TaxCalculator from "@/components/ui/TaxCalculator";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
+import EmbedSocialHashtag from "@/components/ui/EmbedSocialHashtag";
 import WorkwellHero from "./WorkwellHero";
 import type { CmsHomePage } from "./HomePageClient";
 import { SHOWCASE_SECTORS } from "@/lib/sectors";
@@ -353,34 +354,41 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         </div>
       </section>
 
-      {/* ── Social proof — vertical gradient (top edge uniform #1c333a)
-          so it joins the How-it-works band above with no seam. ───────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#1c333a] via-[#29484f] to-[#29484f] py-20 md:py-24">
-        <div className="absolute top-16 -right-16 w-80 h-80 bg-[#8db74e]/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#8db74e]/15 rounded-full blur-3xl" />
+      {/* ── Social proof — light band so the reviews widget (light-themed,
+          dark text) reads naturally without a boxed background. ───────── */}
+      <section className="relative bg-white py-20 md:py-24">
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 mb-5">
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={22} className="fill-amber-400 text-amber-400" />
             ))}
-            <span className="text-white text-2xl font-extrabold ml-2">{rating}</span>
+            <span className="text-[#1c333a] text-2xl font-extrabold ml-2">{rating}</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1c333a] mb-4">
             Trusted by self-employed people across the UK
           </h2>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto mb-10">
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-10">
             Real, named accountants. Honest pricing. No call centres and no jargon — just people who genuinely have your back.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-white/85 text-sm font-semibold mb-10">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-slate-700 text-sm font-semibold mb-10">
             <span className="flex items-center gap-2"><ShieldCheck size={18} className="text-[#8db74e]" /> Qualified &amp; regulated</span>
             <span className="flex items-center gap-2"><CheckCircle2 size={18} className="text-[#8db74e]" /> No tie-in contracts</span>
             <span className="flex items-center gap-2"><CheckCircle2 size={18} className="text-[#8db74e]" /> Making Tax Digital ready</span>
           </div>
+        </div>
+
+        {brand.reviewsHashtagRef && (
+          <div className="relative max-w-7xl mx-auto px-4 mb-10 text-left">
+            <EmbedSocialHashtag dataRef={brand.reviewsHashtagRef} />
+          </div>
+        )}
+
+        <div className="relative max-w-5xl mx-auto px-4 text-center">
           <Link
             href={brand.trustpilot?.url ?? "/reviews"}
             target={brand.trustpilot?.url ? "_blank" : undefined}
             rel={brand.trustpilot?.url ? "noopener noreferrer" : undefined}
-            className="inline-flex items-center gap-2 bg-white text-[#29484f] font-bold px-6 py-3 rounded-xl hover:bg-[#eef4e2] transition-colors"
+            className="inline-flex items-center gap-2 bg-[#29484f] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#1c333a] transition-colors"
           >
             Read our reviews <ArrowRight size={16} />
           </Link>
