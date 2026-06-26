@@ -22,6 +22,35 @@ import "../globals.css";
  * middleware so non-public routes never reach this layout unauthenticated.
  */
 
+// Clerk text overrides. The default authenticator-setup screen shows only a QR
+// code with no instruction, so users scan it with their phone camera (which
+// routes to iOS Passwords and does nothing useful) instead of an authenticator
+// app. We spell out the steps. `taskSetupMfa` is the forced-enrollment screen
+// shown after sign-in when "Require MFA" is on; `userProfile.mfaTOTPPage` is the
+// same flow reached from profile settings.
+const AUTHENTICATOR_INSTRUCTION =
+  "Open an authenticator app on your phone — Google Authenticator, Microsoft " +
+  "Authenticator, Authy or 1Password — and use its “Scan QR code” option to scan " +
+  "the code below (your phone’s camera app won’t work). Then enter the 6-digit " +
+  "code it generates.";
+
+const PORTAL_CLERK_LOCALIZATION = {
+  taskSetupMfa: {
+    totpCode: {
+      addAuthenticatorApp: {
+        infoText__ableToScan: AUTHENTICATOR_INSTRUCTION,
+      },
+    },
+  },
+  userProfile: {
+    mfaTOTPPage: {
+      authenticatorApp: {
+        infoText__ableToScan: AUTHENTICATOR_INSTRUCTION,
+      },
+    },
+  },
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
@@ -139,7 +168,7 @@ export default async function PortalLayout({
     pathname.startsWith("/portal/activate");
 
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={PORTAL_CLERK_LOCALIZATION}>
       <html lang="en" className="h-full" data-brand={brand.id}>
         <head>
           {fontHref && (
