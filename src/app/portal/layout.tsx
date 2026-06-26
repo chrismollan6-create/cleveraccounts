@@ -35,6 +35,16 @@ const AUTHENTICATOR_INSTRUCTION =
   "code it generates.";
 
 const PORTAL_CLERK_LOCALIZATION = {
+  // Brand-neutral heading on the first sign-in step (Clerk's default
+  // "Sign in to <app name>" would bake in one brand across both portals).
+  // Later steps (e.g. the email-code screen) keep Clerk's own contextual
+  // title + subtitle so the user always sees what to do above the input.
+  signIn: {
+    start: {
+      title: "Sign in to your portal",
+      subtitle: "Use your passkey, or we’ll email you a sign-in link.",
+    },
+  },
   taskSetupMfa: {
     totpCode: {
       addAuthenticatorApp: {

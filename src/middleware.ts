@@ -295,6 +295,12 @@ async function handle(req: NextRequest, getUserId: () => Promise<string | null |
       ? url.pathname
       : '/portal' + url.pathname;
 
+    // The internal (rewritten) path is what server components / layouts must
+    // see — not the public-facing `/sign-in`. Overwrite the x-pathname stamp
+    // so layout-level checks (skip PortalShell on /portal/sign-in, active-nav
+    // highlighting) resolve against the real route.
+    requestHeaders.set('x-pathname', portalPath);
+
     if (!isPublicPortalPath(portalPath)) {
       const userId = await getUserId();
       if (!userId) {
