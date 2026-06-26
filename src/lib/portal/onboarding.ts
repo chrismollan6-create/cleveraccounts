@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { desc, eq, isNull } from "drizzle-orm";
+import { desc, eq, isNull, sql } from "drizzle-orm";
 import { tryWithPortalScope, type PortalScopeDeniedReason } from "./withAccountScope";
 import { schema } from "./db/client";
 import type { PortalOnboardingStatus } from "./types";
@@ -51,10 +51,12 @@ export const getOnboardingForCurrentUser = cache(async function (): Promise<Onbo
       .from(schema.workflows)
       .where(eq(schema.workflows.accountSfId, accountSfId))
       .orderBy(
-        // Active first (signed_off_at NULL ranks high in Postgres NULLS FIRST
-        // — Drizzle defaults to NULLS LAST for desc, so we sort by signedOffAt
-        // ASC NULLS FIRST instead by reversing)
-        schema.workflows.signedOffAt,
+        // Active first: signed_off_at IS NULL means the workflow is still
+        // running, so it must rank ahead of any signed-off rows. Postgres
+        // sorts NULLS LAST for plain ASC, which would push the active row to
+        // the bottom — so we ask for ASC NULLS FIRST explicitly. Ties (all
+        // signed off, or — impossibly — multiple active) break on most-recent.
+        sql`${schema.workflows.signedOffAt} asc nulls first`,
         desc(schema.workflows.updatedAt)
       )
       .limit(1);

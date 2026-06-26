@@ -185,7 +185,7 @@ function PendingCard({ a }: { a: PortalApproval }) {
             </div>
           )}
 
-          <ApprovalActions id={a.id} />
+          <ApprovalActions id={a.id} title={a.title} amountLabel={a.amountLabel} />
         </div>
       </div>
     </section>

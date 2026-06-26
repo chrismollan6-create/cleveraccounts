@@ -198,6 +198,7 @@ export default async function DashboardPage() {
         status={status}
         firstName={firstName}
         actionItems={actionItems}
+        firmName={brand.name}
       />
     </Shell>
   );
@@ -229,10 +230,12 @@ function DashboardBody({
   status,
   firstName,
   actionItems,
+  firmName,
 }: {
   status: PortalOnboardingStatus;
   firstName: string | null;
   actionItems: PortalActionItem[];
+  firmName: string;
 }) {
   const a = status.accountant;
   const accountantName = a.name ?? "your accountant";
@@ -248,7 +251,7 @@ function DashboardBody({
           </h1>
           {status.accountName && (
             <p className="mt-0.5 text-sm text-text-light">
-              {status.accountName} · Clever Accounts
+              {status.accountName} · {firmName}
             </p>
           )}
         </div>
@@ -501,7 +504,7 @@ function NextStepHero({
 // ─── ACTIVITY FEED ────────────────────────────────────────────────────────
 function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   const rows: {
-    when: string;
+    iso: string;
     what: string;
     who: string;
     icon: typeof CheckCircle2;
@@ -510,7 +513,7 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   for (const st of status.stages) {
     if (st.state === "complete" && st.completedDate) {
       rows.push({
-        when: formatDate(st.completedDate),
+        iso: st.completedDate,
         what: `${st.title} completed`,
         who: status.accountant.name ?? "Your accountant",
         icon: CheckCircle2,
@@ -520,14 +523,16 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   }
   if (status.joinedDate) {
     rows.push({
-      when: formatDate(status.joinedDate),
+      iso: status.joinedDate,
       what: "Account created",
       who: "You signed up",
       icon: AlertCircle,
       color: "text-neutral-400",
     });
   }
-  rows.sort((x, y) => (x.when > y.when ? -1 : 1));
+  // Sort on the real date (newest first), not the formatted label — string
+  // compare on "10 Apr 2026" vs "9 Apr 2026" would order them wrongly.
+  rows.sort((x, y) => new Date(y.iso).getTime() - new Date(x.iso).getTime());
   if (rows.length === 0) return null;
 
   return (
@@ -548,7 +553,7 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
               <div className="text-xs text-text-light">{row.who}</div>
             </div>
             <div className="flex-shrink-0 text-xs text-text-light">
-              {row.when}
+              {formatDate(row.iso)}
             </div>
           </li>
         ))}
@@ -733,7 +738,7 @@ function BusinessMeta({ status }: { status: PortalOnboardingStatus }) {
         <div>
           <div className="text-white/50">Day</div>
           <div className="mt-0.5 text-sm font-medium">
-            {status.daysSinceSignup}
+            {daysSince(status.joinedDate) ?? status.daysSinceSignup}
           </div>
         </div>
         <div>
@@ -780,4 +785,20 @@ function formatDate(iso: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+/**
+ * Whole days since an ISO date, computed live at render. The cached
+ * `daysSinceSignup` from the Apex snapshot freezes at sync time (it would show
+ * e.g. "Day 44" weeks after the fact), so we recompute from `joinedDate` here.
+ * Returns null on a missing/invalid date so the caller can fall back.
+ */
+function daysSince(iso: string | null): number | null {
+  if (!iso) return null;
+  const then = new Date(iso);
+  if (isNaN(then.getTime())) return null;
+  const a = new Date();
+  a.setHours(0, 0, 0, 0);
+  then.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.round((a.getTime() - then.getTime()) / 86_400_000));
 }
