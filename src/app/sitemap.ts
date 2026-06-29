@@ -31,6 +31,7 @@ const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRo
   { url: "/compare",                           priority: 0.7, changeFrequency: "monthly" },
   { url: "/vat-returns",                       priority: 0.7, changeFrequency: "monthly" },
   { url: "/payroll-services",                  priority: 0.7, changeFrequency: "monthly" },
+  { url: "/payroll-and-salary-information",     priority: 0.6, changeFrequency: "yearly" },
   { url: "/tax-returns",                       priority: 0.7, changeFrequency: "monthly" },
   { url: "/making-tax-digital",                priority: 0.7, changeFrequency: "monthly" },
   { url: "/take-home-calculator",              priority: 0.7, changeFrequency: "monthly" },

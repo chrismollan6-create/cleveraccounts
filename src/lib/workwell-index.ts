@@ -25,6 +25,8 @@ export const WORKWELL_INDEXABLE_PATHS: readonly string[] = [
   "/self-assessment",
   "/making-tax-digital",
   "/payroll-services",
+  // Bespoke Workwell guide — unique content (salary table, RTI workflow)
+  "/payroll-and-salary-information",
   // Batch 2
   "/switching-accountants",
   "/our-services/accountant-switch",
