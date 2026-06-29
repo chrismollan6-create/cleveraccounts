@@ -58,8 +58,8 @@ export default async function FunnelLayout({
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased bg-gradient-to-b from-gray-50 to-white">
-        <GoogleTagManagerHead />
-        <GoogleTagManagerBody />
+        <GoogleTagManagerHead gtmId={brand.analytics?.gtmId} />
+        <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
         <UTMCapture />
         <BrandProvider brandId={brand.id}>
           {/* ── Funnel header — clean, focused, no nav distractions ── */}
@@ -87,7 +87,7 @@ export default async function FunnelLayout({
               <div className="hidden md:flex items-center gap-4 text-xs text-text-light">
                 <span className="inline-flex items-center gap-1.5">
                   <Lock size={13} className="text-primary" />
-                  Secure sign-up
+                  Secure &amp; encrypted
                 </span>
                 <span className="text-gray-300">·</span>
                 <span className="inline-flex items-center gap-1.5">

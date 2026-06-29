@@ -129,6 +129,21 @@ export interface BrandConfig {
     reviewCount?: string;
   };
   /**
+   * EmbedSocial widget reference for the Google reviews widget. Each brand has
+   * its own widget (connected to its own Google Business Profile). Omit for a
+   * brand without one — GoogleReviewsWidget then shows that brand's fallback
+   * reviews (or nothing) rather than another brand's reviews.
+   */
+  reviewsWidgetRef?: string;
+  /**
+   * EmbedSocial *Hashtag* (ht.js) widget ref. When set, the "Don't take our
+   * word for it" reviews section renders this hashtag widget for the brand
+   * (instead of the Google reviews widget / fallback). Used where a brand's
+   * social-proof lives in an EmbedSocial Hashtag album rather than a Google
+   * reviews widget.
+   */
+  reviewsHashtagRef?: string;
+  /**
    * Legal page URLs shown in footers. Use relative paths ("/terms") for pages
    * the brand's own Next site serves, or absolute URLs for externally-hosted
    * pages (e.g. Workwell's live on its WordPress marketing site).
@@ -198,6 +213,7 @@ export const BRANDS = {
       url: 'https://uk.trustpilot.com/review/cleveraccounts.com',
       reviewCount: '700+',
     },
+    reviewsWidgetRef: 'f1e784fdf537d9876ef24e119a197eda526c4ced',
     legal: {
       privacyUrl: '/privacy',
       termsUrl: '/terms',
@@ -234,21 +250,25 @@ export const BRANDS = {
         apple: '/brand/workwell/apple-touch-icon.png',
       },
     },
-    // Canonical palette extracted from workwellaccountancy.com theme CSS (2026-05-09).
-    // Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488) are
-    // both wrong — should be reconciled to #32535a in a follow-up.
+    // Workwell brand style guide palette (2026-06-22): dark teal #29484F,
+    // mid green #8DB74E, pale lime #E0E48E. Teal is the dark anchor (text /
+    // structure / primary), green is the accent (CTAs / highlights), lime is
+    // the soft highlight. The previous cyan accent (#71c5d6) was off-brand and
+    // has been folded into the green. Primary-dark/light are derived from #29484F.
+    // NOTE: Apex StripeService.cls (#2C5F8A) and LeadSignupService.cls (#0d9488)
+    // carry the old colours — reconcile to #29484f / #8db74e in a follow-up.
     colors: {
-      primary: '#32535a',
-      primaryDark: '#233a40',
-      primaryLight: '#4d7079',
+      primary: '#29484f',
+      primaryDark: '#1c333a',
+      primaryLight: '#4a6a72',
       primary50: '#f6f9f0',
-      secondary: '#9cbf50',
-      secondaryDark: '#6f8052',
-      secondaryLight: '#bdd289',
-      accent: '#71c5d6',
+      secondary: '#8db74e',
+      secondaryDark: '#5f8a3e',
+      secondaryLight: '#e0e48e',
+      accent: '#8db74e',
       surface: '#edf3e0',
       surfaceAlt: '#fafbec',
-      text: '#32535a',
+      text: '#29484f',
       textLight: '#6a7b82',
     },
     font: {
@@ -263,16 +283,24 @@ export const BRANDS = {
     ],
     stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },
     social: {},
+    // Workwell's own GTM container — keeps its funnel/Ads tracking separate from
+    // Clever's (which falls back to the NEXT_PUBLIC_GTM_ID env var).
+    analytics: { gtmId: 'GTM-TGF9NPJ6' },
     // TODO: add Workwell's Trustpilot score + review count once confirmed —
     // Trustpilot blocks automated lookup. Profile URL is known; fill in the
     // rating and the funnel trust pill will show the Trustpilot segment.
     trustpilot: {
       rating: '4.6',
+      reviewCount: '3,000+',
       url: 'https://uk.trustpilot.com/review/workwellsolutions.com',
     },
+    // Workwell's social proof lives in an EmbedSocial Hashtag album (ht.js), so
+    // the reviews section renders that widget rather than a Google reviews one.
+    reviewsHashtagRef: '5eff37174d01c8e606aaf97fef731a32a05b137e',
     legal: {
-      // Workwell's legal pages live on its WordPress marketing site.
-      privacyUrl: 'https://workwellaccountancy.com/privacy-data-cookie-policy/',
+      // Native privacy/data/cookie policy at /privacy (content brought in from
+      // the WordPress marketing site; rendered by WorkwellPrivacy.tsx).
+      privacyUrl: '/privacy',
       // No standalone Workwell terms page exists — termsUrl intentionally
       // omitted, so the footer renders Privacy only for Workwell.
     },
@@ -305,7 +333,6 @@ export const NAV_LINKS = [
           { label: "VAT Returns", href: "/vat-returns" },
           { label: "Making Tax Digital", href: "/making-tax-digital" },
           { label: "Take Home Calculator", href: "/take-home-calculator" },
-          { label: "Integrations", href: "/integrations" },
           { label: "Switch Accountant", href: "/our-services/accountant-switch" },
           { label: "Partner Services", href: "/partners" },
         ],
@@ -314,7 +341,7 @@ export const NAV_LINKS = [
   },
   { label: "Pricing", href: "/pricing" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "About", href: "/about-us" },
+  { label: "Learn", href: "/learn" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];

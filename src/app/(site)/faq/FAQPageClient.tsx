@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useBrand } from "@/lib/useBrand";
 import {
   ArrowRight,
   Phone,
@@ -22,7 +21,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { COMPANY } from "@/lib/constants";
+import { useBrand } from "@/lib/useBrand";
 
 interface FaqItem {
   q: string;
@@ -129,7 +128,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
           <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-6">
             <Sparkles size={15} />
             {brand.id === "workwell"
-              ? "Clear answers, straight away"
+              ? "Clear answers, no jargon"
               : "Quick answers to common questions"}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5">
@@ -137,7 +136,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
             {brand.id === "workwell"
-              ? `The detail that matters about ${brand.name} — what it costs, what's included, how switching works, the software, and what's relevant to your kind of business.`
+              ? `The essentials on ${brand.name} — what we charge, what we do, how switching works, the software you get, and what it all means for your type of business.`
               : `Everything you need to know about ${brand.name} — pricing, services, switching, software, and the specifics for your business type.`}
           </p>
 
@@ -151,7 +150,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={brand.id === "workwell" ? "Search for an answer…" : "Search questions…"}
+              placeholder="Search questions…"
               aria-label="Search FAQ"
               className="w-full pl-12 pr-12 py-4 rounded-2xl bg-white/[0.08] backdrop-blur-sm border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors"
             />
@@ -223,11 +222,11 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
                 <Search size={28} className="text-text-light" />
               </div>
               <h2 className="text-xl font-black text-dark mb-2">
-                {brand.id === "workwell" ? "Nothing matched your search" : "No matching questions"}
+                {brand.id === "workwell" ? "Nothing found for that" : "No matching questions"}
               </h2>
               <p className="text-text-light text-sm max-w-md mx-auto mb-6">
                 {brand.id === "workwell"
-                  ? "Try another wording, or contact us and we'll answer you directly."
+                  ? "Try another wording, or just ask us and we'll give you a direct answer."
                   : "Try a different search term, or get in touch and we'll answer it directly."}
               </p>
               <button
@@ -277,7 +276,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16 md:py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 [[data-brand=workwell]_&]:from-[#1c333a] [[data-brand=workwell]_&]:via-[#29484f] [[data-brand=workwell]_&]:to-[#29484f] py-16 md:py-20">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />
@@ -293,7 +292,7 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
           </h2>
           <p className="text-white/85 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
             {brand.id === "workwell"
-              ? "During business hours we reply in under 2 hours. No call centres and no scripted lines — just a UK accountant giving you a clear, direct answer."
+              ? "Expect a reply in under 2 hours during business hours. No call centres and no scripts — just a UK accountant giving you a clear, direct answer."
               : "Our team responds in under 2 hours during business hours. No call centres, no scripted answers — just a UK accountant who can give you a straight answer."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -304,10 +303,10 @@ export default function FAQPageClient({ faqsByCategory }: Props) {
               Contact Us <ArrowRight size={20} />
             </Link>
             <a
-              href={`tel:${COMPANY.freephone.replace(/\s/g, "")}`}
+              href={`tel:${brand.freephone.replace(/\s/g, "")}`}
               className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all border border-white/30"
             >
-              <Phone size={20} /> {COMPANY.freephone}
+              <Phone size={20} /> {brand.freephone}
             </a>
           </div>
         </div>

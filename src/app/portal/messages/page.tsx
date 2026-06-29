@@ -27,7 +27,7 @@ export default async function MessagesPage() {
   // Soft-block states (same pattern as dashboard)
   if (portalUser && (portalUser.status === "disabled" || portalUser.status === "pending")) {
     return (
-      <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1400px] mx-auto">
+      <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1600px]">
         <AccessGate
           brand={brand}
           state={portalUser.status}
@@ -40,7 +40,7 @@ export default async function MessagesPage() {
 
   if (initialMessages.ok === false) {
     return (
-      <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1400px] mx-auto">
+      <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1600px]">
         <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-6 sm:p-8 max-w-2xl">
           <div className="flex items-start gap-3">
             <AlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={22} />
@@ -66,7 +66,7 @@ export default async function MessagesPage() {
       : null;
 
   return (
-    <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1400px] mx-auto">
+    <div className="px-4 sm:px-8 lg:px-10 py-6 sm:py-10 max-w-[1600px]">
       <MessagesView
         initialMessages={initialMessages.data}
         initialEngagementLetter={initialEngagementLetter}

@@ -1,4 +1,4 @@
-import { desc, eq, and } from "drizzle-orm";
+import { desc, eq, and, count } from "drizzle-orm";
 import { fetchPortalApex } from "./salesforce";
 import {
   tryWithPortalScope,
@@ -100,6 +100,32 @@ export async function listMessagesForCurrentUser(
     });
 
     return messages;
+  });
+}
+
+/**
+ * Count of messages from the accountant (staff replies) for the current user's
+ * Account — drives the unread badge on the Messages sidebar nav item.
+ *
+ * v1 heuristic: counts all visible staff-authored messages. A proper per-user
+ * "seen" model (last_seen_at vs sentAt) is a follow-up; for now this surfaces
+ * "your accountant has replied" at a glance.
+ */
+export async function countAccountantRepliesForCurrentUser(): Promise<
+  PortalScopeResult<number>
+> {
+  return tryWithPortalScope(async ({ accountSfId, db }) => {
+    const rows = await db
+      .select({ n: count() })
+      .from(schema.emailMessages)
+      .where(
+        and(
+          eq(schema.emailMessages.accountSfId, accountSfId),
+          eq(schema.emailMessages.isFromClient, false),
+          eq(schema.emailMessages.hideFromPortal, false)
+        )
+      );
+    return Number(rows[0]?.n ?? 0);
   });
 }
 

@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { ChevronDown, ArrowRight } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
+import { useBrand } from "@/lib/useBrand";
 import { FAQPageJsonLd, HowToJsonLd, ReviewJsonLd } from "@/components/seo/StructuredData";
 
-// HtmlEmbedBlock now lives in its own file — import it directly:
-//   import { HtmlEmbedBlock } from "@/components/blog/HtmlEmbedBlock";
-// Don't re-export it here: a barrel re-export keeps both modules in the
-// same client chunk, defeating the split that keeps sanitizeHtml
-// (isomorphic-dompurify → jsdom → html-encoding-sniffer, broken on
-// Vercel SSR) out of the FAQ/HowTo/Review path.
+export function HtmlEmbedBlock({ html }: { html: string }) {
+  const safe = sanitizeHtml(html ?? "");
+  return <div className="my-6 prose-html" dangerouslySetInnerHTML={{ __html: safe }} />;
+}
 
 export function FaqBlockRenderer({
   heading,
@@ -98,6 +98,7 @@ export function ReviewBlockRenderer({
   reviewBody: string;
   itemReviewed?: string;
 }) {
+  const brand = useBrand();
   return (
     <figure className="my-8 border-l-4 border-primary pl-5 py-2">
       <ReviewJsonLd
@@ -105,6 +106,7 @@ export function ReviewBlockRenderer({
         rating={rating}
         reviewBody={reviewBody}
         itemReviewed={itemReviewed}
+        orgName={brand.name}
       />
       {reviewBody && (
         <blockquote className="italic text-text leading-relaxed">&ldquo;{reviewBody}&rdquo;</blockquote>

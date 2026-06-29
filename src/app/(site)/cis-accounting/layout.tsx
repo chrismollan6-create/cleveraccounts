@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
+
+const cleverMetadata: Metadata = {
+  title: "CIS Accounting — Construction Industry Scheme Specialists | Clever Accounts",
+  description:
+    "Expert CIS accounting for contractors and subcontractors. We handle CIS registration, monthly returns, subcontractor verification, year-end tax reclaims, and gross payment status applications. Fixed monthly fee, dedicated accountant.",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  return {
-    title: `CIS Accounting — Construction Industry Scheme Specialists | ${brand.name}`,
-    description:
-      "Expert CIS accounting for contractors and subcontractors. We handle CIS registration, monthly returns, subcontractor verification, year-end tax reclaims, and gross payment status applications. Fixed monthly fee, dedicated accountant.",
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("cis-accounting") : cleverMetadata;
 }
 
 const faqs = [
@@ -38,7 +41,7 @@ const faqs = [
   },
   {
     q: "Does MTD apply to CIS subcontractors?",
-    a: "Yes. CIS subcontractors are classed as self-employed, so Making Tax Digital for Income Tax (MTD for ITSA) applies to them in the same way as any other sole trader. From April 2026, CIS workers with income over £50,000 must keep digital records and submit quarterly updates to HMRC. From April 2027, the threshold drops to £30,000. FreeAgent — included free with every plan — is fully MTD-compatible and handles all submissions automatically.",
+    a: "Yes. CIS subcontractors are classed as self-employed, so Making Tax Digital for Income Tax (MTD for ITSA) applies to them in the same way as any other sole trader. From April 2026, CIS workers with income over £50,000 must keep digital records and submit quarterly updates to HMRC. From April 2027, the threshold drops to £30,000. FreeAgent — included free with Clever Accounts — is fully MTD-compatible and handles all submissions automatically.",
   },
   {
     q: "Can CIS subcontractors claim expenses?",
@@ -46,10 +49,11 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

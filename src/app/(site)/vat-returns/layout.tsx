@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
+
+const cleverMetadata: Metadata = {
+  title: "VAT Returns — Handled Every Quarter | Clever Accounts",
+  description:
+    "Stress-free VAT compliance for UK businesses. Clever Accounts prepares and submits your quarterly VAT returns, handles MTD for VAT via FreeAgent, and advises on the right VAT scheme for your business. From £42.50/month.",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  return {
-    title: `VAT Returns — Handled Every Quarter | ${brand.name}`,
-    description: `Stress-free VAT compliance for UK businesses. ${brand.name} prepares and submits your quarterly VAT returns, handles MTD for VAT via FreeAgent, and advises on the right VAT scheme for your business. From £42.50/month.`,
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("vat-returns") : cleverMetadata;
 }
 
 const faqs = [
@@ -47,11 +51,9 @@ const faqs = [
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
-  const swappedFaqs = faqs.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
   return (
     <>
-      <FAQPageJsonLd faqs={swappedFaqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

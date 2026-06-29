@@ -52,3 +52,8 @@ next-env.d.ts
 
 # one-off extraction scratch
 /scratch
+
+# Salesforce CLI auth token dumps — local only, NEVER commit (contain access tokens)
+._sbauth.json
+._prodauth.json
+._*auth.json

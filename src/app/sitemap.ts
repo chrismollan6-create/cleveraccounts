@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
+import { headers } from "next/headers";
+import { BRANDS } from "@/lib/constants";
+import { brandIdFromHost } from "@/lib/brand-host";
+import { isWorkwellIndexable } from "@/lib/workwell-index";
 import {
   getBlogSlugs,
   getKnowledgeArticleSlugs,
   getKnowledgeTopicSlugs,
 } from "@/sanity/queries";
-
-const BASE = "https://cleveraccounts.com";
 
 const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
   { url: "/",                                  priority: 1.0, changeFrequency: "weekly" },
@@ -54,6 +56,12 @@ const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRo
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
 
+  // Per-brand sitemap: emit the requesting host's brand domain. Middleware is
+  // excluded from /sitemap.xml, so derive the brand from the host directly.
+  const host = (await headers()).get("host") || "";
+  const brandId = brandIdFromHost(host);
+  const BASE = `https://${BRANDS[brandId].domain}`;
+
   // Fetch live blog slugs from Sanity — automatically picks up new posts
   let blogSlugs: string[] = [];
   let learnTopicSlugs: string[] = [];
@@ -73,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If Sanity is unreachable at build time, sitemap still generates without dynamic entries
   }
 
-  return [
+  const entries: MetadataRoute.Sitemap = [
     ...STATIC_PAGES.map((p) => ({
       url: `${BASE}${p.url}`,
       lastModified: now,
@@ -99,4 +107,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
   ];
+
+  // Non-Clever brands: only submit pages with unique content (the allowlist) —
+  // duplicated pages stay out of the index until rewritten.
+  if (brandId !== "clever") {
+    return entries.filter((e) => isWorkwellIndexable(e.url.replace(BASE, "") || "/"));
+  }
+  return entries;
 }

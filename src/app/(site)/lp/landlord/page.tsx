@@ -69,10 +69,10 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "Section 24 was a real shock — I didn't realise how much extra tax I'd be paying. Clever Accounts restructured my portfolio and saved me thousands.",
+      `Section 24 was a real shock — I didn't realise how much extra tax I'd be paying. ${brandName} restructured my portfolio and saved me thousands.`,
     name: "Neil G.",
     businessType: "Residential Landlord (4 properties)",
   },
@@ -120,7 +120,7 @@ const faq: FAQItem[] = [
 
 export default async function LandlordLP() {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Landlord Accounting — From £42.50/month"
@@ -138,11 +138,11 @@ export default async function LandlordLP() {
         "Unlimited phone & email advice",
         "MTD for Income Tax compliant",
       ]}
-      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
+      whyUs={whyUs}
       painPoints={painPoints}
-      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
-      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
-      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
+      howItWorks={howItWorks}
+      testimonials={testimonials}
+      faq={faq}
     />
   );
 }

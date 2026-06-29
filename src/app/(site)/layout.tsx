@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
+import { headers, draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import Header from "@/components/layout/Header";
-import { getSiteSettings } from "@/sanity/queries";
+import { getSiteSettings, getNavigation } from "@/sanity/queries";
 import TrustBar from "@/components/layout/TrustBar";
 import Footer from "@/components/layout/Footer";
 import LearnHeader from "@/components/layout/LearnHeader";
 import LearnFooter from "@/components/layout/LearnFooter";
+import ChromeSwitcher from "@/components/layout/ChromeSwitcher";
 import { OrganizationJsonLd } from "@/components/seo/StructuredData";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/GoogleTagManager";
 import UTMCapture from "@/components/seo/UTMCapture";
@@ -14,6 +16,7 @@ import PromoBanner from "@/components/layout/PromoBanner";
 import BrandProvider from "@/components/brand/BrandProvider";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
+import { isWorkwellIndexable } from "@/lib/workwell-index";
 import "../globals.css";
 
 /**
@@ -23,6 +26,12 @@ import "../globals.css";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   const isWorkwell = brand.id === 'workwell';
+
+  // SEO safety net: on Workwell, noindex any page that doesn't yet have unique
+  // content (it's still Clever's copy, brand-swapped) so duplicate content can't
+  // hurt us. As pages are rewritten they're added to WORKWELL_INDEXABLE_PATHS.
+  const pathname = (await headers()).get('x-pathname') ?? '/';
+  const noindex = isWorkwell && !isWorkwellIndexable(pathname);
 
   const titleDefault = isWorkwell
     ? `${brand.name} | Award-Winning Accountancy for Contractors & Small Business`
@@ -69,17 +78,21 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
     },
     robots: {
-      index: true,
+      index: !noindex,
       follow: true,
       googleBot: {
-        index: true,
+        index: !noindex,
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",
         "max-snippet": -1,
       },
     },
-    alternates: { canonical: `https://${brand.domain}` },
+    // Self-referencing canonical per page. Without the pathname here, every
+    // page inherits the layout's canonical and points at the homepage — which
+    // tells Google all pages are duplicates of "/". Pages that need a different
+    // canonical can still override this in their own generateMetadata.
+    alternates: { canonical: `https://${brand.domain}${pathname === '/' ? '' : pathname}` },
     icons: brand.assets.favicon,
   };
 }
@@ -90,15 +103,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const brand = await getBrand();
+  const { isEnabled: isDraft } = await draftMode();
   // Fetch site settings from Sanity; falls back to constants in Header if null
   const siteSettings = await getSiteSettings().catch(() => null);
+  // Header menu + footer columns; null/empty → Header & Footer use built-in defaults
+  const navigation = (await getNavigation(brand.id).catch(() => null)) as {
+    headerLinks?: { label: string; href: string }[];
+    footerColumns?: { heading: string; links: { label: string; href: string }[] }[];
+  } | null;
 
-  // Reading-mode chrome for /learn/* — see LearnHeader / LearnFooter for the
-  // rationale. Detection via the `x-pathname` header that middleware stamps
-  // on every request.
-  const hdrs = await headers();
-  const pathname = hdrs.get("x-pathname") ?? "";
-  const useLightChrome = pathname === "/learn" || pathname.startsWith("/learn/");
+  // Reading-mode chrome for /learn/* is selected client-side by ChromeSwitcher
+  // (usePathname), since this server layout doesn't re-render on soft nav.
 
   // Build the Google Fonts URL once per brand. Inter is the default and is
   // already imported in globals.css; loading the WW font conditionally here
@@ -122,28 +137,59 @@ export default async function RootLayout({
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
-        <GoogleTagManagerHead />
-        <GoogleTagManagerBody />
+        <GoogleTagManagerHead gtmId={brand.analytics?.gtmId} />
+        <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
         <UTMCapture />
         <BrandProvider brandId={brand.id}>
-          {useLightChrome ? (
-            <LearnHeader />
-          ) : (
-            <>
-              <PromoBanner />
-              {/* siteSettings is a shared (Clever) singleton — only use it for
-                  Clever. Other brands fall back to their registry contact info. */}
-              <Header
-                phone={brand.id === "clever" ? (siteSettings?.phone ?? undefined) : undefined}
-                freephone={brand.id === "clever" ? (siteSettings?.freephone ?? undefined) : undefined}
-              />
-              <TrustBar brand={brand} />
-            </>
-          )}
+          <ChromeSwitcher
+            light={<LearnHeader />}
+            full={
+              <>
+                <PromoBanner />
+                {/* siteSettings is a shared (Clever) singleton — only use it for
+                    Clever. Other brands fall back to their registry contact info. */}
+                <Header
+                  phone={brand.id === "clever" ? (siteSettings?.phone ?? undefined) : undefined}
+                  freephone={brand.id === "clever" ? (siteSettings?.freephone ?? undefined) : undefined}
+                  navLinks={navigation?.headerLinks?.length ? navigation.headerLinks : undefined}
+                />
+                <TrustBar brand={brand} />
+              </>
+            }
+          />
           <main className="flex-1">{children}</main>
-          {useLightChrome ? <LearnFooter /> : <Footer brand={brand} />}
+          <ChromeSwitcher
+            light={<LearnFooter />}
+            full={<Footer brand={brand} columns={navigation?.footerColumns?.length ? navigation.footerColumns : undefined} />}
+          />
           <CookieConsent />
         </BrandProvider>
+        {isDraft && (
+          <>
+            <VisualEditing />
+            <div
+              style={{
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 9999,
+                background: "#1c5e70",
+                color: "#fff",
+                textAlign: "center",
+                padding: "8px 16px",
+                fontSize: 14,
+                fontFamily: "sans-serif",
+              }}
+            >
+              🔍 Preview mode — showing unpublished drafts.{" "}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- API route, needs a real navigation */}
+              <a href="/api/draft/disable" style={{ color: "#fff", textDecoration: "underline", fontWeight: 600 }}>
+                Exit preview
+              </a>
+            </div>
+          </>
+        )}
         <VercelMonitoring />
       </body>
     </html>

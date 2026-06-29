@@ -1,14 +1,21 @@
 import { defineType, defineField } from "sanity";
+import { HelpCircle } from "lucide-react";
 
+/**
+ * A single frequently-asked question and its answer. Short schema, so no tabs —
+ * just clear, plain-English labels for non-technical editors.
+ */
 export default defineType({
   name: "faq",
   title: "FAQ",
   type: "document",
+  icon: HelpCircle,
   fields: [
     defineField({
       name: "question",
       title: "Question",
       type: "string",
+      description: "The question as a visitor would ask it, e.g. 'How much does it cost to switch?'",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -16,12 +23,14 @@ export default defineType({
       title: "Answer",
       type: "text",
       rows: 4,
+      description: "A clear, friendly answer in a sentence or two.",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "category",
-      title: "Category",
+      title: "Topic",
       type: "string",
+      description: "Groups this question with similar ones on the FAQ page. Pick the best fit.",
       options: {
         list: [
           { title: "Getting Started", value: "getting-started" },
@@ -40,14 +49,15 @@ export default defineType({
     }),
     defineField({
       name: "order",
-      title: "Display Order",
+      title: "Position within topic",
       type: "number",
-      description: "Lower numbers appear first",
+      description: "Controls the order within its topic — lower numbers appear first.",
     }),
     defineField({
       name: "featured",
-      title: "Show on Homepage?",
+      title: "Show on homepage?",
       type: "boolean",
+      description: "Turn on to include this question in the shortlist on the homepage.",
       initialValue: false,
     }),
   ],
@@ -55,6 +65,12 @@ export default defineType({
     { title: "Category then Order", name: "categoryOrder", by: [{ field: "category", direction: "asc" }, { field: "order", direction: "asc" }] },
   ],
   preview: {
-    select: { title: "question", subtitle: "category" },
+    select: { title: "question", category: "category", featured: "featured" },
+    prepare({ title, category, featured }) {
+      return {
+        title,
+        subtitle: `${category || "No topic"}${featured ? " · On homepage" : ""}`,
+      };
+    },
   },
 });

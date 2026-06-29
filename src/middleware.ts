@@ -147,16 +147,33 @@ function isPublicPortalPath(portalPath: string): boolean {
 // framework scripts → Clerk's <ClerkProvider>. Scheduled with Foundation 6
 // (prod Clerk + MFA + custom auth domain) since both need careful Clerk
 // testing. Tracked in C:\Users\chris\.claude\plans\portal-foundations-secure-by-default.md.
+// React's dev server + Turbopack require eval() for HMR and error-overlay
+// callstack reconstruction. Allow 'unsafe-eval' ONLY outside production builds
+// — production React never uses eval(), so the hardened prod CSP is unchanged
+// (audit finding #1 stays closed for real deploys).
+const DEV_SCRIPT_EVAL =
+  process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'";
+
+// Clerk Frontend API hosts. Dev/preview deploys use *.clerk.accounts.dev;
+// production uses each brand's custom auth domain (clerk.<brand>). ClerkJS and
+// its API/XHR calls load from these, so script-src + connect-src + frame-src +
+// form-action must all allow them or the sign-in widget is CSP-blocked on the
+// real my.<brand> hosts (it silently fails to render).
+const CLERK_HOSTS =
+  "https://*.clerk.accounts.dev https://clerk.cleveraccounts.com https://clerk.workwellaccountancy.com";
+
 const PORTAL_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+  `script-src 'self' 'unsafe-inline'${DEV_SCRIPT_EVAL} ${CLERK_HOSTS} https://challenges.cloudflare.com`,
+  // Clerk spawns a blob-based web worker for token refresh.
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://*.salesforce.com https://*.cleveraccounts.com https://*.workwellaccountancy.com https://*.clerk.com https://img.clerk.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://*.clerk.accounts.dev https://clerk.com https://clerk-telemetry.com https://*.supabase.co wss://*.supabase.co https://api.calendly.com",
-  "frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev https://calendly.com",
+  `connect-src 'self' ${CLERK_HOSTS} https://clerk.com https://clerk-telemetry.com https://*.supabase.co wss://*.supabase.co https://api.calendly.com`,
+  `frame-src https://challenges.cloudflare.com ${CLERK_HOSTS} https://calendly.com`,
   "frame-ancestors 'none'",
-  "form-action 'self' https://*.clerk.accounts.dev",
+  `form-action 'self' ${CLERK_HOSTS}`,
   "base-uri 'self'",
   "object-src 'none'",
   "upgrade-insecure-requests",
@@ -269,6 +286,16 @@ async function handle(req: NextRequest, getUserId: () => Promise<string | null |
     // entirely — let it fall through to the default response so Next.js
     // serves the (funnel) route. Marketing CSP applies (see below).
     isPublicPassthrough = true;
+  } else if (isPortal && url.pathname.startsWith('/api/')) {
+    // Portal-host API routes live at /api/* (NOT under /portal/*) and each
+    // handler authorizes itself:
+    //   - /api/portal/clerk-webhook   → Svix signature (server-to-server, no session)
+    //   - /api/portal/sync, /invite   → HMAC signature (server-to-server, no session)
+    //   - all other /api/portal/*     → Clerk auth() / withPortalScope (IDOR-scoped)
+    // They must bypass BOTH the `/portal` rewrite (which would 404 them at the
+    // non-existent /portal/api/* path) AND the middleware session gate (which
+    // would 307 legitimate sessionless webhooks to /sign-in). Fall through to
+    // the default response below, which serves the route directly.
   } else if (isPortal) {
     // On a portal hostname every other URL must resolve under /portal/*.
     // Determine the equivalent `/portal/...` path so we can auth-gate it

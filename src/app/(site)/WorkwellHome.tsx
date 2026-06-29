@@ -24,6 +24,7 @@ import TaxCalculator from "@/components/ui/TaxCalculator";
 import PricingFAQ from "@/components/ui/PricingFAQ";
 import RequestCallback from "@/components/ui/RequestCallback";
 import StickyFloatingCTA from "@/components/ui/StickyFloatingCTA";
+import EmbedSocialHashtag from "@/components/ui/EmbedSocialHashtag";
 import WorkwellHero from "./WorkwellHero";
 import type { CmsHomePage } from "./HomePageClient";
 import { SHOWCASE_SECTORS } from "@/lib/sectors";
@@ -56,22 +57,27 @@ const SEGMENT_BLURB: Record<string, string> = {
 
 /** Per-segment accent — lime, cyan, teal — so the picker is colourful. */
 const SEGMENT_ACCENT = [
-  { bar: "from-[#9cbf50] to-[#bdd289]", chip: "bg-[#9cbf50]/20 text-[#6f8052]", hover: "hover:border-[#9cbf50]", link: "text-[#6f8052]" },
-  { bar: "from-[#71c5d6] to-[#a5dde8]", chip: "bg-[#71c5d6]/25 text-[#2c6470]", hover: "hover:border-[#71c5d6]", link: "text-[#2c6470]" },
-  { bar: "from-[#32535a] to-[#4d7079]", chip: "bg-[#32535a]/12 text-[#2c4a51]", hover: "hover:border-[#32535a]", link: "text-[#2c4a51]" },
+  { bar: "from-[#8db74e] to-[#e0e48e]", chip: "bg-[#8db74e]/20 text-[#5f8a3e]", hover: "hover:border-[#8db74e]", link: "text-[#5f8a3e]" },
+  { bar: "from-[#8db74e] to-[#cde3a3]", chip: "bg-[#8db74e]/25 text-[#2f5560]", hover: "hover:border-[#8db74e]", link: "text-[#2f5560]" },
+  { bar: "from-[#29484f] to-[#4a6a72]", chip: "bg-[#29484f]/12 text-[#29484f]", hover: "hover:border-[#29484f]", link: "text-[#29484f]" },
 ];
 
 /** Alternating icon tints used across the benefit grid. */
 const TINTS = [
-  "bg-[#9cbf50]/20 text-[#6f8052]",
-  "bg-[#71c5d6]/25 text-[#2c6470]",
-  "bg-[#32535a]/12 text-[#2c4a51]",
+  "bg-[#8db74e]/20 text-[#5f8a3e]",
+  "bg-[#8db74e]/25 text-[#2f5560]",
+  "bg-[#29484f]/12 text-[#29484f]",
 ];
 
-/** Pill tints that pop on the dark sector band. */
+/**
+ * Pill tints that pop on the dark sector band. Cycled so adjacent sectors are
+ * visually distinct — lime, green, teal and neutral rather than two near-equal
+ * greens.
+ */
 const DARK_TINTS = [
-  "bg-[#9cbf50]/20 text-[#bdd289] border border-[#9cbf50]/30",
-  "bg-[#71c5d6]/20 text-[#a5dde8] border border-[#71c5d6]/30",
+  "bg-[#e0e48e]/15 text-[#e0e48e] border border-[#e0e48e]/35",
+  "bg-[#8db74e]/20 text-[#a5d06a] border border-[#8db74e]/40",
+  "bg-[#4a6a72]/35 text-[#cde3a3] border border-[#4a6a72]/60",
   "bg-white/[0.07] text-white/80 border border-white/15",
 ];
 
@@ -105,9 +111,9 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
   ];
 
   const steps = [
-    { n: "1", title: "Tell us about you", desc: "Answer a few quick questions online — takes about two minutes.", grad: "from-[#9cbf50] to-[#6f8052]" },
-    { n: "2", title: "Meet your accountant", desc: "We match you with a dedicated expert for your line of work.", grad: "from-[#71c5d6] to-[#3f9fb0]" },
-    { n: "3", title: "Relax — we've got it", desc: "We handle the admin, deadlines and tax. You get on with business.", grad: "from-[#32535a] to-[#4d7079]" },
+    { n: "1", title: "Tell us about you", desc: "Answer a few quick questions online — takes about two minutes.", grad: "from-[#8db74e] to-[#5f8a3e]" },
+    { n: "2", title: "Meet your accountant", desc: "We match you with a dedicated expert for your line of work.", grad: "from-[#8db74e] to-[#8db74e]" },
+    { n: "3", title: "Relax — we've got it", desc: "We handle the admin, deadlines and tax. You get on with business.", grad: "from-[#29484f] to-[#4a6a72]" },
   ];
 
   const heroPrice = segments[0]?.price ?? "42.50";
@@ -116,37 +122,50 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
     <>
       <WorkwellHero home={home} trustBadge={trustBadge} />
 
-      {/* ── Refer a friend — inset rounded card on white so it flows ──── */}
-      <section className="bg-white pt-5 pb-0 md:pt-7">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#9cbf50] via-[#6f8052] to-[#32535a] shadow-xl shadow-[#2c4a51]/15">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 right-1/4 w-48 h-48 bg-[#71c5d6]/25 rounded-full blur-3xl pointer-events-none" />
+      {/* ── Refer a friend — compact band with the real two-tier value
+          (£75 / £250) kept concrete but slim, so it reads as a perk, not
+          a hero-sized section. ─────────────────────────────────────── */}
+      <section className="bg-white pt-6 pb-2 md:pt-8">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#8db74e] via-[#5f8a3e] to-[#29484f] shadow-lg shadow-[#29484f]/15">
+            <div className="absolute -bottom-12 right-1/4 w-44 h-44 bg-[#e0e48e]/15 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative px-6 py-6 md:px-8 md:py-7">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-shrink-0">
-                    <div className="absolute inset-0 bg-[#bdd289]/40 rounded-2xl blur-md" />
-                    <div className="relative w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-lg">
-                      <Gift size={24} className="text-white" />
-                    </div>
-                  </div>
-                  <div className="text-center sm:text-left">
-                    <p className="text-white font-black text-lg leading-tight tracking-tight">
-                      Refer a friend — earn up to{" "}
-                      <span className="text-[#eaf3d0] underline decoration-[#bdd289]/70 decoration-2 underline-offset-2">£250</span>
+            <div className="relative px-5 py-4 md:px-7 md:py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                {/* Pitch */}
+                <div className="flex items-center gap-3 text-center sm:text-left">
+                  <span className="hidden sm:flex w-10 h-10 rounded-xl bg-white/15 border border-white/25 items-center justify-center shrink-0">
+                    <Gift size={18} className="text-white" />
+                  </span>
+                  <div>
+                    <p className="text-white font-bold text-base leading-tight">
+                      Refer a friend, you both win
                     </p>
-                    <p className="text-white/85 text-sm mt-0.5">
-                      Know someone who needs an accountant? You both benefit.
+                    <p className="text-white/80 text-xs mt-0.5">
+                      Earn a voucher for every business owner who joins.
                     </p>
                   </div>
                 </div>
+
+                {/* Concrete reward tiers — inline pills */}
+                <div className="flex items-center gap-2.5">
+                  <span className="inline-flex items-baseline gap-1 bg-white/12 border border-white/20 rounded-lg px-3 py-1.5">
+                    <span className="text-white font-black text-base">£75</span>
+                    <span className="text-white/75 text-[11px] font-semibold">sole trader</span>
+                  </span>
+                  <span className="inline-flex items-baseline gap-1 bg-white/18 border border-[#e0e48e]/40 rounded-lg px-3 py-1.5">
+                    <span className="text-[#f2f6da] font-black text-base">£250</span>
+                    <span className="text-white/80 text-[11px] font-semibold">limited co.</span>
+                  </span>
+                </div>
+
+                {/* CTA */}
                 <Link
                   href="/refer-a-friend"
-                  className="group inline-flex items-center gap-2 bg-white text-[#2c4a51] font-bold px-6 py-3 rounded-xl text-sm shadow-lg hover:shadow-xl hover:bg-[#eef4e2] transition-all whitespace-nowrap"
+                  className="group inline-flex items-center gap-1.5 bg-white text-[#29484f] font-bold px-5 py-2.5 rounded-lg text-sm shadow-md hover:bg-[#eef4e2] transition-all whitespace-nowrap shrink-0"
                 >
-                  Find out more
+                  See how it works
                   <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
@@ -159,8 +178,8 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       <section className="bg-white py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
-            <span className="text-[#6f8052] font-bold text-sm uppercase tracking-wider">Built around you</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-3">
+            <span className="text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">Built around you</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               What kind of business are you?
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg max-w-2xl mx-auto">
@@ -178,25 +197,30 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
                   className={`group relative flex flex-col bg-white rounded-3xl border border-[#e4ecd6] ${a.hover} hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden`}
                 >
                   <div className={`h-1.5 w-full bg-gradient-to-r ${a.bar}`} />
+                  {promoBadges[seg.label] && (
+                    <span className="absolute top-4 right-4 z-10 inline-flex items-center whitespace-nowrap rounded-full bg-[#8db74e] text-white text-[11px] font-bold px-2.5 py-1 shadow-sm">
+                      {promoBadges[seg.label]}
+                    </span>
+                  )}
                   <div className="p-8 flex flex-col flex-1">
                     <span className={`w-14 h-14 rounded-2xl ${a.chip} flex items-center justify-center mb-5`}>
                       {seg.icon}
                     </span>
-                    <h3 className="text-xl font-bold text-[#2c4a51] mb-2">{seg.label}</h3>
+                    <h3 className="text-xl font-bold text-[#29484f] mb-2">{seg.label}</h3>
                     <p className="text-[#5a6f74] text-sm leading-relaxed mb-5">
                       {SEGMENT_BLURB[seg.id] ?? seg.headline}
                     </p>
                     <ul className="space-y-2.5 mb-6">
                       {seg.features.slice(0, 6).map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm text-[#3f565b]">
-                          <CheckCircle2 size={15} className="text-[#6f8052] shrink-0 mt-0.5" />
+                        <li key={f} className="flex items-start gap-2 text-sm text-[#29484f]">
+                          <CheckCircle2 size={15} className="text-[#5f8a3e] shrink-0 mt-0.5" />
                           {f}
                         </li>
                       ))}
                     </ul>
                     <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#e4ecd6]">
                       <span className="text-sm text-[#6a7b80]">
-                        from <span className="text-lg font-extrabold text-[#2c4a51]">£{seg.price}</span>/mo + VAT
+                        from <span className="text-lg font-extrabold text-[#29484f]">£{seg.price}</span>/mo + VAT
                       </span>
                       <span className={`inline-flex items-center gap-1 ${a.link} font-bold text-sm group-hover:gap-2 transition-all`}>
                         Explore <ChevronRight size={16} />
@@ -211,11 +235,11 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       </section>
 
       {/* ── Sector breadth — dark band so the colourful pills pop ─────── */}
-      <section className="relative bg-gradient-to-br from-[#1a2426] to-[#243b40] py-16 md:py-20 overflow-hidden">
-        <div className="absolute -top-16 left-1/4 w-72 h-72 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 right-1/4 w-72 h-72 bg-[#71c5d6]/12 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative bg-gradient-to-br from-[#15282d] to-[#1c333a] py-16 md:py-20 overflow-hidden">
+        <div className="absolute -top-16 left-1/4 w-72 h-72 bg-[#8db74e]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 right-1/4 w-72 h-72 bg-[#8db74e]/12 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-3xl mx-auto px-4 text-center mb-10">
-          <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Whatever you do</span>
+          <span className="text-[#e0e48e] font-bold text-sm uppercase tracking-wider">Whatever you do</span>
           <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
             We work with all sorts of businesses
           </h2>
@@ -259,7 +283,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
 
         <p className="relative text-center mt-10 text-white font-bold text-lg">
           …and{" "}
-          <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#e0e48e] to-[#8db74e] bg-clip-text text-transparent">
             200+ more
           </span>{" "}
           sectors
@@ -268,14 +292,14 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
 
       {/* ── Reassurance — outcomes, not features ──────────────────────── */}
       <section className="relative bg-white py-20 md:py-28 overflow-hidden">
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-[#71c5d6]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 -left-20 w-80 h-80 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-[#8db74e]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 -left-20 w-80 h-80 bg-[#8db74e]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4">
           <div className="text-center mb-16 max-w-2xl mx-auto">
-            <span className="inline-flex items-center gap-2 text-[#6f8052] font-bold text-sm uppercase tracking-wider">
+            <span className="inline-flex items-center gap-2 text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">
               <HeartHandshake size={16} /> Less admin, more you
             </span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               Everything sorted, nothing to worry about
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg">
@@ -292,7 +316,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
                 <span className={`w-12 h-12 rounded-2xl ${TINTS[i % TINTS.length]} flex items-center justify-center mb-4`}>
                   {b.icon}
                 </span>
-                <h3 className="text-lg font-bold text-[#2c4a51] mb-2">{b.title}</h3>
+                <h3 className="text-lg font-bold text-[#29484f] mb-2">{b.title}</h3>
                 <p className="text-[#5a6f74] text-sm leading-relaxed">{b.desc}</p>
               </div>
             ))}
@@ -304,17 +328,17 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       <TaxCalculator />
 
       {/* ── How it works — dark band, flows into the dark social-proof ── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#1a2426] to-[#243b40] py-20 md:py-28">
-        <div className="absolute -top-16 left-1/3 w-72 h-72 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#15282d] to-[#1c333a] py-20 md:py-28">
+        <div className="absolute -top-16 left-1/3 w-72 h-72 bg-[#8db74e]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Getting started</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
+            <span className="text-[#e0e48e] font-bold text-sm uppercase tracking-wider">Getting started</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
               Up and running in minutes
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-9 left-[18%] right-[18%] h-0.5 bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#9cbf50] opacity-50" />
+            <div className="hidden md:block absolute top-9 left-[18%] right-[18%] h-0.5 bg-gradient-to-r from-[#8db74e] via-[#8db74e] to-[#8db74e] opacity-50" />
             {steps.map((s) => (
               <div key={s.n} className="text-center relative z-10">
                 <div className="w-18 h-18 mx-auto mb-6 rounded-3xl bg-white/[0.06] border border-white/10 flex items-center justify-center">
@@ -330,34 +354,41 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
         </div>
       </section>
 
-      {/* ── Social proof — vertical gradient (top edge uniform #243b40)
-          so it joins the How-it-works band above with no seam. ───────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#243b40] via-[#2c4a51] to-[#32535a] py-20 md:py-24">
-        <div className="absolute top-16 -right-16 w-80 h-80 bg-[#71c5d6]/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#9cbf50]/15 rounded-full blur-3xl" />
+      {/* ── Social proof — light band so the reviews widget (light-themed,
+          dark text) reads naturally without a boxed background. ───────── */}
+      <section className="relative bg-white py-20 md:py-24">
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 mb-5">
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={22} className="fill-amber-400 text-amber-400" />
             ))}
-            <span className="text-white text-2xl font-extrabold ml-2">{rating}</span>
+            <span className="text-[#1c333a] text-2xl font-extrabold ml-2">{rating}</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#1c333a] mb-4">
             Trusted by self-employed people across the UK
           </h2>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto mb-10">
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-10">
             Real, named accountants. Honest pricing. No call centres and no jargon — just people who genuinely have your back.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-white/85 text-sm font-semibold mb-10">
-            <span className="flex items-center gap-2"><ShieldCheck size={18} className="text-[#9cbf50]" /> Qualified &amp; regulated</span>
-            <span className="flex items-center gap-2"><CheckCircle2 size={18} className="text-[#71c5d6]" /> No tie-in contracts</span>
-            <span className="flex items-center gap-2"><CheckCircle2 size={18} className="text-[#9cbf50]" /> Making Tax Digital ready</span>
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-slate-700 text-sm font-semibold mb-10">
+            <span className="flex items-center gap-2"><ShieldCheck size={18} className="text-[#8db74e]" /> Qualified &amp; regulated</span>
+            <span className="flex items-center gap-2"><CheckCircle2 size={18} className="text-[#8db74e]" /> No tie-in contracts</span>
+            <span className="flex items-center gap-2"><CheckCircle2 size={18} className="text-[#8db74e]" /> Making Tax Digital ready</span>
           </div>
+        </div>
+
+        {brand.reviewsHashtagRef && (
+          <div className="relative max-w-7xl mx-auto px-4 mb-10 text-left">
+            <EmbedSocialHashtag dataRef={brand.reviewsHashtagRef} />
+          </div>
+        )}
+
+        <div className="relative max-w-5xl mx-auto px-4 text-center">
           <Link
             href={brand.trustpilot?.url ?? "/reviews"}
             target={brand.trustpilot?.url ? "_blank" : undefined}
             rel={brand.trustpilot?.url ? "noopener noreferrer" : undefined}
-            className="inline-flex items-center gap-2 bg-white text-[#2c4a51] font-bold px-6 py-3 rounded-xl hover:bg-[#eef4e2] transition-colors"
+            className="inline-flex items-center gap-2 bg-[#29484f] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#1c333a] transition-colors"
           >
             Read our reviews <ArrowRight size={16} />
           </Link>
@@ -367,36 +398,36 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       {/* ── Pricing teaser — simple, honest, with colour ──────────────── */}
       <section className="bg-white py-20 md:py-28">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-br from-[#9cbf50] via-[#71c5d6] to-[#32535a] shadow-xl shadow-[#2c4a51]/10">
+          <div className="relative rounded-[2rem] p-[2px] bg-gradient-to-br from-[#8db74e] via-[#8db74e] to-[#29484f] shadow-xl shadow-[#29484f]/10">
             <div className="rounded-[calc(2rem-2px)] bg-white p-10 md:p-14 text-center">
-              <span className="inline-flex items-center gap-2 text-[#6f8052] font-bold text-sm uppercase tracking-wider">
+              <span className="inline-flex items-center gap-2 text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">
                 <Sparkles size={16} /> Simple, honest pricing
               </span>
-              <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-3 mb-2">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3 mb-2">
                 One fixed monthly fee
               </h2>
               <p className="text-[#5a6f74] text-lg mb-6">
                 Everything included. No setup fees, no surprises, cancel anytime.
               </p>
               <p className="text-5xl md:text-6xl font-extrabold mb-8">
-                <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#8db74e] via-[#8db74e] to-[#29484f] bg-clip-text text-transparent">
                   from £{heroPrice}
                 </span>
                 <span className="text-xl font-semibold text-[#6a7b80]">/mo + VAT</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-8 py-4 rounded-xl shadow-lg shadow-[#9cbf50]/25">
+                <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-8 py-4 rounded-xl shadow-lg shadow-[#8db74e]/25">
                   Get Started Free <ArrowRight size={20} />
                 </Link>
                 <Link
                   href="/pricing"
-                  className="inline-flex items-center justify-center gap-2 bg-white border border-[#71c5d6]/40 text-[#2c4a51] font-semibold text-lg px-8 py-4 rounded-xl hover:bg-[#eef4e2] transition-colors"
+                  className="inline-flex items-center justify-center gap-2 bg-white border border-[#8db74e]/40 text-[#29484f] font-semibold text-lg px-8 py-4 rounded-xl hover:bg-[#eef4e2] transition-colors"
                 >
                   See full pricing
                 </Link>
               </div>
               {promoBadges[segments[0]?.label] && (
-                <p className="mt-5 text-sm font-bold text-[#6f8052]">{promoBadges[segments[0].label]}</p>
+                <p className="mt-5 text-sm font-bold text-[#5f8a3e]">{promoBadges[segments[0].label]}</p>
               )}
             </div>
           </div>
@@ -404,13 +435,13 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       </section>
 
       {/* ── FAQ — dark section so the reused PricingFAQ (white text) reads ─ */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#1a2426] to-[#243b40] py-20 md:py-28">
-        <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#71c5d6]/15 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#9cbf50]/12 rounded-full blur-3xl" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#15282d] to-[#1c333a] py-20 md:py-28">
+        <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#8db74e]/15 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#8db74e]/12 rounded-full blur-3xl" />
         <div className="relative max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Good to know</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
+            <span className="text-[#e0e48e] font-bold text-sm uppercase tracking-wider">Good to know</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
               Questions, answered
             </h2>
           </div>
@@ -420,7 +451,7 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
           <div className="text-center mt-10">
             <p className="text-white/60">
               Still wondering about something?{" "}
-              <Link href="/contact" className="text-[#9cbf50] font-semibold hover:underline">
+              <Link href="/contact" className="text-[#8db74e] font-semibold hover:underline">
                 Talk to us &rarr;
               </Link>
             </p>
@@ -431,18 +462,18 @@ export default function WorkwellHome({ home, serviceTabs, faqs, promoBadges, tru
       {/* ── Final CTA — warm close ────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white py-24 md:py-28">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="relative bg-gradient-to-br from-[#243b40] via-[#2c4a51] to-[#32535a] rounded-[2rem] p-10 md:p-16 text-center overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#9cbf50]/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#71c5d6]/20 rounded-full blur-3xl" />
+          <div className="relative bg-gradient-to-br from-[#1c333a] via-[#29484f] to-[#29484f] rounded-[2rem] p-10 md:p-16 text-center overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="relative">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5 leading-tight">
                 Ready to stop worrying about your accounts?
               </h2>
               <p className="text-white/75 text-lg mb-10 max-w-2xl mx-auto">
                 Get a dedicated accountant, unlimited advice and free software — all for one simple monthly fee. Set up in minutes.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-4 rounded-xl shadow-lg shadow-[#9cbf50]/25">
+                <Link href="/sign-up" className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-4 rounded-xl shadow-lg shadow-[#8db74e]/25">
                   Get Started Free <ArrowRight size={20} />
                 </Link>
                 <RequestCallback

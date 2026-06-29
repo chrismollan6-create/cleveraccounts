@@ -7,6 +7,11 @@ import PortalShell from "@/components/portal/PortalShell";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
 import { getOnboardingForCurrentUser, isOnboardingError } from "@/lib/portal/onboarding";
+import { countAccountantRepliesForCurrentUser } from "@/lib/portal/messages";
+import { countUnreadNotificationsForCurrentUser } from "@/lib/portal/notifications";
+import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
+import { countPendingApprovalsForCurrentUser } from "@/lib/portal/approvals";
+import { countOutstandingDocRequestsForCurrentUser } from "@/lib/portal/documents";
 import "../globals.css";
 
 /**
@@ -90,6 +95,7 @@ export default async function PortalLayout({
   let notifications: Partial<Record<string, number>> = {};
   let accountant: import("@/lib/portal/types").PortalAccountantInfo | null = null;
   let nextAction: { title: string; sub: string; href: string } | null = null;
+  let progress: { pct: number; segments: string[] } | null = null;
   if (isSignedIn) {
     try {
       const result = await getOnboardingForCurrentUser();
@@ -103,26 +109,49 @@ export default async function PortalLayout({
         ).length;
         // Appointments → unbooked stages that need a time picked
         const pendingAppointments = status.blockedOn === "client" && !status.isComplete ? 1 : 0;
+        // Nav badges — messages replies, unread notifications, deadlines that
+        // need the client. Each resolved from the cache; all fail-soft to 0.
+        const [replies, unreadNotifs, dl, pendingApprovals, docRequests] =
+          await Promise.all([
+            countAccountantRepliesForCurrentUser(),
+            countUnreadNotificationsForCurrentUser(),
+            getDeadlinesForCurrentUser(),
+            countPendingApprovalsForCurrentUser(),
+            countOutstandingDocRequestsForCurrentUser(),
+          ]);
+        const deadlinesNeedingClient = dl.ok
+          ? dl.data.filter(
+              (d) =>
+                d.status === "overdue" ||
+                (d.status === "due_soon" && d.blockedOn === "client")
+            ).length
+          : 0;
         notifications = {
-          "/portal/documents": pendingDocs,
+          "/portal/documents": docRequests.ok ? docRequests.data : pendingDocs,
           "/portal/appointments": pendingAppointments,
+          "/portal/messages": replies.ok ? replies.data : 0,
+          "/portal/notifications": unreadNotifs.ok ? unreadNotifs.data : 0,
+          "/portal/deadlines": deadlinesNeedingClient,
+          "/portal/approvals": pendingApprovals.ok ? pendingApprovals.data : 0,
         };
         accountant = status.accountant ?? null;
-        // Derive a sidebar "what's next" reminder from the current stage.
+        // Compact onboarding progress strip for the sidebar.
+        const completedStages = status.stages.filter(
+          (s) => s.state === "complete"
+        ).length;
+        progress = {
+          pct: Math.round((completedStages / status.totalStages) * 100),
+          segments: status.stages.map((s) => s.state),
+        };
+        // Derive a sidebar "what's next" reminder — gentle nudge tone, no
+        // alarming "N days overdue" framing (matches the dashboard).
         if (!status.isComplete && status.nextActionLabel) {
-          const due = status.currentStageDue ? new Date(status.currentStageDue) : null;
-          const overdue =
-            due && due.getTime() < Date.now()
-              ? Math.floor((Date.now() - due.getTime()) / 86_400_000)
-              : 0;
           nextAction = {
             title: status.nextActionLabel,
             sub:
-              overdue > 0
-                ? `${overdue} day${overdue === 1 ? "" : "s"} overdue`
-                : status.blockedOn === "client"
-                  ? "Needs you"
-                  : "In progress",
+              status.blockedOn === "client"
+                ? "A quick 30-min call"
+                : "In progress",
             href: status.accountant?.calendlyUrl ?? "/portal/dashboard",
           };
         }
@@ -172,6 +201,7 @@ export default async function PortalLayout({
                 notifications={notifications}
                 accountant={accountant}
                 nextAction={nextAction}
+                progress={progress}
               >
                 {children}
               </PortalShell>

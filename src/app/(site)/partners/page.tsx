@@ -3,27 +3,40 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink, CheckCircle2, Star, Shield, PoundSterling, TrendingUp, Phone } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 
+const cleverMetadata: Metadata = {
+  title: "Partner Services — Business Banking, Insurance & Financial Planning | Clever Accounts",
+  description:
+    "Our recommended partners for UK business banking, professional insurance, and financial planning. Exclusive offers for Clever Accounts clients — including £75 cashback with Tide.",
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
+  if (brand.id !== "workwell") return cleverMetadata;
   return {
     title: `Partner Services — Business Banking, Insurance & Financial Planning | ${brand.name}`,
     description:
-      `Our recommended partners for UK business banking, professional insurance, and financial planning. Exclusive offers for ${brand.name} clients — including £75 cashback with Tide.`,
+      `Our recommended partners for UK business banking, professional insurance, and financial planning — chosen because they make life easier for ${brand.name} clients.`,
   };
 }
 
-const partners = [
+const getPartners = (brandName: string, isWorkwell: boolean) => [
   {
     name: "Tide",
     category: "Business Banking",
     categoryColour: "bg-blue-500/10 text-blue-600",
     tagline: "The UK's most-loved business bank account",
     description: "Tide is purpose-built for small businesses and sole traders. Open a business current account in minutes — no high street branch required. Send invoices, track spending, and manage your money on the go.",
-    offer: {
-      headline: "£75 cashback for Clever Accounts clients",
-      detail: "Sign up through our link and deposit £100 or more. Clever Accounts clients receive £75 cashback automatically. No catches.",
-      badge: "Exclusive Offer",
-    },
+    offer: isWorkwell
+      ? {
+          headline: "A business account built for small businesses",
+          detail: "Open a free Tide business current account in minutes and connect it straight to your accounting software — no high street branch required.",
+          badge: "Recommended Partner",
+        }
+      : {
+          headline: `£75 cashback for ${brandName} clients`,
+          detail: `Sign up through our link and deposit £100 or more. ${brandName} clients receive £75 cashback automatically. No catches.`,
+          badge: "Exclusive Offer",
+        },
     features: [
       "Free business current account",
       "Open in under 10 minutes",
@@ -32,7 +45,7 @@ const partners = [
       "Expense categorisation",
       "24/7 in-app support",
     ],
-    cta: "Get £75 Cashback",
+    cta: isWorkwell ? "Open an Account" : "Get £75 Cashback",
     href: "https://tide.co",
     colour: "border-blue-200 hover:border-blue-400",
     iconBg: "bg-[#00D2FF]",
@@ -71,7 +84,7 @@ const partners = [
     description: "Prospera Wealth are our recommended independent financial advisers. Whether you're planning for retirement, protecting your income, or thinking about investments — they provide clear, jargon-free advice tailored to business owners.",
     offer: {
       headline: "Independent advice, aligned to your goals",
-      detail: "As a Clever Accounts client, you can be introduced directly to the Prospera Wealth team for a no-obligation initial conversation.",
+      detail: `As a ${brandName} client, you can be introduced directly to the Prospera Wealth team for a no-obligation initial conversation.`,
       badge: "Recommended Partner",
     },
     features: [
@@ -92,7 +105,7 @@ const partners = [
 
 export default async function PartnersPage() {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const partners = getPartners(brand.name, brand.id === "workwell");
   return (
     <>
       {/* ── HERO ────────────────────────────────────────────── */}
@@ -163,10 +176,10 @@ export default async function PartnersPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-black text-dark text-base">{swap(p.offer.headline)}</p>
+                          <p className="font-black text-dark text-base">{p.offer.headline}</p>
                           <span className="text-xs font-bold bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">{p.offer.badge}</span>
                         </div>
-                        <p className="text-text-light text-sm leading-relaxed">{swap(p.offer.detail)}</p>
+                        <p className="text-text-light text-sm leading-relaxed">{p.offer.detail}</p>
                       </div>
                     </div>
                   </div>
@@ -197,7 +210,13 @@ export default async function PartnersPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/90 to-orange-600 py-16">
+      <section className={`relative overflow-hidden py-16 ${brand.id === "workwell" ? "bg-gradient-to-br from-[#1c333a] via-[#29484f] to-[#29484f]" : "bg-gradient-to-br from-secondary via-secondary/90 to-orange-600"}`}>
+        {brand.id === "workwell" && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-16 right-0 w-72 h-72 rounded-full blur-3xl bg-[#8db74e]/25" />
+            <div className="absolute -bottom-20 -left-10 w-80 h-80 rounded-full blur-3xl bg-[#e0e48e]/12" />
+          </div>
+        )}
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-black text-white mb-4">Already a {brand.name} Client?</h2>
           <p className="text-white/85 text-lg mb-8 max-w-xl mx-auto">
@@ -207,9 +226,9 @@ export default async function PartnersPage() {
             <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white text-secondary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
               Get in Touch <ArrowRight size={20} />
             </Link>
-            <a href="tel:01135188800" className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+            <a href={`tel:${brand.phone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
               <Phone size={20} />
-              0113 518 8800
+              {brand.phone}
             </a>
           </div>
         </div>

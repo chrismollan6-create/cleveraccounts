@@ -122,14 +122,9 @@ export default function MessagesView({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left column: Composer + Conversation */}
+        {/* Left column: conversation first (oldest→newest), composer pinned
+            beneath at the bottom — standard chat layout. */}
         <div className="lg:col-span-2 space-y-6">
-          <MessageComposer
-            accountantFirstName={accountantFirstName}
-            onOptimisticInsert={onOptimisticInsert}
-            onSent={onSent}
-          />
-
           {initialEngagementLetter && (
             <EngagementLetterInline letter={initialEngagementLetter} />
           )}
@@ -147,6 +142,14 @@ export default function MessagesView({
               accountant={accountant}
             />
           )}
+
+          <div className="lg:sticky lg:bottom-4">
+            <MessageComposer
+              accountantFirstName={accountantFirstName}
+              onOptimisticInsert={onOptimisticInsert}
+              onSent={onSent}
+            />
+          </div>
         </div>
 
         {/* Right column: Accountant + tips */}

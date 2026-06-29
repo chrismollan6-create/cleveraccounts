@@ -1,24 +1,41 @@
 import { defineType, defineField } from "sanity";
+import { Megaphone } from "lucide-react";
 import { brandField } from "./objects/brandField";
 
+/**
+ * PPC / ad landing page (lives at /lp/{slug}).
+ * Organised into tabs (Content / SEO / Settings) so the form is approachable
+ * for non-technical editors.
+ */
 export default defineType({
   name: "landingPage",
   title: "Landing Pages",
   type: "document",
+  icon: Megaphone,
+  groups: [
+    { name: "content", title: "Content", default: true },
+    { name: "seo", title: "SEO" },
+    { name: "settings", title: "Settings" },
+  ],
+  fieldsets: [
+    { name: "hero", title: "Hero (top of the page)", options: { collapsible: false } },
+  ],
   fields: [
-    brandField(),
+    { ...brandField(), group: "settings" },
     defineField({
       name: "title",
-      title: "Internal Title",
+      title: "Page name (internal)",
       type: "string",
-      description: "Only visible in the CMS — used to identify this page",
+      group: "settings",
+      description: "Only visible here in the CMS — used to identify this page in the list.",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "slug",
-      title: "URL Slug",
+      title: "Web address (URL)",
       type: "slug",
-      description: "The page will be live at /lp/{slug}. Must be unique.",
+      group: "settings",
+      description: "The page lives at /lp/your-slug — must be unique. Avoid changing once live.",
       options: { source: "title", maxLength: 96 },
       validation: (Rule) => Rule.required(),
     }),
@@ -26,59 +43,72 @@ export default defineType({
     // ── Hero ──────────────────────────────────────────────────────────────────
     defineField({
       name: "headline",
-      title: "Headline",
+      title: "Hero headline",
       type: "string",
-      description: "Main H1 shown in the hero section",
+      group: "content",
+      fieldset: "hero",
+      description: "The big heading at the very top of the page.",
       validation: (Rule) => Rule.required().max(100),
     }),
     defineField({
       name: "subheadline",
-      title: "Subheadline",
+      title: "Hero text",
       type: "text",
       rows: 3,
-      description: "Supporting text below the headline",
+      group: "content",
+      fieldset: "hero",
+      description: "The supporting sentence or two under the headline.",
     }),
     defineField({
       name: "price",
-      title: "Starting Price",
+      title: "Starting price (per month)",
       type: "string",
-      description: 'Numeric only, e.g. "42.50" — rendered as From £XX/mo',
+      group: "content",
+      fieldset: "hero",
+      description: 'Just the number, e.g. "42.50". Shown as "From £XX/mo".',
     }),
     defineField({
       name: "targetAudience",
-      title: "Target Audience Label",
+      title: "Audience badge",
       type: "string",
-      description: 'Short badge label, e.g. "For Sole Traders & Self-Employed"',
+      group: "content",
+      fieldset: "hero",
+      description: 'Short badge label, e.g. "For Sole Traders & Self-Employed".',
     }),
     defineField({
       name: "urgencyText",
-      title: "Urgency / Social Proof Text",
+      title: "Urgency / social proof line",
       type: "string",
-      description: 'Shown on the hero CTA panel, e.g. "Join 4,000+ sole traders who switched this year"',
+      group: "content",
+      fieldset: "hero",
+      description: 'Shown on the hero call-to-action panel, e.g. "Join 4,000+ sole traders who switched this year".',
     }),
 
-    // ── What&apos;s Included ────────────────────────────────────────────────────────
+    // ── What's Included ────────────────────────────────────────────────────────
     defineField({
       name: "features",
-      title: "Included Features",
+      title: "What's included",
       type: "array",
-      description: "Bullet list of what's included for the price",
+      group: "content",
+      description: "The checklist of what clients get for the price. Add one line per item.",
       of: [{ type: "string" }],
     }),
 
     // ── Why Us ────────────────────────────────────────────────────────────────
     defineField({
       name: "whyUs",
-      title: "Why Choose Us (up to 4 cards)",
+      title: "Why choose us (up to 6 cards)",
       type: "array",
+      group: "content",
+      description: "A few cards explaining why clients pick us.",
       of: [
         {
           type: "object",
           fields: [
-            { name: "title", title: "Title", type: "string" },
-            { name: "description", title: "Description", type: "text", rows: 3 },
+            { name: "title", title: "Card title", type: "string" },
+            { name: "description", title: "Card text", type: "text", rows: 3 },
           ],
-          preview: { select: { title: "title" } },
+          preview: { select: { title: "title", subtitle: "description" } },
         },
       ],
       validation: (Rule) => Rule.max(6),
@@ -87,16 +117,18 @@ export default defineType({
     // ── Pain Points ───────────────────────────────────────────────────────────
     defineField({
       name: "painPoints",
-      title: "Pain Points We Solve (up to 3 cards)",
+      title: "Pain points we solve (up to 3 cards)",
       type: "array",
+      group: "content",
+      description: "Common frustrations your audience has, and how we fix them.",
       of: [
         {
           type: "object",
           fields: [
-            { name: "title", title: "Title", type: "string" },
-            { name: "description", title: "Description", type: "text", rows: 3 },
+            { name: "title", title: "Pain point", type: "string" },
+            { name: "description", title: "How we solve it", type: "text", rows: 3 },
           ],
-          preview: { select: { title: "title" } },
+          preview: { select: { title: "title", subtitle: "description" } },
         },
       ],
       validation: (Rule) => Rule.max(3),
@@ -105,16 +137,18 @@ export default defineType({
     // ── How It Works ──────────────────────────────────────────────────────────
     defineField({
       name: "howItWorks",
-      title: "How It Works Steps",
+      title: "How it works (steps)",
       type: "array",
+      group: "content",
+      description: "The simple steps a client goes through, shown in order.",
       of: [
         {
           type: "object",
           fields: [
-            { name: "title", title: "Step Title", type: "string" },
-            { name: "description", title: "Description", type: "text", rows: 2 },
+            { name: "title", title: "Step title", type: "string" },
+            { name: "description", title: "Step text", type: "text", rows: 2 },
           ],
-          preview: { select: { title: "title" } },
+          preview: { select: { title: "title", subtitle: "description" } },
         },
       ],
       validation: (Rule) => Rule.max(5),
@@ -125,13 +159,15 @@ export default defineType({
       name: "testimonials",
       title: "Testimonials",
       type: "array",
+      group: "content",
+      description: "Real client quotes to build trust.",
       of: [
         {
           type: "object",
           fields: [
             { name: "quote", title: "Quote", type: "text", rows: 3 },
-            { name: "name", title: "Client Name", type: "string" },
-            { name: "businessType", title: "Business Type / Role", type: "string" },
+            { name: "name", title: "Client name", type: "string" },
+            { name: "businessType", title: "Business type / role", type: "string" },
           ],
           preview: { select: { title: "name", subtitle: "businessType" } },
         },
@@ -142,8 +178,10 @@ export default defineType({
     // ── FAQs ─────────────────────────────────────────────────────────────────
     defineField({
       name: "faq",
-      title: "Frequently Asked Questions",
+      title: "FAQs",
       type: "array",
+      group: "content",
+      description: "Common questions, shown in an expandable list.",
       of: [
         {
           type: "object",
@@ -151,7 +189,7 @@ export default defineType({
             { name: "question", title: "Question", type: "string" },
             { name: "answer", title: "Answer", type: "text", rows: 4 },
           ],
-          preview: { select: { title: "question" } },
+          preview: { select: { title: "question", subtitle: "answer" } },
         },
       ],
     }),
@@ -159,39 +197,47 @@ export default defineType({
     // ── Structured data ───────────────────────────────────────────────────────
     defineField({
       name: "pageSchemas",
-      title: "Structured data (schema.org)",
+      title: "Structured data (advanced)",
       type: "pageSchemas",
+      group: "seo",
+      description: "Optional schema.org data for search engines. Leave alone unless you know you need it.",
     }),
 
     // ── SEO ───────────────────────────────────────────────────────────────────
     defineField({
       name: "metaTitle",
-      title: "SEO Title",
+      title: "Search engine title",
       type: "string",
-      description: "Defaults to headline if left blank. Aim for under 60 characters.",
+      group: "seo",
+      description: "Override the page title shown in Google. Defaults to the headline if left blank. Aim for under 60 characters.",
       validation: (Rule) => Rule.max(70),
     }),
     defineField({
       name: "metaDescription",
-      title: "SEO Description",
+      title: "Search engine description",
       type: "text",
       rows: 2,
-      description: "Shown in Google search results. Aim for 140–160 characters.",
+      group: "seo",
+      description: "The grey text shown under the title in Google results. Aim for 140–160 characters.",
       validation: (Rule) => Rule.max(170),
     }),
     defineField({
       name: "noIndex",
       title: "Hide from search engines (noindex)",
       type: "boolean",
-      description: "Tick for PPC/ad landing pages you don't want Google to index",
+      group: "seo",
+      description: "Tick for PPC/ad landing pages you don't want Google to index.",
       initialValue: true,
     }),
   ],
   preview: {
-    select: { title: "title", slug: "slug.current" },
-    prepare: ({ title, slug }) => ({
-      title,
-      subtitle: slug ? `/lp/${slug}` : "No slug set",
-    }),
+    select: { title: "title", slug: "slug.current", brand: "brand" },
+    prepare: ({ title, slug, brand }) => {
+      const brandLabel = brand === "workwell" ? "Workwell" : brand === "clever" ? "Clever" : "Shared";
+      return {
+        title,
+        subtitle: `${brandLabel} · ${slug ? `/lp/${slug}` : "No slug set"}`,
+      };
+    },
   },
 });

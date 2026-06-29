@@ -1,5 +1,20 @@
-import { client } from "./client";
+import { client, previewClient } from "./client";
 import type { BrandId } from "@/lib/constants";
+
+/**
+ * Returns the draft-aware preview client when Next draft mode is on (an editor
+ * in the Studio's visual preview), otherwise the normal published client. The
+ * dynamic import keeps this module usable outside a request scope (build time),
+ * where draftMode() would throw — in which case we fall back to published.
+ */
+async function rc() {
+  try {
+    const { draftMode } = await import("next/headers");
+    return (await draftMode()).isEnabled ? previewClient : client;
+  } catch {
+    return client;
+  }
+}
 
 /**
  * Brand-scoping for conversion content (homepage, service pages, landing pages,
@@ -24,7 +39,7 @@ export async function getBlogPosts() {
 }
 
 export async function getBlogPost(slug: string) {
-  return client.fetch(
+  return (await rc()).fetch(
     `*[_type == "blogPost" && slug.current == $slug][0] {
       _id, title, slug, excerpt,
       featuredImage { alt, asset->{ url } },
@@ -60,14 +75,39 @@ export async function getTeamMembers() {
 
 // Service pages
 export async function getServicePage(slug: string, brandId?: BrandId) {
+  const c = await rc();
   if (!brandId) {
-    return client.fetch(
-      `*[_type == "servicePage" && slug.current == $slug][0]`,
-      { slug }
-    );
+    return c.fetch(`*[_type == "servicePage" && slug.current == $slug][0]`, { slug });
   }
-  return client.fetch(
+  return c.fetch(
     `*[_type == "servicePage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
+    { slug, brandId }
+  );
+}
+
+// Header menu + footer columns (per-brand singleton; null = use built-in defaults).
+export async function getNavigation(brandId?: BrandId) {
+  const id = brandId && brandId !== "clever" ? `navigation-${brandId}` : "navigation";
+  return client.fetch(`*[_id == $id][0]{ headerLinks, footerColumns }`, { id });
+}
+
+// Editor-managed redirects. The read client uses the Sanity CDN, which caches
+// for ~60s — enough to stop a scanner hitting many 404s from spamming Sanity,
+// while new redirects go live within about a minute.
+export async function getRedirects(): Promise<{ from: string; to: string; permanent?: boolean }[]> {
+  return (
+    (await client.fetch(`*[_type == "redirect" && defined(from) && defined(to)]{ from, to, permanent }`)) || []
+  );
+}
+
+// Page-builder pages (/p/{slug}).
+export async function getFlexiblePage(slug: string, brandId?: BrandId) {
+  const c = await rc();
+  if (!brandId) {
+    return c.fetch(`*[_type == "flexiblePage" && slug.current == $slug][0]`, { slug });
+  }
+  return c.fetch(
+    `*[_type == "flexiblePage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0]`,
     { slug, brandId }
   );
 }
@@ -81,7 +121,7 @@ export async function getServicePage(slug: string, brandId?: BrandId) {
 // component's built-in copy.
 export async function getHomePage(brandId?: BrandId) {
   const id = brandId && brandId !== "clever" ? `homePage-${brandId}` : "homePage";
-  return client.fetch(`*[_id == $id][0]`, { id });
+  return (await rc()).fetch(`*[_id == $id][0]`, { id });
 }
 
 // FAQs
@@ -174,13 +214,11 @@ export async function getLandingPage(slug: string, brandId?: BrandId) {
       urgencyText, features, whyUs, painPoints, howItWorks, testimonials,
       faq, metaTitle, metaDescription, noIndex
     }`;
+  const c = await rc();
   if (!brandId) {
-    return client.fetch(
-      `*[_type == "landingPage" && slug.current == $slug][0] ${projection}`,
-      { slug }
-    );
+    return c.fetch(`*[_type == "landingPage" && slug.current == $slug][0] ${projection}`, { slug });
   }
-  return client.fetch(
+  return c.fetch(
     `*[_type == "landingPage" && slug.current == $slug && ${BRAND_FILTER}] | ${BRAND_ORDER} [0] ${projection}`,
     { slug, brandId }
   );

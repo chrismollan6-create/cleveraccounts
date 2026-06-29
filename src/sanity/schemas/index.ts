@@ -12,9 +12,22 @@ import landingPage from "./landingPage";
 import knowledgeTopic from "./knowledgeTopic";
 import knowledgeArticle from "./knowledgeArticle";
 import knowledgeArticleFeedback from "./knowledgeArticleFeedback";
+import navigation from "./navigation";
+import redirect from "./redirect";
+import flexiblePage from "./flexiblePage";
+import blockHero from "./blocks/blockHero";
+import blockRichText from "./blocks/blockRichText";
+import blockFeatures from "./blocks/blockFeatures";
+import blockCards from "./blocks/blockCards";
+import blockSteps from "./blocks/blockSteps";
+import blockStats from "./blocks/blockStats";
+import blockTestimonial from "./blocks/blockTestimonial";
+import blockFaq from "./blocks/blockFaq";
+import blockCta from "./blocks/blockCta";
 
 import {
   pageSchemas,
+  blogPageSchemas,
   breadcrumbSchema,
   faqPageSchema,
   articleSchema,
@@ -48,8 +61,22 @@ export const schemaTypes = [
   knowledgeTopic,
   knowledgeArticle,
   knowledgeArticleFeedback,
+  navigation,
+  redirect,
+  // page builder
+  flexiblePage,
+  blockHero,
+  blockRichText,
+  blockFeatures,
+  blockCards,
+  blockSteps,
+  blockStats,
+  blockTestimonial,
+  blockFaq,
+  blockCta,
   // structured-data objects
   pageSchemas,
+  blogPageSchemas,
   breadcrumbSchema,
   faqPageSchema,
   articleSchema,

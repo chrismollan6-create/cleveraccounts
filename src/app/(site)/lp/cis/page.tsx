@@ -69,16 +69,16 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "I had no idea I was owed £3,800 back from HMRC in CIS deductions. Clever Accounts found it, claimed it, and I had the money in six weeks.",
+      `I had no idea I was owed £3,800 back from HMRC in CIS deductions. ${brandName} found it, claimed it, and I had the money in six weeks.`,
     name: "Lee P.",
     businessType: "Self-Employed Electrician",
   },
   {
     quote:
-      "As a small groundworks contractor I was always late with CIS returns. Since switching to Clever Accounts I haven't had a single penalty.",
+      `As a small groundworks contractor I was always late with CIS returns. Since switching to ${brandName} I haven't had a single penalty.`,
     name: "Gary T.",
     businessType: "Groundworks Contractor",
   },
@@ -120,7 +120,7 @@ const faq: FAQItem[] = [
 
 export default async function CISLP() {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="CIS Accounting for Construction Workers"
@@ -138,11 +138,11 @@ export default async function CISLP() {
         "Unlimited phone & email advice",
         "HMRC correspondence handled",
       ]}
-      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
+      whyUs={whyUs}
       painPoints={painPoints}
-      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
-      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
-      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
+      howItWorks={howItWorks}
+      testimonials={testimonials}
+      faq={faq}
     />
   );
 }

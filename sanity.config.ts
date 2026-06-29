@@ -1,12 +1,39 @@
-import { defineConfig } from "sanity";
+import { defineConfig, buildLegacyTheme } from "sanity";
 import { structureTool } from "sanity/structure";
+import { presentationTool, defineLocations } from "sanity/presentation";
 import { visionTool } from "@sanity/vision";
 import { Search } from "lucide-react";
 import { schemaTypes } from "./src/sanity/schemas";
 import { dashboardPlugin } from "./src/studio/dashboardPlugin";
 import { seoPlugin, SEODocumentView } from "./src/studio/seoPlugin";
+import { StudioLogo } from "./src/studio/StudioLogo";
+import { AiDraftAction } from "./src/studio/AiDraftAction";
 
 const SEO_TYPES = ["blogPost", "caseStudy", "servicePage", "landingPage", "homePage", "knowledgeArticle"];
+
+// Branded Studio theme — a calmer, on-brand look (teal accent, deep-teal
+// navbar) instead of the default Sanity grey. Purely cosmetic.
+const theme = buildLegacyTheme({
+  "--black": "#1f2d31",
+  "--white": "#ffffff",
+  "--gray": "#64748b",
+  "--gray-base": "#64748b",
+  "--component-bg": "#ffffff",
+  "--component-text-color": "#1f2d31",
+  "--brand-primary": "#1A7A9B",
+  "--default-button-color": "#64748b",
+  "--default-button-primary-color": "#1A7A9B",
+  "--default-button-success-color": "#16a34a",
+  "--default-button-warning-color": "#f59e0b",
+  "--default-button-danger-color": "#e11d48",
+  "--state-info-color": "#1A7A9B",
+  "--state-success-color": "#16a34a",
+  "--state-warning-color": "#f59e0b",
+  "--state-danger-color": "#e11d48",
+  "--main-navigation-color": "#1c5e70",
+  "--main-navigation-color--inverted": "#ffffff",
+  "--focus-color": "#1A7A9B",
+});
 
 export default defineConfig({
   name: "clever-accounts",
@@ -14,6 +41,10 @@ export default defineConfig({
   projectId: "sgaod5tg",
   dataset: "production",
   basePath: "/studio",
+  theme,
+  studio: {
+    components: { logo: StudioLogo },
+  },
   plugins: [
     dashboardPlugin(),
     seoPlugin(),
@@ -64,18 +95,100 @@ export default defineConfig({
                   ])
               ),
             S.listItem()
+              .title("🧭 Navigation & Footer")
+              .child(
+                S.list()
+                  .title("Navigation & Footer")
+                  .items([
+                    S.listItem()
+                      .title("Clever Accounts")
+                      .child(
+                        S.document()
+                          .schemaType("navigation")
+                          .documentId("navigation")
+                          .title("Navigation & Footer — Clever Accounts")
+                      ),
+                    S.listItem()
+                      .title("Workwell Accountancy")
+                      .child(
+                        S.document()
+                          .schemaType("navigation")
+                          .documentId("navigation-workwell")
+                          .title("Navigation & Footer — Workwell")
+                      ),
+                  ])
+              ),
+            S.listItem()
               .title("📢 Promo Banner")
               .child(S.documentTypeList("promoBanner").title("Promotion Banners")),
 
             S.divider(),
 
+            // ── Editorial calendar ───────────────────────────────────────
+            S.listItem()
+              .title("📅 Editorial Calendar")
+              .child(
+                S.list()
+                  .title("Editorial Calendar")
+                  .items([
+                    S.listItem()
+                      .title("✍️ Drafts in progress")
+                      .child(
+                        S.documentList()
+                          .id("cal-drafts")
+                          .title("Unpublished drafts (work in progress)")
+                          .filter('_id in path("drafts.**")')
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("🕓 Recently updated")
+                      .child(
+                        S.documentList()
+                          .id("cal-recent")
+                          .title("Recently updated content")
+                          .filter(
+                            '!(_id in path("drafts.**")) && _type in ["flexiblePage","landingPage","servicePage","blogPost","caseStudy","homePage"]'
+                          )
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("📰 Blog — by publish date")
+                      .child(
+                        S.documentList()
+                          .id("cal-blog")
+                          .title("Blog posts, newest first")
+                          .schemaType("blogPost")
+                          .filter('_type == "blogPost"')
+                          .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
+                      ),
+                    S.listItem()
+                      .title("📖 Case studies — by publish date")
+                      .child(
+                        S.documentList()
+                          .id("cal-cs")
+                          .title("Case studies, newest first")
+                          .schemaType("caseStudy")
+                          .filter('_type == "caseStudy"')
+                          .defaultOrdering([{ field: "publishedAt", direction: "desc" }])
+                      ),
+                  ])
+              ),
+
+            S.divider(),
+
             // ── Marketing & Pages ────────────────────────────────────────
+            S.listItem()
+              .title("🧩 Pages (builder)")
+              .child(S.documentTypeList("flexiblePage").title("Pages (builder)")),
             S.listItem()
               .title("🚀 Landing Pages (CMS)")
               .child(S.documentTypeList("landingPage").title("Landing Pages")),
             S.listItem()
               .title("💼 Service Pages")
               .child(S.documentTypeList("servicePage").title("Service Pages")),
+            S.listItem()
+              .title("🔀 Redirects")
+              .child(S.documentTypeList("redirect").title("Redirects")),
 
             S.divider(),
 
@@ -185,8 +298,42 @@ export default defineConfig({
               ),
           ]),
     }),
+    // Visual preview — side-by-side live preview of the site as you edit.
+    presentationTool({
+      previewUrl: { previewMode: { enable: "/api/draft/enable" } },
+      resolve: {
+        locations: {
+          homePage: defineLocations({
+            locations: [{ title: "Home page", href: "/" }],
+          }),
+          flexiblePage: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Page", href: `/p/${doc?.slug}` }] }),
+          }),
+          servicePage: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Service page", href: `/${doc?.slug}` }] }),
+          }),
+          landingPage: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Landing page", href: `/lp/${doc?.slug}` }] }),
+          }),
+          blogPost: defineLocations({
+            select: { title: "title", slug: "slug.current" },
+            resolve: (doc) => ({ locations: [{ title: doc?.title || "Blog post", href: `/blog/${doc?.slug}` }] }),
+          }),
+        },
+      },
+    }),
     visionTool(),
   ],
+  document: {
+    // "✨ AI draft" action on content-heavy types — drafts copy with Gemini.
+    actions: (prev, context) =>
+      ["servicePage", "flexiblePage", "landingPage", "blogPost", "caseStudy"].includes(context.schemaType)
+        ? [...prev, AiDraftAction]
+        : prev,
+  },
   schema: {
     types: schemaTypes,
   },

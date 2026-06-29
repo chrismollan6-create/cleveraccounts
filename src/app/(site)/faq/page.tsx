@@ -4,14 +4,18 @@ import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import FAQPageClient from "./FAQPageClient";
 import { getBrand } from "@/lib/brand";
 
+const cleverMetadata: Metadata = {
+  title: "FAQs — Clever Accounts | Online Accounting Questions Answered",
+  description:
+    "Answers to common questions about Clever Accounts — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.",
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
+  if (brand.id === "clever") return cleverMetadata;
   return {
     title: `FAQs — ${brand.name} | Online Accounting Questions Answered`,
-    description:
-      brand.id === "workwell"
-        ? `Common questions about ${brand.name} answered — what it costs, what's included, switching accountants, software, and the specifics for sole traders, limited companies and contractors, plus VAT, payroll and more.`
-        : `Answers to common questions about ${brand.name} — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.`,
+    description: `Answers to common questions about ${brand.name} — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.`,
   };
 }
 
@@ -33,7 +37,12 @@ const categoryLabels: Record<string, string> = {
 
 // Fallback content for when Sanity is empty / fetch fails. Covers all 10
 // declared categories so the page is never sparse even on a cold start.
-const fallbackCategories: Record<string, { q: string; a: string }[]> = {
+// Built per-brand so brand names render correctly (and no "Clever" text leaks
+// onto Workwell) AND so Workwell ships distinct, reworded copy rather than a
+// duplicate of Clever's. Every fact, figure, threshold and date is identical
+// across brands — only the phrasing differs.
+
+const buildCleverFallback = (brandName: string): Record<string, { q: string; a: string }[]> => ({
   "Getting Started": [
     { q: "How do I sign up?", a: "Choose your plan on our pricing page and complete the short online form. You'll be matched with your dedicated accountant within 24 hours — most clients are fully set up within a week." },
     { q: "Are there any setup fees?", a: "No. There are absolutely no setup fees. You start paying your monthly fee from the date you sign up, and there's nothing on top." },
@@ -46,7 +55,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
     { q: "Do I get a dedicated accountant?", a: "Yes. Every client is matched with a named, dedicated accountant who specialises in their business type. They're your main point of contact for everything — not a call centre, not a ticket queue." },
     { q: "Is the advice really unlimited?", a: "Absolutely. Call or email your accountant as often as you need. There are no per-question charges and no limits — that's the whole point of a fixed monthly fee." },
     { q: "What if my accountant is on leave?", a: "Every accountant has a named backup who knows your account. If something urgent comes up while yours is away, the cover knows your business and can help straight away." },
-    { q: "Where are your accountants based?", a: "All our accountants are UK-based, working from our Leeds office. No offshore call centres." },
+    { q: "Where are your accountants based?", a: "All our accountants are UK-based. No offshore call centres." },
   ],
   "Pricing & Billing": [
     { q: "How much does it cost?", a: "Sole Trader packages start from £42.50/month. Limited Company, Contractor and Freelancer packages start from £104.50/month. All prices are plus VAT. Full pricing detail is on our /pricing page." },
@@ -57,7 +66,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
   ],
   "Switching to Us": [
     { q: "Can I switch from my current accountant?", a: "Absolutely — we handle the whole switch. You give your old firm a one-line email saying you're moving, and we take it from there: professional clearance letter, records transfer, HMRC re-authorisation, all of it." },
-    { q: "Is there a cost to switch?", a: "No. Switching to Clever Accounts is completely free. There are no setup fees or transfer charges, and you can switch at any point in the year." },
+    { q: "Is there a cost to switch?", a: `No. Switching to ${brandName} is completely free. There are no setup fees or transfer charges, and you can switch at any point in the year.` },
     { q: "How long does switching take?", a: "Typically 3–6 weeks from sign-up to fully transferred. You can start using FreeAgent immediately while we handle the handover with your previous firm in the background." },
     { q: "Will there be any disruption?", a: "No. Both firms coordinate via professional clearance rules (ICAEW/ACCA) and your accounting continues without a gap. We pick up exactly where the previous firm left off." },
     { q: "What if I'm mid-year-end?", a: "Most switches happen mid-year and it's straightforward. We coordinate with your previous firm on the year-end work, take over for the next year, and make sure nothing is missed in the handover." },
@@ -78,7 +87,7 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
   "Contractor / IR35": [
     { q: "What's the difference between inside and outside IR35?", a: "Outside IR35: your limited company receives the full contract rate, you pay yourself a small salary plus dividends, taxed at lower rates. Inside IR35: you run the full day rate through payroll — income tax + NI on the lot. The tax difference is typically 15–25% of gross income." },
     { q: "Are IR35 contract reviews included?", a: "Yes — unlimited contract reviews are included in our contractor package at £104.50/month. Many providers cap free reviews or charge per contract." },
-    { q: "What is Clever FLEX?", a: "Clever FLEX lets you switch between operating through your PSC (outside IR35) and our umbrella (inside IR35) within the same Clever Accounts relationship — no second provider, no setup fees, no payment gap when a contract status changes mid-year." },
+    { q: "Can I switch between PSC and umbrella?", a: `Yes — you can switch between operating through your PSC (outside IR35) and our umbrella (inside IR35) within the same ${brandName} relationship — no second provider, no setup fees, no payment gap when a contract status changes mid-year.` },
     { q: "What happens if a contract is determined inside IR35?", a: "Only that contract is affected. Your limited company continues to exist, and other contracts are assessed separately. We model the tax impact and recommend whether to run it through your PSC or via umbrella." },
   ],
   "VAT": [
@@ -95,90 +104,91 @@ const fallbackCategories: Record<string, { q: string; a: string }[]> = {
   ],
   "Software": [
     { q: "What accounting software do you use?", a: "We include FreeAgent free with every package. It's HMRC-recognised, MTD-compliant, cloud-based, and lets you manage invoices, expenses and bank feeds on any device. Your accountant works in the same FreeAgent — no separate logins." },
-    { q: "Is FreeAgent included free?", a: "Yes, completely free with every Clever Accounts package. Retail price is £19/month, so it's effectively £228/year of value bundled in. There's no extra charge or add-on." },
+    { q: "Is FreeAgent included free?", a: `Yes, completely free with every ${brandName} package. Retail price is £19/month, so it's effectively £228/year of value bundled in. There's no extra charge or add-on.` },
     { q: "Can I integrate FreeAgent with my bank?", a: "Yes — open banking is built in with 25+ UK banks. Transactions flow into FreeAgent automatically, you categorise them in seconds, and your accountant sees everything in real time." },
     { q: "Does FreeAgent have a mobile app?", a: "Yes — iOS and Android. Snap photos of receipts to capture expenses, send invoices from anywhere, and see your tax position on the go." },
   ],
-};
+});
 
-// Workwell-specific fallback content. Same facts, figures, thresholds and dates
-// as the Clever set above — only the wording differs so the two brands don't
-// serve duplicate copy. Used when Sanity is empty and brand.id === "workwell".
-const fallbackCategoriesWorkwell: Record<string, { q: string; a: string }[]> = {
+// Workwell-specific rewording. Same facts, figures, thresholds and dates as the
+// Clever copy above — only the questions and answers are rephrased so the two
+// brands don't read identically.
+const buildWorkwellFallback = (brandName: string): Record<string, { q: string; a: string }[]> => ({
   "Getting Started": [
-    { q: "What does signing up involve?", a: "Pick the plan that fits on our pricing page and fill in the short online form. We'll pair you with your own accountant inside 24 hours, and the majority of clients are up and running within a week." },
-    { q: "Will I be charged a setup fee?", a: "Never. We don't charge setup fees of any kind. Your monthly fee begins on the day you join, with nothing added on top." },
-    { q: "Am I tied into a minimum term?", a: "Not at all. One month's notice is all it takes to leave whenever you like. We'd rather earn your loyalty than lock you in." },
-    { q: "How fast can I be up and running?", a: "Signing up takes only a few minutes. Your dedicated accountant usually reaches out within 24 hours to arrange your onboarding call and set up FreeAgent." },
-    { q: "What details do you need from me to join?", a: "To begin, simply your name, email, phone number and chosen package. Everything else — company details, HMRC references, bank information — we gather during onboarding after you've joined." },
+    { q: "What's the process to join?", a: "Pick the package that fits on our pricing page, then fill in a brief online form. A dedicated accountant is assigned to you within 24 hours, and the typical client is up and running inside a week." },
+    { q: "Will I be charged to get set up?", a: "Never. We don't charge a penny in setup costs. Your monthly fee begins on your sign-up date and nothing is added on top of it." },
+    { q: "Am I tied into a fixed term?", a: "Not at all. Leave whenever you like on one month's notice. We'd rather earn your loyalty each month than rely on a lock-in to keep you." },
+    { q: "How soon can I be up and running?", a: "Signing up takes only a few minutes. Expect your dedicated accountant to reach out within 24 hours to arrange your onboarding call and configure FreeAgent." },
+    { q: "What details do you need from me to join?", a: "Only your name, email, phone number and chosen package to begin. The rest — company details, HMRC references, bank information — we gather together during onboarding once you're on board." },
   ],
   "Services & Support": [
-    { q: "What does my monthly fee cover?", a: "The lot: your own dedicated accountant, advice with no limits, every tax return and filing, FreeAgent accounting software at no cost, a live dashboard, open banking, and mortgage reference letters whenever you require them." },
-    { q: "Will I have my own accountant?", a: "Yes. We pair every client with a named accountant who knows their type of business inside out. They handle everything for you — there's no call centre and no ticket queue." },
-    { q: "Is advice genuinely unlimited?", a: "It is. Phone or email your accountant whenever you need to. Nothing is charged per question and nothing is capped — that's exactly what a fixed monthly fee is for." },
-    { q: "Who covers my accountant when they're away?", a: "Each accountant has a named backup who's familiar with your account. Should anything urgent arise while yours is off, the cover already understands your business and can step in immediately." },
-    { q: "Where do your accountants work from?", a: "Every one of our accountants is based in the UK, working out of our Leeds office. There are no offshore call centres." },
+    { q: "What does my monthly fee actually cover?", a: "All of it: a dedicated accountant, advice without limits, every tax return and filing, free FreeAgent software, a live dashboard, open banking, and mortgage reference letters whenever you need one." },
+    { q: "Will I have a named accountant of my own?", a: "Yes. We pair every client with a named accountant who knows their type of business inside out. They handle everything for you directly — never a call centre or a ticket queue." },
+    { q: "Is advice genuinely unlimited?", a: "It is. Phone or email your accountant whenever something comes up. Nothing is charged per question and nothing is capped — that's exactly what a fixed monthly fee is for." },
+    { q: "Who covers my accountant when they're away?", a: "Each accountant has a named deputy who's familiar with your account. Should anything urgent crop up while yours is off, the cover already understands your business and can step in immediately." },
+    { q: "Are your accountants in the UK?", a: "Every one of our accountants is based in the UK. There are no offshore call centres." },
   ],
   "Pricing & Billing": [
-    { q: "What will it cost me?", a: "Sole Trader packages begin at £42.50/month. Limited Company, Contractor and Freelancer packages begin at £104.50/month. Every price is plus VAT. You'll find the full breakdown on our /pricing page." },
-    { q: "Could I be hit with hidden charges?", a: "No. Your monthly fee covers it all. There's nothing unexpected for phone calls, tax returns, IR35 reviews, mortgage reference letters or one-off advice." },
-    { q: "How is payment taken?", a: "By Direct Debit each month on the same date. It's straightforward and automatic, with no invoices for you to chase." },
-    { q: "Is it possible to change my plan later?", a: "Yes. Should your situation shift — a sole trader incorporating, a limited company hiring, a contractor moving to a freelancer model — you can switch plans whenever you wish. Just have a word with your accountant." },
-    { q: "Do you run annual discounts?", a: "We prefer one clear monthly fee to annual prepayment deals. Since you can leave at any time, there's nothing to gain from committing for a full year." },
+    { q: "What will it cost me?", a: "Sole Trader packages begin at £42.50/month, while Limited Company, Contractor and Freelancer packages begin at £104.50/month. Every price is plus VAT, and you'll find the full breakdown on our /pricing page." },
+    { q: "Should I expect any hidden charges?", a: "There aren't any. Your monthly fee takes care of everything — no unexpected bills for phone calls, tax returns, IR35 reviews, mortgage reference letters or one-off questions." },
+    { q: "How does payment work?", a: "By Direct Debit each month on the same date. It's automatic and straightforward, with no invoices for you to chase." },
+    { q: "Am I able to move between plans?", a: "Yes. When things change — a sole trader incorporating, a limited company hiring, a contractor moving to a freelancer model — you can switch plans whenever you need. A quick word with your accountant is all it takes." },
+    { q: "Is there a discount for paying yearly?", a: "We prefer one clear monthly fee to annual prepayment discounts. Since you can leave at any time, there's nothing to gain from committing for a full year." },
   ],
   "Switching to Us": [
-    { q: "Can I move over from my existing accountant?", a: "Of course — the entire move is handled for you. Send your old firm a single line confirming you're leaving, and we'll do the rest: professional clearance letter, records transfer, HMRC re-authorisation, the whole process." },
-    { q: "Does switching come at a cost?", a: "No. Moving to Workwell Accountancy costs nothing. There are no setup or transfer fees, and you can switch at any time of year." },
-    { q: "How long will switching take?", a: "Usually 3–6 weeks from sign-up through to full transfer. You can begin using FreeAgent right away while we manage the handover with your old firm behind the scenes." },
-    { q: "Could switching disrupt things?", a: "No. Both firms work together under professional clearance rules (ICAEW/ACCA) so your accounting carries on uninterrupted. We resume exactly where your previous firm finished." },
-    { q: "What if I'm partway through a year-end?", a: "Most moves happen mid-year and go smoothly. We liaise with your old firm on the year-end work, take charge of the next year, and ensure nothing slips through during the handover." },
+    { q: "Can I move over from my existing accountant?", a: "Of course — we manage the entire move for you. Send your previous firm a single line confirming you're leaving, and we take care of the rest: the professional clearance letter, the transfer of records, HMRC re-authorisation, everything." },
+    { q: "Will switching cost me anything?", a: `No. Moving to ${brandName} costs nothing. There are no setup or transfer charges, and you're free to switch at any time of year.` },
+    { q: "How long will the move take?", a: "Usually 3–6 weeks from sign-up to a complete transfer. You can begin using FreeAgent right away while we manage the handover with your old firm behind the scenes." },
+    { q: "Should I expect any disruption?", a: "None. The two firms coordinate under professional clearance rules (ICAEW/ACCA), so your accounting carries on seamlessly. We resume precisely where your previous firm stopped." },
+    { q: "What if I'm partway through my year-end?", a: "Mid-year moves are common and uncomplicated. We liaise with your former firm on the year-end work, take the reins for the following year, and make certain nothing slips through the handover." },
   ],
   "Sole Trader": [
-    { q: "Does a sole trader really need an accountant?", a: "There's no legal requirement — yet most sole traders overpay on tax without one. On average we save sole traders £500–£1,500/year in tax versus self-filing, and our fee is £42.50/month." },
-    { q: "Will I have to register for VAT?", a: "Only when your taxable turnover passes £90,000 across any rolling 12-month period. You can register voluntarily before then — occasionally worthwhile to reclaim VAT on purchases — and we'll judge whether that suits you." },
-    { q: "Which expenses are claimable as a sole trader?", a: "Anything used wholly and exclusively for the business: tools, equipment, vehicle costs for business trips, phone, broadband, home office (a £6/week flat rate or a share of actual costs), professional subscriptions and accountancy fees. We make sure none are overlooked." },
-    { q: "What are my Self Assessment deadlines?", a: "Your online return and any tax due must reach HMRC by 31 January after the tax year ends (so the 2025/26 return is due by 31 January 2027). Where HMRC has set payments on account, the second falls due on 31 July." },
+    { q: "As a sole trader, do I really need an accountant?", a: "There's no legal requirement — but most sole traders overpay tax without one. On average we save sole traders £500–£1,500/year in tax versus filing alone, and our fee is just £42.50/month." },
+    { q: "Will I have to register for VAT?", a: "Only when your taxable turnover passes £90,000 across any rolling 12-month period. You can register voluntarily before then, which can pay off when you want to reclaim VAT on purchases — we'll advise whether that's right for you." },
+    { q: "Which expenses are claimable as a sole trader?", a: "Anything used wholly and exclusively for the business: tools, equipment, business mileage, phone, broadband, home office (a £6/week flat rate or a share of your actual costs), professional subscriptions and accountancy fees. We make sure nothing slips by." },
+    { q: "What are my Self Assessment deadline dates?", a: "Your online return and any tax due must be in by 31 January after the tax year ends (so your 2025/26 return is due by 31 January 2027). Where HMRC requires payments on account, the second instalment falls due on 31 July." },
   ],
   "Limited Company": [
-    { q: "Sole trader or limited company — which suits me?", a: "Broadly: sole trader if you earn under roughly £40k/year and value simplicity, limited company if you earn more, want tax efficiency, or want liability protection. We'll model both for your exact circumstances before you commit." },
-    { q: "What director's salary works best?", a: "For most directors with no other income, the ideal salary sits at the secondary NI threshold (£9,100 in 2025/26) — or as high as £12,570 where you can claim Employment Allowance with at least one further employee. Beyond that, dividends usually win on tax." },
-    { q: "How do salary and dividends differ?", a: "Salary carries income tax plus employer and employee NI. Dividends carry dividend tax (8.75% basic, 33.75% higher rate in 2025/26) — generally lower overall. We tune the blend to your particular position." },
-    { q: "What must I file at Companies House?", a: "An annual confirmation statement (CS01), annual statutory accounts within 9 months of year-end, and a Corporation Tax return (CT600) within 12 months. We take care of all of it." },
-    { q: "May I borrow from my company as a director?", a: "You can, but tread carefully. Loans above £10,000 create a benefit-in-kind charge, and any not repaid within 9 months of year-end trigger a 32.5% Corporation Tax charge. We'll keep you the right side of the rules." },
+    { q: "Sole trader or limited company — which suits me?", a: "As a rule of thumb: sole trader if you earn under roughly £40k/year and value simplicity, limited company if you earn more, want greater tax efficiency, or want the liability protection. We model both routes for your exact figures before you commit." },
+    { q: "How much should a director's salary be?", a: "For most directors with no other income, the ideal salary sits at the secondary NI threshold (£9,100 in 2025/26) — or as high as £12,570 if you can claim Employment Allowance with at least one further employee. Beyond that, dividends usually win on tax." },
+    { q: "How do salary and dividends differ?", a: "Salary carries income tax plus employer and employee NI. Dividends carry dividend tax instead (8.75% at the basic rate, 33.75% at the higher rate in 2025/26) — generally cheaper overall. We tune the balance to your circumstances." },
+    { q: "What must I file with Companies House?", a: "An annual confirmation statement (CS01), statutory accounts within 9 months of your year-end, and a Corporation Tax return (CT600) within 12 months. We take care of every one." },
+    { q: "Can I borrow money from my own company?", a: "You can, but tread carefully. Loans above £10,000 create a benefit-in-kind tax charge, and anything not repaid within 9 months of year-end attracts a 32.5% Corporation Tax charge. We'll help you stay on the right side of the rules." },
   ],
   "Contractor / IR35": [
-    { q: "Inside versus outside IR35 — what's the difference?", a: "Outside IR35: your limited company takes the full contract rate, you draw a modest salary plus dividends and pay tax at lower rates. Inside IR35: the whole day rate runs through payroll, with income tax and NI on all of it. The gap is typically 15–25% of gross income." },
-    { q: "Do you include IR35 contract reviews?", a: "Yes — our contractor package at £104.50/month covers unlimited contract reviews. Plenty of providers limit free reviews or bill per contract." },
-    { q: "What is Workwell Flex?", a: "Workwell Flex lets you move between working through your PSC (outside IR35) and our umbrella (inside IR35) within the same Workwell Accountancy relationship — no second provider, no setup fees, and no gap in payment when a contract's status changes mid-year." },
-    { q: "What if a contract is judged inside IR35?", a: "Only that one contract is affected. Your limited company carries on, and each other contract is assessed on its own. We model the tax impact and advise whether to run it through your PSC or via umbrella." },
+    { q: "Inside versus outside IR35 — what's the difference?", a: "Outside IR35: your limited company keeps the full contract rate, you draw a modest salary plus dividends, and the tax is lower. Inside IR35: the whole day rate runs through payroll, with income tax and NI on all of it. The gap is usually 15–25% of gross income." },
+    { q: "Do you include IR35 contract reviews?", a: "Yes — our contractor package at £104.50/month includes unlimited contract reviews. Plenty of providers limit free reviews or bill per contract; we don't." },
+    { q: "Can I move between PSC and umbrella?", a: `Yes — you can move between trading through your PSC (outside IR35) and our umbrella (inside IR35) all within the same ${brandName} relationship, with no second provider, no setup fees and no break in payment when a contract's status changes mid-year.` },
+    { q: "What if a contract is judged inside IR35?", a: "Only that single contract is affected. Your limited company stays in place and other contracts are assessed on their own merits. We'll model the tax impact and advise whether to run it through your PSC or via umbrella." },
   ],
   "VAT": [
-    { q: "At what point must I register for VAT?", a: "Once taxable turnover passes £90,000 in any rolling 12-month period — not simply a calendar year. HMRC examines every consecutive 12-month window. Miss it and you'll owe backdated VAT plus penalties. We track your turnover and warn you before you reach the threshold." },
-    { q: "Which VAT scheme is right for me?", a: "Most businesses sit on the Standard Scheme. The Flat Rate Scheme can suit service businesses with little input VAT (you pay HMRC a set % of turnover). Cash Accounting eases cash flow where customers pay slowly. We'll work out which fits your business." },
-    { q: "Does FreeAgent meet MTD rules for VAT?", a: "Yes — it's fully MTD-compliant and HMRC-recognised. Returns go straight from FreeAgent to HMRC with no bridging software. This has been mandatory for every VAT-registered business since April 2022." },
-    { q: "Can I recover VAT on purchases made before registering?", a: "Yes, within limits: 4 years back on goods you still hold, and 6 months on services. We'll go through your pre-registration purchases and reclaim everything eligible on your first return." },
+    { q: "At what point must I register for VAT?", a: "As soon as taxable turnover tops £90,000 in any rolling 12-month period — not simply a calendar year. HMRC considers any consecutive 12-month window. Miss it and you'll owe backdated VAT plus penalties, so we track your turnover and warn you before you reach the threshold." },
+    { q: "Which VAT scheme is right for me?", a: "Most businesses sit on the Standard Scheme. The Flat Rate Scheme can suit service businesses with little input VAT, where you pay HMRC a set percentage of turnover. Cash Accounting eases cash flow when customers are slow to pay. We work out which fits your business." },
+    { q: "Does FreeAgent meet MTD rules for VAT?", a: "Yes — it's fully MTD-compliant and HMRC-recognised. Returns go straight from FreeAgent to HMRC with no bridging software needed. This has been mandatory for all VAT-registered businesses since April 2022." },
+    { q: "Can I recover VAT spent before I registered?", a: "Yes, within limits: 4 years back on goods you still hold, and 6 months on services. We'll go through your pre-registration purchases and reclaim everything eligible on your very first return." },
   ],
   "Payroll": [
-    { q: "Does my package cover payroll?", a: "On the Limited Company package (£104.50/month), payroll for directors plus one employee is included. Additional employees cost a small amount per employee each month. Sole traders rarely need payroll unless they take on staff." },
-    { q: "What does RTI mean?", a: "Real Time Information — HMRC requires employers to send a Full Payment Submission (FPS) at every pay run. We do this for you automatically each month, so a deadline is never missed (penalties begin at £100/month)." },
-    { q: "How does pension auto-enrolment work?", a: "Every UK employer has to assess employees for auto-enrolment and place them in a qualifying scheme. We manage assessment, enrolment, contributions, declarations of compliance, and the three-yearly re-enrolment." },
-    { q: "Am I able to pay myself a bonus?", a: "Yes — bonuses can run through payroll at any point, but they attract income tax and NI, so they're usually less tax-efficient than dividends. We model the cost first so you know exactly what it means before processing." },
+    { q: "Does my package include payroll?", a: "With the Limited Company package (£104.50/month), payroll for a director plus one employee is built in. Further employees cost a small amount each per month. Sole traders rarely need payroll unless they take on staff." },
+    { q: "What does RTI mean?", a: "Real Time Information — HMRC asks employers to file a Full Payment Submission (FPS) on every pay run. We do this for you automatically each month, so no deadline is ever missed (penalties begin at £100/month)." },
+    { q: "How does pension auto-enrolment work?", a: "Every UK employer has to assess employees for auto-enrolment and place them in a qualifying scheme. We manage the assessment, enrolment, contributions, declarations of compliance and the three-yearly re-enrolment." },
+    { q: "Can I pay myself a bonus?", a: "Yes, a bonus can go through payroll at any time — but it attracts income tax and NI, so it's usually less efficient than dividends. We model the tax cost first so you know exactly what it means before we run it." },
   ],
   "Software": [
-    { q: "Which accounting software will I use?", a: "FreeAgent comes free with every package. It's HMRC-recognised, MTD-compliant and cloud-based, letting you handle invoices, expenses and bank feeds on any device. Your accountant works in the very same FreeAgent — no separate logins." },
-    { q: "Is FreeAgent really free?", a: "Yes, entirely free with every Workwell Accountancy package. At a £19/month retail price that's effectively £228/year of value built in, with no extra charge or add-on." },
-    { q: "Can FreeAgent connect to my bank?", a: "Yes — open banking is included with 25+ UK banks. Transactions feed into FreeAgent on their own, you categorise them in seconds, and your accountant sees it all live." },
-    { q: "Is there a FreeAgent mobile app?", a: "Yes — on iOS and Android. Photograph receipts to log expenses, raise invoices from anywhere, and check your tax position while you're out and about." },
+    { q: "Which accounting software comes with my package?", a: "FreeAgent is included free with every package. It's HMRC-recognised, MTD-compliant and cloud-based, letting you handle invoices, expenses and bank feeds from any device. Your accountant works inside the same FreeAgent — no separate logins." },
+    { q: "Do I really get FreeAgent for free?", a: `Yes, entirely free with every ${brandName} package. At a £19/month retail price, that's around £228/year of value built in, with no extra charge or add-on.` },
+    { q: "Can FreeAgent connect to my bank?", a: "Yes — open banking comes built in across 25+ UK banks. Transactions feed into FreeAgent automatically, you categorise them in moments, and your accountant sees it all in real time." },
+    { q: "Is there a FreeAgent mobile app?", a: "Yes — on both iOS and Android. Photograph receipts to log expenses, send invoices from anywhere, and check your tax position while you're on the move." },
   ],
-};
+});
+
+const buildFallbackCategories = (
+  brandId: string,
+  brandName: string,
+): Record<string, { q: string; a: string }[]> =>
+  brandId === "workwell" ? buildWorkwellFallback(brandName) : buildCleverFallback(brandName);
 
 export default async function FAQPage() {
   const brand = await getBrand();
-  const flexLabel = brand.id === "workwell" ? "Workwell Flex" : "Clever FLEX";
-  // Rewrite "Clever Accounts" → current brand and "Clever FLEX" → flexLabel
-  // for both the visible FAQ content and the JSON-LD payload so SEO matches.
-  const swap = (s: string) =>
-    s.replaceAll("Clever Accounts", brand.name).replaceAll("Clever FLEX", flexLabel);
   // Try CMS first
   let faqsByCategory: Record<string, { q: string; a: string }[]> = {};
   let usingCMS = false;
@@ -206,24 +216,16 @@ export default async function FAQPage() {
   }
 
   if (!usingCMS) {
-    // Brand-gate the fallback copy so Workwell serves reworded questions/answers
-    // rather than duplicating Clever's. Facts/figures are identical between sets.
-    faqsByCategory =
-      brand.id === "workwell" ? fallbackCategoriesWorkwell : fallbackCategories;
+    faqsByCategory = buildFallbackCategories(brand.id, brand.name);
   }
 
-  // Brand-aware swap on every q/a so both the visible content and the JSON-LD
-  // match the host brand. Module-scope fallback + CMS data both flow through.
-  const swappedByCategory: Record<string, { q: string; a: string }[]> = {};
-  for (const [label, items] of Object.entries(faqsByCategory)) {
-    swappedByCategory[label] = items.map((f) => ({ q: swap(f.q), a: swap(f.a) }));
-  }
-  const allFaqs = Object.values(swappedByCategory).flat();
+  // Flatten for JSON-LD
+  const allFaqs = Object.values(faqsByCategory).flat();
 
   return (
     <>
-      <FAQPageJsonLd faqs={allFaqs} />
-      <FAQPageClient faqsByCategory={swappedByCategory} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={allFaqs} />}
+      <FAQPageClient faqsByCategory={faqsByCategory} />
     </>
   );
 }

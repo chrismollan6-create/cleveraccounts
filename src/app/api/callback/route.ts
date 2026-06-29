@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
+import { brandIdFromHost, getBrandById } from '@/lib/brand';
+import type { BrandId } from '@/lib/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +14,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Resolve brand server-side (x-brand header, host fallback) so enquiries are
+    // branded correctly even if the client omits it. The client value is honoured
+    // when present; both forms are normalised to long-form by Apex.
+    const brandIdHeader = request.headers.get('x-brand') as BrandId | null;
+    const brandId: BrandId =
+      brandIdHeader === 'workwell' || brandIdHeader === 'clever'
+        ? brandIdHeader
+        : brandIdFromHost(request.headers.get('host') ?? '');
+    const brand = getBrandById(brandId);
 
     const token = await getSalesforceToken();
 
@@ -28,7 +40,7 @@ export async function POST(request: NextRequest) {
         phone,
         businessType: businessType || '',
         bestTime: bestTime || '',
-        branding: branding || '',
+        branding: branding || brand.salesforceLeadValue,
         utmSource: 'callback-widget',
         utmMedium: '',
         utmCampaign: '',

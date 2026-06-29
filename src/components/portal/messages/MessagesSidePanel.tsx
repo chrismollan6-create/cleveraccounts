@@ -1,7 +1,4 @@
-import Image from "next/image";
 import {
-  Calendar,
-  Mail,
   Clock,
   Shield,
   Sparkles,
@@ -23,25 +20,19 @@ interface Props {
 /**
  * Right-hand sidebar for the Messages page.
  *
- * Three stacked cards:
- *   1. Accountant mini-card — photo, name, book-a-call CTA, email link
- *   2. Response-time expectation — manages SLA expectations up-front
- *   3. Quick tips — what makes a great message (mobile-collapsible)
- *
- * Designed to make the page feel populated without competing with the
- * conversation thread for attention.
+ * The accountant deliberately ISN'T repeated here — the persistent left
+ * sidebar chip already carries it (book / message / online), so duplicating
+ * it on this page was noise. The rail now just supports the conversation:
+ *   1. Signed engagement-letter card (when applicable)
+ *   2. Reply-time expectation — sets the SLA up front
+ *   3. Quick tips — what makes a great message
  */
-export default function MessagesSidePanel({
-  accountant,
-  brandName,
-  engagementLetter,
-}: Props) {
+export default function MessagesSidePanel({ engagementLetter }: Props) {
   const showSignedEl =
     engagementLetter && engagementLetter.status === "Signed";
 
   return (
     <div className="space-y-5 lg:sticky lg:top-6">
-      <AccountantMiniCard accountant={accountant} brandName={brandName} />
       {showSignedEl && (
         <EngagementLetterSignedCard letter={engagementLetter} />
       )}
@@ -101,101 +92,6 @@ function formatShortDate(iso: string): string {
     month: "short",
     year: "numeric",
   });
-}
-
-function AccountantMiniCard({
-  accountant,
-  brandName,
-}: {
-  accountant: PortalAccountantInfo | null;
-  brandName: string;
-}) {
-  const displayName = accountant?.name ?? "Your accountant";
-  const calendlyHref = accountant?.calendlyUrl ?? null;
-
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      {/* Brand gradient header */}
-      <div
-        className="relative h-20 bg-gradient-to-br from-primary-light via-primary to-primary-dark overflow-hidden"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.18) 1px, transparent 0)",
-          backgroundSize: "16px 16px, auto",
-        }}
-      >
-        <div
-          className="absolute -top-12 -right-8 w-40 h-40 rounded-full bg-white/10 blur-2xl"
-          aria-hidden
-        />
-      </div>
-
-      <div className="px-5 pb-5 -mt-10">
-        <div className="flex items-end gap-3">
-          <div className="relative shrink-0">
-            {accountant?.photoUrl ? (
-              <Image
-                src={accountant.photoUrl}
-                alt={accountant.name ?? "Accountant"}
-                width={64}
-                height={64}
-                unoptimized
-                className="h-16 w-16 rounded-2xl ring-4 ring-white shadow-md object-cover bg-gray-100"
-              />
-            ) : (
-              <div className="h-16 w-16 rounded-2xl ring-4 ring-white shadow-md bg-gradient-to-br from-primary-light to-primary-dark text-white text-lg font-bold flex items-center justify-center">
-                {computeInitials(displayName)}
-              </div>
-            )}
-            <span
-              className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-2 ring-white"
-              aria-label="Active"
-              title="Available"
-            />
-          </div>
-
-          <div className="flex-1 min-w-0 pb-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-primary">
-              Your accountant
-            </p>
-            <p className="mt-0.5 text-sm font-semibold text-text truncate">
-              {displayName}
-            </p>
-            <p className="text-[11px] text-text-light truncate">
-              at {brandName}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          {calendlyHref ? (
-            <a
-              href={calendlyHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:bg-primary-dark hover:shadow-md transition-all group"
-            >
-              <Calendar
-                size={14}
-                className="transition-transform group-hover:-rotate-6"
-              />
-              Book a call instead
-            </a>
-          ) : null}
-
-          {accountant?.email && (
-            <a
-              href={`mailto:${accountant.email}`}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-text-light hover:border-primary/30 hover:text-primary transition-colors"
-            >
-              <Mail size={12} />
-              <span className="truncate">{accountant.email}</span>
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function ResponseTimeCard() {
@@ -259,11 +155,4 @@ function TipsCard() {
       </ul>
     </div>
   );
-}
-
-function computeInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return "··";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }

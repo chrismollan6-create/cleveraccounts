@@ -86,76 +86,76 @@ const DEFAULT_ACCENT: TopicAccent = {
 // Brand-coherent palette only — see /learn/[topic]/page.tsx for the same map.
 const TOPIC_ACCENTS: Record<string, TopicAccent> = {
   "self-assessment": {
-    iconBg: "bg-blue-100", iconText: "text-blue-600", ring: "ring-blue-200",
-    hoverBorder: "hover:border-blue-400", bullet: "text-blue-500",
-    cardBg: "bg-gradient-to-br from-white to-blue-50", blobBg: "bg-blue-200",
-    tagBg: "bg-blue-100 text-blue-700", hoverShadow: "hover:shadow-blue-200/60",
+    iconBg: "bg-blue-100", iconText: "text-blue-600", ring: "ring-blue-100",
+    hoverBorder: "hover:border-blue-300", bullet: "text-blue-500",
+    cardBg: "bg-white", blobBg: "bg-blue-100",
+    tagBg: "bg-blue-50 text-blue-700", hoverShadow: "hover:shadow-blue-100/50",
   },
   "companies-house": {
-    iconBg: "bg-teal-100", iconText: "text-teal-600", ring: "ring-teal-200",
-    hoverBorder: "hover:border-teal-400", bullet: "text-teal-500",
-    cardBg: "bg-gradient-to-br from-white to-teal-50", blobBg: "bg-teal-200",
-    tagBg: "bg-teal-100 text-teal-700", hoverShadow: "hover:shadow-teal-200/60",
+    iconBg: "bg-teal-100", iconText: "text-teal-600", ring: "ring-teal-100",
+    hoverBorder: "hover:border-teal-300", bullet: "text-teal-500",
+    cardBg: "bg-white", blobBg: "bg-teal-100",
+    tagBg: "bg-teal-50 text-teal-700", hoverShadow: "hover:shadow-teal-100/50",
   },
   vat: {
-    iconBg: "bg-orange-100", iconText: "text-orange-600", ring: "ring-orange-200",
-    hoverBorder: "hover:border-orange-400", bullet: "text-orange-500",
-    cardBg: "bg-gradient-to-br from-white to-orange-50", blobBg: "bg-orange-200",
-    tagBg: "bg-orange-100 text-orange-700", hoverShadow: "hover:shadow-orange-200/60",
+    iconBg: "bg-orange-100", iconText: "text-orange-600", ring: "ring-orange-100",
+    hoverBorder: "hover:border-orange-300", bullet: "text-orange-500",
+    cardBg: "bg-white", blobBg: "bg-orange-100",
+    tagBg: "bg-orange-50 text-orange-700", hoverShadow: "hover:shadow-orange-100/50",
   },
   "corporation-tax": {
-    iconBg: "bg-amber-100", iconText: "text-amber-600", ring: "ring-amber-200",
-    hoverBorder: "hover:border-amber-400", bullet: "text-amber-500",
-    cardBg: "bg-gradient-to-br from-white to-amber-50", blobBg: "bg-amber-200",
-    tagBg: "bg-amber-100 text-amber-700", hoverShadow: "hover:shadow-amber-200/60",
+    iconBg: "bg-amber-100", iconText: "text-amber-600", ring: "ring-amber-100",
+    hoverBorder: "hover:border-amber-300", bullet: "text-amber-500",
+    cardBg: "bg-white", blobBg: "bg-amber-100",
+    tagBg: "bg-amber-50 text-amber-700", hoverShadow: "hover:shadow-amber-100/50",
   },
   dividends: {
-    iconBg: "bg-slate-100", iconText: "text-slate-700", ring: "ring-slate-200",
-    hoverBorder: "hover:border-slate-400", bullet: "text-slate-500",
-    cardBg: "bg-gradient-to-br from-white to-slate-50", blobBg: "bg-slate-200",
-    tagBg: "bg-slate-100 text-slate-700", hoverShadow: "hover:shadow-slate-200/60",
+    iconBg: "bg-slate-100", iconText: "text-slate-700", ring: "ring-slate-100",
+    hoverBorder: "hover:border-slate-300", bullet: "text-slate-500",
+    cardBg: "bg-white", blobBg: "bg-slate-100",
+    tagBg: "bg-slate-50 text-slate-700", hoverShadow: "hover:shadow-slate-100/50",
   },
   expenses: {
-    iconBg: "bg-sky-100", iconText: "text-sky-600", ring: "ring-sky-200",
-    hoverBorder: "hover:border-sky-400", bullet: "text-sky-500",
-    cardBg: "bg-gradient-to-br from-white to-sky-50", blobBg: "bg-sky-200",
-    tagBg: "bg-sky-100 text-sky-700", hoverShadow: "hover:shadow-sky-200/60",
+    iconBg: "bg-sky-100", iconText: "text-sky-600", ring: "ring-sky-100",
+    hoverBorder: "hover:border-sky-300", bullet: "text-sky-500",
+    cardBg: "bg-white", blobBg: "bg-sky-100",
+    tagBg: "bg-sky-50 text-sky-700", hoverShadow: "hover:shadow-sky-100/50",
   },
   paye: {
-    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-200",
-    hoverBorder: "hover:border-yellow-400", bullet: "text-yellow-500",
-    cardBg: "bg-gradient-to-br from-white to-yellow-50", blobBg: "bg-yellow-200",
-    tagBg: "bg-yellow-100 text-yellow-700", hoverShadow: "hover:shadow-yellow-200/60",
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-100",
+    hoverBorder: "hover:border-yellow-300", bullet: "text-yellow-600",
+    cardBg: "bg-white", blobBg: "bg-yellow-100",
+    tagBg: "bg-yellow-50 text-yellow-700", hoverShadow: "hover:shadow-yellow-100/50",
   },
   payroll: {
-    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-200",
-    hoverBorder: "hover:border-yellow-400", bullet: "text-yellow-500",
-    cardBg: "bg-gradient-to-br from-white to-yellow-50", blobBg: "bg-yellow-200",
-    tagBg: "bg-yellow-100 text-yellow-700", hoverShadow: "hover:shadow-yellow-200/60",
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-100",
+    hoverBorder: "hover:border-yellow-300", bullet: "text-yellow-600",
+    cardBg: "bg-white", blobBg: "bg-yellow-100",
+    tagBg: "bg-yellow-50 text-yellow-700", hoverShadow: "hover:shadow-yellow-100/50",
   },
   "paye-payroll": {
-    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-200",
-    hoverBorder: "hover:border-yellow-400", bullet: "text-yellow-500",
-    cardBg: "bg-gradient-to-br from-white to-yellow-50", blobBg: "bg-yellow-200",
-    tagBg: "bg-yellow-100 text-yellow-700", hoverShadow: "hover:shadow-yellow-200/60",
+    iconBg: "bg-yellow-100", iconText: "text-yellow-700", ring: "ring-yellow-100",
+    hoverBorder: "hover:border-yellow-300", bullet: "text-yellow-600",
+    cardBg: "bg-white", blobBg: "bg-yellow-100",
+    tagBg: "bg-yellow-50 text-yellow-700", hoverShadow: "hover:shadow-yellow-100/50",
   },
   "year-end-accounts": {
-    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-200",
-    hoverBorder: "hover:border-emerald-400", bullet: "text-emerald-500",
-    cardBg: "bg-gradient-to-br from-white to-emerald-50", blobBg: "bg-emerald-200",
-    tagBg: "bg-emerald-100 text-emerald-700", hoverShadow: "hover:shadow-emerald-200/60",
+    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
+    hoverBorder: "hover:border-emerald-300", bullet: "text-emerald-500",
+    cardBg: "bg-white", blobBg: "bg-emerald-100",
+    tagBg: "bg-emerald-50 text-emerald-700", hoverShadow: "hover:shadow-emerald-100/50",
   },
   bookkeeping: {
-    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-200",
-    hoverBorder: "hover:border-emerald-400", bullet: "text-emerald-500",
-    cardBg: "bg-gradient-to-br from-white to-emerald-50", blobBg: "bg-emerald-200",
-    tagBg: "bg-emerald-100 text-emerald-700", hoverShadow: "hover:shadow-emerald-200/60",
+    iconBg: "bg-emerald-100", iconText: "text-emerald-600", ring: "ring-emerald-100",
+    hoverBorder: "hover:border-emerald-300", bullet: "text-emerald-500",
+    cardBg: "bg-white", blobBg: "bg-emerald-100",
+    tagBg: "bg-emerald-50 text-emerald-700", hoverShadow: "hover:shadow-emerald-100/50",
   },
   ir35: {
-    iconBg: "bg-red-100", iconText: "text-red-600", ring: "ring-red-200",
-    hoverBorder: "hover:border-red-400", bullet: "text-red-500",
-    cardBg: "bg-gradient-to-br from-white to-red-50", blobBg: "bg-red-200",
-    tagBg: "bg-red-100 text-red-700", hoverShadow: "hover:shadow-red-200/60",
+    iconBg: "bg-red-100", iconText: "text-red-600", ring: "ring-red-100",
+    hoverBorder: "hover:border-red-300", bullet: "text-red-500",
+    cardBg: "bg-white", blobBg: "bg-red-100",
+    tagBg: "bg-red-50 text-red-700", hoverShadow: "hover:shadow-red-100/50",
   },
 };
 function accentFor(slug?: string): TopicAccent {
@@ -249,6 +249,37 @@ export default async function LearnIndexPage() {
               ))}
             </div>
           )}
+
+          {/* Trust signals — sit in the hero, directly under the search */}
+          <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl mx-auto text-left">
+            {[
+              {
+                Icon: CheckCircle2,
+                title: "Reviewed by qualified accountants",
+                body: "Every guide carries a last-reviewed date you can verify.",
+              },
+              {
+                Icon: RefreshCw,
+                title: "Updated when the rules change",
+                body: "HMRC and Companies House change yearly — so do these guides.",
+              },
+              {
+                Icon: MessageSquare,
+                title: "Plain English, no jargon",
+                body: "Written the way clients actually ask — not the way HMRC writes.",
+              },
+            ].map(({ Icon, title, body }) => (
+              <div key={title} className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center">
+                  <Icon className="text-secondary" size={20} />
+                </div>
+                <div>
+                  <p className="font-semibold text-white text-sm">{title}</p>
+                  <p className="text-xs text-white/60 leading-snug mt-0.5">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
@@ -258,48 +289,6 @@ export default async function LearnIndexPage() {
         </div>
       </section>
 
-      {/* SVG wave divider between hero and trust band */}
-      <div aria-hidden className="relative -mt-px">
-        <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="block w-full h-12 md:h-20">
-          <path
-            d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
-            fill="white"
-          />
-        </svg>
-      </div>
-
-      {/* ── Trust band ─────────────────────────────────────────────────────── */}
-      <section className="bg-white">
-        <div className="max-w-6xl mx-auto px-4 pb-8 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50/60 border border-green-100">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/15 ring-4 ring-green-200/50 flex items-center justify-center">
-              <CheckCircle2 className="text-green-600" size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-dark text-sm">Reviewed by qualified accountants</p>
-              <p className="text-xs text-text-light leading-snug mt-0.5">Every guide carries a last-reviewed date you can verify.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50/60 border border-blue-100">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500/15 ring-4 ring-blue-200/50 flex items-center justify-center">
-              <RefreshCw className="text-blue-600" size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-dark text-sm">Updated when the rules change</p>
-              <p className="text-xs text-text-light leading-snug mt-0.5">HMRC and Companies House change yearly — so do these guides.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-purple-50/60 border border-purple-100">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-500/15 ring-4 ring-purple-200/50 flex items-center justify-center">
-              <MessageSquare className="text-purple-600" size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-dark text-sm">Plain English, no jargon</p>
-              <p className="text-xs text-text-light leading-snug mt-0.5">Written the way clients actually ask — not the way HMRC writes.</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {!hasContent ? (
         <section className="bg-white py-16">

@@ -69,10 +69,10 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "Starting a company is overwhelming enough without worrying about HMRC. Clever Accounts took the entire financial side off my plate from day one. I can't recommend them enough.",
+      `Starting a company is overwhelming enough without worrying about HMRC. ${brandName} took the entire financial side off my plate from day one. I can't recommend them enough.`,
     name: "Natasha B.",
     businessType: "SaaS Startup Founder",
   },
@@ -84,7 +84,7 @@ const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "Switched from doing it myself after my first Companies House filing went wrong. Clever Accounts cleaned it all up and I've had zero issues since.",
+      `Switched from doing it myself after my first Companies House filing went wrong. ${brandName} cleaned it all up and I've had zero issues since.`,
     name: "Laura M.",
     businessType: "E-commerce Startup",
   },
@@ -120,7 +120,7 @@ const faq: FAQItem[] = [
 
 export default async function StartupLP() {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Startup Accounting — From £104.50/month"
@@ -138,11 +138,11 @@ export default async function StartupLP() {
         "Free FreeAgent accounting software",
         "Unlimited phone & email advice",
       ]}
-      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
+      whyUs={whyUs}
       painPoints={painPoints}
-      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
-      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
-      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
+      howItWorks={howItWorks}
+      testimonials={testimonials}
+      faq={faq}
     />
   );
 }

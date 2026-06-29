@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
+import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
+
+const cleverMetadata: Metadata = {
+  title: "Switch Accountant — Seamless Transfer, Benefits From Day One | Clever Accounts",
+  description: "Switching accountants is easier than you think. We contact your old accountant, transfer your records, and you benefit immediately. No setup fee, no hassle.",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
-  return {
-    title: `Switch Accountant — Seamless Transfer, Benefits From Day One | ${brand.name}`,
-    description: "Switching accountants is easier than you think. We contact your old accountant, transfer your records, and you benefit immediately. No setup fee, no hassle.",
-  };
+  return brand.id === "workwell" ? workwellServiceMetadata("accountant-switch") : cleverMetadata;
 }
 
 const faqs = [
@@ -45,10 +48,11 @@ const faqs = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrand();
   return (
     <>
-      <FAQPageJsonLd faqs={faqs} />
+      {brand.id !== "workwell" && <FAQPageJsonLd faqs={faqs} />}
       {children}
     </>
   );

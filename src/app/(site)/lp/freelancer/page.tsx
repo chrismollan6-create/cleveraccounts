@@ -69,16 +69,16 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
-      "As a freelance developer I had no idea how much to save for tax. My Clever Accounts accountant set up a simple system and I've never been caught short since.",
+      `As a freelance developer I had no idea how much to save for tax. My ${brandName} accountant set up a simple system and I've never been caught short since.`,
     name: "Alex B.",
     businessType: "Freelance Web Developer",
   },
   {
     quote:
-      "I was doing my own self assessment and getting it wrong every year. Switched to Clever Accounts and immediately got a refund from HMRC for over-payments. Brilliant.",
+      `I was doing my own self assessment and getting it wrong every year. Switched to ${brandName} and immediately got a refund from HMRC for over-payments. Brilliant.`,
     name: "Charlotte D.",
     businessType: "Freelance Copywriter",
   },
@@ -120,7 +120,7 @@ const faq: FAQItem[] = [
 
 export default async function FreelancerLP() {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Freelancer Accounting — From £42.50/month"
@@ -138,11 +138,11 @@ export default async function FreelancerLP() {
         "HMRC registration & correspondence",
         "MTD for Income Tax compliant",
       ]}
-      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
+      whyUs={whyUs}
       painPoints={painPoints}
-      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
-      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
-      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
+      howItWorks={howItWorks}
+      testimonials={testimonials}
+      faq={faq}
     />
   );
 }

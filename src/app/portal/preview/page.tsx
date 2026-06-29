@@ -46,6 +46,36 @@ const STUNNING = [
   },
 ];
 
+const NEW_DIRECTIONS = [
+  {
+    slug: "d1",
+    name: "Aurora",
+    tag: "Light · the hybrid",
+    summary:
+      "C1's calm Linear layout, evolved. Single restrained indigo accent, an aurora hairline + faint glow on the hero only. The big win: an inline time-slot picker baked into the next-step card (booking is one tap, not a buried button). Progress shown exactly once; overdue softened to a gentle 'Let's get this booked' nudge.",
+    references: "Stripe dashboard · Linear · Vercel · Arc",
+    feels: ["Calm", "Converts", "Premium"],
+  },
+  {
+    slug: "d2",
+    name: "Midnight",
+    tag: "Dark · high-end",
+    summary:
+      "Deep near-black glassmorphism with a single emerald→teal gradient accent and a faint radial glow. Glassy cards, a glowing progress ring, inline slot picker with a gradient confirm. Looks expensive — the 'wow' option for a CTO demo.",
+    references: "Raycast · Vercel dark · Linear dark · Family",
+    feels: ["Expensive", "Modern", "Wow"],
+  },
+  {
+    slug: "d3",
+    name: "Editorial",
+    tag: "Warm · human",
+    summary:
+      "Warm cream paper, Instrument Serif display type paired with Inter, one restrained forest-green accent. A generous focal column with an inline slot picker and a quiet right rail. Calm, considered, private-bank feel — premium without the noise.",
+    references: "Stripe Press · Monocle · Notion 2026 · wealth dashboards",
+    feels: ["Warm", "Editorial", "Quiet"],
+  },
+];
+
 const REFERENCE = [
   { slug: "c", name: "Concierge base", note: "Original concierge — restrained" },
   { slug: "a", name: "Linear minimal", note: "Plain — for comparison" },
@@ -68,23 +98,98 @@ export default function PreviewIndex() {
         </div>
 
         <header className="mb-12">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-700">
-            <Sparkles size={12} /> New — expanded directions
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-700">
+            <Sparkles size={12} /> New — fresh directions (D-series)
           </div>
           <h1
             className={`${display.className} text-5xl text-stone-900 sm:text-6xl`}
           >
-            Three app directions.
+            Three new directions.
           </h1>
           <p className="mt-3 max-w-2xl text-base text-stone-600">
-            Restart after the magazine-cover misfire. These are designed as{" "}
-            <strong>software</strong> — the screen you&apos;ll look at every
-            time you sign in, not a one-time hero. Polished cards, real
-            widgets, considered typography. Accountant photo demoted to an
-            avatar chip in all three.
+            Built from everything we learned: say each thing <strong>once</strong>,
+            one progress indicator, and the booking slot-picker baked straight
+            into the next-step card. Three distinct moods — <strong>light</strong>,{" "}
+            <strong>dark</strong>, and <strong>warm</strong> — all uncluttered,
+            all modern. The C-series below is kept for comparison.
           </p>
         </header>
 
+        {/* NEW DIRECTIONS — D-series, big cards */}
+        <div className="mb-4 flex items-baseline justify-between">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+            New — D-series
+          </h3>
+          <span className="text-xs text-stone-400">D1 is the C1 + booking hybrid</span>
+        </div>
+        <div className="mb-16 grid gap-5 md:grid-cols-3">
+          {NEW_DIRECTIONS.map((v, idx) => (
+            <Link
+              key={v.slug}
+              href={`/portal/preview/${v.slug}`}
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white p-7 transition hover:-translate-y-1 hover:border-stone-900 hover:shadow-2xl"
+            >
+              <div
+                className={`absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-60 blur-3xl transition-opacity group-hover:opacity-100 ${
+                  idx === 0
+                    ? "bg-indigo-500/30"
+                    : idx === 1
+                      ? "bg-emerald-500/30"
+                      : "bg-lime-600/25"
+                }`}
+              />
+              <div className="relative flex flex-1 flex-col">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-bold text-white">
+                    {v.slug.toUpperCase()}
+                  </span>
+                  <span className="text-xs uppercase tracking-wider text-stone-500">
+                    {v.tag}
+                  </span>
+                </div>
+                <h2
+                  className={`${display.className} text-3xl text-stone-900 group-hover:text-indigo-700`}
+                >
+                  {v.name}
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-stone-600">
+                  {v.summary}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-1.5">
+                  {v.feels.map((f) => (
+                    <span
+                      key={f}
+                      className="rounded-full border border-stone-200 px-2 py-0.5 text-xs text-stone-600"
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-auto pt-6">
+                  <div className="text-xs uppercase tracking-wider text-stone-400">
+                    Inspired by
+                  </div>
+                  <div className="mt-1 text-xs text-stone-600">
+                    {v.references}
+                  </div>
+                </div>
+                <div className="mt-6 flex items-center justify-between border-t border-stone-100 pt-5">
+                  <span className="text-sm font-semibold text-stone-900">
+                    See it live
+                  </span>
+                  <ArrowRight
+                    size={18}
+                    className="text-stone-400 transition group-hover:translate-x-1 group-hover:text-indigo-700"
+                  />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
+          C-series — earlier app directions
+        </h3>
         {/* STUNNING — big cards */}
         <div className="grid gap-5 md:grid-cols-3">
           {STUNNING.map((v, idx) => (

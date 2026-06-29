@@ -336,6 +336,215 @@ export const accountants = portal.table(
   }
 );
 
+// portal.companies ─── cached CH_Company__c (Companies House company record)
+// One per Account (Account.CH_Company__c lookup). Synced from Companies House
+// via CompaniesHouseSyncBatch on the SF side; mirrored here for the portal
+// "Your details" page.
+export const companies = portal.table(
+  "companies",
+  {
+    sfId: text("sf_id").primaryKey(), // CH_Company__c.Id
+    accountSfId: text("account_sf_id").notNull(),
+    companyNumber: text("company_number"),
+    companyName: text("company_name"),
+    status: text("status"), // 'active' | 'liquidation' | …
+    statusDetail: text("status_detail"),
+    companyType: text("company_type"), // 'private-limited' | 'plc' | …
+    dateOfCreation: date("date_of_creation"),
+    dateOfCessation: date("date_of_cessation"),
+    // Registered office address
+    regPremises: text("reg_premises"),
+    regLine1: text("reg_line_1"),
+    regLine2: text("reg_line_2"),
+    regLocality: text("reg_locality"),
+    regRegion: text("reg_region"),
+    regPostalCode: text("reg_postal_code"),
+    regCountry: text("reg_country"),
+    sicCodes: text("sic_codes"),
+    // Filing deadlines
+    accountsNextDue: date("accounts_next_due"),
+    accountsLastMadeUp: date("accounts_last_made_up"),
+    accountsNextPeriodEnd: date("accounts_next_period_end"),
+    accountsOverdue: boolean("accounts_overdue").notNull().default(false),
+    csNextDue: date("cs_next_due"),
+    csLastMadeUp: date("cs_last_made_up"),
+    csOverdue: boolean("cs_overdue").notNull().default(false),
+    lastSynced: timestamp("last_synced", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountIdx: index("companies_account_idx").on(t.accountSfId),
+  })
+);
+
+// portal.officers ─── cached CH_Officer__c (directors / secretaries) flattened
+// with their CH_Company_Officer__c appointment. account_sf_id is denormalised
+// so the portal can scope-filter without joining through the company.
+export const officers = portal.table(
+  "officers",
+  {
+    sfId: text("sf_id").primaryKey(), // CH_Officer__c.Id
+    accountSfId: text("account_sf_id").notNull(),
+    companySfId: text("company_sf_id"),
+    name: text("name"),
+    officerRole: text("officer_role"), // 'director' | 'secretary' | …
+    appointedOn: date("appointed_on"),
+    resignedOn: date("resigned_on"), // null = active
+    monthOfBirth: text("month_of_birth"),
+    yearOfBirth: text("year_of_birth"),
+    occupation: text("occupation"),
+    nationality: text("nationality"),
+    countryOfResidence: text("country_of_residence"),
+    addrPremises: text("addr_premises"),
+    addrLine1: text("addr_line_1"),
+    addrLine2: text("addr_line_2"),
+    addrLocality: text("addr_locality"),
+    addrRegion: text("addr_region"),
+    addrPostalCode: text("addr_postal_code"),
+    addrCountry: text("addr_country"),
+    idvVerifiedOn: date("idv_verified_on"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountIdx: index("officers_account_idx").on(t.accountSfId),
+    companyIdx: index("officers_company_idx").on(t.companySfId),
+  })
+);
+
+// portal.deadlines ─── upcoming statutory + filing deadlines for an Account.
+// Aggregates CH dates (accounts / confirmation statement) plus VAT, Self
+// Assessment, Corporation Tax and payroll dates from Salesforce. The single
+// biggest reason a client logs in: "what's due and when".
+export const deadlines = portal.table(
+  "deadlines",
+  {
+    sfId: text("sf_id").primaryKey(), // source record id (or synthetic key)
+    accountSfId: text("account_sf_id").notNull(),
+    /** 'accounts' | 'confirmation_statement' | 'vat' | 'self_assessment' | 'corporation_tax' | 'payroll' */
+    kind: text("kind").notNull(),
+    title: text("title").notNull(),
+    dueDate: date("due_date"),
+    periodLabel: text("period_label"),
+    /** 'upcoming' | 'due_soon' | 'overdue' | 'submitted' */
+    status: text("status").notNull(),
+    /** 'client' | 'us' | 'nobody' — who needs to act next. */
+    blockedOn: text("blocked_on"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountDueIdx: index("deadlines_account_due_idx").on(t.accountSfId, t.dueDate),
+  })
+);
+
+// portal.notifications ─── the retention backbone. Every actionable event
+// (new reply, deadline approaching, item to approve, document ready, info
+// requested) becomes a row here, deep-linking into the relevant surface.
+// Drives the sidebar bell + the /portal/notifications inbox.
+export const notifications = portal.table(
+  "notifications",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    /** 'message' | 'deadline' | 'approval' | 'request' | 'document' | 'general' */
+    type: text("type").notNull(),
+    title: text("title").notNull(),
+    body: text("body"),
+    /** Deep link into the portal (e.g. /portal/deadlines). */
+    href: text("href"),
+    /** True when the client must DO something (approve, sign, send) vs FYI. */
+    actionRequired: boolean("action_required").notNull().default(false),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    accountCreatedIdx: index("notifications_account_created_idx").on(
+      t.accountSfId,
+      t.createdAt.desc()
+    ),
+    accountUnreadIdx: index("notifications_account_unread_idx").on(
+      t.accountSfId,
+      t.readAt
+    ),
+  })
+);
+
+// portal.approvals ─── items awaiting the client's sign-off (MTD quarterly
+// review, VAT return, Self Assessment, year-end accounts). The portal's
+// "approve / sign" surface. Writes (approve) go SF-direct in prod (MTDApproval
+// service etc.) then sync back; cached here for the read + a fast optimistic
+// status flip.
+export const approvals = portal.table(
+  "approvals",
+  {
+    sfId: text("sf_id").primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    /** 'mtd_review' | 'vat' | 'self_assessment' | 'accounts' */
+    kind: text("kind").notNull(),
+    title: text("title").notNull(),
+    periodLabel: text("period_label"),
+    /** 'pending' | 'approved' | 'queried' */
+    status: text("status").notNull(),
+    summary: text("summary"),
+    /** Short headline figure, e.g. "£4,210.50 due to HMRC". */
+    amountLabel: text("amount_label"),
+    dueDate: date("due_date"),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountStatusIdx: index("approvals_account_status_idx").on(
+      t.accountSfId,
+      t.status
+    ),
+  })
+);
+
+// portal.documents ─── file exchange. Two directions:
+//   'shared'  — a file we've produced for the client to DOWNLOAD (accounts,
+//               VAT return, payslip, signed engagement letter, …)
+//   'request' — a file we NEED the client to UPLOAD (photo ID, proof of
+//               address, last year's tax return, …); status requested|received
+// Backed in prod by SF ContentDocument/ContentVersion; cached here for the list.
+export const documents = portal.table(
+  "documents",
+  {
+    sfId: text("sf_id").primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    name: text("name").notNull(),
+    /** 'accounts' | 'vat' | 'tax_return' | 'payslip' | 'p60' | 'engagement_letter' | 'identity' | 'proof_of_address' | 'other' */
+    category: text("category").notNull(),
+    /** 'shared' (downloadable) | 'request' (we need it uploaded) */
+    direction: text("direction").notNull(),
+    /** shared → 'available'; request → 'requested' | 'received' */
+    status: text("status").notNull(),
+    fileType: text("file_type"),
+    sizeLabel: text("size_label"),
+    /** Download link (shared docs) — proxied via SF in prod. */
+    downloadUrl: text("download_url"),
+    /** When shared, or when an upload was received. */
+    sharedAt: timestamp("shared_at", { withTimezone: true }),
+    /** For requests — when we'd like it by. */
+    dueDate: date("due_date"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
+    raw: jsonb("raw"),
+  },
+  (t) => ({
+    accountDirIdx: index("documents_account_dir_idx").on(
+      t.accountSfId,
+      t.direction
+    ),
+  })
+);
+
 // ───────────────────────────────────────────────────────────────────────────
 // portal.sync_log
 // Forensic + ops trail for cache updates. One row per inbound sync event.
@@ -391,3 +600,15 @@ export type CachedAccountant = typeof accountants.$inferSelect;
 export type NewCachedAccountant = typeof accountants.$inferInsert;
 export type SyncLogEntry = typeof syncLog.$inferSelect;
 export type NewSyncLogEntry = typeof syncLog.$inferInsert;
+export type CachedCompany = typeof companies.$inferSelect;
+export type NewCachedCompany = typeof companies.$inferInsert;
+export type CachedOfficer = typeof officers.$inferSelect;
+export type NewCachedOfficer = typeof officers.$inferInsert;
+export type CachedDeadline = typeof deadlines.$inferSelect;
+export type NewCachedDeadline = typeof deadlines.$inferInsert;
+export type CachedNotification = typeof notifications.$inferSelect;
+export type NewCachedNotification = typeof notifications.$inferInsert;
+export type CachedApproval = typeof approvals.$inferSelect;
+export type NewCachedApproval = typeof approvals.$inferInsert;
+export type CachedDocument = typeof documents.$inferSelect;
+export type NewCachedDocument = typeof documents.$inferInsert;

@@ -70,7 +70,7 @@ const howItWorks: HowItWorksStep[] = [
   },
 ];
 
-const testimonials: Testimonial[] = [
+const makeTestimonials = (brandName: string): Testimonial[] => [
   {
     quote:
       "Switched from a high-street accountant and halved our fees whilst getting a far more proactive service. The salary/dividend advice alone saved us thousands.",
@@ -79,7 +79,7 @@ const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "I was drowning in compliance — VAT, payroll, Companies House. Clever Accounts took the lot. I actually enjoy running my business again.",
+      `I was drowning in compliance — VAT, payroll, Companies House. ${brandName} took the lot. I actually enjoy running my business again.`,
     name: "Priya S.",
     businessType: "Ltd Company Consultant",
   },
@@ -119,16 +119,20 @@ const faq: FAQItem[] = [
   },
 ];
 
-const statsSection = (brandName: string) => (
+const makeStatsSection = (isClever: boolean, brandName: string) => (
   <section className="bg-dark py-14">
     <div className="max-w-5xl mx-auto px-4">
       <p className="text-center text-slate-400 text-sm font-semibold uppercase tracking-widest mb-8">Why directors choose {brandName}</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { value: "3,000+", label: "Directors switched to us this year", colour: "from-primary to-blue-400" },
+          isClever
+            ? { value: "3,000+", label: "Directors switched to us this year", colour: "from-primary to-blue-400" }
+            : { value: "1,000s", label: "Directors trust us with their company", colour: "from-primary to-blue-400" },
           { value: "6", label: "Tax obligations covered in one fixed fee", colour: "from-secondary to-emerald-400" },
           { value: "£0", label: "Setup fees — ever", colour: "from-amber-500 to-yellow-400" },
-          { value: "20+", label: "Years of limited company expertise", colour: "from-purple-500 to-pink-400" },
+          isClever
+            ? { value: "20+", label: "Years of limited company expertise", colour: "from-purple-500 to-pink-400" }
+            : { value: "MTD", label: "VAT filed under Making Tax Digital", colour: "from-purple-500 to-pink-400" },
         ].map((s) => (
           <div key={s.value} className={`rounded-2xl bg-gradient-to-br ${s.colour} p-px`}>
             <div className="rounded-2xl bg-dark h-full p-5 text-center">
@@ -182,14 +186,15 @@ const servicesGrid = (
 
 export default async function LimitedCompanyLP() {
   const brand = await getBrand();
-  const swap = (s: string) => s.replaceAll("Clever Accounts", brand.name);
+  const isClever = brand.id === "clever";
+  const testimonials = makeTestimonials(brand.name);
   return (
     <LandingPageLayout
       headline="Limited Company Accounting — Everything Included"
       subheadline="Year-end accounts, corporation tax, VAT, payroll, and a dedicated accountant who proactively saves you money. One fixed monthly fee — no surprises."
       price="104.50"
       targetAudience="For Limited Company Directors"
-      urgencyText="3,000+ directors switched to us this year"
+      urgencyText={isClever ? "3,000+ directors switched to us this year" : "Directors across the UK trust us with their company"}
       features={[
         "Dedicated limited company accountant",
         "Year-end accounts & CT600 filed",
@@ -200,13 +205,13 @@ export default async function LimitedCompanyLP() {
         "Free FreeAgent accounting software",
         "Unlimited phone & email support",
       ]}
-      whyUs={whyUs.map((w) => ({ ...w, title: swap(w.title), description: swap(w.description) }))}
+      whyUs={whyUs}
       painPoints={painPoints}
-      howItWorks={howItWorks.map((s) => ({ ...s, description: swap(s.description) }))}
-      testimonials={testimonials.map((t) => ({ ...t, quote: swap(t.quote) }))}
-      faq={faq.map((f) => ({ question: swap(f.question), answer: swap(f.answer) }))}
+      howItWorks={howItWorks}
+      testimonials={testimonials}
+      faq={faq}
     >
-      {statsSection(brand.name)}
+      {makeStatsSection(isClever, brand.name)}
       {servicesGrid}
     </LandingPageLayout>
   );

@@ -296,37 +296,35 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
           </p>
 
           {articles.length > 0 ? (
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {articles.map((a, idx) => (
                 <li key={a._id}>
                   <Link
                     href={`/learn/${data.slug.current}/${a.slug.current}`}
-                    className={`group flex items-start gap-5 bg-white border-2 border-transparent ring-1 ring-border rounded-2xl p-6 ${accent.hoverBorder} hover:shadow-2xl hover:-translate-y-1 transition-all`}
+                    className={`group flex items-center gap-4 bg-white border-2 border-transparent ring-1 ring-border rounded-xl px-4 py-3.5 ${accent.hoverBorder} hover:shadow-lg hover:-translate-y-0.5 transition-all`}
                   >
-                    <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${accent.iconBg} flex items-center justify-center font-bold ${accent.text} text-lg`}>
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-lg ${accent.iconBg} flex items-center justify-center font-bold ${accent.text} text-sm`}>
                       {idx + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                        {(a.appliesTo ?? []).map((tag) => (
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <h3 className="text-base md:text-lg font-bold text-dark group-hover:text-primary transition-colors leading-snug">
+                          {a.canonicalQuestion || a.title}
+                        </h3>
+                        {(a.appliesTo ?? []).slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="inline-block bg-surface text-text text-xs font-medium px-2 py-0.5 rounded-full"
+                            className="hidden md:inline-block bg-surface text-text-light text-[11px] font-medium px-1.5 py-0.5 rounded"
                           >
                             {APPLIES_TO_LABELS[tag] || tag}
                           </span>
                         ))}
                       </div>
-                      <h3 className="text-xl md:text-2xl font-bold text-dark mb-1.5 group-hover:text-primary transition-colors leading-snug">
-                        {a.canonicalQuestion || a.title}
-                      </h3>
                       {a.excerpt && (
-                        <p className="text-text-light leading-relaxed line-clamp-2">{a.excerpt}</p>
+                        <p className="text-sm text-text-light leading-snug line-clamp-1 mt-0.5">{a.excerpt}</p>
                       )}
                     </div>
-                    <div className={`hidden sm:flex flex-shrink-0 self-center w-12 h-12 rounded-xl bg-white ring-1 ring-border items-center justify-center transition-all group-hover:${accent.iconBg} group-hover:ring-0 group-hover:scale-110`}>
-                      <ArrowRight className={`${accent.text}`} size={20} />
-                    </div>
+                    <ArrowRight className={`flex-shrink-0 ${accent.text} opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all`} size={18} />
                   </Link>
                 </li>
               ))}

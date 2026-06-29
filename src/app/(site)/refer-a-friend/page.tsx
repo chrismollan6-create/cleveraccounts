@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useBrand } from "@/lib/useBrand";
 import {
   Copy,
   Check,
@@ -18,6 +17,7 @@ import {
   Loader2,
   RotateCcw,
 } from "lucide-react";
+import { useBrand } from "@/lib/useBrand";
 
 interface ReferralItem {
   id: string;
@@ -76,7 +76,7 @@ function ReferralPageContent() {
   const [requestError, setRequestError] = useState<string | null>(null);
 
   const shareLink = data
-    ? `https://www.cleveraccounts.com/sign-up?ref=${data.referralCode}`
+    ? `https://www.${brand.domain}/sign-up?ref=${data.referralCode}`
     : "";
 
   const loadReferralData = useCallback(async () => {
@@ -301,7 +301,7 @@ function ReferralPageContent() {
                 </a>
               </div>
 
-              <HowItWorks />
+              <HowItWorks brandName={brand.name} />
             </div>
           )}
 
@@ -538,7 +538,7 @@ function ReferralPageContent() {
               </div>
 
               {/* ── HOW IT WORKS ────────────────────────────────── */}
-              <HowItWorks />
+              <HowItWorks brandName={brand.name} />
 
             </div>
           )}
@@ -548,8 +548,7 @@ function ReferralPageContent() {
   );
 }
 
-function HowItWorks() {
-  const brand = useBrand();
+function HowItWorks({ brandName }: { brandName: string }) {
   const steps = [
     {
       icon: <Copy size={20} />,
@@ -559,7 +558,7 @@ function HowItWorks() {
     {
       icon: <Users size={20} />,
       title: "They sign up",
-      desc: `They sign up using your link and become a ${brand.name} client.`,
+      desc: `They sign up using your link and become a ${brandName} client.`,
     },
     {
       icon: <Clock size={20} />,

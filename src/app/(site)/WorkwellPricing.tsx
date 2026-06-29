@@ -45,25 +45,25 @@ interface WorkwellPricingProps {
 /** Per-card accent — mirrors WorkwellHome segment cards (lime / cyan / teal). */
 const CARD_ACCENT = [
   {
-    bar: "from-[#9cbf50] to-[#bdd289]",
-    chip: "bg-[#9cbf50]/20 text-[#6f8052]",
-    hover: "hover:border-[#9cbf50]",
-    cta: "bg-[#6f8052] text-white hover:bg-[#5d7038]",
-    check: "text-[#6f8052]",
+    bar: "from-[#8db74e] to-[#e0e48e]",
+    chip: "bg-[#8db74e]/20 text-[#5f8a3e]",
+    hover: "hover:border-[#8db74e]",
+    cta: "bg-[#5f8a3e] text-white hover:bg-[#5f8a3e]",
+    check: "text-[#5f8a3e]",
   },
   {
-    bar: "from-[#9cbf50] via-[#71c5d6] to-[#32535a]", // popular — full palette
+    bar: "from-[#8db74e] via-[#8db74e] to-[#29484f]", // popular — full palette
     chip: "bg-white/15 text-white",
     hover: "",
-    cta: "bg-white text-[#2c4a51] hover:bg-[#eef4e2]",
-    check: "text-[#bdd289]",
+    cta: "bg-white text-[#29484f] hover:bg-[#eef4e2]",
+    check: "text-[#e0e48e]",
   },
   {
-    bar: "from-[#32535a] to-[#4d7079]",
-    chip: "bg-[#32535a]/12 text-[#2c4a51]",
-    hover: "hover:border-[#32535a]",
-    cta: "bg-[#32535a] text-white hover:bg-[#2c4a51]",
-    check: "text-[#2c6470]",
+    bar: "from-[#29484f] to-[#4a6a72]",
+    chip: "bg-[#29484f]/12 text-[#29484f]",
+    hover: "hover:border-[#29484f]",
+    cta: "bg-[#29484f] text-white hover:bg-[#29484f]",
+    check: "text-[#2f5560]",
   },
 ];
 
@@ -98,16 +98,16 @@ export default function WorkwellPricing({
     <>
       {/* ── HERO — light, lime accent, B2C tone ──────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#f7faf0] via-white to-white pt-20 md:pt-28 pb-16 md:pb-20">
-        <div className="absolute -top-24 right-0 w-[420px] h-[420px] bg-[#9cbf50]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-32 -left-20 w-[360px] h-[360px] bg-[#71c5d6]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 right-0 w-[420px] h-[420px] bg-[#8db74e]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-32 -left-20 w-[360px] h-[360px] bg-[#8db74e]/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto px-4 text-center">
-          <span className="inline-flex items-center gap-2 bg-white border border-[#e4ecd6] text-[#6f8052] rounded-full px-4 py-2 text-sm font-bold shadow-sm mb-6">
+          <span className="inline-flex items-center gap-2 bg-white border border-[#e4ecd6] text-[#5f8a3e] rounded-full px-4 py-2 text-sm font-bold shadow-sm mb-6">
             <Sparkles size={15} /> No setup fee · No tie-ins · Cancel anytime
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-[#2c4a51] leading-tight tracking-tight mb-5">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-[#29484f] leading-tight tracking-tight mb-5">
             Simple, honest{" "}
-            <span className="bg-gradient-to-r from-[#9cbf50] via-[#71c5d6] to-[#32535a] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#8db74e] via-[#8db74e] to-[#29484f] bg-clip-text text-transparent">
               pricing
             </span>
           </h1>
@@ -118,7 +118,7 @@ export default function WorkwellPricing({
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={18} className="fill-amber-400 text-amber-400" />
             ))}
-            <span className="font-bold text-[#2c4a51] ml-1">{rating}</span>
+            <span className="font-bold text-[#29484f] ml-1">{rating}</span>
             <span className="text-sm">· loved by self-employed people across the UK</span>
           </div>
         </div>
@@ -138,12 +138,12 @@ export default function WorkwellPricing({
                   key={plan._id}
                   className={`relative rounded-3xl overflow-hidden flex flex-col ${
                     isPopular
-                      ? "bg-gradient-to-br from-[#243b40] via-[#2c4a51] to-[#32535a] shadow-2xl shadow-[#2c4a51]/20 md:-mt-4 md:mb-0"
+                      ? "bg-gradient-to-br from-[#1c333a] via-[#29484f] to-[#29484f] shadow-2xl shadow-[#29484f]/20 md:-mt-4 md:mb-0"
                       : `bg-white border border-[#e4ecd6] ${a.hover} shadow-[0_10px_30px_-12px_rgba(44,74,81,0.18)] hover:shadow-[0_16px_40px_-12px_rgba(44,74,81,0.28)] hover:-translate-y-1 transition-all`
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#9cbf50] to-[#bdd289] text-[#2c4a51] text-xs font-extrabold uppercase tracking-wider px-5 py-1.5 rounded-b-xl shadow-lg whitespace-nowrap">
+                    <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#8db74e] to-[#e0e48e] text-[#29484f] text-xs font-extrabold uppercase tracking-wider px-5 py-1.5 rounded-b-xl shadow-lg whitespace-nowrap">
                       Most popular
                     </div>
                   )}
@@ -154,7 +154,7 @@ export default function WorkwellPricing({
                     <span className={`w-12 h-12 rounded-2xl ${a.chip} flex items-center justify-center mb-5`}>
                       {planIcon(plan.name)}
                     </span>
-                    <h3 className={`text-xl font-extrabold mb-1 ${isPopular ? "text-white" : "text-[#2c4a51]"}`}>
+                    <h3 className={`text-xl font-extrabold mb-1 ${isPopular ? "text-white" : "text-[#29484f]"}`}>
                       {plan.name}
                     </h3>
                     {plan.subtitle && (
@@ -164,7 +164,7 @@ export default function WorkwellPricing({
                     )}
 
                     <div className="mb-1">
-                      <span className={`text-5xl font-extrabold ${isPopular ? "text-white" : "text-[#2c4a51]"}`}>
+                      <span className={`text-5xl font-extrabold ${isPopular ? "text-white" : "text-[#29484f]"}`}>
                         £{plan.price}
                       </span>
                       <span className={`text-base ml-1 ${isPopular ? "text-white/55" : "text-[#6a7b80]"}`}>
@@ -179,8 +179,8 @@ export default function WorkwellPricing({
                       <div
                         className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold mb-6 ${
                           isPopular
-                            ? "bg-white/15 border border-white/25 text-[#eaf3d0]"
-                            : "bg-[#9cbf50]/15 border border-[#9cbf50]/30 text-[#5d7038]"
+                            ? "bg-white/15 border border-white/25 text-[#eef3d6]"
+                            : "bg-[#8db74e]/15 border border-[#8db74e]/30 text-[#5f8a3e]"
                         }`}
                       >
                         <Tag size={12} className="shrink-0" />
@@ -200,7 +200,7 @@ export default function WorkwellPricing({
                     <Link
                       href={plan.ctaLink || "/sign-up"}
                       className={`block w-full text-center font-bold py-3.5 rounded-xl transition-all mb-7 ${a.cta} shadow-lg ${
-                        isPopular ? "shadow-black/20" : "shadow-[#2c4a51]/15"
+                        isPopular ? "shadow-black/20" : "shadow-[#29484f]/15"
                       }`}
                     >
                       {plan.ctaText || "Get Started"}
@@ -211,7 +211,7 @@ export default function WorkwellPricing({
                         <li
                           key={feature}
                           className={`flex items-start gap-2.5 text-sm ${
-                            isPopular ? "text-white/85" : "text-[#3f565b]"
+                            isPopular ? "text-white/85" : "text-[#29484f]"
                           }`}
                         >
                           <CheckCircle2 size={17} className={`shrink-0 mt-0.5 ${a.check}`} />
@@ -229,7 +229,7 @@ export default function WorkwellPricing({
             {["No setup fees", "No minimum contract", "Cancel anytime", "Free accounting software", "Dedicated accountant"].map(
               (t) => (
                 <span key={t} className="flex items-center gap-1.5 font-semibold">
-                  <CheckCircle2 size={16} className="text-[#6f8052]" /> {t}
+                  <CheckCircle2 size={16} className="text-[#5f8a3e]" /> {t}
                 </span>
               ),
             )}
@@ -239,13 +239,13 @@ export default function WorkwellPricing({
 
       {/* ── WHAT'S INCLUDED AS STANDARD ──────────────────────────────── */}
       <section className="relative bg-gradient-to-b from-white to-[#f5f9ec] py-20 md:py-24 overflow-hidden">
-        <div className="absolute -top-20 left-1/4 w-80 h-80 bg-[#9cbf50]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-20 left-1/4 w-80 h-80 bg-[#8db74e]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4">
           <div className="text-center mb-14 max-w-2xl mx-auto">
-            <span className="inline-flex items-center gap-2 text-[#6f8052] font-bold text-sm uppercase tracking-wider">
+            <span className="inline-flex items-center gap-2 text-[#5f8a3e] font-bold text-sm uppercase tracking-wider">
               <HeartHandshake size={16} /> Every plan
             </span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#2c4a51] mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#29484f] mt-3">
               What&apos;s included as standard
             </h2>
             <p className="text-[#5a6f74] mt-4 text-lg">
@@ -256,9 +256,9 @@ export default function WorkwellPricing({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {UNIVERSAL_FEATURES.map(({ icon: Icon, label }, i) => {
               const tints = [
-                "bg-[#9cbf50]/20 text-[#6f8052]",
-                "bg-[#71c5d6]/25 text-[#2c6470]",
-                "bg-[#32535a]/12 text-[#2c4a51]",
+                "bg-[#8db74e]/20 text-[#5f8a3e]",
+                "bg-[#8db74e]/25 text-[#2f5560]",
+                "bg-[#29484f]/12 text-[#29484f]",
               ];
               const t = tints[i % tints.length];
               return (
@@ -269,7 +269,7 @@ export default function WorkwellPricing({
                   <div className={`w-12 h-12 rounded-2xl ${t} flex items-center justify-center mx-auto mb-3`}>
                     <Icon size={22} />
                   </div>
-                  <p className="font-bold text-[#2c4a51] text-sm">{label}</p>
+                  <p className="font-bold text-[#29484f] text-sm">{label}</p>
                 </div>
               );
             })}
@@ -278,12 +278,12 @@ export default function WorkwellPricing({
       </section>
 
       {/* ── BESPOKE CTA — dark teal band, flows into FAQ below ───────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#1a2426] to-[#243b40] py-20 md:py-24">
-        <div className="absolute -top-20 right-0 w-96 h-96 bg-[#9cbf50]/12 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-16 w-80 h-80 bg-[#71c5d6]/15 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#15282d] to-[#1c333a] py-20 md:py-24">
+        <div className="absolute -top-20 right-0 w-96 h-96 bg-[#8db74e]/12 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-16 w-80 h-80 bg-[#8db74e]/15 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">Complex needs?</span>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3 mb-5">
+          <span className="text-[#8db74e] font-bold text-sm uppercase tracking-wider">Complex needs?</span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3 mb-5">
             Need a bespoke package?
           </h2>
           <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed mb-9">
@@ -293,7 +293,7 @@ export default function WorkwellPricing({
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact"
-              className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-8 py-4 rounded-xl shadow-lg shadow-[#9cbf50]/25"
+              className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-8 py-4 rounded-xl shadow-lg shadow-[#8db74e]/25"
             >
               Get a custom quote <ArrowRight size={20} />
             </Link>
@@ -307,15 +307,15 @@ export default function WorkwellPricing({
         </div>
       </section>
 
-      {/* ── FAQ — vertical gradient starts at #243b40 so it joins the
+      {/* ── FAQ — vertical gradient starts at #1c333a so it joins the
           bespoke band above with no seam ─────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#243b40] via-[#2c4a51] to-[#32535a] py-20 md:py-24">
-        <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#71c5d6]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#9cbf50]/12 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#1c333a] via-[#29484f] to-[#29484f] py-20 md:py-24">
+        <div className="absolute -top-20 -right-16 w-80 h-80 bg-[#8db74e]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-16 w-80 h-80 bg-[#8db74e]/12 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="text-[#9cbf50] font-bold text-sm uppercase tracking-wider">FAQ</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3">
+            <span className="text-[#8db74e] font-bold text-sm uppercase tracking-wider">FAQ</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mt-3">
               Pricing questions, answered
             </h2>
           </div>
@@ -326,11 +326,11 @@ export default function WorkwellPricing({
       {/* ── BOTTOM CTA — warm close (matches WorkwellHome) ───────────── */}
       <section className="relative overflow-hidden bg-white py-24 md:py-28">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="relative bg-gradient-to-br from-[#243b40] via-[#2c4a51] to-[#32535a] rounded-[2rem] p-10 md:p-16 text-center overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#9cbf50]/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#71c5d6]/20 rounded-full blur-3xl" />
+          <div className="relative bg-gradient-to-br from-[#1c333a] via-[#29484f] to-[#29484f] rounded-[2rem] p-10 md:p-16 text-center overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -left-16 w-72 h-72 bg-[#8db74e]/20 rounded-full blur-3xl" />
             <div className="relative">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-5 leading-tight">
                 Ready to get started?
               </h2>
               <p className="text-white/75 text-lg mb-9 max-w-2xl mx-auto">
@@ -339,7 +339,7 @@ export default function WorkwellPricing({
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/sign-up"
-                  className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-4 rounded-xl shadow-lg shadow-[#9cbf50]/25"
+                  className="btn-primary inline-flex items-center justify-center gap-2 text-lg px-10 py-4 rounded-xl shadow-lg shadow-[#8db74e]/25"
                 >
                   Get started today <ArrowRight size={20} />
                 </Link>

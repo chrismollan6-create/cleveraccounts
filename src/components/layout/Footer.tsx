@@ -49,8 +49,30 @@ const footerLinks = {
   ],
 };
 
-export default function Footer({ brand }: { brand: BrandConfig }) {
+type FooterColumn = { heading: string; links: { label: string; href: string }[] };
+const defaultFooterColumns: FooterColumn[] = [
+  { heading: "Who We Help", links: footerLinks.whoWeHelp },
+  { heading: "Specialist Services", links: footerLinks.specialistServices },
+  { heading: "Guides", links: footerLinks.guides },
+  { heading: "Company", links: footerLinks.company },
+];
+
+export default function Footer({ brand, columns }: { brand: BrandConfig; columns?: FooterColumn[] }) {
   const year = new Date().getFullYear();
+  const baseColumns = columns?.length ? columns : defaultFooterColumns;
+  // Ensure a Privacy Policy link is always listed in the footer body — even when
+  // columns come from the CMS, which may omit it. Added to the "Company" column
+  // (or the last column as a fallback) if not already present.
+  const privacyHref = brand.legal.privacyUrl;
+  const hasPrivacy = baseColumns.some((c) => c.links?.some((l) => l.href === privacyHref));
+  const footerColumns = hasPrivacy
+    ? baseColumns
+    : baseColumns.map((col, i) => {
+        const isTarget = col.heading === "Company" || (i === baseColumns.length - 1 && !baseColumns.some((c) => c.heading === "Company"));
+        return isTarget
+          ? { ...col, links: [...(col.links ?? []), { label: "Privacy Policy", href: privacyHref }] }
+          : col;
+      });
   const description =
     brand.id === "clever"
       ? "For nearly 20 years, Clever Accounts has been providing expert online accountancy services to over 10,000 UK businesses. One monthly fee, unlimited support."
@@ -83,61 +105,21 @@ export default function Footer({ brand }: { brand: BrandConfig }) {
             </div>
           </div>
 
-          {/* Who We Help — mirrors top nav */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Who We Help</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.whoWeHelp.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Specialist Services — mirrors top nav + footer-only service pages */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Specialist Services</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.specialistServices.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Guides — educational / SEO content (footer only) */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Guides</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.guides.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company — site-wide utility pages */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h3>
-            <ul className="space-y-2.5">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Link columns — from CMS (Navigation & Footer) or the built-in defaults */}
+          {footerColumns.map((col) => (
+            <div key={col.heading}>
+              <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">{col.heading}</h3>
+              <ul className="space-y-2.5">
+                {col.links?.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-sm text-slate-400 hover:text-primary-light transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
 
