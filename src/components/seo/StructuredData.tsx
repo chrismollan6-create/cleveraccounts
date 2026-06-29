@@ -5,6 +5,15 @@
 // blog posts that contained faqBlock/howToBlock blocks.
 const getBrand = () => import("@/lib/brand").then((m) => m.getBrand());
 
+// Serialise JSON-LD for embedding in a <script> tag. Escaping every "<" to its
+// unicode JSON escape stops any CMS/user-supplied string containing a
+// "</script>" (or "<!--", "<script") sequence from breaking out of the element
+// and injecting markup — defence-in-depth against XSS. Crawlers parse it back
+// to the same object.
+function jsonLdHtml(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
 export async function OrganizationJsonLd() {
   const brand = await getBrand();
   const base = `https://${brand.domain}`;
@@ -105,7 +114,7 @@ export async function OrganizationJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}}
     />
   );
 }
@@ -166,7 +175,7 @@ export async function PricingJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}}
     />
   );
 }
@@ -188,7 +197,7 @@ export function FAQPageJsonLd({ faqs }: { faqs: { q: string; a: string }[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}}
     />
   );
 }
@@ -243,7 +252,7 @@ export async function BlogPostingJsonLd({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}}
     />
   );
 }
@@ -302,7 +311,7 @@ export async function ServiceJsonLd({
         }
       : {}),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}} />;
 }
 
 interface ReviewJsonLdProps {
@@ -327,7 +336,7 @@ export function ReviewJsonLd({ author, rating, reviewBody, datePublished, itemRe
       ? { itemReviewed: { "@type": "Service", name: itemReviewed } }
       : { itemReviewed: { "@type": "Organization", name: orgName ?? "Clever Accounts" } }),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}} />;
 }
 
 interface HowToJsonLdProps {
@@ -349,7 +358,7 @@ export function HowToJsonLd({ name, description, steps }: HowToJsonLdProps) {
       text: s.text,
     })),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}} />;
 }
 
 interface LocalBusinessJsonLdProps {
@@ -383,7 +392,7 @@ export async function LocalBusinessJsonLd({
       addressCountry,
     },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}} />;
 }
 
 export function RawJsonLd({ json }: { json: string }) {
@@ -396,7 +405,7 @@ export function RawJsonLd({ json }: { json: string }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(parsed).replace(/<\/script>/gi, "<\\/script>") }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(parsed) }}
     />
   );
 }
@@ -418,7 +427,7 @@ export async function BreadcrumbJsonLd({ items }: { items: { name: string; url: 
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdHtml(data)}}
     />
   );
 }
