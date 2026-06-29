@@ -28,7 +28,10 @@ export default function ContactPage() {
     phone: "",
     businessType: "",
     message: "",
+    website: "", // honeypot — real users never fill this
   });
+  // Time-trap: when the form mounted. Submits faster than ~2.5s look automated.
+  const [formStartedAt] = useState(() => Date.now());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +41,7 @@ export default function ContactPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, branding: brand.id }),
+        body: JSON.stringify({ ...form, branding: brand.id, _t: formStartedAt }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -101,6 +104,19 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form className="space-y-5" onSubmit={handleSubmit}>
+                  {/* Honeypot — hidden from real users; bots fill it and get dropped */}
+                  <div aria-hidden className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden" tabIndex={-1}>
+                    <label htmlFor="contact-website">Website</label>
+                    <input
+                      id="contact-website"
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={form.website}
+                      onChange={(e) => setForm({ ...form, website: e.target.value })}
+                    />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                       <label htmlFor="contact-first-name" className="block text-sm font-semibold text-dark mb-1.5">First Name *</label>

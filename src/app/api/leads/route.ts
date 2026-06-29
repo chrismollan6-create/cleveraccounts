@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { brandIdFromHost, getBrandById } from '@/lib/brand';
 import type { BrandId } from '@/lib/constants';
+import { guardFormSubmission, spamResponse, rateLimitedResponse } from '@/lib/formGuard';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    const guard = await guardFormSubmission(request, body);
+    if (!guard.ok) return guard.rateLimited ? rateLimitedResponse() : spamResponse();
+
     const {
       firstName, lastName, email, phone, businessType,
       utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, msclkid,

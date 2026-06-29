@@ -57,7 +57,10 @@ export default function RequestCallback({
     phone: "",
     businessType: "",
     bestTime: "",
+    website: "", // honeypot — real users never fill this
   });
+  // Time-trap: when the form mounted. Submits faster than ~2.5s look automated.
+  const [formStartedAt] = useState(() => Date.now());
 
   // Close on Escape key
   useEffect(() => {
@@ -81,7 +84,7 @@ export default function RequestCallback({
       const res = await fetch("/api/callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, branding: brand.id }),
+        body: JSON.stringify({ ...form, branding: brand.id, _t: formStartedAt }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -98,7 +101,7 @@ export default function RequestCallback({
 
   const reset = () => {
     setOpen(false);
-    setTimeout(() => { setSubmitted(false); setForm({ firstName: "", lastName: "", email: "", phone: "", businessType: "", bestTime: "" }); setError(""); }, 300);
+    setTimeout(() => { setSubmitted(false); setForm({ firstName: "", lastName: "", email: "", phone: "", businessType: "", bestTime: "", website: "" }); setError(""); }, 300);
   };
 
   const triggerBtn = (
@@ -170,6 +173,19 @@ export default function RequestCallback({
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Honeypot — hidden from real users; bots fill it and get dropped */}
+                <div aria-hidden className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden" tabIndex={-1}>
+                  <label htmlFor="callback-website">Website</label>
+                  <input
+                    id="callback-website"
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form.website}
+                    onChange={(e) => setForm({ ...form, website: e.target.value })}
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-dark mb-1.5">First Name *</label>

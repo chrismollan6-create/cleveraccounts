@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { brandIdFromHost, getBrandById } from '@/lib/brand';
 import type { BrandId } from '@/lib/constants';
+import { guardFormSubmission, spamResponse, rateLimitedResponse } from '@/lib/formGuard';
 
 // The base64-encoded contract file inflates the JSON body ~33%. Vercel
 // serverless functions cap the request body at ~4.5MB, so we keep the raw
@@ -12,10 +13,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Honeypot — bots fill hidden fields; humans never see them.
-    if (body.website) {
-      return NextResponse.json({ success: true });
-    }
+    // Honeypot + time-trap + best-effort rate-limit (see formGuard).
+    const guard = await guardFormSubmission(request, body);
+    if (!guard.ok) return guard.rateLimited ? rateLimitedResponse() : spamResponse();
 
     if (!body.firstName || !body.lastName) {
       return NextResponse.json(
@@ -37,8 +37,8 @@ export async function POST(request: NextRequest) {
     // Forward the payload to the Apex REST endpoint. The form already shapes the
     // field names to match IR35OpinionController.IR35Request, so we pass through
     // and only stamp the resolved branding.
-    const { website: _hp, ...payload } = body;
-    void _hp;
+    const { website: _hp, _t: _ts, ...payload } = body;
+    void _hp; void _ts;
 
     const sfRes = await fetch(sfApex('/IR35Opinion'), {
       method: 'POST',

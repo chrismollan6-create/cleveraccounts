@@ -187,6 +187,7 @@ function IR35Form() {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [website, setWebsite] = useState(""); // honeypot
+  const [formStartedAt] = useState(() => Date.now()); // time-trap baseline
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -259,6 +260,7 @@ function IR35Form() {
           pastContracts: filledContracts,
           contractFile,
           website,
+          _t: formStartedAt,
         };
 
         const res = await fetch("/api/ir35-opinion", {
@@ -279,7 +281,7 @@ function IR35Form() {
         setSubmitting(false);
       }
     },
-    [contact, answers, accountId, additionalInformation, pastContracts, file, website]
+    [contact, answers, accountId, additionalInformation, pastContracts, file, website, formStartedAt]
   );
 
   // Renders a questionnaire section card (optionally with the contract fields on top).

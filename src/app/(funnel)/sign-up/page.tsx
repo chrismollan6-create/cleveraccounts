@@ -27,6 +27,8 @@ export default function SignUpPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot — real users never fill this
+  const [formStartedAt] = useState(() => Date.now()); // time-trap baseline
 
   useEffect(() => {
     trackEvent("signup_stage1_view", {
@@ -67,6 +69,8 @@ export default function SignUpPage() {
           ...utms,
           referralCode,
           ...(gclid ? { gclid } : {}),
+          website,
+          _t: formStartedAt,
         }),
       });
 
@@ -151,6 +155,19 @@ export default function SignUpPage() {
               )}
 
               <form className="space-y-4" onSubmit={handleSubmit}>
+                {/* Honeypot — hidden from real users; bots fill it and get dropped */}
+                <div aria-hidden className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden" tabIndex={-1}>
+                  <label htmlFor="signup-website">Website</label>
+                  <input
+                    id="signup-website"
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                  />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-dark mb-1.5">
