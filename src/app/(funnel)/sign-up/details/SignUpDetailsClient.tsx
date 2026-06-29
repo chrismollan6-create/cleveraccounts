@@ -1533,11 +1533,15 @@ function SignUpDetailsContent({ freephone }: { freephone?: string }) {
                       <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <span className="text-sm font-bold text-dark">4.7</span>
+                  <span className="text-sm font-bold text-dark">{brand.trustpilot?.rating ?? "4.7"}</span>
                   <span className="text-xs text-text-light">on Trustpilot</span>
                 </div>
                 <div className="text-xs text-text-light leading-relaxed">
-                  <strong className="text-dark">10,000+</strong> UK businesses · <strong className="text-dark">FCSA</strong> accredited · <strong className="text-dark">FreeAgent</strong> Platinum Partner
+                  {brand.id === "clever" ? (
+                    <><strong className="text-dark">10,000+</strong> UK businesses · <strong className="text-dark">FCSA</strong> accredited · <strong className="text-dark">FreeAgent</strong> Platinum Partner</>
+                  ) : (
+                    <><strong className="text-dark">FCSA</strong> accredited · <strong className="text-dark">Free</strong> FreeAgent software · <strong className="text-dark">No</strong> setup fees</>
+                  )}
                 </div>
                 <div className="pt-3 border-t border-gray-100 space-y-1.5 text-xs">
                   {["No setup fees", "Cancel anytime", "Free FreeAgent software", "Dedicated UK accountant"].map((f) => (

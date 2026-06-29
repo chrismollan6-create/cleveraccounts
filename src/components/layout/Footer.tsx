@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, MapPin } from "lucide-react";
+import CookieSettingsLink from "@/components/ui/CookieSettingsLink";
 import type { BrandConfig } from "@/lib/constants";
 
 // Footer columns mirror the top nav structure so the two stay in sync.
@@ -146,6 +147,7 @@ export default function Footer({ brand, columns }: { brand: BrandConfig; columns
                 Terms of Service
               </Link>
             )}
+            <CookieSettingsLink className="text-sm text-slate-500 hover:text-slate-300 transition-colors" />
           </div>
         </div>
       </div>

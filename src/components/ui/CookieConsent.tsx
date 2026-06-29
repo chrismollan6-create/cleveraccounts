@@ -16,6 +16,15 @@ export default function CookieConsent() {
     }
   }, []);
 
+  // Let users re-open the banner to change/withdraw consent (PECR/ICO: must be
+  // as easy to withdraw as to give). A footer "Cookie settings" link dispatches
+  // this event. See CookieSettingsLink.
+  useEffect(() => {
+    const reopen = () => setVisible(true);
+    window.addEventListener("open-cookie-settings", reopen);
+    return () => window.removeEventListener("open-cookie-settings", reopen);
+  }, []);
+
   function acceptAll() {
     localStorage.setItem("ca_cookie_consent", "all");
     setVisible(false);

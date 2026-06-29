@@ -60,7 +60,7 @@ const FALLBACK_TABS = [
       "Unlimited phone & email advice",
       "Free FreeAgent software",
       "Expense tracking & mileage",
-      "MTD compliant from day one",
+      "MTD ITSA filing (optional add-on)",
     ],
     href: "/sole-trader",
     stat: "Average £1,200 tax saved per year",

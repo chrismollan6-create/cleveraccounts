@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Phone, ShieldCheck, RefreshCw } from "lucide-react";
 import { getBrand } from "@/lib/brand";
+import CookieSettingsLink from "@/components/ui/CookieSettingsLink";
 
 /**
  * Slim footer for the Learning Centre.
@@ -74,6 +75,7 @@ export default async function LearnFooter() {
             <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <CookieSettingsLink className="hover:text-white transition-colors" />
           </nav>
 
           <p className="text-xs text-white/50">

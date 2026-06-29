@@ -67,7 +67,7 @@ const fallbackPlans = [
       "Self assessment tax return",
       "Unlimited phone & email support",
       "Free FreeAgent accounting software",
-      "MTD ITSA compliant",
+      "MTD ITSA filing (optional add-on)",
       "Expense tracking & mileage",
       "Tax efficiency advice",
       "Real-time financial dashboard",
