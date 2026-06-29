@@ -1,10 +1,32 @@
 import type { Metadata } from "next";
 import { getBrand } from "@/lib/brand";
-import { getServicePage } from "@/sanity/queries";
+import { getServicePage, getPricingPlans, getSiteSettings } from "@/sanity/queries";
 import { servicePages, type ServicePageData } from "@/lib/service-page-data";
 import ServicePageTemplate from "@/components/ui/ServicePageTemplate";
 import WorkwellServicePage, { type ServiceContent } from "@/app/(site)/WorkwellServicePage";
 import { BreadcrumbJsonLd } from "@/components/seo/StructuredData";
+import { promoBadgeForPage, promoBadgeForPlanName } from "@/lib/promo";
+
+// Pages whose covered pricing plan isn't joined via the plan's `homepageLearnMore`
+// in the CMS — declare the association here so the promo badge still shows.
+const SLUG_PROMO_PLAN: Record<string, string> = {
+  "accounting-for-startups": "Ltd Complete",
+  ir35: "Ltd Premium",
+};
+
+/** Promo badge for a service page: CMS path-join first, then the explicit
+ *  plan-name association above. Returns "" when no live promo covers it. */
+export async function promoBadgeForSlug(slug: string, pagePath: string): Promise<string> {
+  const [plans, settings] = await Promise.all([
+    getPricingPlans().catch(() => []),
+    getSiteSettings().catch(() => null),
+  ]);
+  const promo = (settings as { promo?: Parameters<typeof promoBadgeForPage>[2] } | null)?.promo;
+  return (
+    promoBadgeForPage(plans, pagePath, promo) ||
+    (SLUG_PROMO_PLAN[slug] ? promoBadgeForPlanName(plans, SLUG_PROMO_PLAN[slug], promo) : "")
+  );
+}
 
 /**
  * Brand-aware service/audience page rendering.
@@ -150,12 +172,13 @@ export async function WorkwellServiceRoute({ slug, breadcrumb }: { slug: string;
   const brand = await getBrand();
   const cms = (await getServicePage(slug, "workwell").catch(() => null)) as CmsServicePage | null;
   const content = mergeContent(cms, fb, brand.name);
+  const promoBadge = await promoBadgeForSlug(slug, breadcrumb[breadcrumb.length - 1]?.url ?? `/${slug}`);
   // Deterministic per-slug layout variant (0-2) so pages don't all look identical.
   const variant = [...slug].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 3;
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumb} />
-      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} variant={variant} slug={slug} />
+      <WorkwellServicePage content={content} heroImage={SLUG_IMAGE[slug] ?? DEFAULT_IMAGE} variant={variant} slug={slug} promoBadge={promoBadge} />
     </>
   );
 }
@@ -172,10 +195,11 @@ export async function serviceMetadata(slug: string): Promise<Metadata> {
 export default async function ServiceRoute({ slug, breadcrumb }: { slug: string; breadcrumb: Breadcrumb }) {
   const brand = await getBrand();
   if (brand.id === "workwell") return WorkwellServiceRoute({ slug, breadcrumb });
+  const promoBadge = await promoBadgeForSlug(slug, breadcrumb[breadcrumb.length - 1]?.url ?? `/${slug}`);
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumb} />
-      <ServicePageTemplate data={servicePages[slug]} />
+      <ServicePageTemplate data={servicePages[slug]} promoBadge={promoBadge} />
     </>
   );
 }

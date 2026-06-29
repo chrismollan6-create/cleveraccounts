@@ -67,6 +67,26 @@ export function promoBadgeForPage(
   pagePath: string,
   promo: Promo,
 ): string {
-  const plan = plans?.find((p) => p.homepageLearnMore === pagePath);
+  // `homepageLearnMore` is a single field but editors sometimes list several
+  // paths in it, comma-separated (e.g. "/limited-company, /contractor-accountancy").
+  // Split + trim so any one of them matches, not just an exact whole-string match.
+  const plan = plans?.find((p) =>
+    (p.homepageLearnMore ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .includes(pagePath),
+  );
+  return plan ? promoBadgeForPlanId(plan._id, promo) : "";
+}
+
+/** Badge text for a plan matched by name (e.g. "Ltd Premium") — for pages whose
+ *  plan association is declared in code rather than via homepageLearnMore. */
+export function promoBadgeForPlanName(
+  plans: { _id: string; name?: string }[] | undefined,
+  planName: string,
+  promo: Promo,
+): string {
+  const plan = plans?.find((p) => p.name === planName);
   return plan ? promoBadgeForPlanId(plan._id, promo) : "";
 }

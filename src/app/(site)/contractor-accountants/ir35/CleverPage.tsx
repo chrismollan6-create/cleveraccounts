@@ -41,7 +41,7 @@ const faqs = [
   { q: "Does IR35 affect sole traders?", a: "IR35 applies to contractors who operate through a personal service company (PSC/limited company). Sole traders are generally not affected by IR35 — they are assessed differently by HMRC. If you're unsure of your structure, speak to us." },
 ];
 
-export default function IR35Page() {
+export default function IR35Page({ promoBadge }: { promoBadge?: string | null }) {
   const brand = useBrand();
   // Clever keeps its branded "Clever FLEX" product; other brands use generic
   // umbrella wording so no Clever-specific product name leaks through.
@@ -61,9 +61,16 @@ export default function IR35Page() {
         <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-28 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/25 rounded-full px-4 py-2 text-sm text-primary mb-6">
-                <ShieldCheck size={14} />
-                <span>Specialist IR35 Support for Contractors</span>
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/25 rounded-full px-4 py-2 text-sm text-primary">
+                  <ShieldCheck size={14} />
+                  <span>Specialist IR35 Support for Contractors</span>
+                </div>
+                {promoBadge && (
+                  <span className="inline-flex items-center bg-secondary/20 border border-secondary/30 text-secondary rounded-full px-3 py-2 text-sm font-bold">
+                    {promoBadge}
+                  </span>
+                )}
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
                 IR35 Doesn&apos;t Have to Be <span className="text-gradient">Scary.</span>

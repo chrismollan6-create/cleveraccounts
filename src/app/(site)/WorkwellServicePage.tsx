@@ -121,7 +121,7 @@ function gradientLastWord(text: string) {
  * `servicePage` Sanity doc, falling back to de-Clevered legacy content so the
  * page looks right before it's authored in Studio.
  */
-export default function WorkwellServicePage({ content, heroImage, variant = 0, slug }: { content: ServiceContent; heroImage?: string; variant?: number; slug?: string }) {
+export default function WorkwellServicePage({ content, heroImage, variant = 0, slug, promoBadge }: { content: ServiceContent; heroImage?: string; variant?: number; slug?: string; promoBadge?: string | null }) {
   const v = variant % 3;
   const brand = useBrand();
   const rating = brand.trustpilot?.rating ?? "4.6";
@@ -201,6 +201,11 @@ export default function WorkwellServicePage({ content, heroImage, variant = 0, s
                     <p className="text-xl font-extrabold text-[#29484f]">
                       £{price}<span className="text-xs font-semibold text-[#6a7b80]">/mo + VAT</span>
                     </p>
+                    {promoBadge && (
+                      <p className="mt-1 inline-block bg-[#8db74e]/15 text-[#5d7a2e] text-[11px] font-bold px-2 py-0.5 rounded-full">
+                        {promoBadge}
+                      </p>
+                    )}
                   </div>
                 )}
 

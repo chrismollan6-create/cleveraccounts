@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getBrand } from "@/lib/brand";
-import { WorkwellServiceRoute, workwellServiceMetadata } from "@/components/service/ServiceRoute";
+import { WorkwellServiceRoute, workwellServiceMetadata, promoBadgeForSlug } from "@/components/service/ServiceRoute";
 import CleverPage from "./CleverPage";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,5 +22,6 @@ export default async function Page() {
       />
     );
   }
-  return <CleverPage />;
+  const promoBadge = await promoBadgeForSlug("ir35", "/contractor-accountants/ir35");
+  return <CleverPage promoBadge={promoBadge} />;
 }
