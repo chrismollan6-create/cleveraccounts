@@ -161,6 +161,7 @@ export async function workwellServiceMetadata(slug: string): Promise<Metadata> {
   const rawTitle = cms?.metaTitle || cms?.title || fb?.title || "";
   const stripped = rawTitle.replace(/\s*\|\s*(Clever Accounts|Workwell Accountancy)\s*$/i, "").trim();
   return {
+    metadataBase: new URL(`https://${brand.domain}`),
     title: deClever(stripped, brand.name),
     description: deClever(cms?.metaDescription || fb?.metaDescription || "", brand.name),
   };
@@ -188,7 +189,7 @@ export async function serviceMetadata(slug: string): Promise<Metadata> {
   const fb = servicePages[slug];
   const brand = await getBrand();
   if (brand.id === "workwell") return workwellServiceMetadata(slug);
-  return { title: fb?.title, description: fb?.metaDescription };
+  return { metadataBase: new URL(`https://${brand.domain}`), title: fb?.title, description: fb?.metaDescription };
 }
 
 /** Brand-aware renderer for the simple pages (no Clever-only extras). */
