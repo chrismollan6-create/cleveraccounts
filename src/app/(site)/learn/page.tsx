@@ -245,6 +245,37 @@ export default async function LearnIndexPage() {
               ))}
             </div>
           )}
+
+          {/* Trust signals — sit in the hero, directly under the search */}
+          <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl mx-auto text-left">
+            {[
+              {
+                Icon: CheckCircle2,
+                title: "Reviewed by qualified accountants",
+                body: "Every guide carries a last-reviewed date you can verify.",
+              },
+              {
+                Icon: RefreshCw,
+                title: "Updated when the rules change",
+                body: "HMRC and Companies House change yearly — so do these guides.",
+              },
+              {
+                Icon: MessageSquare,
+                title: "Plain English, no jargon",
+                body: "Written the way clients actually ask — not the way HMRC writes.",
+              },
+            ].map(({ Icon, title, body }) => (
+              <div key={title} className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center">
+                  <Icon className="text-secondary" size={20} />
+                </div>
+                <div>
+                  <p className="font-semibold text-white text-sm">{title}</p>
+                  <p className="text-xs text-white/60 leading-snug mt-0.5">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
@@ -254,48 +285,6 @@ export default async function LearnIndexPage() {
         </div>
       </section>
 
-      {/* SVG wave divider between hero and trust band */}
-      <div aria-hidden className="relative -mt-px">
-        <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="block w-full h-12 md:h-20">
-          <path
-            d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"
-            fill="white"
-          />
-        </svg>
-      </div>
-
-      {/* ── Trust band ─────────────────────────────────────────────────────── */}
-      <section className="bg-white">
-        <div className="max-w-6xl mx-auto px-4 pb-8 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50/60 border border-green-100">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/15 ring-4 ring-green-200/50 flex items-center justify-center">
-              <CheckCircle2 className="text-green-600" size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-dark text-sm">Reviewed by qualified accountants</p>
-              <p className="text-xs text-text-light leading-snug mt-0.5">Every guide carries a last-reviewed date you can verify.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50/60 border border-blue-100">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500/15 ring-4 ring-blue-200/50 flex items-center justify-center">
-              <RefreshCw className="text-blue-600" size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-dark text-sm">Updated when the rules change</p>
-              <p className="text-xs text-text-light leading-snug mt-0.5">HMRC and Companies House change yearly — so do these guides.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-purple-50/60 border border-purple-100">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-500/15 ring-4 ring-purple-200/50 flex items-center justify-center">
-              <MessageSquare className="text-purple-600" size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-dark text-sm">Plain English, no jargon</p>
-              <p className="text-xs text-text-light leading-snug mt-0.5">Written the way clients actually ask — not the way HMRC writes.</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {!hasContent ? (
         <section className="bg-white py-16">

@@ -341,7 +341,7 @@ export const NAV_LINKS = [
   },
   { label: "Pricing", href: "/pricing" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "About", href: "/about-us" },
+  { label: "Learn", href: "/learn" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];

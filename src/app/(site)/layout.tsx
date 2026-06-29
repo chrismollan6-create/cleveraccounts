@@ -7,6 +7,7 @@ import TrustBar from "@/components/layout/TrustBar";
 import Footer from "@/components/layout/Footer";
 import LearnHeader from "@/components/layout/LearnHeader";
 import LearnFooter from "@/components/layout/LearnFooter";
+import ChromeSwitcher from "@/components/layout/ChromeSwitcher";
 import { OrganizationJsonLd } from "@/components/seo/StructuredData";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/seo/GoogleTagManager";
 import UTMCapture from "@/components/seo/UTMCapture";
@@ -111,12 +112,8 @@ export default async function RootLayout({
     footerColumns?: { heading: string; links: { label: string; href: string }[] }[];
   } | null;
 
-  // Reading-mode chrome for /learn/* — see LearnHeader / LearnFooter for the
-  // rationale. Detection via the `x-pathname` header that middleware stamps
-  // on every request.
-  const hdrs = await headers();
-  const pathname = hdrs.get("x-pathname") ?? "";
-  const useLightChrome = pathname === "/learn" || pathname.startsWith("/learn/");
+  // Reading-mode chrome for /learn/* is selected client-side by ChromeSwitcher
+  // (usePathname), since this server layout doesn't re-render on soft nav.
 
   // Build the Google Fonts URL once per brand. Inter is the default and is
   // already imported in globals.css; loading the WW font conditionally here
@@ -144,23 +141,27 @@ export default async function RootLayout({
         <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
         <UTMCapture />
         <BrandProvider brandId={brand.id}>
-          {useLightChrome ? (
-            <LearnHeader />
-          ) : (
-            <>
-              <PromoBanner />
-              {/* siteSettings is a shared (Clever) singleton — only use it for
-                  Clever. Other brands fall back to their registry contact info. */}
-              <Header
-                phone={brand.id === "clever" ? (siteSettings?.phone ?? undefined) : undefined}
-                freephone={brand.id === "clever" ? (siteSettings?.freephone ?? undefined) : undefined}
-                navLinks={navigation?.headerLinks?.length ? navigation.headerLinks : undefined}
-              />
-              <TrustBar brand={brand} />
-            </>
-          )}
+          <ChromeSwitcher
+            light={<LearnHeader />}
+            full={
+              <>
+                <PromoBanner />
+                {/* siteSettings is a shared (Clever) singleton — only use it for
+                    Clever. Other brands fall back to their registry contact info. */}
+                <Header
+                  phone={brand.id === "clever" ? (siteSettings?.phone ?? undefined) : undefined}
+                  freephone={brand.id === "clever" ? (siteSettings?.freephone ?? undefined) : undefined}
+                  navLinks={navigation?.headerLinks?.length ? navigation.headerLinks : undefined}
+                />
+                <TrustBar brand={brand} />
+              </>
+            }
+          />
           <main className="flex-1">{children}</main>
-          {useLightChrome ? <LearnFooter /> : <Footer brand={brand} columns={navigation?.footerColumns?.length ? navigation.footerColumns : undefined} />}
+          <ChromeSwitcher
+            light={<LearnFooter />}
+            full={<Footer brand={brand} columns={navigation?.footerColumns?.length ? navigation.footerColumns : undefined} />}
+          />
           <CookieConsent />
         </BrandProvider>
         {isDraft && (
