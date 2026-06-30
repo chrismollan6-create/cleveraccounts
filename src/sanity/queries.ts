@@ -91,12 +91,18 @@ export async function getNavigation(brandId?: BrandId) {
   return client.fetch(`*[_id == $id][0]{ headerLinks, footerColumns }`, { id });
 }
 
-// Editor-managed redirects. The read client uses the Sanity CDN, which caches
-// for ~60s — enough to stop a scanner hitting many 404s from spamming Sanity,
-// while new redirects go live within about a minute.
+// Editor-managed redirects. `redirect` documents are NOT exposed to the
+// public (tokenless) Sanity API — a tokenless read returns zero of them even
+// though they're published — so we must read them with the server-side
+// SANITY_TOKEN. This is safe: getRedirects is only ever called from the
+// server-side catch-all route ([...notFound]), so the token never reaches the
+// client. We keep useCdn (inherited from `client`) so a scanner hitting many
+// 404s can't spam Sanity — the CDN caches for ~60s and new redirects go live
+// within about a minute. `perspective: "published"` keeps draft redirects out.
 export async function getRedirects(): Promise<{ from: string; to: string; permanent?: boolean }[]> {
+  const authed = client.withConfig({ token: process.env.SANITY_TOKEN, perspective: "published" });
   return (
-    (await client.fetch(`*[_type == "redirect" && defined(from) && defined(to)]{ from, to, permanent }`)) || []
+    (await authed.fetch(`*[_type == "redirect" && defined(from) && defined(to)]{ from, to, permanent }`)) || []
   );
 }
 
