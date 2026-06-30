@@ -273,7 +273,8 @@ export async function getLearnIndexData() {
     },
     "allArticles": *[_type == "knowledgeArticle"] {
       _id, title, "slug": slug.current, canonicalQuestion, excerpt, appliesTo,
-      "topicName": topic->name, "topicSlug": topic->slug.current
+      "topicName": topic->name, "topicSlug": topic->slug.current,
+      "bodyText": pt::text(body)
     }
   }`);
 }

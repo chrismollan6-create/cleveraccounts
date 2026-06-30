@@ -13,6 +13,9 @@ export type SearchableArticle = {
   appliesTo?: string[];
   topicName?: string;
   topicSlug?: string;
+  /** Plain-text article body (from `pt::text(body)`) so search reaches content,
+   *  not just titles/excerpts. Scored at low weight — see `score()`. */
+  bodyText?: string;
 };
 
 /** Substring + token scoring. Higher = better match. */
@@ -25,6 +28,7 @@ function score(article: SearchableArticle, query: string): number {
   const excerpt = (article.excerpt || "").toLowerCase();
   const topic = (article.topicName || "").toLowerCase();
   const tags = (article.appliesTo || []).join(" ").toLowerCase();
+  const body = (article.bodyText || "").toLowerCase();
   let s = 0;
   if (title === q) s += 100;
   if (title.includes(q)) s += 40;
@@ -32,11 +36,15 @@ function score(article: SearchableArticle, query: string): number {
   if (topic.includes(q)) s += 20;
   if (excerpt.includes(q)) s += 10;
   if (tags.includes(q)) s += 10;
+  // Body match scores lowest so title/question/excerpt hits always rank above
+  // an article that only mentions the term in passing in its content.
+  if (body.includes(q)) s += 6;
   for (const t of tokens) {
     if (title.includes(t)) s += 5;
     if (question.includes(t)) s += 4;
     if (excerpt.includes(t)) s += 2;
     if (topic.includes(t)) s += 3;
+    if (body.includes(t)) s += 1;
   }
   return s;
 }
