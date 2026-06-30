@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { PoundSterling } from "lucide-react";
+import { brandField } from "./objects/brandField";
 
 /**
  * A single pricing plan card (Sole Trader, Limited Company, Contractor, etc).
@@ -21,6 +22,7 @@ export default defineType({
     { name: "cta", title: "Sign-up button", options: { collapsible: false } },
   ],
   fields: [
+    defineField({ ...brandField(), group: "plan" }),
     defineField({
       name: "name",
       title: "Plan name",
@@ -143,10 +145,11 @@ export default defineType({
     { title: "Display Order", name: "orderAsc", by: [{ field: "order", direction: "asc" }] },
   ],
   preview: {
-    select: { title: "name", price: "price", popular: "popular" },
-    prepare({ title, price, popular }) {
+    select: { title: "name", price: "price", popular: "popular", brand: "brand" },
+    prepare({ title, price, popular, brand }) {
+      const brandLabel = brand === "clever" ? "Clever" : brand === "workwell" ? "Workwell" : "Shared";
       return {
-        title,
+        title: `${title} · ${brandLabel}`,
         subtitle: `${price ? `£${price}/mo` : "No price set"}${popular ? " · Most Popular" : ""}`,
       };
     },

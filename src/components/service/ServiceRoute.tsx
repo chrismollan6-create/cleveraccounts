@@ -17,8 +17,9 @@ const SLUG_PROMO_PLAN: Record<string, string> = {
 /** Promo badge for a service page: CMS path-join first, then the explicit
  *  plan-name association above. Returns "" when no live promo covers it. */
 export async function promoBadgeForSlug(slug: string, pagePath: string): Promise<string> {
+  const brand = await getBrand();
   const [plans, settings] = await Promise.all([
-    getPricingPlans().catch(() => []),
+    getPricingPlans(brand.id).catch(() => []),
     getSiteSettings().catch(() => null),
   ]);
   const promo = (settings as { promo?: Parameters<typeof promoBadgeForPage>[2] } | null)?.promo;

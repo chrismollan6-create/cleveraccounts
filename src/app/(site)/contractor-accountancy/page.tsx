@@ -35,7 +35,7 @@ export default async function ContractorAccountancyPage() {
 
   let promoBadge: string | null = null;
   try {
-    const [settings, plans] = await Promise.all([getSiteSettings(), getPricingPlans()]);
+    const [settings, plans] = await Promise.all([getSiteSettings(), getPricingPlans(brand.id)]);
     promoBadge = promoBadgeForPage(plans, "/contractor-accountancy", settings?.promo) || null;
   } catch { /* use null */ }
 

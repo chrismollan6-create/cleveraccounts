@@ -31,7 +31,7 @@ export default async function LimitedCompanyPage() {
 
   let promoBadge: string | null = null;
   try {
-    const [settings, plans] = await Promise.all([getSiteSettings(), getPricingPlans()]);
+    const [settings, plans] = await Promise.all([getSiteSettings(), getPricingPlans(brand.id)]);
     promoBadge = promoBadgeForPage(plans, "/limited-company", settings?.promo) || null;
   } catch { /* use null */ }
 

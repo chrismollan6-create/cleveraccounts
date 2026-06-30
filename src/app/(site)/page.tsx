@@ -117,7 +117,7 @@ export default async function HomePage() {
 
   let pricingPlans: any[] = [];
   try {
-    pricingPlans = (await getPricingPlans()) || [];
+    pricingPlans = (await getPricingPlans(brand.id)) || [];
   } catch { /* fallback to hardcoded */ }
 
   // Packages are shared, but feature copy can name Clever-specific products

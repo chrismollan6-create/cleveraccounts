@@ -159,7 +159,7 @@ export default async function PricingPage() {
   let promo: Promo = null;
 
   try {
-    const cmsPlans = await getPricingPlans();
+    const cmsPlans = await getPricingPlans(brand.id);
     if (cmsPlans && cmsPlans.length > 0) plans = cmsPlans;
   } catch (_e) { /* use fallback */ }
 

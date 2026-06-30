@@ -138,12 +138,21 @@ export async function getFeaturedFAQs() {
   }`);
 }
 
-// Pricing plans
-export async function getPricingPlans() {
-  return client.fetch(`*[_type == "pricingPlan"] | order(order asc) {
-    _id, name, subtitle, price, priceNote, popular, features, ctaText, ctaLink, order,
-    homepageIcon, homepageHeadline, homepagePlural, homepageStat, homepageLearnMore
-  }`);
+// Pricing plans.
+//
+// Brand-scoped: pass a `brandId` to return that brand's plans — its own
+// brand-tagged docs plus any still-untagged/"shared" plans (the `BRAND_FILTER`
+// treats a missing `brand` as shared, so nothing breaks before the per-brand
+// docs are created). Omit `brandId` to keep the original un-scoped behaviour.
+export async function getPricingPlans(brandId?: BrandId) {
+  const brandFilter = brandId ? ` && ${BRAND_FILTER}` : "";
+  return client.fetch(
+    `*[_type == "pricingPlan"${brandFilter}] | order(order asc) {
+      _id, name, subtitle, price, priceNote, popular, features, ctaText, ctaLink, order,
+      homepageIcon, homepageHeadline, homepagePlural, homepageStat, homepageLearnMore, brand
+    }`,
+    brandId ? { brandId } : {}
+  );
 }
 
 // Promo banner
