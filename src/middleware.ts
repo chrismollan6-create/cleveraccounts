@@ -95,6 +95,14 @@ const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   // reachable without auth. Data travels in the base64 `d` query param the
   // API route encoded, so there's no PII leak from this being public.
   /^\/mtd-summary(\/.*)?$/,
+  // MTD quarterly-summary approval. Workwell has no app.* host, so the approve
+  // page (emailed to clients, who have no Clerk session) is served on the
+  // portal host my.workwellaccountancy.com/mtd-approval/<token>. Both the page
+  // and its API routes (query / approve / pdf) must pass through, or the
+  // unauthenticated client gets 307-redirected to /sign-in. Access is gated by
+  // the opaque per-quarter token validated inside each route.
+  /^\/mtd-approval(\/.*)?$/,
+  /^\/api\/mtd-approval(\/.*)?$/,
 ];
 
 function isPortalPublicPassthrough(pathname: string): boolean {
