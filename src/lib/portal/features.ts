@@ -7,18 +7,21 @@
  * left unset in dev/preview so the full feature set stays visible for building
  * and demos.
  *
- * Decision (2026-06-25): Documents + Notifications + Approvals are deferred for
- * the pilot. Documents has no SF source model yet; Notifications are
- * event-generated and not yet wired; and the MTD approval-state fields
- * (Client_Approval__c, Approval_Token__c, …) aren't in production yet, so the
- * Approvals page would be empty. CH details + Deadlines DO get real sync, so
- * they stay visible.
+ * Decision (2026-06-25): Documents + Notifications + Approvals were deferred for
+ * the pilot. Notifications are event-generated and not yet wired; and the MTD
+ * approval-state fields (Client_Approval__c, Approval_Token__c, …) aren't in
+ * production yet, so the Approvals page would be empty. CH details + Deadlines
+ * DO get real sync, so they stay visible.
+ *
+ * Update (2026-07-01): Documents is now enabled — client → us uploads give it a
+ * real, working purpose (upload card + "Sent to us" history). The read-only
+ * "shared"/"requested" sections stay empty until their SF sync is built, but
+ * they simply don't render when empty, so the page is coherent.
  */
 export const PILOT_MODE = process.env.PORTAL_PILOT_MODE === "true";
 
 /** Nav hrefs / surfaces suppressed while PILOT_MODE is on. */
 const PILOT_HIDDEN_HREFS = new Set<string>([
-  "/portal/documents",
   "/portal/notifications",
   "/portal/approvals",
 ]);

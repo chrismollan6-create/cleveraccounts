@@ -293,6 +293,48 @@ export interface PortalDocumentsBundle {
   requests: PortalDocument[];
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Client uploads (client → us) — files the client sends up with a note.
+// Portal-native; bytes in Supabase Storage, metadata in portal.document_uploads.
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface PortalUploadFile {
+  id: string;
+  fileName: string;
+  fileType: string | null;
+  /** Human size, e.g. "1.2 MB". */
+  sizeLabel: string | null;
+  /** Short-lived signed URL so the client can re-download their own file. */
+  downloadUrl: string | null;
+}
+
+export interface PortalUpload {
+  id: string;
+  /** The client's commentary — "what is this?". */
+  note: string | null;
+  /** 'pending' | 'received' | 'pushed' | 'push_failed' (client sees all as sent). */
+  status: string;
+  createdAt: string;
+  files: PortalUploadFile[];
+}
+
+/** Returned by the register step — one signed slot per file for direct upload. */
+export interface PortalUploadSlot {
+  fileId: string;
+  fileName: string;
+  /** Object path inside the bucket. */
+  path: string;
+  /** Supabase signed-upload token — used with the client SDK's uploadToSignedUrl. */
+  token: string;
+  /** Full signed upload URL (fallback for a raw PUT). */
+  signedUrl: string;
+}
+
+export interface PortalUploadInit {
+  uploadId: string;
+  slots: PortalUploadSlot[];
+}
+
 /**
  * A single thing blocked on the client, aggregated across approvals, document
  * requests and deadlines — powers the dashboard "Needs you" hub.

@@ -3,6 +3,7 @@ import {
   text,
   timestamp,
   bigserial,
+  bigint,
   jsonb,
   inet,
   integer,
@@ -545,6 +546,58 @@ export const documents = portal.table(
   })
 );
 
+// portal.document_uploads ─── client-initiated uploads (client → us).
+// Portal-NATIVE (not an SF mirror): the client sends 1+ files plus a note
+// describing what they are. File bytes live in a private Supabase Storage
+// bucket; this row carries the commentary + status; `sf_content_ref` holds the
+// Salesforce reference once the batch has been pushed across so staff see it.
+export const documentUploads = portal.table(
+  "document_uploads",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    accountSfId: text("account_sf_id").notNull(),
+    /** Clerk user + SF Contact who uploaded — for audit + staff context. */
+    clerkUserId: text("clerk_user_id"),
+    contactSfId: text("contact_sf_id"),
+    /** Client's free-text commentary — "what is this?". */
+    note: text("note"),
+    /**
+     * 'pending'  — row created, files not yet confirmed uploaded
+     * 'received' — files in Supabase Storage, visible in the portal history
+     * 'pushed'   — mirrored into Salesforce (sf_content_ref set)
+     * 'push_failed' — in Supabase but the SF push errored (retryable)
+     */
+    status: text("status").notNull().default("pending"),
+    sfContentRef: text("sf_content_ref"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    accountCreatedIdx: index("document_uploads_account_created_idx").on(
+      t.accountSfId,
+      t.createdAt.desc()
+    ),
+  })
+);
+
+// portal.document_upload_files ─── the individual files within one upload batch.
+export const documentUploadFiles = portal.table(
+  "document_upload_files",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    uploadId: bigint("upload_id", { mode: "number" }).notNull(),
+    fileName: text("file_name").notNull(),
+    fileType: text("file_type"),
+    sizeBytes: integer("size_bytes"),
+    /** Object path within the private `portal-uploads` Storage bucket. */
+    storagePath: text("storage_path").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    uploadIdx: index("document_upload_files_upload_idx").on(t.uploadId),
+  })
+);
+
 // ───────────────────────────────────────────────────────────────────────────
 // portal.sync_log
 // Forensic + ops trail for cache updates. One row per inbound sync event.
@@ -612,3 +665,7 @@ export type CachedApproval = typeof approvals.$inferSelect;
 export type NewCachedApproval = typeof approvals.$inferInsert;
 export type CachedDocument = typeof documents.$inferSelect;
 export type NewCachedDocument = typeof documents.$inferInsert;
+export type DocumentUpload = typeof documentUploads.$inferSelect;
+export type NewDocumentUpload = typeof documentUploads.$inferInsert;
+export type DocumentUploadFile = typeof documentUploadFiles.$inferSelect;
+export type NewDocumentUploadFile = typeof documentUploadFiles.$inferInsert;
