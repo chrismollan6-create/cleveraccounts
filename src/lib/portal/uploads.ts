@@ -239,6 +239,7 @@ export async function completeUploadForCurrentUser(
 
     // Best-effort push to Salesforce so staff see it on the Account.
     let finalStatus = "received";
+    let pushError: string | null = null;
     try {
       const pushed = await pushUploadToSalesforce(scope, row, files);
       if (pushed.ok) {
@@ -249,13 +250,15 @@ export async function completeUploadForCurrentUser(
           .where(eq(schema.documentUploads.id, idNum));
       } else {
         finalStatus = "push_failed";
+        pushError = (pushed as { error?: string }).error ?? "unknown";
         await db
           .update(schema.documentUploads)
           .set({ status: "push_failed", updatedAt: new Date() })
           .where(eq(schema.documentUploads.id, idNum));
       }
-    } catch {
+    } catch (e) {
       finalStatus = "push_failed";
+      pushError = e instanceof Error ? e.message : String(e);
       await db
         .update(schema.documentUploads)
         .set({ status: "push_failed", updatedAt: new Date() })
@@ -267,7 +270,7 @@ export async function completeUploadForCurrentUser(
       clerkUserId,
       accountSfId,
       target: uploadId,
-      metadata: { fileCount: files.length, pushStatus: finalStatus },
+      metadata: { fileCount: files.length, pushStatus: finalStatus, pushError },
     });
 
     return dtoFor({ ...row, status: finalStatus }, files, getSupabaseServerClient());
@@ -372,14 +375,14 @@ async function pushUploadToSalesforce(
   },
   upload: typeof schema.documentUploads.$inferSelect,
   files: (typeof schema.documentUploadFiles.$inferSelect)[]
-): Promise<{ ok: true; ref: string } | { ok: false }> {
+): Promise<{ ok: true; ref: string } | { ok: false; error?: string }> {
   const sb = getSupabaseServerClient();
   const payloadFiles: { name: string; type: string | null; size: number | null; url: string }[] = [];
   for (const f of files) {
     const { data } = await sb.storage
       .from(BUCKET)
       .createSignedUrl(f.storagePath, 60 * 60 * 24 * 7); // 7 days for Apex fetch
-    if (!data?.signedUrl) return { ok: false };
+    if (!data?.signedUrl) return { ok: false, error: "signed download URL generation failed" };
     payloadFiles.push({
       name: f.fileName,
       type: f.fileType,
@@ -413,5 +416,5 @@ async function pushUploadToSalesforce(
       ref: result.data?.contentDocumentId ?? result.data?.caseId ?? "sf",
     };
   }
-  return { ok: false };
+  return { ok: false, error: `HTTP ${result.status} ${result.error}: ${result.message}` };
 }
