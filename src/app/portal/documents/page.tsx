@@ -1,5 +1,8 @@
 import {
   FileText,
+  FileSpreadsheet,
+  FileImage,
+  File as FileIcon,
   Percent,
   Banknote,
   PenLine,
@@ -8,6 +11,7 @@ import {
   Upload,
   Download,
   CheckCircle2,
+  Send,
   Clock,
 } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -81,17 +85,12 @@ export default async function DocumentsPage() {
             Documents
           </h1>
           <p className="mt-0.5 text-sm text-text-light">
-            Everything we&apos;ve shared with you — and anything we still need
-            from you.
+            Send us documents securely, and see everything you&apos;ve shared.
           </p>
         </div>
-        {outstanding > 0 ? (
+        {outstanding > 0 && (
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
             <Upload size={12} /> {outstanding} needed from you
-          </span>
-        ) : (
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            <CheckCircle2 size={12} /> Nothing outstanding
           </span>
         )}
       </div>
@@ -101,13 +100,34 @@ export default async function DocumentsPage() {
         <DocumentUpload />
       </div>
 
-      {/* SENT TO US — upload history */}
+      {/* SENT TO US — upload history, grouped by day */}
       {uploads.length > 0 && (
         <section className="mb-7">
-          <SectionLabel>Sent to us</SectionLabel>
-          <div className="space-y-3">
-            {uploads.map((u) => (
-              <UploadCard key={u.id} u={u} />
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-text-light">
+              Sent to us
+            </h2>
+            <span className="text-xs text-text-light">
+              {uploads.length} {uploads.length === 1 ? "document" : "documents"}{" "}
+              sent
+            </span>
+          </div>
+          <div className="space-y-5">
+            {groupUploadsByDay(uploads).map((group) => (
+              <div key={group.label}>
+                <div className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-text-light/60">
+                  {group.label}
+                </div>
+                <div className="divide-y divide-neutral-100 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+                  {group.items.map((u) => (
+                    <UploadRow
+                      key={u.id}
+                      u={u}
+                      isNewest={u.id === uploads[0].id}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -248,54 +268,129 @@ function SharedRow({ d }: { d: PortalDocument }) {
   );
 }
 
-function UploadCard({ u }: { u: PortalUpload }) {
+function UploadRow({ u, isNewest }: { u: PortalUpload; isNewest?: boolean }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className={`px-4 py-3 ${isNewest ? "upload-flash" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {u.note ? (
-            <p className="text-sm text-text">{u.note}</p>
+            <p className="text-sm font-medium text-text">{u.note}</p>
           ) : (
             <p className="text-sm italic text-text-light">No description added</p>
           )}
           <p className="mt-0.5 text-xs text-text-light">
-            Sent {formatDate(u.createdAt)}
+            {formatTime(u.createdAt)}
+            {u.files.length > 1 ? ` · ${u.files.length} files` : ""}
           </p>
         </div>
-        <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-          <CheckCircle2 size={12} /> Sent
-        </span>
+        <UploadStatus status={u.status} />
       </div>
-      <ul className="mt-3 space-y-1.5">
-        {u.files.map((f) => (
-          <li
-            key={f.id}
-            className="flex items-center gap-2.5 rounded-lg bg-neutral-50 px-3 py-2"
-          >
-            <FileText size={15} className="flex-shrink-0 text-[#1A7A9B]" />
-            <span className="min-w-0 flex-1 truncate text-sm text-text">
-              {f.fileName}
-            </span>
-            {f.sizeLabel && (
-              <span className="flex-shrink-0 text-xs text-text-light">
-                {f.sizeLabel}
+      <ul className="mt-2 space-y-1">
+        {u.files.map((f) => {
+          const Icon = fileIcon(f.fileName);
+          return (
+            <li
+              key={f.id}
+              className="flex items-center gap-2.5 rounded-lg bg-neutral-50 px-2.5 py-1.5"
+            >
+              <Icon size={14} className="flex-shrink-0 text-[#1A7A9B]" />
+              <span className="min-w-0 flex-1 truncate text-xs text-text">
+                {f.fileName}
               </span>
-            )}
-            {f.downloadUrl && (
-              <a
-                href={f.downloadUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex flex-shrink-0 items-center gap-1 text-xs font-medium text-[#1A7A9B] hover:underline"
-              >
-                <Download size={13} /> View
-              </a>
-            )}
-          </li>
-        ))}
+              {f.sizeLabel && (
+                <span className="flex-shrink-0 text-[11px] text-text-light">
+                  {f.sizeLabel}
+                </span>
+              )}
+              {f.downloadUrl && (
+                <a
+                  href={f.downloadUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex flex-shrink-0 items-center gap-1 text-[11px] font-medium text-[#1A7A9B] hover:underline"
+                >
+                  <Download size={12} /> View
+                </a>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
+}
+
+// Real, client-appropriate status. 'received' = in our portal, still landing in
+// our system → "Processing"; 'pushed' = it's reached the team → "Delivered".
+// Anything else (incl. a back-office push retry) stays reassuring: it's with us.
+function UploadStatus({ status }: { status: string }) {
+  if (status === "received") {
+    return (
+      <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+        <Clock size={11} /> Processing
+      </span>
+    );
+  }
+  if (status === "pushed") {
+    return (
+      <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+        <CheckCircle2 size={11} /> Delivered
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+      <Send size={11} /> Sent
+    </span>
+  );
+}
+
+const SPREADSHEET_EXT = new Set(["csv", "xls", "xlsx", "ods"]);
+const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "gif", "webp", "heic", "heif"]);
+const DOC_EXT = new Set(["pdf", "doc", "docx", "txt", "rtf", "odt"]);
+
+function fileIcon(name: string): typeof FileText {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  if (SPREADSHEET_EXT.has(ext)) return FileSpreadsheet;
+  if (IMAGE_EXT.has(ext)) return FileImage;
+  if (DOC_EXT.has(ext)) return FileText;
+  return FileIcon;
+}
+
+function formatTime(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
+/** Group uploads (already newest-first) into consecutive Today/Yesterday/date buckets. */
+function groupUploadsByDay(
+  uploads: PortalUpload[]
+): { label: string; items: PortalUpload[] }[] {
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const today = startOfDay(new Date());
+  const groups: { label: string; items: PortalUpload[] }[] = [];
+  for (const u of uploads) {
+    const d = new Date(u.createdAt);
+    const diff = Math.round(
+      (today.getTime() - startOfDay(d).getTime()) / 86_400_000
+    );
+    const label =
+      diff <= 0
+        ? "Today"
+        : diff === 1
+          ? "Yesterday"
+          : d.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            });
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) last.items.push(u);
+    else groups.push({ label, items: [u] });
+  }
+  return groups;
 }
 
 function formatDate(iso: string): string {

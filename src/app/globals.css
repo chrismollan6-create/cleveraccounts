@@ -605,3 +605,11 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #29484f !important;
   caret-color: #29484f;
 }
+
+/* Portal "Sent to us": gently highlight the newest upload row after a send.
+   Runs once on mount; harmless if it replays on a plain reload. */
+@keyframes uploadFlash {
+  from { background-color: rgb(249 115 22 / 0.10); }
+  to { background-color: transparent; }
+}
+.upload-flash { animation: uploadFlash 1.8s ease-out; }

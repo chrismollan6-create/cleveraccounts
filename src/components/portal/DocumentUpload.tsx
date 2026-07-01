@@ -276,7 +276,7 @@ export default function DocumentUpload() {
             type="button"
             onClick={submit}
             disabled={busy || files.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-orange-400 disabled:shadow-none"
           >
             {busy ? (
               <>
