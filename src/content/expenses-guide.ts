@@ -74,7 +74,9 @@ export function variantIntro(d: ExpensesGuideData): string {
       "reducing the company's taxable profit and, by extension, its Corporation Tax bill. " +
       "Expenses must be 'wholly and exclusively for the purposes of the company's trade'. " +
       "Some of the biggest savings — home office, mileage, pension contributions, trivial " +
-      "benefits — are the ones clients most often miss."
+      "benefits — are the ones clients most often miss. As a rule of thumb, costs should be " +
+      "contracted and paid in the company's name wherever possible: it is what makes them " +
+      "cleanly claimable and keeps them off your personal tax."
     );
   }
   return (
@@ -82,7 +84,8 @@ export function variantIntro(d: ExpensesGuideData): string {
     "reducing the profit on which Income Tax and National Insurance are calculated. " +
     "As a sole trader, the 'wholly and exclusively' test applies to your business expenditure. " +
     "Many sole traders leave real money on the table by not claiming use-of-home or full " +
-    "mileage allowances — this guide is here to change that."
+    "mileage allowances — this guide is here to change that. Keep business spending in a " +
+    "dedicated business account and in the business's name so the costs are easy to identify."
   );
 }
 
@@ -101,16 +104,22 @@ export interface EssentialItem {
   learnSlug?: string;
 }
 
-export const EVERYDAY_ESSENTIALS: EssentialItem[] = [
+export function getEverydayEssentials(d: ExpensesGuideData): EssentialItem[] {
+  const isLtd = d.variant === 'ltd';
+  return [
   {
     iconKey: 'home',
     title: 'Use of home as office',
     stat: '£312/year minimum',
     badge: 'Most missed',
-    body:
-      'Claim £6/week (£312/year) with zero receipts needed. Or calculate the actual ' +
-      'proportional cost of heating, electricity, mortgage interest and council tax ' +
-      'for home workers. See Section 2 for the full breakdown of both methods.',
+    body: isLtd
+      ? 'Claim £6/week (£312/year) as a tax-free company reimbursement with no receipts ' +
+        'needed. A larger claim is possible but works differently for a company — see ' +
+        'Section 2. (Directors cannot simply put a share of mortgage interest or council ' +
+        'tax through the company.)'
+      : 'Claim £6/week (£312/year) with zero receipts needed. Or calculate the actual ' +
+        'proportional cost of heating, electricity, mortgage interest and council tax. ' +
+        'See Section 2 for the full breakdown of both methods.',
     learnSlug: '/learn/use-of-home-as-office',
   },
   {
@@ -120,18 +129,26 @@ export const EVERYDAY_ESSENTIALS: EssentialItem[] = [
     badge: 'Top saver',
     body:
       'In your own car: 55p/mile for the first 10,000 business miles in 2026/27 (increased ' +
-      'from 45p in April 2026), 25p/mile after that. Electric: 9p/mile fuel element. ' +
-      'Motorbike: 24p/mile. Bicycle: 20p/mile. A mileage log is essential — see Section 5.',
+      'from 45p in April 2026), 25p/mile after that. The same rate applies to a personally ' +
+      'owned electric car. Motorbike: 24p/mile. Bicycle: 20p/mile. A mileage log is ' +
+      'essential — see Section 5.',
     learnSlug: '/learn/mileage-and-travel-expenses',
   },
   {
     iconKey: 'phone',
     title: 'Phone & internet',
-    stat: '50–80% business use',
-    body:
-      "Your personal phone and broadband used for business? Claim the business proportion — " +
-      "50–80% is widely accepted for contractors and freelancers. A dedicated business " +
-      "SIM or broadband line used only for work is 100% deductible with no apportionment needed.",
+    stat: isLtd ? 'Best in the company name' : 'Business proportion of the bill',
+    body: isLtd
+      ? "A mobile contract taken out in the company's name is an exempt benefit in full — " +
+        "one phone per director/employee, with no taxable benefit even if you use it " +
+        "privately. If the contract is in your personal name, the company can only meet " +
+        "the cost of business calls (line rental stays personal). Broadband is only " +
+        "claimable through the company where the line is in the company's name and " +
+        "personal use is incidental."
+      : "Your personal phone and broadband used for business? Claim the business proportion — " +
+        "based on your actual business use, evidenced by itemised bills rather than a flat " +
+        "percentage. A dedicated business SIM or broadband line used only for work is 100% " +
+        "deductible with no apportionment needed.",
   },
   {
     iconKey: 'supplies',
@@ -166,7 +183,8 @@ export const EVERYDAY_ESSENTIALS: EssentialItem[] = [
     body:
       'Courses, books, webinars, conferences — allowable when they update or improve your ' +
       'existing skills for the current trade. Key rule: training to enter a new profession ' +
-      'from scratch is generally not deductible. Relevant CPD and accreditation courses: fully claimable.',
+      'from scratch is generally not deductible, and degrees or higher degrees are never ' +
+      'allowable. Relevant CPD and accreditation courses: fully claimable.',
   },
   {
     iconKey: 'bank',
@@ -190,9 +208,16 @@ export const EVERYDAY_ESSENTIALS: EssentialItem[] = [
     body:
       'Premiums for Professional Indemnity, Public Liability, and Employers\' Liability ' +
       '(legally required once you employ staff) are fully deductible. Cyber liability, ' +
-      'business interruption, and contents cover for business property: also deductible.',
+      'business interruption, and contents cover for business property: also deductible. ' +
+      (isLtd
+        ? 'Key person insurance taken out by the company on a director can also be ' +
+          'deductible where it meets the HMRC "Anderson" conditions (short term, purely ' +
+          'to cover business loss, no capital/surrender value) — ask us before setting it up.'
+        : 'Key person cover on a business partner can be deductible where it purely ' +
+          'protects against loss of trading profits — ask us before setting it up.'),
   },
-];
+  ];
+}
 
 // ─────────────────────────────────────────────────────────────────────────
 // Section 02 — Working from home (all variants, but calculation differs)
@@ -204,43 +229,62 @@ export function getHomeOfficeContent(d: ExpensesGuideData): {
   ltdNote?: { title: string; body: string };
   warning: string;
 } {
+  const isLtd = d.variant === 'ltd';
+
   const fixedRate = {
     title: 'Method A — Fixed rate (no receipts needed)',
-    body:
-      'HMRC allows £6/week (£312/year) for any week you work from home. No receipts, ' +
-      'no proportional calculations, no risk to your Principal Private Residence relief. ' +
-      'Claim it on your Self Assessment or as a company reimbursement — it is the simplest ' +
-      'win on the list. For sole traders who work from home part-time, HMRC\'s simplified ' +
-      'rate is £10/month (25–50 hrs), £18/month (51–100 hrs), or £26/month (101+ hrs).',
+    body: isLtd
+      ? 'Your company can reimburse you £6/week (£312/year) tax-free for working from ' +
+        'home, with no receipts and no calculations. It is exempt from PAYE and NI and ' +
+        'is the simplest win on the list — set it up as a regular company payment to ' +
+        'yourself.'
+      : 'HMRC allows £6/week (£312/year) for any week you work from home. No receipts, ' +
+        'no proportional calculations, no risk to your Principal Private Residence relief. ' +
+        'Claim it on your Self Assessment — it is the simplest win on the list. If you ' +
+        'work from home part-time, HMRC\'s simplified flat rate is £10/month (25–50 hrs), ' +
+        '£18/month (51–100 hrs), or £26/month (101+ hrs).',
   };
 
-  const actualCosts = {
-    title: 'Method B — Actual costs (higher claim, more documentation)',
-    body:
-      'Calculate the business proportion of your household costs: electricity, gas, ' +
-      'broadband (less any business-specific allocation), mortgage interest (not capital ' +
-      'repayment), council tax' +
-      (d.variant === 'sole' ? '' : ' (sole traders only)') +
-      ', and buildings/contents insurance. ' +
-      'The typical formula: (rooms used for business work / total rooms in the house) × ' +
-      '(hours worked at home / total available hours). For example: one dedicated study ' +
-      'in a 5-room house, 40 hours a week from home out of 168 hours available = roughly ' +
-      '5% of total household costs. Keep utility bills and mortgage statements for 6 years.',
-  };
+  const actualCosts = isLtd
+    ? {
+        title: 'Method B — Additional running costs (directors)',
+        body:
+          'A director cannot put a share of the mortgage interest, council tax or ' +
+          'standard water charge through the company — those are personal costs of ' +
+          'the home. What the company can reimburse tax-free are the ADDITIONAL ' +
+          'household running costs caused by working from home: the extra gas and ' +
+          'electricity, metered water used for the business, and business phone/broadband ' +
+          'where the line is in the company\'s name (s316A ITEPA 2003 / EIM32815). The ' +
+          'company must actually reimburse you — from 6 April 2026 an employee can no ' +
+          'longer claim unreimbursed household costs on their own return (EIM32759). To ' +
+          'recover a share of mortgage/council tax, use the licence-to-occupy route below.',
+      }
+    : {
+        title: 'Method B — Actual costs (higher claim, more documentation)',
+        body:
+          'Calculate the business proportion of your household costs: electricity, gas, ' +
+          'broadband (less any business-specific allocation), mortgage interest (not ' +
+          'capital repayment), council tax, and buildings/contents insurance (BIM47815). ' +
+          'The typical formula: (rooms used for business work / total rooms in the house) × ' +
+          '(hours worked at home / total available hours). For example: one dedicated study ' +
+          'in a 5-room house, 40 hours a week from home out of 168 hours available = roughly ' +
+          '5% of total household costs. Keep utility bills and mortgage statements for 6 years.',
+      };
 
-  const ltdNote =
-    d.variant === 'ltd'
-      ? {
-          title: "Ltd company directors — the licence-to-occupy route",
-          body:
-            "Your company can pay you rent (a 'licence to occupy') for using part of your " +
-            "home as its office. This reduces the company's taxable profit while the income " +
-            "in your hands is typically offset by the actual home costs attributable to that " +
-            "use. It requires a simple written agreement and must reflect a commercial rate " +
-            "for the space used. Ask your accountant to set this up properly — the tax saving " +
-            "can be meaningful, but it needs documenting.",
-        }
-      : undefined;
+  const ltdNote = isLtd
+    ? {
+        title: "Ltd company directors — the licence-to-occupy route",
+        body:
+          "To recover a share of your fixed home costs (mortgage interest, council tax, " +
+          "insurance), your company can pay you rent under a 'licence to occupy' for using " +
+          "part of your home as its office. The rent is a deductible company cost, but it is " +
+          "property income in your hands — you declare it on your Self Assessment and offset " +
+          "the actual apportioned home costs (calculated much like Method B) against it. It " +
+          "usually still leaves a modest taxable profit, so it is not tax-free money; the " +
+          "benefit is moving the cost into the company. It needs a simple written agreement " +
+          "at a commercial rate — ask us to set it up properly.",
+      }
+    : undefined;
 
   const warning =
     'CGT warning: if you designate a room exclusively and permanently as a business ' +
@@ -260,14 +304,24 @@ export interface TravelItem {
   body: string;
 }
 
-export const TRAVEL_ITEMS: TravelItem[] = [
+export function getTravelItems(d: ExpensesGuideData): TravelItem[] {
+  const isLtd = d.variant === 'ltd';
+  return [
   {
     title: 'Business travel vs commuting — the fundamental distinction',
-    body:
-      'Travel to a regular, permanent workplace is commuting — never deductible. ' +
-      'If your company operates from your home address, travel to client sites is ' +
-      'business travel and is fully deductible. If you rent an office or co-working ' +
-      'space and go there daily, travel to it is commuting.',
+    body: isLtd
+      ? 'Travel to a permanent workplace is commuting — never deductible. Travel to a ' +
+        'temporary workplace is business travel. A workplace stays "temporary" only while ' +
+        'you neither expect, nor actually work there, for more than 24 months AND it takes ' +
+        'up less than 40% of your working time (the 24-month / 40% rule — see the contractor ' +
+        'section). If the company operates from your home, travel to client sites is business ' +
+        'travel; if you rent an office you attend regularly, travel to it is commuting.'
+      : 'The test for a sole trader is whether your home is the genuine "base of operations". ' +
+        'A truly itinerant trade — no fixed site, with tools, stock and records kept at home — ' +
+        'can claim travel from home to jobs (BIM37635/BIM37675). But where you attend the same ' +
+        'place on a settled, predictable pattern, that travel is ordinary commuting and is not ' +
+        'deductible. Travel to occasional client meetings, suppliers and one-off sites is ' +
+        'business travel.',
   },
   {
     title: 'What counts as allowable travel',
@@ -284,23 +338,30 @@ export const TRAVEL_ITEMS: TravelItem[] = [
       'are fully deductible. Keep the receipts and note the business purpose.',
   },
   {
-    title: 'Meals — the rules are tighter than most people think',
-    body:
-      'Meals on overnight business trips: claimable (you would not have incurred the ' +
-      'cost at home). Meals during a normal working day: generally not claimable — ' +
-      'HMRC treats these as private subsistence regardless of where you eat them. ' +
-      'Meals provided as part of a conference or training event: claimable as part of ' +
-      'the event cost.',
+    title: 'Meals — the rules follow the travel',
+    body: isLtd
+      ? 'Subsistence follows the travel rules. On a qualifying journey to a temporary ' +
+        'workplace, or an overnight business trip, a reasonable meal is claimable. Meals at ' +
+        'your permanent/normal workplace, or on a journey that is really commuting, are not. ' +
+        'Meals provided as part of a conference or training event are claimable as part of ' +
+        'the event cost.'
+      : 'Meals on overnight business trips are claimable (you would not have incurred the ' +
+        'cost at home). An ordinary lunch on your normal working pattern is not — HMRC ' +
+        'treats it as private subsistence. But where the travel itself is allowable (a ' +
+        'genuinely itinerant trade, or a journey outside your normal pattern), reasonable ' +
+        'food and drink can be claimed too (BIM37670/BIM47705).',
   },
   {
     title: 'Mileage rate summary (2026/27)',
     body:
       'Own car or van: 55p/mile for the first 10,000 business miles (increased from ' +
-      '45p in April 2026), 25p/mile after that. Electric: 9p/mile fuel element; full ' +
-      '55p AMAP applies. Motorbike: 24p/mile. Bicycle: 20p/mile. Business passengers: ' +
+      '45p in April 2026), 25p/mile after that. A personally owned electric car uses the ' +
+      'same 55p/25p rate (the ~9p Advisory Electricity Rate only applies to a ' +
+      'company-provided EV). Motorbike: 24p/mile. Bicycle: 20p/mile. Business passengers: ' +
       '+5p/mile per person. Company-owned car: claim actual fuel costs instead of AMAP.',
   },
-];
+  ];
+}
 
 // ─────────────────────────────────────────────────────────────────────────
 // Section 04 — Limited company extras (ltd only)
@@ -317,26 +378,30 @@ export const LTD_EXTRAS: LtdExtra[] = [
     body:
       'When your company pays directly into your personal pension, it is a deductible ' +
       'company expense — reducing Corporation Tax. It does not appear on your P11D, so ' +
-      'there is no PAYE or NI to pay on it. The annual allowance is currently £60,000 ' +
-      '(or 100% of earnings, whichever is lower). Making a contribution before your ' +
-      'year-end reduces this year\'s CT bill. Ask us to run the numbers before year-end.',
+      'there is no PAYE or NI to pay on it. The annual allowance is currently £60,000, and ' +
+      'you can carry forward unused allowance from the previous three tax years. (The ' +
+      '"100% of earnings" cap applies to your own personal contributions, not to employer ' +
+      'contributions paid by the company; the allowance also tapers for high total income ' +
+      'over £260,000.) Making a contribution before your year-end reduces this year\'s CT ' +
+      'bill. Ask us to run the numbers before year-end.',
   },
   {
     title: 'Trivial benefits — £300/year of tax-free perks for directors',
     body:
-      'You can give yourself non-cash gifts from the company up to £50 each, with a ' +
-      'maximum of £300/year for directors of close companies (which almost all small ' +
-      'Ltd companies are). Gifts must not be cash or a cash voucher, must not reward ' +
-      'performance, and must not be in your contract. Use it for: birthday gifts, ' +
-      'a restaurant meal, a bottle of wine, a book, a store voucher — anything under £50.',
+      'You can give yourself non-cash gifts from the company up to £50 each (VAT ' +
+      'inclusive), with a maximum of £300/year for directors of close companies (which ' +
+      'almost all small Ltd companies are). Gifts must not be cash or a cash voucher, must ' +
+      'not reward performance, and must not be in your contract. Use it for: birthday ' +
+      'gifts, a restaurant meal, a bottle of wine, a book, a store voucher — anything ' +
+      'under £50 including VAT.',
   },
   {
     title: 'Staff entertaining at £150/head/year',
     body:
       'A Christmas party, summer event, or similar annual function open to all employees ' +
-      'is allowable up to £150/head/year. Below that limit, it is both Corporation Tax ' +
-      'deductible AND exempt from PAYE and NI for attendees. Note: if the event is above ' +
-      '£150/head, the whole amount becomes taxable — not just the excess.',
+      'is allowable up to £150/head/year (VAT inclusive). Below that limit, it is both ' +
+      'Corporation Tax deductible AND exempt from PAYE and NI for attendees. Note: if the ' +
+      'event is above £150/head, the whole amount becomes taxable — not just the excess.',
   },
   {
     title: 'Annual Investment Allowance — 100% relief on capital purchases',
@@ -387,32 +452,35 @@ export const CONTRACTOR_ITEMS: ContractorItem[] = [
   {
     title: 'How the 24-month clock works in practice',
     body:
-      'Renewals at the same physical site do not reset the clock — if you\'ve worked ' +
-      'at Client X\'s Canary Wharf office for 20 months and renew for another year, ' +
-      'you hit the limit at month 24. A genuine break of 6+ months (where you work ' +
-      'elsewhere) resets it. Working at different sites for the same client may each ' +
-      'be a different "workplace" — check this with your accountant when a new contract ' +
-      'comes in. Working from home: if the company operates from your home address, ' +
-      'any travel to a client site is business travel — there is no "permanent" client ' +
-      'workplace to trigger the rule.',
+      'It is expectation, not just time served, that stops the clock. If at month 20 you ' +
+      'renew for another year — so you now expect to be at the site beyond 24 months — ' +
+      'travel stops being claimable from that point (month 20), not at month 24. The other ' +
+      'trigger is time: a site taking up 40% or more of your working time and lasting (or ' +
+      'expected to last) 24+ months is permanent. A genuine break of 6+ months elsewhere ' +
+      'resets it. Working from home: if the company operates from your home address, travel ' +
+      'to a client site is business travel — there is no permanent client workplace to ' +
+      'trigger the rule.',
   },
   {
-    title: 'Inside IR35 — expenses change dramatically',
+    title: 'Inside IR35 — expenses change',
     body:
-      'If a contract is inside IR35, HMRC treats the income as employment income. ' +
-      'Travel and subsistence expenses that would normally be deductible are not — ' +
-      'HMRC treats your travel to the client as commuting. You can still claim: ' +
-      'business insurance premiums, professional subscriptions, training costs, and ' +
-      'the use-of-home allowance. Ask us to review each inside-IR35 engagement ' +
-      'separately — the expense picture is different each time.',
+      'If a contract is inside IR35, HMRC treats the income from that engagement as ' +
+      'employment income, and the deemed-employment rules restrict what you can offset ' +
+      'against it. Travel and subsistence to that client typically cannot be claimed ' +
+      'against the deemed payment — but the normal temporary-workplace rules still apply, ' +
+      'so treatment turns on the facts of each contract. You can still claim business ' +
+      'insurance, professional subscriptions, training and the use-of-home allowance. ' +
+      'Ask us to review each inside-IR35 engagement separately.',
   },
   {
     title: 'Tools, equipment, and specialist software',
     body:
-      'Equipment and software used specifically for contract work are fully deductible: ' +
+      'Equipment and software the company buys for contract work are fully deductible: ' +
       'laptops, specialist software licences (development IDEs, testing tools, design ' +
-      'applications), test equipment, and peripherals. If any item has a personal-use ' +
-      'element, claim only the business proportion.',
+      'applications), test equipment, and peripherals. Because the company owns the asset, ' +
+      'you claim the full cost — you do not apportion it. If there is more than incidental ' +
+      'private use, that use is instead taxed as a benefit in kind rather than scaling down ' +
+      'the deduction.',
   },
   {
     title: 'Professional insurance (often a contract requirement)',
@@ -439,8 +507,12 @@ export interface SectorBlock {
   items: SectorItem[];
 }
 
-export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
+export function getSectorBlock(
+  sector: ExpensesSector,
+  variant: ExpensesVariant = 'ltd',
+): SectorBlock | null {
   if (sector === 'general') return null;
+  const isLtd = variant === 'ltd';
 
   if (sector === 'cis') {
     return {
@@ -477,23 +549,30 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
         },
         {
           title: 'Vehicles carrying tools and materials',
-          body:
-            'A van used to transport tools and materials is treated more favourably than ' +
-            'a car. Running costs (fuel, insurance, road tax, servicing, MOT) are ' +
-            'allowable on a business-use basis. Unlike a car, a van with incidental ' +
-            'private use does not trigger significant restrictions — though a fuel ' +
-            'benefit in kind applies if the company pays for personal fuel in a ' +
-            'company van.',
+          body: isLtd
+            ? 'A van is treated more favourably than a car. For the company to claim the ' +
+              'running costs (fuel, insurance, road tax, servicing, MOT) and the purchase, ' +
+              'the company must own the van. Watch the benefit in kind: a company van kept ' +
+              'at your home is hard to argue is "not available" for private use, which ' +
+              'triggers a van benefit charge (plus a fuel benefit if the company pays for ' +
+              'private fuel). A genuinely commercial vehicle used only for work, with private ' +
+              'use no more than incidental, avoids the charge.'
+            : 'A van used to transport tools and materials is treated more favourably than ' +
+              'a car. Running costs (fuel, insurance, road tax, servicing, MOT) are allowable ' +
+              'on a business-use basis — you apportion out any private use. Unlike a car, a ' +
+              'van does not attract the restrictive car rules, so it is usually the more ' +
+              'tax-efficient vehicle for the trade.',
         },
         {
           title: 'Subcontractor payments & CIS',
           body:
-            'Payments to subcontractors (net of any CIS deductions you are required to ' +
-            'make) are a deductible business expense. Keep monthly CIS returns and ' +
-            'payment/deduction statements. If you are a CIS subcontractor and your ' +
-            'contractor withholds 20% (or 30%) CIS tax, that withheld amount is a ' +
-            'credit against your Corporation Tax or Income Tax bill — not itself an ' +
-            'expense.',
+            'The GROSS amount you pay a subcontractor is your deductible expense — not just ' +
+            'the net cash you hand over. Where you make a CIS deduction, you pay the ' +
+            'subcontractor the net figure and pay the deducted tax over to HMRC; both parts, ' +
+            'plus the cost of any materials, make up the gross deductible cost. Keep monthly ' +
+            'CIS returns and payment/deduction statements. If you are a CIS subcontractor and ' +
+            'your contractor withholds 20% (or 30%) CIS tax, that withheld amount is a credit ' +
+            'against your Corporation Tax or Income Tax bill — not itself an expense.',
         },
       ],
     };
@@ -541,13 +620,19 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
         },
         {
           title: 'Scrubs, uniforms & laundry',
-          body:
-            'Clinical scrubs and uniforms that identify you as a healthcare professional ' +
-            'are deductible. Importantly, HMRC also allows a flat-rate deduction for ' +
-            'the cost of laundering uniforms — currently £125/year for most healthcare ' +
-            'workers (check the current flat-rate allowance for your profession). ' +
-            'Personal protective equipment (gloves, masks, aprons, eye protection) used ' +
-            'in clinical settings is also fully deductible.',
+          body: isLtd
+            ? 'Clinical scrubs and uniforms that identify you as a healthcare professional ' +
+              'are deductible, and PPE (gloves, masks, aprons, eye protection) is fully ' +
+              'deductible. The £125 flat-rate laundry allowance you may have seen is an ' +
+              'employee deduction for nurses and midwives specifically (EIM67240) — it is ' +
+              'not a general "healthcare" figure and is not how a company claims. A company ' +
+              'meets the actual cost of cleaning workwear, or provides it directly.'
+            : 'Clinical scrubs and uniforms that identify you as a healthcare professional ' +
+              'are deductible, as is PPE (gloves, masks, aprons, eye protection). A sole ' +
+              'trader deducts the actual cost of laundering workwear. Note the widely quoted ' +
+              '£125 flat-rate laundry allowance is specifically the nurses\'/midwives\' ' +
+              'EMPLOYEE allowance (EIM67240), not a universal healthcare figure — check the ' +
+              'correct treatment for your role.',
         },
       ],
     };
@@ -595,11 +680,17 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
         },
         {
           title: 'Hardware & peripherals',
-          body:
-            'High-performance computers, graphics tablets (Wacom, iPad Pro with ' +
-            'Apple Pencil), monitors, audio interfaces, external drives, and other ' +
-            'peripherals used for your work: deductible. Where equipment has some ' +
-            'personal use, claim only the business proportion.',
+          body: isLtd
+            ? 'High-performance computers, graphics tablets (Wacom, iPad Pro with Apple ' +
+              'Pencil), monitors, audio interfaces, external drives and other peripherals ' +
+              'the company buys for your work: fully deductible. The company must own the ' +
+              'asset, and you claim the full cost rather than apportioning it. More than ' +
+              'incidental private use is taxed as a benefit in kind instead of reducing the ' +
+              'claim.'
+            : 'High-performance computers, graphics tablets (Wacom, iPad Pro with Apple ' +
+              'Pencil), monitors, audio interfaces, external drives, and other peripherals ' +
+              'used for your work: deductible. Where equipment has some private use, claim ' +
+              'only the business proportion.',
         },
       ],
     };
@@ -616,28 +707,39 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
       items: [
         {
           title: 'Mileage rate vs actual vehicle costs — making the right call',
-          body:
-            'The HMRC Approved Mileage rate (55p/mile first 10,000 miles, 25p/mile ' +
-            'after — HMRC Agent Update 143, April 2026) is an all-in rate covering fuel, ' +
-            'insurance, servicing and depreciation. Once chosen for a vehicle, you must ' +
-            'stay on it for the life of that vehicle. For high-mileage operators doing ' +
-            '40,000+ miles/year in a diesel van, actual costs often exceed the mileage ' +
-            'rate after the first 10,000 miles — particularly when a van qualifies for ' +
-            '100% Annual Investment Allowance. Tolls, the Congestion Charge, the ULEZ ' +
-            'charge, and Dart Charge are claimable separately on top of the mileage rate. ' +
-            'Note: black cab (Hackney carriage) drivers cannot use the mileage rate — ' +
-            'actual costs only (BIM75005).',
+          body: isLtd
+            ? 'There are two ways to relieve vehicle costs, and which is open to you depends ' +
+              'on who owns the vehicle. A director/employee can only claim ACTUAL running ' +
+              'costs where the COMPANY owns the vehicle; if you own it personally, you claim ' +
+              'the HMRC Approved Mileage rate instead (55p/mile first 10,000 miles, 25p ' +
+              'after — Agent Update 143, April 2026), an all-in rate covering fuel, ' +
+              'insurance, servicing and depreciation. Tolls, the Congestion Charge, the ULEZ ' +
+              'charge and Dart Charge are claimable on top of mileage. A company-owned van is ' +
+              'often efficient (100% AIA on purchase), but weigh the van benefit-in-kind if ' +
+              'it is kept at home.'
+            : 'The HMRC Approved Mileage rate (55p/mile first 10,000 miles, 25p/mile ' +
+              'after — Agent Update 143, April 2026) is an all-in rate covering fuel, ' +
+              'insurance, servicing and depreciation. Once chosen for a vehicle, you stay on ' +
+              'it for the life of that vehicle. The alternative is actual costs (a business ' +
+              'proportion of fuel, insurance, servicing plus capital allowances). For a ' +
+              'high-mileage operator doing 40,000+ miles/year in a diesel van, actual costs ' +
+              'often beat the mileage rate — particularly when a van qualifies for 100% AIA. ' +
+              'Tolls, the Congestion Charge, the ULEZ charge and Dart Charge are claimable on ' +
+              'top of mileage. Note: black cab (Hackney carriage) drivers cannot use the ' +
+              'mileage rate — actual costs only (BIM75005).',
         },
         {
           title: 'Vans and the Annual Investment Allowance',
           body:
             'Unlike cars, vans (and lorries, trucks) qualify for the Annual Investment ' +
-            'Allowance — currently £1 million per year. This means you can write off the ' +
-            'entire purchase cost of a van against taxable profits in the year of purchase, ' +
-            'rather than depreciating it over several years. Cars are excluded from AIA ' +
-            'and go into the Writing Down Allowance pool (18%/year for most cars). If you ' +
-            'buy a van with some private use, the AIA claim is reduced proportionally for ' +
-            'that private element.',
+            'Allowance — currently £1 million per year — so you can write off the entire ' +
+            'purchase cost against taxable profits in the year of purchase. Cars are excluded ' +
+            'from AIA and go into a Writing Down Allowance pool: the main-rate pool is 14% ' +
+            'from April 2026 (down from 18%), but most petrol/diesel cars are higher-emission ' +
+            'and fall into the 6% special-rate pool. ' +
+            (isLtd
+              ? 'A company claims the full allowance on a company-owned vehicle. '
+              : 'A sole trader restricts the claim for any private use of the vehicle. '),
         },
         {
           title: 'Licences and statutory qualifications',
@@ -655,10 +757,14 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
           body:
             'Hire and reward insurance (required to legally carry passengers or goods for ' +
             'payment), goods-in-transit insurance, and fleet/courier-specific policies are ' +
-            '100% deductible — they have no personal use element at all. Standard motor ' +
-            'insurance for a vehicle with mixed use is deductible on a business-use ' +
-            'proportion basis. Breakdown cover and public liability insurance for your ' +
-            'transport business: both deductible in full.',
+            '100% deductible — they have no personal use element at all. Breakdown cover and ' +
+            'public liability insurance for your transport business: both deductible in full. ' +
+            (isLtd
+              ? 'For ordinary motor insurance, the company can only deduct it where the ' +
+                'policy is a company policy on a company vehicle — you cannot put a share of ' +
+                'your personal motor insurance through the company.'
+              : 'Standard motor insurance on a vehicle with mixed use is deductible on a ' +
+                'business-use proportion basis.'),
         },
         {
           title: 'Overnight subsistence for long-haul drivers',
@@ -698,15 +804,24 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
       items: [
         {
           title: 'Food, drink and ingredients — cost of sales',
-          body:
-            'Food and drink purchased for resale, or used in producing meals for customers, ' +
-            'is a cost of sales — deducted against trading income as part of your gross ' +
-            'profit calculation. Normal wastage (spoilage, trimmings, preparation loss) is ' +
-            'an inherent cost of the trade and fully allowable. Personal consumption by ' +
-            'you or your family is not — that element must be removed. Recipe development ' +
-            'with documented commercial purpose is generally treated as allowable, but any ' +
-            'personal consumption element creates a dual-purpose risk (BIM37007 — the ' +
-            '"wholly and exclusively" test).',
+          body: isLtd
+            ? 'Food and drink purchased for resale, or used in producing meals for ' +
+              'customers, is a cost of sales — deducted against trading income. Normal ' +
+              'wastage (spoilage, trimmings, preparation loss) is fully allowable. A company ' +
+              'cannot eat, so there is no "own consumption" adjustment: meals taken by you or ' +
+              'staff are staff meals — the cost stays allowable to the company, but it can be ' +
+              'a benefit in kind on the individual unless it qualifies as an exempt staff ' +
+              'meal (e.g. canteen meals available to all staff). Recipe development with a ' +
+              'documented commercial purpose is allowable (BIM37007).'
+            : 'Food and drink purchased for resale, or used in producing meals for ' +
+              'customers, is a cost of sales — deducted against trading income as part of ' +
+              'your gross profit calculation. Normal wastage (spoilage, trimmings, ' +
+              'preparation loss) is fully allowable. Own consumption must be adjusted for: ' +
+              'in a restaurant, cafe or B&B you remove the meals you and your family take at ' +
+              'cost; in a shop or market stall, stock taken for own use is brought in as a ' +
+              'sale at market value, not cost. Recipe development with a documented ' +
+              'commercial purpose is allowable, but a personal element creates dual-purpose ' +
+              'risk (BIM37007 — the "wholly and exclusively" test).',
         },
         {
           title: 'Kitchen equipment — 100% first-year relief via AIA',
@@ -750,8 +865,9 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
             'simplifies VAT by letting you pay a fixed percentage of gross (VAT-inclusive) ' +
             'turnover rather than calculating input/output VAT. Current rates (from ' +
             '1 April 2022): restaurants, cafes, takeaways and food vans — 12.5%; pubs — ' +
-            '6.5%. Note the "limited cost trader" rate of 16.5% applies if goods spend is ' +
-            'under 2% of turnover — check this before registering. Source: GOV.UK VAT ' +
+            '6.5%. Watch the "limited cost trader" rate of 16.5%: it applies if your goods ' +
+            'spend is either under 2% of your flat-rate turnover, OR over 2% but still less ' +
+            'than £1,000 a year — check both tests before registering. Source: GOV.UK VAT ' +
             'Flat Rate Scheme rates.',
         },
         {
@@ -760,8 +876,10 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
             'Business rates are a fully deductible trading expense (BIM46835). For ' +
             '2025/26, qualifying occupied hospitality premises receive 40% off their ' +
             'rates bill, capped at £110,000 per business (the Retail, Hospitality and ' +
-            'Leisure Relief Scheme). From April 2026 this becomes a permanent lower ' +
-            'multiplier (38.2p vs the standard 48p) for RHL properties. Mobile caterers ' +
+            'Leisure Relief Scheme). From April 2026 this is replaced by permanently lower ' +
+            'RHL multipliers, which vary with the property\'s rateable value (lower-value ' +
+            'premises get the biggest reduction) — we can confirm the multiplier for your ' +
+            'premises. Mobile caterers ' +
             'operating on public land typically pay pitch fees to councils rather than ' +
             'business rates — those fees are deductible as a premises cost.',
         },
@@ -769,14 +887,17 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
           title: 'Tips and service charges — the tax rules',
           body:
             'The Employment (Allocation of Tips) Act 2023 (from October 2024) requires ' +
-            '100% of tips to reach workers — but does not change how they are taxed. ' +
-            'Cash tips given directly to staff by customers: income tax applies; no NIC. ' +
-            'Tips collected by the business (card machine) and distributed: income tax ' +
-            'and employer NIC apply unless a properly structured tronc arrangement is in ' +
-            'place. A tronc (managed by an independent troncmaster) removes the NIC ' +
-            'liability on tips distributed by the troncmaster. Mandatory service charges ' +
-            'are VAT-able; genuinely discretionary service charges are outside VAT scope. ' +
-            'Tips and service charges are business income — include them in turnover.',
+            '100% of tips to reach workers — but does not change how they are taxed. Key ' +
+            'point: cash tips kept by staff, and a tronc run independently of the owner, are ' +
+            'NOT the business\'s income — they stay off the business\'s books entirely (the ' +
+            'staff or troncmaster handle any tax). It is only where the owner collects the ' +
+            'tips directly, or runs the tronc themselves, that the tips become business ' +
+            'income: PAYE must be operated and employer NIC arises (the tips are then also a ' +
+            'staff cost, so the real net cost is just the employer NIC). The practical ' +
+            'answer is usually to use a genuinely independent tronc, or let staff keep their ' +
+            'own tips, to avoid the NIC. Service charges are always business income — ' +
+            'mandatory service charges are VAT-able, genuinely discretionary ones are ' +
+            'outside VAT scope.',
         },
       ],
     };
@@ -799,9 +920,10 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
             '+ Purchases − Closing stock = Cost of goods sold. Import duties, freight and ' +
             'customs agent fees paid to bring stock to the UK form part of the cost of ' +
             'stock (BIM33135). Closing stock must be valued at the lower of cost or net ' +
-            'realisable value (BIM33115) — LIFO is not permitted. Under the cash basis ' +
-            '(available to sole traders with turnover under £150k) stock is simpler: cost ' +
-            'of goods is deducted when paid, no year-end adjustment needed.',
+            'realisable value (BIM33115) — LIFO is not permitted. Under the cash basis — ' +
+            'now the default for eligible sole traders, with the old £150k turnover entry ' +
+            'limit removed from 2024/25 — stock is simpler: cost of goods is deducted when ' +
+            'paid, with no year-end adjustment needed.',
         },
         {
           title: 'Marketplace fees and payment processing',
@@ -838,11 +960,13 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
           title: 'Product samples and promotional giveaways',
           body:
             'The cost of giving away your own goods for advertising purposes is specifically ' +
-            'allowed and does not count as business entertainment (BIM45071). Sending ' +
-            'samples to potential stockists, influencers, or distributors to promote the ' +
-            'product to the public: deductible. Giving stock to friends or family: not ' +
-            'deductible. Incentivised reviews that breach marketplace terms also carry ' +
-            'compliance risk — keep any sampling commercially motivated and documented.',
+            'allowed for income/corporation tax and does not count as business entertainment ' +
+            '(BIM45071). Sending samples to potential stockists, influencers, or distributors ' +
+            'to promote the product to the public: deductible. Giving stock to friends or ' +
+            'family: not deductible. Watch the VAT angle separately: gifts and samples have ' +
+            'their own VAT rules depending on who receives them and the value given (VAT ' +
+            'Notice 700/7) — a deduction for tax does not automatically mean no output VAT is ' +
+            'due, so flag larger giveaway campaigns with us.',
         },
         {
           title: 'Stock shrinkage, theft and write-offs',
@@ -859,10 +983,12 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
           title: 'Overseas sales — VAT and customs obligations',
           body:
             'UK sellers to EU consumers (from Great Britain): for consignments of €150 or ' +
-            'less, IOSS (Import One Stop Shop) registration allows you to collect and remit ' +
-            'EU VAT at point of sale, avoiding import VAT at the border. HMRC\'s UK IOSS ' +
-            'intermediary scheme became available from April 2026. For consignments above ' +
-            '€150, standard EU import procedures apply in each country. From July 2026, ' +
+            'less, EU IOSS (Import One Stop Shop) registration lets you collect and remit ' +
+            'EU VAT at point of sale, avoiding import VAT at the border. (Do not confuse this ' +
+            'with the UK\'s own £135 low-value threshold, which governs VAT on goods imported ' +
+            'INTO Great Britain.) HMRC\'s UK IOSS intermediary scheme became available from ' +
+            'April 2026. For consignments above €150, standard EU import procedures apply in ' +
+            'each country. From July 2026, ' +
             'the EU introduces a €3 flat customs duty on low-value parcels. The cost of ' +
             'an EU Responsible Person (now required for GPSR compliance) is a deductible ' +
             'business expense. UK VAT registration threshold remains £90,000.',
@@ -883,13 +1009,14 @@ export function getSectorBlock(sector: ExpensesSector): SectorBlock | null {
         {
           title: 'Professional memberships — CMI, IoD, CIPD, APM and others',
           body:
-            'For a limited company: professional subscriptions are deductible under the ' +
-            '"wholly and exclusively" test regardless of whether the body appears on HMRC\'s ' +
-            'List 3. CMI, IoD, CIPD, CIMA, APM, PMI, and similar bodies relevant to a ' +
-            'consulting practice are deductible company expenses. For a sole trader or ' +
-            'director claiming against employment income: only bodies on HMRC\'s List 3 ' +
-            'attract relief via the employment income rules (EIM32900). Life memberships ' +
-            'are specifically excluded from relief in all cases.',
+            'A subscription is generally in an individual\'s name, so the entity you trade ' +
+            'through changes how relief works. For a director or employee, the main test is ' +
+            'HMRC\'s List 3: relief is due through the employment income rules only where the ' +
+            'body appears on List 3 (EIM32900) — CMI, IoD, CIPD, CIMA, APM and PMI are the ' +
+            'kind of bodies to check against it. For a sole trader, List 3 does not apply; a ' +
+            'subscription is deductible under the ordinary "wholly and exclusively" test ' +
+            'where it is genuinely necessary for the trade, even if the body is not on ' +
+            'List 3. Life memberships are specifically excluded from relief in all cases.',
         },
         {
           title: 'Proposal and bid costs — deductible even when you lose',
@@ -1006,7 +1133,9 @@ export const GREY_AREAS: GreyItem[] = [
       'Travel between your home and a permanent place of work is commuting — never ' +
       'deductible. If you operate from home and travel to client sites, that is business ' +
       'travel. If you rent an office or co-working space and travel there regularly, ' +
-      'that travel is commuting regardless of what else you do in between.',
+      'that travel is commuting regardless of what else you do in between. (The exceptions ' +
+      'are set out in Section 3: travel to genuinely temporary workplaces, and travel in a ' +
+      'truly itinerant trade, can be allowable.)',
   },
   {
     iconKey: 'fines',
@@ -1021,10 +1150,11 @@ export const GREY_AREAS: GreyItem[] = [
     iconKey: 'food',
     title: 'Everyday food & drink',
     body:
-      'General meals and coffees during the working day are not deductible — you ' +
-      'would eat whether you were working or not. Meals are only allowable on overnight ' +
-      'business trips (where you have incurred a genuine away-from-home cost). ' +
-      'Working from a coffee shop does not make the latte a business expense.',
+      'General meals and coffees during your normal working day are not deductible — you ' +
+      'would eat whether you were working or not. Working from a coffee shop does not make ' +
+      'the latte a business expense. Meals do become allowable where they follow allowable ' +
+      'travel: overnight business trips, journeys to a temporary workplace, or an itinerant ' +
+      'trade (see Section 3).',
   },
 ];
 

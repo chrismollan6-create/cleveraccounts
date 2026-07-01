@@ -50,10 +50,10 @@ import {
   getAmendmentWindow,
   getMissedItems,
   GOLDEN_RULE,
-  EVERYDAY_ESSENTIALS,
+  getEverydayEssentials,
   LTD_EXTRAS,
   CONTRACTOR_ITEMS,
-  TRAVEL_ITEMS,
+  getTravelItems,
   GREY_AREAS,
   RECORD_KEEPING,
   HAS_LEARN_CENTRE,
@@ -176,8 +176,10 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
   const isPsc = data.clientType === 'PSC';
   const isLtd = data.variant === 'ltd';
   const sector = data.sector ?? 'general';
-  const sectorBlock = getSectorBlock(sector);
+  const sectorBlock = getSectorBlock(sector, data.variant);
   const homeOffice = getHomeOfficeContent(data);
+  const everydayEssentials = getEverydayEssentials(data);
+  const travelItems = getTravelItems(data);
   const showLearnLinks = HAS_LEARN_CENTRE[data.brandId];
   const learnItems = showLearnLinks ? getLearnItems(data) : [];
 
@@ -496,7 +498,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
               limited company. Badges highlight the ones clients most often under-claim.
             </p>
             <div className="mt-6 grid grid-cols-2 gap-4">
-              {EVERYDAY_ESSENTIALS.map((item) => {
+              {everydayEssentials.map((item) => {
                 const Icon = ESSENTIAL_ICON[item.iconKey];
                 return (
                   <div
@@ -683,7 +685,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
               worth understanding.
             </p>
             <ul className="mt-6 space-y-3">
-              {TRAVEL_ITEMS.map((item, i) => (
+              {travelItems.map((item, i) => (
                 <li
                   key={i}
                   className="flex break-inside-avoid items-start gap-4 overflow-hidden rounded-r-2xl bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
@@ -720,7 +722,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
                 {[
                   { label: 'Car or van — first 10,000 miles', value: '55p / mile', highlight: true },
                   { label: 'Car or van — after 10,000 miles', value: '25p / mile', highlight: false },
-                  { label: 'Electric car (personally owned)', value: '9p / mile fuel + 55p AMAP', highlight: false },
+                  { label: 'Electric car (personally owned)', value: '55p / mile (same as petrol)', highlight: false },
                   { label: 'Motorbike', value: '24p / mile', highlight: false },
                   { label: 'Bicycle', value: '20p / mile', highlight: false },
                   { label: 'Business passenger (per person)', value: '+5p / mile', highlight: false },

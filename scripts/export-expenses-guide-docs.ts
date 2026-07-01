@@ -20,10 +20,10 @@ import {
 
 import {
   GOLDEN_RULE,
-  EVERYDAY_ESSENTIALS,
+  getEverydayEssentials,
   LTD_EXTRAS,
   CONTRACTOR_ITEMS,
-  TRAVEL_ITEMS,
+  getTravelItems,
   GREY_AREAS,
   RECORD_KEEPING,
   PRIOR_ACCOUNTANT_CALLOUT,
@@ -135,7 +135,7 @@ function buildSections(d: ExpensesGuideData): Paragraph[] {
 
   // 01 — Everyday essentials
   out.push(h1('01 — Everyday essentials'));
-  for (const item of EVERYDAY_ESSENTIALS) {
+  for (const item of getEverydayEssentials(d)) {
     out.push(h2(item.title));
     if (item.stat) out.push(meta('Stat', item.stat));
     if (item.badge) out.push(meta('Badge', item.badge));
@@ -164,7 +164,7 @@ function buildSections(d: ExpensesGuideData): Paragraph[] {
 
   // 03 — Travel & subsistence
   out.push(h1('03 — Travel & subsistence'));
-  for (const item of TRAVEL_ITEMS) {
+  for (const item of getTravelItems(d)) {
     out.push(h2(item.title));
     out.push(p(item.body));
     out.push(blank());
@@ -191,7 +191,7 @@ function buildSections(d: ExpensesGuideData): Paragraph[] {
   }
 
   // 06 — Sector specifics
-  const sectorBlock = getSectorBlock(d.sector ?? 'general');
+  const sectorBlock = getSectorBlock(d.sector ?? 'general', d.variant);
   if (sectorBlock) {
     out.push(h1(`06 — ${sectorBlock.heading}`));
     out.push(p(sectorBlock.intro));
