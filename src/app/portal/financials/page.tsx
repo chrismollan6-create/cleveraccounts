@@ -119,10 +119,14 @@ function Snapshot({ fin }: { fin: PortalFinancials }) {
           hero
         />
         <StatCard
-          label="Cash in the bank"
+          label={
+            fin.cashInBank != null && fin.cashInBank < 0
+              ? "Overdrawn"
+              : "Cash in the bank"
+          }
           value={fin.cashInBank != null ? gbp(fin.cashInBank) : "—"}
           icon={Wallet}
-          tone="teal"
+          tone={fin.cashInBank != null && fin.cashInBank < 0 ? "amber" : "teal"}
         />
         <StatCard
           label={`Set aside for tax (est. ${fin.taxRatePct}%)`}

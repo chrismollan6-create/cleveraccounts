@@ -346,10 +346,13 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
       tint: isLoss ? "bg-amber-50 text-amber-600" : "bg-[#1A7A9B]/10 text-[#1A7A9B]",
     },
     {
-      label: "Cash in the bank",
+      label: fin.cashInBank != null && fin.cashInBank < 0 ? "Overdrawn" : "Cash in the bank",
       value: fin.cashInBank != null ? gbp(fin.cashInBank) : "—",
       icon: Wallet,
-      tint: "bg-emerald-50 text-emerald-600",
+      tint:
+        fin.cashInBank != null && fin.cashInBank < 0
+          ? "bg-amber-50 text-amber-600"
+          : "bg-emerald-50 text-emerald-600",
     },
     {
       label: `Set aside for tax (~${fin.taxRatePct}%)`,
