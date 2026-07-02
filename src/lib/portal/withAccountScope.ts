@@ -1,6 +1,11 @@
 import { getCurrentPortalUser, type PortalUser } from "./auth";
 import { getPortalDb } from "./db/client";
 import type { PortalBrand } from "./db/schema";
+import { decidePortalScope, type PortalScopeDeniedReason } from "./scopeDecision";
+
+// Re-exported so existing importers (`./withAccountScope`) keep working after
+// the pure decision logic moved to ./scopeDecision.
+export type { PortalScopeDeniedReason } from "./scopeDecision";
 
 /**
  * Account scope — what every portal data operation gets handed.
@@ -42,13 +47,6 @@ export class PortalScopeDeniedError extends Error {
   }
 }
 
-export type PortalScopeDeniedReason =
-  | "not_signed_in"     // No Clerk session
-  | "no_link_row"       // Signed in but webhook hasn't created portal.users row yet
-  | "pending"           // Linked but workflow not yet active (long-standing client)
-  | "disabled"          // Soft-blocked — email doesn't match any SF Contact
-  | "missing_account";  // Active status but accountSfId is somehow null
-
 /**
  * The wrapper. Resolves the current user's scope and hands it to the caller.
  *
@@ -71,28 +69,13 @@ export async function withPortalScope<T>(
 ): Promise<T> {
   const user = await getCurrentPortalUser();
 
-  if (!user) {
-    throw new PortalScopeDeniedError("not_signed_in", null);
-  }
-  if (user.status === "disabled") {
-    throw new PortalScopeDeniedError("disabled", user);
-  }
-  if (user.status === "pending") {
-    throw new PortalScopeDeniedError("pending", user);
-  }
-  if (user.status !== "active") {
-    throw new PortalScopeDeniedError("no_link_row", user);
-  }
-  if (!user.accountSfId || !user.contactSfId || !user.brand) {
-    throw new PortalScopeDeniedError("missing_account", user);
+  const decision = decidePortalScope(user);
+  if (!decision.ok) {
+    throw new PortalScopeDeniedError(decision.reason, user);
   }
 
   return caller({
-    accountSfId: user.accountSfId,
-    contactSfId: user.contactSfId,
-    brand: user.brand,
-    clerkUserId: user.clerkUserId,
-    email: user.email ?? "",
+    ...decision.scope,
     db: getPortalDb(),
   });
 }

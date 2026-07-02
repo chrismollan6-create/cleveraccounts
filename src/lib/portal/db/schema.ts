@@ -12,6 +12,7 @@ import {
   check,
   index,
   uniqueIndex,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -29,9 +30,16 @@ export const portal = pgSchema("portal");
 
 // ───────────────────────────────────────────────────────────────────────────
 // portal.users
-// Clerk ↔ Salesforce link table. Single source of truth for "who is this
-// portal user, which SF Account do they belong to". Replaces the
-// `PORTAL_DEV_ACCOUNT_ID` dev hack.
+// Clerk IDENTITY row — one per Clerk user (i.e. per human login). Carries the
+// profile (email, name) and the "active account" cursor pointing at whichever
+// company the user is currently viewing.
+//
+// The account/contact/brand/status columns below are RETAINED for the
+// dual-write transition to the membership model (portal.memberships). They
+// mirror the user's *active* membership so existing read paths keep working
+// unchanged; a later migration drops them once every reader goes through
+// portal.memberships. New code should NOT read these — resolve the active
+// membership instead.
 // ───────────────────────────────────────────────────────────────────────────
 
 export const portalUserStatus = ["pending", "active", "disabled"] as const;
@@ -57,6 +65,13 @@ export const users = portal.table(
     firstName: text("first_name"),
     lastName: text("last_name"),
     status: text("status").$type<PortalUserStatus>().notNull(),
+    /**
+     * The company the user is currently viewing — the "cursor" for the account
+     * switcher. MUST always be validated against portal.memberships before use
+     * (a stale/forged value must never grant scope). Null falls back to the
+     * user's first active membership. See withPortalScope().
+     */
+    activeAccountSfId: text("active_account_sf_id"),
     invitedAt: timestamp("invited_at", { withTimezone: true }).notNull().defaultNow(),
     firstLoginAt: timestamp("first_login_at", { withTimezone: true }),
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
@@ -69,6 +84,44 @@ export const users = portal.table(
     emailIdx: uniqueIndex("users_email_idx").on(t.email),
     // Lookup by account (scope queries to a user's Salesforce Account)
     accountSfIdx: index("users_account_sf_idx").on(t.accountSfId),
+  })
+);
+
+// ───────────────────────────────────────────────────────────────────────────
+// portal.memberships
+// One row per (Clerk user, Salesforce Account) — the many-to-many join that
+// lets a single login access multiple companies (e.g. a director of two Ltd
+// companies, both clients of the same brand). Status is PER-COMPANY: a user
+// can be 'active' on one company and 'pending' on another.
+//
+// Brand lives here (a property of the company, not the person). Cross-brand
+// membership is out of scope — the two brands run separate Clerk instances,
+// so a login only ever spans companies within one brand.
+//
+// This is the authorization source of truth for the account switcher: the
+// active account is only ever honoured if the caller holds a matching row
+// here. See withPortalScope() / setActiveAccount().
+// ───────────────────────────────────────────────────────────────────────────
+
+export const memberships = portal.table(
+  "memberships",
+  {
+    clerkUserId: text("clerk_user_id").notNull(),
+    accountSfId: text("account_sf_id").notNull(),
+    contactSfId: text("contact_sf_id").notNull(),
+    brand: text("brand").$type<PortalBrand>().notNull(),
+    /** Per-company access state — same vocabulary as portal.users.status. */
+    status: text("status").$type<PortalUserStatus>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    // A user holds at most one membership per company.
+    pk: primaryKey({ columns: [t.clerkUserId, t.accountSfId] }),
+    // List all companies a user can access (drives the switcher).
+    userIdx: index("memberships_user_idx").on(t.clerkUserId),
+    // Reverse lookup: who can access this company (staff/audit queries).
+    accountIdx: index("memberships_account_idx").on(t.accountSfId),
   })
 );
 
@@ -631,6 +684,8 @@ export const syncLog = portal.table(
 // Convenient inferred types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Membership = typeof memberships.$inferSelect;
+export type NewMembership = typeof memberships.$inferInsert;
 export type AuditLogEntry = typeof auditLog.$inferSelect;
 export type NewAuditLogEntry = typeof auditLog.$inferInsert;
 export type PushToken = typeof pushTokens.$inferSelect;
