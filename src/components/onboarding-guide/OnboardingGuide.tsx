@@ -450,6 +450,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                       ) : (
                         <a
                           href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-sm"
                           style={{ backgroundImage: secondaryButtonGradient }}
                         >
@@ -648,6 +650,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                   {showLearnLinks && faq.slug && (
                     <a
                       href={`https://${brand.domain}${faq.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="mt-2.5 inline-flex items-center gap-1.5 text-[11.5px] font-semibold no-underline"
                       style={{ color: c.primary }}
                     >
@@ -857,6 +861,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 <a
                   key={t.title}
                   href={`https://${brand.domain}${t.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex break-inside-avoid items-center gap-4 rounded-2xl border border-border bg-white p-4 no-underline shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
                 >
                   <div
