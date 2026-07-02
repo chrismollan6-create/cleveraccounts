@@ -25,7 +25,7 @@ export default function PdfLayout({ children }: Readonly<{ children: React.React
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat+Alternates:wght@400;500;600;700&display=swap"
         />
-        <style>{`@page { size: A4; margin: 0; } html, body { margin: 0; padding: 0; }`}</style>
+        <style>{`@page { size: A4; margin: 12mm 0; } @page :first { margin: 0; } html, body { margin: 0; padding: 0; }`}</style>
       </head>
       <body>{children}</body>
     </html>

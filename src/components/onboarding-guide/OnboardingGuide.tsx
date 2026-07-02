@@ -29,7 +29,6 @@ import {
   Clock,
   CalendarDays,
   Sparkles,
-  Users,
   FileText,
   Umbrella,
   Lock,
@@ -58,8 +57,6 @@ import {
   getQuickWins,
   getLearnTopics,
   HAS_LEARN_CENTRE,
-  TEAM_INTRO,
-  TEAM_ROLES,
   getThingsToThinkAbout,
   HMRC_SCAM_WARNING,
   FORWARD_ANYTHING,
@@ -193,6 +190,20 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
     { value: 'Unlimited', label: 'Accountant support' },
   ];
 
+  // Contents — anchors match the id="…" on each target section below. Chrome
+  // preserves same-document #hash links as clickable GoTo jumps in the PDF.
+  const contents: { id: string; num: string; label: string }[] = [
+    { id: 'get-started', num: '', label: 'Your first three actions' },
+    { id: 'how-we-work', num: '01', label: "How we'll work with you" },
+    { id: 'expectations', num: '02', label: 'What you can expect from us' },
+    { id: 'reach-us', num: '03', label: 'How and when to reach us' },
+    { id: 'deadlines', num: '04', label: 'Key deadlines' },
+    { id: 'questions', num: '05', label: 'Common questions' },
+    { id: 'quick-wins', num: '06', label: 'Quick wins' },
+    { id: 'essentials', num: '07', label: 'The essentials' },
+    { id: 'things', num: '08', label: 'Things to think about' },
+  ];
+
   return (
     <div
       data-brand={data.brandId}
@@ -289,6 +300,42 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         <p className="text-[14.5px] leading-[1.78] text-text-light">{welcomeIntro(data)}</p>
       </section>
 
+      {/* Contents — quick jump links to the main sections (clickable in the PDF) */}
+      <section className="px-[20mm] pt-[11mm]">
+        <div className="break-inside-avoid rounded-2xl border border-border bg-surface px-6 py-6">
+          <p
+            className="text-[11px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: c.primary }}
+          >
+            Contents
+          </p>
+          <h2 className="mt-1.5 text-[19px] font-extrabold tracking-tight text-text">
+            What&rsquo;s inside this guide
+          </h2>
+          <div
+            className="mt-5 grid grid-flow-col gap-x-8 gap-y-1"
+            style={{ gridTemplateRows: 'repeat(5, auto)' }}
+          >
+            {contents.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className="flex items-center gap-3 border-b border-border/70 py-2 no-underline"
+              >
+                <span
+                  className="w-5 shrink-0 text-center text-[12.5px] font-extrabold tabular-nums"
+                  style={{ color: c.primary, opacity: 0.55 }}
+                >
+                  {item.num || '•'}
+                </span>
+                <span className="flex-1 text-[12.5px] font-semibold text-text">{item.label}</span>
+                <ArrowRight size={12} className="shrink-0" style={{ color: c.primary, opacity: 0.5 }} />
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Compact accountant strip — name + generic bio, no photo, no quote */}
       <section className="px-[20mm] pt-[11mm]">
         <div className="flex break-inside-avoid items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-4">
@@ -311,7 +358,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* Get started — your first three actions */}
-      <section className="px-[20mm] pt-[12mm]">
+      <section id="get-started" className="scroll-mt-4 px-[20mm] pt-[12mm]">
         <div
           className="break-inside-avoid rounded-2xl border-2 border-dashed px-7 py-7"
           style={{
@@ -360,6 +407,38 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-[15px] font-extrabold text-text">{item.title}</h3>
+                    {item.id === 'engagement' &&
+                      (data.engagementLetterSigned ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold text-white"
+                          style={{ backgroundColor: '#16a34a' }}
+                        >
+                          <Check size={12} strokeWidth={3} /> Signed
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold"
+                          style={{ backgroundColor: hexAlpha('#d97706', 0.14), color: '#b45309' }}
+                        >
+                          <Clock size={11} strokeWidth={2.5} /> Outstanding
+                        </span>
+                      ))}
+                    {item.id === 'credas' &&
+                      (data.credasSubmitted ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold text-white"
+                          style={{ backgroundColor: '#16a34a' }}
+                        >
+                          <Check size={12} strokeWidth={3} /> Submitted
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold"
+                          style={{ backgroundColor: hexAlpha('#d97706', 0.14), color: '#b45309' }}
+                        >
+                          <Clock size={11} strokeWidth={2.5} /> Outstanding
+                        </span>
+                      ))}
                     {item.id === 'intro' &&
                       (data.dates.welcomeCall ? (
                         <span
@@ -374,7 +453,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                           className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-sm"
                           style={{ backgroundImage: secondaryButtonGradient }}
                         >
-                          {data.calendlyUrl ? 'Book your call' : 'Reply to book'}
+                          Book your call
                           <ArrowRight size={12} />
                         </a>
                       ))}
@@ -390,7 +469,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 01 — How we'll work with you (three phases) */}
-      <section className="mt-[12mm] bg-surface px-[20mm] py-[14mm]">
+      <section id="how-we-work" className="mt-[12mm] box-decoration-clone bg-surface px-[20mm] py-[14mm]">
         <SectionHeader
           num="01"
           eyebrow="How we'll work with you"
@@ -419,7 +498,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 02 — What you can expect from us (2-up grid with gradient icon tiles) */}
-      <section className="px-[20mm] py-[14mm]">
+      <section id="expectations" className="px-[20mm] py-[14mm]">
         <SectionHeader
           num="02"
           eyebrow="What you can expect from us"
@@ -446,7 +525,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 03 — How and when to reach us */}
-      <section className="bg-surface px-[20mm] py-[14mm]">
+      <section id="reach-us" className="box-decoration-clone bg-surface px-[20mm] py-[14mm]">
         <SectionHeader
           num="03"
           eyebrow="How and when to reach us"
@@ -495,7 +574,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 04 — Key deadlines (brand-coloured accent + emphasised "when") */}
-      <section className="bg-surface px-[20mm] py-[14mm]">
+      <section id="deadlines" className="box-decoration-clone bg-surface px-[20mm] py-[14mm]">
         <SectionHeader
           num="04"
           eyebrow="Key deadlines"
@@ -530,7 +609,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 05 — Common questions (Q/A badge styling) */}
-      <section className="px-[20mm] py-[14mm]">
+      <section id="questions" className="px-[20mm] py-[14mm]">
         <SectionHeader
           num="05"
           eyebrow="Common questions"
@@ -584,7 +663,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 06 — Quick wins (accent border + numbered badges) */}
-      <section className="bg-surface px-[20mm] py-[14mm]">
+      <section id="quick-wins" className="box-decoration-clone bg-surface px-[20mm] py-[14mm]">
         <SectionHeader
           num="06"
           eyebrow="Quick wins"
@@ -623,7 +702,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
       </section>
 
       {/* 07 — The essentials (deeper educational topics — moved to the end) */}
-      <section className="px-[20mm] py-[14mm]">
+      <section id="essentials" className="px-[20mm] py-[14mm]">
         <SectionHeader
           num="07"
           eyebrow="The essentials"
@@ -672,7 +751,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
           Insurance copy is variant-aware off clientType. The HMRC-scam callout
           at the bottom is the highest harm-prevented addition; clients fall for
           these every month and the fix is one line of guidance. */}
-      <section className="bg-surface px-[20mm] py-[14mm]">
+      <section id="things" className="box-decoration-clone bg-surface px-[20mm] py-[14mm]">
         <SectionHeader
           num="08"
           eyebrow="Things to think about"
@@ -680,8 +759,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
           primaryColor={c.primary}
         />
         <p className="mt-4 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
-          A handful of things every new business should have on its radar. We’d
-          rather flag them now than have them bite later.
+          For quick questions and day-to-day queries, drop us an email. Your dedicated accountant will pick it up, review it, and reply within 24 working hours. 
         </p>
         <div className="mt-7 space-y-3">
           {thingsToThinkAbout.map((t) => {
@@ -777,7 +855,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
               const Icon = LEARN_ICON[t.iconKey];
               return (
                 <a
-                  key={t.slug}
+                  key={t.title}
                   href={`https://${brand.domain}${t.slug}`}
                   className="flex break-inside-avoid items-center gap-4 rounded-2xl border border-border bg-white p-4 no-underline shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
                 >
@@ -801,67 +879,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
         </section>
       )}
 
-      {/* The team behind your accountant (richer: brand-tinted decorative blob + numbered role badges) */}
-      <section className="bg-surface px-[20mm] py-[14mm]">
-        <div className="relative overflow-hidden break-inside-avoid rounded-3xl border border-border bg-white p-7 shadow-[0_4px_20px_rgba(15,23,42,0.07)]">
-          <span
-            className="absolute -right-10 -top-10 h-36 w-36 rounded-full"
-            style={{ backgroundColor: hexAlpha(c.primary, 0.07) }}
-          />
-          <span
-            className="absolute -bottom-14 -left-10 h-44 w-44 rounded-full"
-            style={{ backgroundColor: hexAlpha(c.secondary, 0.07) }}
-          />
-          <div className="relative">
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-md"
-                style={{ backgroundImage: iconTileGradient }}
-              >
-                <Users size={20} strokeWidth={2} />
-              </div>
-              <div>
-                <p
-                  className="text-[10.5px] font-bold uppercase tracking-[0.22em]"
-                  style={{ color: c.primary }}
-                >
-                  Behind the scenes
-                </p>
-                <h3 className="text-[18px] font-extrabold leading-tight text-text">
-                  The team behind your accountant
-                </h3>
-              </div>
-            </div>
-            <p className="mt-4 max-w-[140mm] text-[12.5px] leading-[1.6] text-text-light">
-              {TEAM_INTRO}
-            </p>
-            <ul className="mt-5 grid grid-cols-2 gap-3">
-              {TEAM_ROLES.map((r, i) => (
-                <li
-                  key={r.role}
-                  className="rounded-xl border border-border bg-surface p-4"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-extrabold text-white shadow-sm"
-                      style={{ backgroundImage: iconTileGradient }}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <p className="text-[12.5px] font-extrabold text-text">{r.role}</p>
-                  </div>
-                  <p className="mt-1.5 text-[11.5px] leading-[1.55] text-text-light">
-                    {r.description}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
       {/* What's included (tinted band) */}
-      <section className="break-inside-avoid bg-surface px-[20mm] py-[13mm]">
+      <section className="box-decoration-clone break-inside-avoid bg-surface px-[20mm] py-[13mm]">
         <p
           className="text-center text-[11px] font-bold uppercase tracking-[0.22em]"
           style={{ color: c.primary }}

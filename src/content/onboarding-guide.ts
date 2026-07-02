@@ -43,6 +43,12 @@ export interface OnboardingGuideData {
   payeStatus?: string;
   clientType?: string;
   calendlyUrl?: string;
+  /** Engagement-letter signed status (from Salesforce). Drives the
+   *  Signed / Outstanding badge on the "Sign your engagement letter" action. */
+  engagementLetterSigned?: boolean;
+  /** Credas ID verification submitted (Contact.Credas_ID_submitted__c set).
+   *  Drives the Submitted / Outstanding badge on the ID-verification action. */
+  credasSubmitted?: boolean;
 }
 
 export interface GuideSection {
@@ -65,7 +71,7 @@ export function welcomeIntro(d: OnboardingGuideData): string {
     `Welcome to ${d.brandName}, ${d.clientFirstName}. We're really glad you've ` +
     `chosen us, and we'll do our utmost to make this the easiest accountancy ` +
     `switch you've made. This is your welcome pack — it walks you through ` +
-    `what happens next, what you can expect from us, and the things that ` +
+    `what happens next, what you can expect from us and the things that ` +
     `matter most as we get started together.`
   );
 }
@@ -82,8 +88,8 @@ export const ENGAGEMENT_LETTER_EXPLANATION =
   "Before we can act for you, we need a signed engagement letter. It's the " +
   "legal agreement that sets out exactly what we'll do for you, what we'll " +
   "need from you, and how we work together — it protects both sides and is " +
-  "required by professional accounting standards. Your letter is on its way " +
-  "by email; please review and sign as soon as you can.";
+  "required by professional accounting standards. You should have received a link to your engagement letter  " +
+  "in the first email we sent after you signed up. Please review and sign it as soon as possible so we can get started.";
 
 export function credasExplanation(d: OnboardingGuideData): string {
   if (d.variant === 'sole') {
@@ -159,10 +165,10 @@ export const WHAT_TO_EXPECT: { title: string; body: string }[] = [
       'creeping into your invoice.',
   },
   {
-    title: 'Proactive deadline reminders',
+    title: 'Dedicated accountant',
     body:
-      'We chase you for what we need well before HMRC or Companies House does. ' +
-      'No surprise letters, no last-minute rushes.',
+      'Not being passed between departments or repeating yourself to different people — just ' +
+      'consistent advice and support from someone who understands your business.',
   },
   {
     title: 'Proactive tax-saving suggestions',
@@ -198,7 +204,7 @@ export const CONTACT_CHANNELS: {
   {
     iconKey: 'mail',
     label: 'Email your accountant',
-    description: "Quick questions or day-to-day items — your accountant's direct email is your first port of call.",
+    description: "For any questions you have, drop us an email. Your dedicated accountant will review it, and reply within 24 working hours. ",
   },
   {
     iconKey: 'phone',
@@ -435,7 +441,7 @@ const SECTIONS: GuideSection[] = [
     shouldShow: () => true,
     body: () =>
       "FreeAgent is included free with your package. It lets you raise invoices, record " +
-      "expenses, connect your bank, and see your tax position in real time. We will get " +
+      "expenses, connect your bank, and see your tax position in real time. If using Freeagent, we will get " +
       "your account set up and walk you through it on your portal training session, so " +
       "you're comfortable using it from the start.",
   },
@@ -508,7 +514,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
           "via HMRC's online portal. If you owe more than £1,000 you'll usually also have " +
           "Payments on Account due 31 January and 31 July. We'll send the figures and a " +
           "guide well before each deadline.",
-        slug: '/learn/paying-your-self-assessment-tax',
+        slug: '/learn/self-assessment/paying-your-self-assessment-tax-bill',
       },
       {
         q: 'How do I register for Self-Assessment and get my UTR?',
@@ -516,7 +522,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
           "If you're new to self-employment, HMRC needs to issue you a UTR (Unique " +
           "Taxpayer Reference) before you can file. Registration usually takes about 10 " +
           "working days — we can do it for you, just send us your details.",
-        slug: '/learn/registering-for-self-assessment-utr',
+        slug: '/learn/self-assessment/self-assessment-registration-and-utr',
       },
       {
         q: 'Can I claim this as a business expense?',
@@ -524,7 +530,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
           "If it's genuinely for the business, yes. Some costs (use of home, mileage) " +
           "have set allowances. The grey areas are usually the interesting bits — ask us " +
           "before claiming.",
-        slug: '/learn/allowable-business-expenses',
+        slug: '/learn/expenses',
       },
       {
         q: 'What records do I need to keep, and for how long?',
@@ -532,7 +538,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
           'Income, expenses, bank statements and a mileage log — anything HMRC could ask ' +
           'for over the next six years. FreeAgent handles most of this; snap receipts on ' +
           'the mobile app as they happen.',
-        slug: '/learn/record-keeping-essentials',
+        slug: '/learn/expenses/recording-expenses-and-receipts',
       },
     ];
   }
@@ -548,7 +554,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
         "identity directly with Companies House — it's a statutory requirement. You can " +
         'do it via the Companies House identity service, GOV.UK One Login, or an ' +
         "authorised provider. We'll guide you to the right route for your situation.",
-      slug: '/learn/companies-house-id-verification',
+      slug: '/learn/companies-house/companies-house-identity-verification',
     },
     {
       q: 'How do I pay myself — salary and dividends?',
@@ -556,21 +562,21 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
         "Most directors take a modest salary (around the NI threshold) plus dividends " +
         "from after-tax profit. We'll recommend the right mix for your circumstances and " +
         "set up PAYE if you don't already have it.",
-      slug: '/learn/director-salary-and-dividends',
+      slug: '/learn/paye-payroll',
     },
     {
       q: 'How and when do I pay my corporation tax?',
       a:
         '9 months and 1 day after your accounting year-end. The return (CT600) is due 12 ' +
         "months after — we'll prepare both well before each deadline.",
-      slug: '/learn/paying-corporation-tax',
+      slug: '/learn/corporation-tax',
     },
     {
       q: 'Can I claim this as a business expense?',
       a:
         "If it's genuinely 'wholly and exclusively' for the business, yes. The grey " +
         "areas are usually the interesting bits — ask us before claiming.",
-      slug: '/learn/allowable-business-expenses',
+      slug: '/learn/expenses',
     },
   ];
 
@@ -598,7 +604,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
         'We can file most changes (registered address, SIC code, director appointments, ' +
         'share transfers) with Companies House on your behalf — just let us know what has ' +
         'changed.',
-      slug: '/learn/updating-company-details',
+      slug: '/learn/companies-house/updating-company-details',
     },
   ];
 }
@@ -609,7 +615,7 @@ export function getFaqs(d: OnboardingGuideData): FaqItem[] {
  *  centre. */
 export const HAS_LEARN_CENTRE: Record<GuideBrandId, boolean> = {
   clever: true,
-  workwell: false,
+  workwell: true,
 };
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -638,22 +644,10 @@ export interface LearnTopic {
 export function getLearnTopics(d: OnboardingGuideData): LearnTopic[] {
   const common: LearnTopic[] = [
     {
-      iconKey: 'expenses',
-      title: 'Expenses guide',
-      blurb: 'What you can claim and how to record it',
-      slug: '/learn/expenses',
-    },
-    {
       iconKey: 'taxsaving',
       title: 'Tax-saving guides',
       blurb: 'Reliefs, allowances and quick wins',
-      slug: '/learn/tax-saving',
-    },
-    {
-      iconKey: 'freeagent',
-      title: 'FreeAgent how-tos',
-      blurb: 'Day-to-day software walkthroughs',
-      slug: '/learn/freeagent',
+      slug: '/learn/tax-savings',
     },
   ];
 
@@ -674,7 +668,7 @@ export function getLearnTopics(d: OnboardingGuideData): LearnTopic[] {
       iconKey: 'director',
       title: "Director's guide",
       blurb: 'Your legal duties at a glance',
-      slug: '/learn/director-responsibilities',
+      slug: '/learn/companies-house',
     },
     {
       iconKey: 'companieshouse',
@@ -689,7 +683,7 @@ export function getLearnTopics(d: OnboardingGuideData): LearnTopic[] {
       iconKey: 'ir35',
       title: 'IR35 explained',
       blurb: 'Inside vs outside, contract reviews',
-      slug: '/learn/ir35',
+      slug: '/contractor-accountants/ir35',
     });
   }
 
@@ -1018,5 +1012,10 @@ export function buildSampleData(
     payeStatus,
     clientType,
     calendlyUrl,
+    // Preview: sole trader shows Outstanding, others show Signed, so both
+    // states of the engagement-letter badge are exercised in design review.
+    engagementLetterSigned: !isSole,
+    // Opposite of the EL flag so both Credas states are exercised too.
+    credasSubmitted: isSole,
   };
 }
