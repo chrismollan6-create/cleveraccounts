@@ -1,6 +1,6 @@
 import { fetchPortalApex } from "./salesforce";
 import { getPortalDb, schema } from "./db/client";
-import { eq, sql as drizzleSql } from "drizzle-orm";
+import { eq, and, notInArray, sql as drizzleSql } from "drizzle-orm";
 import type { PortalBrand, PortalUserStatus } from "./db/schema";
 import { logPortalEvent } from "./audit";
 
@@ -65,7 +65,8 @@ function pickPrimaryEmail(event: ClerkUserEvent): string | null {
 }
 
 /**
- * Apex /Portal/access response shape (from PortalAccessService.PortalUserMapping).
+ * Apex /Portal/access mapping shape (PortalAccessService.PortalUserMapping) —
+ * one company the email can access.
  */
 interface AccessMapping {
   contactId: string;
@@ -77,18 +78,49 @@ interface AccessMapping {
 }
 
 /**
- * Resolve a verified email against Salesforce. Returns mapping if there's a
- * matching Contact, or null when the email isn't on any active client account.
+ * Full /Portal/access response: the `mappings` array plus the legacy top-level
+ * fields of the primary mapping (kept for backward compat during rollout).
  */
-async function resolveSfMapping(email: string): Promise<AccessMapping | null> {
+interface AccessResponse extends AccessMapping {
+  mappings?: AccessMapping[];
+}
+
+/**
+ * Resolve a verified email against Salesforce to ALL companies it can access.
+ * Returns an empty array when the email isn't on any client account.
+ *
+ * Prefers the `mappings` array; falls back to the legacy single-object shape so
+ * this keeps working whether or not the SF side has been upgraded yet.
+ */
+async function resolveSfMappings(email: string): Promise<AccessMapping[]> {
   // Pre-auth: this lookup runs before the portal.users row exists, so we
   // can't yet sign a scope-carrying JWT. `null` scope skips the
   // X-Portal-Auth header — /access is the only endpoint that allows this.
-  const result = await fetchPortalApex<AccessMapping>(null, "/access", { email });
-  if (result.ok === true) return result.data;
-  // result.ok === false here — but TS needs explicit literal-comparison narrowing
-  // because tsconfig has strict: false (no discriminated-union refinement on !result.ok).
-  if (result.status === 404) return null;
+  const result = await fetchPortalApex<AccessResponse>(null, "/access", { email });
+  if (result.ok === true) {
+    const data = result.data;
+    if (Array.isArray(data.mappings) && data.mappings.length > 0) {
+      return data.mappings;
+    }
+    // Legacy single-object response (pre-membership SF): synthesise a one-element
+    // array from the top-level fields.
+    if (data.accountId && data.contactId) {
+      return [
+        {
+          contactId: data.contactId,
+          accountId: data.accountId,
+          accountName: data.accountName ?? null,
+          brand: data.brand,
+          hasActiveWorkflow: data.hasActiveWorkflow,
+          email: data.email,
+        },
+      ];
+    }
+    return [];
+  }
+  // result.ok === false here — TS needs explicit literal-comparison narrowing
+  // because tsconfig has strict: false (no discriminated-union refinement).
+  if (result.status === 404) return [];
   throw new Error(`SF access lookup failed: ${result.error} - ${result.message}`);
 }
 
@@ -117,87 +149,196 @@ export async function handleUserCreatedOrUpdated(
     return { status: "disabled", action: "no_verified_email" };
   }
 
-  const mapping = await resolveSfMapping(email);
+  const mappings = await resolveSfMappings(email);
   const db = getPortalDb();
+  const clerkUserId = event.data.id;
+  const firstName = event.data.first_name;
+  const lastName = event.data.last_name;
 
-  if (!mapping) {
-    // No SF Contact match — soft-block. Insert/update a row so we have an
-    // audit trail of who attempted to access.
+  if (mappings.length === 0) {
+    // No SF Contact match — soft-block. Keep an identity row for the audit
+    // trail, and disable any memberships this user previously held (their
+    // email stopped matching any company → access revoked).
     await db
       .insert(schema.users)
       .values({
-        clerkUserId: event.data.id,
+        clerkUserId,
         contactSfId: "",
         accountSfId: "",
         brand: "clever", // best-guess default; updated on later events
         email,
-        firstName: event.data.first_name,
-        lastName: event.data.last_name,
+        firstName,
+        lastName,
         status: "disabled",
       })
       .onConflictDoUpdate({
         target: schema.users.clerkUserId,
-        set: {
-          email,
-          firstName: event.data.first_name,
-          lastName: event.data.last_name,
-          status: "disabled",
-        },
+        set: { email, firstName, lastName, status: "disabled" },
       });
+    await db
+      .update(schema.memberships)
+      .set({ status: "disabled", updatedAt: drizzleSql`now()` })
+      .where(eq(schema.memberships.clerkUserId, clerkUserId));
     await logPortalEvent({
       action: "user_signup",
-      target: event.data.id,
+      target: clerkUserId,
       metadata: { result: "no_sf_match", email },
-      override: { clerkUserId: event.data.id },
+      override: { clerkUserId },
     });
     return { status: "disabled", action: "no_sf_match" };
   }
 
-  const finalStatus: PortalUserStatus = mapping.hasActiveWorkflow
+  const result = await syncMembershipsForUser(
+    db,
+    { clerkUserId, email, firstName, lastName },
+    mappings
+  );
+
+  await logPortalEvent({
+    action: "user_signup",
+    target: clerkUserId,
+    metadata: {
+      result: "linked",
+      email,
+      companies: mappings.length,
+      brand: result.activeBrand,
+      activeAccountSfId: result.activeAccountSfId,
+    },
+    override: { clerkUserId, accountSfId: result.activeAccountSfId },
+  });
+
+  return {
+    status: result.activeStatus,
+    action: mappings.length > 1 ? "linked_multi" : "linked",
+  };
+}
+
+/** Identity fields carried from the Clerk payload into the DB writes. */
+export interface PortalIdentity {
+  clerkUserId: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+}
+
+export interface MembershipSyncResult {
+  activeAccountSfId: string;
+  activeStatus: PortalUserStatus;
+  activeBrand: PortalBrand;
+  companies: number;
+}
+
+/**
+ * Persist a user's company memberships from a resolved set of SF mappings.
+ * Pure DB work (no Salesforce, no Clerk) so it's testable in isolation:
+ *
+ *   1. upsert one membership row per company (per-company status)
+ *   2. disable memberships for companies that dropped out of the set
+ *   3. resolve the active-account cursor (keep valid existing choice, else
+ *      first active company, else primary)
+ *   4. dual-write the legacy users.* columns to mirror the active membership
+ *
+ * `mappings` MUST be non-empty — the caller handles the soft-block case.
+ */
+export async function syncMembershipsForUser(
+  db: ReturnType<typeof getPortalDb>,
+  identity: PortalIdentity,
+  mappings: AccessMapping[]
+): Promise<MembershipSyncResult> {
+  const { clerkUserId, email, firstName, lastName } = identity;
+
+  // 1. Upsert one membership per mapped company. Status is per-company:
+  //    'active' when it has a live onboarding workflow, else 'pending'.
+  for (const m of mappings) {
+    const status: PortalUserStatus = m.hasActiveWorkflow ? "active" : "pending";
+    await db
+      .insert(schema.memberships)
+      .values({
+        clerkUserId,
+        accountSfId: m.accountId,
+        contactSfId: m.contactId,
+        brand: m.brand,
+        status,
+      })
+      .onConflictDoUpdate({
+        target: [schema.memberships.clerkUserId, schema.memberships.accountSfId],
+        set: {
+          contactSfId: m.contactId,
+          brand: m.brand,
+          status,
+          updatedAt: drizzleSql`now()`,
+        },
+      });
+  }
+
+  // 2. Reconcile removals: disable any membership for a company no longer in
+  //    the mapping set (Contact moved/removed in SF → revoke on next event).
+  const keepAccountIds = mappings.map((m) => m.accountId);
+  await db
+    .update(schema.memberships)
+    .set({ status: "disabled", updatedAt: drizzleSql`now()` })
+    .where(
+      and(
+        eq(schema.memberships.clerkUserId, clerkUserId),
+        notInArray(schema.memberships.accountSfId, keepAccountIds)
+      )
+    );
+
+  // 3. Resolve the active-account cursor: keep the user's existing choice if
+  //    it's still a valid mapping, else default to the first ACTIVE company
+  //    (fallback: the primary/newest mapping).
+  const existing = await db
+    .select({ activeAccountSfId: schema.users.activeAccountSfId })
+    .from(schema.users)
+    .where(eq(schema.users.clerkUserId, clerkUserId))
+    .limit(1);
+  const primary = mappings.find((m) => m.hasActiveWorkflow) ?? mappings[0];
+  const currentCursor = existing.length > 0 ? existing[0].activeAccountSfId : null;
+  const cursorStillValid =
+    currentCursor != null && mappings.some((m) => m.accountId === currentCursor);
+  const activeAccountSfId = cursorStillValid ? currentCursor : primary.accountId;
+
+  // 4. Dual-write the legacy users.* columns to mirror the ACTIVE membership
+  //    so existing read paths (withPortalScope) keep working unchanged.
+  const activeMapping =
+    mappings.find((m) => m.accountId === activeAccountSfId) ?? primary;
+  const activeStatus: PortalUserStatus = activeMapping.hasActiveWorkflow
     ? "active"
     : "pending";
 
   await db
     .insert(schema.users)
     .values({
-      clerkUserId: event.data.id,
-      contactSfId: mapping.contactId,
-      accountSfId: mapping.accountId,
-      brand: mapping.brand,
+      clerkUserId,
+      contactSfId: activeMapping.contactId,
+      accountSfId: activeMapping.accountId,
+      brand: activeMapping.brand,
       email,
-      firstName: event.data.first_name,
-      lastName: event.data.last_name,
-      status: finalStatus,
+      firstName,
+      lastName,
+      status: activeStatus,
+      activeAccountSfId,
     })
     .onConflictDoUpdate({
       target: schema.users.clerkUserId,
       set: {
-        contactSfId: mapping.contactId,
-        accountSfId: mapping.accountId,
-        brand: mapping.brand,
+        contactSfId: activeMapping.contactId,
+        accountSfId: activeMapping.accountId,
+        brand: activeMapping.brand,
         email,
-        firstName: event.data.first_name,
-        lastName: event.data.last_name,
-        status: finalStatus,
+        firstName,
+        lastName,
+        status: activeStatus,
+        activeAccountSfId,
       },
     });
 
-  await logPortalEvent({
-    action: "user_signup",
-    target: event.data.id,
-    metadata: {
-      result: "linked",
-      email,
-      brand: mapping.brand,
-      hasActiveWorkflow: mapping.hasActiveWorkflow,
-    },
-    override: {
-      clerkUserId: event.data.id,
-      accountSfId: mapping.accountId,
-    },
-  });
-
-  return { status: finalStatus, action: "linked" };
+  return {
+    activeAccountSfId,
+    activeStatus,
+    activeBrand: activeMapping.brand,
+    companies: mappings.length,
+  };
 }
 
 /**
