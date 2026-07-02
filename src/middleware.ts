@@ -95,6 +95,15 @@ const PORTAL_PUBLIC_PASSTHROUGH: RegExp[] = [
   // reachable without auth. Data travels in the base64 `d` query param the
   // API route encoded, so there's no PII leak from this being public.
   /^\/mtd-summary(\/.*)?$/,
+  // Onboarding-guide (welcome pack). The render pages are linked from the
+  // accountant intro email — Workwell clients open them on the portal host
+  // my.workwellaccountancy.com/onboarding-guide/... with no Clerk session, so
+  // without this they get 307-redirected to sign-in (and bounced to the
+  // default portal host). Data rides in the base64 `d` query param. The
+  // /api/onboarding-guide render endpoint (Salesforce callout, shared-secret)
+  // must pass through too.
+  /^\/onboarding-guide(\/.*)?$/,
+  /^\/api\/onboarding-guide(\/.*)?$/,
   // MTD quarterly-summary approval. Workwell has no app.* host, so the approve
   // page (emailed to clients, who have no Clerk session) is served on the
   // portal host my.workwellaccountancy.com/mtd-approval/<token>. Both the page
