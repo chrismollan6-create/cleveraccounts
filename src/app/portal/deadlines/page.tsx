@@ -77,14 +77,19 @@ export default async function DeadlinesPage() {
   return (
     <Wrap>
       <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Deadlines
-          </h1>
-          <p className="mt-0.5 text-sm text-text-light">
-            Everything you need to file or approve — and exactly when it&apos;s
-            due.
-          </p>
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <CalendarClock size={22} />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-text">
+              Deadlines
+            </h1>
+            <p className="mt-0.5 text-sm text-text-light">
+              Everything you need to file or approve — and exactly when
+              it&apos;s due.
+            </p>
+          </div>
         </div>
         {actionNow.length > 0 ? (
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
@@ -99,7 +104,7 @@ export default async function DeadlinesPage() {
       </div>
 
       {deadlines.length === 0 && (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-sm text-text-light shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-sm text-text-light shadow-md">
           No upcoming deadlines on record. We&apos;ll surface them here as your
           filing dates approach.
         </div>
@@ -121,7 +126,7 @@ export default async function DeadlinesPage() {
       {(comingUp.length > 0 || done.length > 0) && (
         <section>
           <SectionLabel>Coming up</SectionLabel>
-          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
             <ul className="divide-y divide-neutral-100">
               {comingUp.map((d) => (
                 <ComingUpRow key={d.id} d={d} />
@@ -139,7 +144,7 @@ export default async function DeadlinesPage() {
 
 function Wrap({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative px-4 py-6 sm:px-6 lg:px-8 max-w-[1600px]">
+    <div className="relative mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8">
       {children}
     </div>
   );
@@ -168,7 +173,7 @@ function ActionCard({ d }: { d: PortalDeadline }) {
   const Icon = meta.icon;
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border-2 border-orange-200 bg-gradient-to-br from-orange-50/70 to-white p-5 shadow-sm">
+    <section className="relative overflow-hidden rounded-2xl border-2 border-orange-200 bg-gradient-to-br from-orange-50/70 to-white p-5 shadow-md">
       <span className="absolute inset-y-0 left-0 w-1.5 bg-orange-500" />
       <div className="flex items-start gap-3 pl-1.5">
         <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
@@ -194,7 +199,7 @@ function ActionCard({ d }: { d: PortalDeadline }) {
           <div className="mt-4">
             <Link
               href="/portal/approvals"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600"
             >
               Review &amp; approve <ArrowRight size={14} />
             </Link>

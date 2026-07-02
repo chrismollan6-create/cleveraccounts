@@ -80,13 +80,18 @@ export default async function DocumentsPage() {
   return (
     <Wrap>
       <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Documents
-          </h1>
-          <p className="mt-0.5 text-sm text-text-light">
-            Send us documents securely, and see everything you&apos;ve shared.
-          </p>
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <FileText size={22} />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-text">
+              Documents
+            </h1>
+            <p className="mt-0.5 text-sm text-text-light">
+              Send us documents securely, and see everything you&apos;ve shared.
+            </p>
+          </div>
         </div>
         {outstanding > 0 && (
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
@@ -118,7 +123,7 @@ export default async function DocumentsPage() {
                 <div className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-text-light/60">
                   {group.label}
                 </div>
-                <div className="divide-y divide-neutral-100 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+                <div className="divide-y divide-neutral-100 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
                   {group.items.map((u) => (
                     <UploadRow
                       key={u.id}
@@ -137,7 +142,7 @@ export default async function DocumentsPage() {
       {requests.length > 0 && (
         <section className="mb-7">
           <SectionLabel>We need from you</SectionLabel>
-          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
             <ul className="divide-y divide-neutral-100">
               {requests.map((d) => (
                 <RequestRow key={d.id} d={d} />
@@ -151,7 +156,7 @@ export default async function DocumentsPage() {
       {shared.length > 0 && (
         <section>
           <SectionLabel>Shared with you</SectionLabel>
-          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
             <ul className="divide-y divide-neutral-100">
               {shared.map((d) => (
                 <SharedRow key={d.id} d={d} />
@@ -166,7 +171,7 @@ export default async function DocumentsPage() {
 
 function Wrap({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative px-4 py-6 sm:px-6 lg:px-8 max-w-[1600px]">
+    <div className="relative mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8">
       {children}
     </div>
   );
@@ -234,7 +239,7 @@ function RequestRow({ d }: { d: PortalDocument }) {
         // affordance for the pilot.
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600"
         >
           <Upload size={14} /> Upload
         </button>

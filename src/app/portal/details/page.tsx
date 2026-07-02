@@ -80,14 +80,19 @@ export default async function DetailsPage() {
 
   return (
     <Wrap>
-      <div className="mb-7">
-        <h1 className="text-2xl font-bold tracking-tight text-text">
-          Your details
-        </h1>
-        <p className="mt-0.5 text-sm text-text-light">
-          Your personal, company and Companies House records — kept in sync so
-          you always know what&apos;s on file.
-        </p>
+      <div className="mb-7 flex items-center gap-3">
+        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <Building2 size={22} />
+        </span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-text">
+            Your details
+          </h1>
+          <p className="mt-0.5 text-sm text-text-light">
+            Your personal, company and Companies House records — kept in sync so
+            you always know what&apos;s on file.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -107,7 +112,7 @@ export default async function DetailsPage() {
 
 function Wrap({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative px-4 py-6 sm:px-6 lg:px-8 max-w-[1600px]">
+    <div className="relative mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8">
       {children}
     </div>
   );
@@ -320,7 +325,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-4">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1A7A9B]/10 text-[#1A7A9B]">

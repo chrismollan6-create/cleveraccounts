@@ -165,7 +165,7 @@ export default function DocumentUpload() {
   const busy = phase === "working";
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center gap-2.5 border-b border-neutral-100 px-5 py-4">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
           <Upload size={15} />
@@ -276,7 +276,7 @@ export default function DocumentUpload() {
             type="button"
             onClick={submit}
             disabled={busy || files.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-orange-400 disabled:shadow-none"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-orange-400 disabled:shadow-none"
           >
             {busy ? (
               <>
