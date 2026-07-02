@@ -90,7 +90,7 @@ export default function MessageComposer({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6"
+      className="bg-white rounded-2xl border border-neutral-200 shadow-md p-5 sm:p-6"
     >
       <label className="block text-sm font-semibold text-text mb-3">
         Send a message

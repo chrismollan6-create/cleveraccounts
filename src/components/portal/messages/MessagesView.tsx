@@ -102,17 +102,17 @@ export default function MessagesView({
 
   return (
     <>
-      {/* Page header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <MessageSquare size={18} className="text-primary" />
-          </div>
+      {/* Page header — matches the other portal surfaces */}
+      <div className="mb-7">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <MessageSquare size={22} />
+          </span>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-text">
               Messages
             </h1>
-            <p className="text-sm text-text-light">
+            <p className="mt-0.5 text-sm text-text-light">
               {accountantFirstName
                 ? `Your direct line to ${accountantFirstName} at ${brandName}.`
                 : `Your direct line to your accountant at ${brandName}.`}

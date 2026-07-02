@@ -134,7 +134,7 @@ function TipsCard() {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+    <div className="bg-white rounded-2xl border border-neutral-200 shadow-md p-5">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-text-light">
         Good message, fast reply
       </h3>
