@@ -21,6 +21,10 @@ import {
   AlertCircle,
   PenLine,
   CalendarClock,
+  FileText,
+  CalendarDays,
+  Percent,
+  Landmark,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
@@ -29,6 +33,7 @@ import {
   getOnboardingForCurrentUser,
   isOnboardingError,
 } from "@/lib/portal/onboarding";
+import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
 import AccessGate from "@/components/portal/AccessGate";
 import type {
   PortalOnboardingStatus,
@@ -36,6 +41,7 @@ import type {
   PortalStageKey,
   PortalAccountantInfo,
   PortalActionItem,
+  PortalDeadline,
 } from "@/lib/portal/types";
 import AccountantAvatar from "@/components/portal/AccountantAvatar";
 import { getActionItemsForCurrentUser } from "@/lib/portal/actionItems";
@@ -103,12 +109,17 @@ const STAGE_META: Record<
 };
 
 export default async function DashboardPage() {
-  const [brand, portalUser, onboardingResult, actionItems] = await Promise.all([
-    getBrand(),
-    getCurrentPortalUser(),
-    getOnboardingForCurrentUser(),
-    getActionItemsForCurrentUser(),
-  ]);
+  const [brand, portalUser, onboardingResult, actionItems, deadlinesRes] =
+    await Promise.all([
+      getBrand(),
+      getCurrentPortalUser(),
+      getOnboardingForCurrentUser(),
+      getActionItemsForCurrentUser(),
+      // Fail-soft — the dashboard never breaks over a deadlines read.
+      getDeadlinesForCurrentUser().catch(() => null),
+    ]);
+  const deadlines =
+    deadlinesRes && deadlinesRes.ok ? deadlinesRes.data : [];
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -198,6 +209,7 @@ export default async function DashboardPage() {
         status={status}
         firstName={firstName}
         actionItems={actionItems}
+        deadlines={deadlines}
         firmName={brand.name}
       />
     </Shell>
@@ -209,17 +221,16 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="relative">
       {/* Faint brand wash — teal top-left, orange top-right */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-96"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[28rem]"
         style={{
           background:
-            "radial-gradient(55% 100% at 25% 0%, rgb(26 122 155 / 0.05) 0%, transparent 70%), radial-gradient(55% 100% at 85% 0%, rgb(249 115 22 / 0.05) 0%, transparent 70%)",
+            "radial-gradient(50% 100% at 22% 0%, rgb(26 122 155 / 0.07) 0%, transparent 68%), radial-gradient(52% 100% at 88% 0%, rgb(249 115 22 / 0.08) 0%, transparent 70%)",
         }}
         aria-hidden
       />
-      {/* Left-aligned (no mx-auto) so the content hugs the sidebar instead of
-          floating centred with a dead gap on a wide screen. Capped at 1600px
-          for line-length readability on ultrawide displays. */}
-      <div className="relative max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      {/* Centred + capped so the content reads as a deliberate column rather
+          than clinging to the sidebar with a dead gap on wide screens. */}
+      <div className="relative mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8">
         {children}
       </div>
     </div>
@@ -230,11 +241,13 @@ function DashboardBody({
   status,
   firstName,
   actionItems,
+  deadlines,
   firmName,
 }: {
   status: PortalOnboardingStatus;
   firstName: string | null;
   actionItems: PortalActionItem[];
+  deadlines: PortalDeadline[];
   firmName: string;
 }) {
   const a = status.accountant;
@@ -244,9 +257,9 @@ function DashboardBody({
   return (
     <>
       {/* HEADER — greeting + business on the left, quiet trust line on the right */}
-      <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
+          <h1 className="text-[26px] font-bold tracking-tight text-text">
             {greetingForNow()}, {firstName ?? "there"}
           </h1>
           {status.accountName && (
@@ -255,7 +268,7 @@ function DashboardBody({
             </p>
           )}
         </div>
-        <span className="inline-flex w-fit items-center gap-1.5 text-xs text-text-light">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-200/70 bg-emerald-50/60 px-2.5 py-1 text-xs font-medium text-emerald-700">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -267,13 +280,11 @@ function DashboardBody({
 
       {/* 2-COL LAYOUT */}
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-        {/* LEFT MAIN — onboarding "Up next" leads; everything else is the
-            quieter "Also needs you" list beneath it. Once onboarding completes,
-            the hero becomes the "all set" card and this panel reverts to the
-            primary "Needs you" lead (secondary=false). */}
+        {/* LEFT MAIN */}
         <div className="space-y-5">
           <NextStepHero status={status} firstNameShort={firstNameShort} />
           <NeedsYouPanel items={actionItems} secondary={!status.isComplete} />
+          <DeadlinesCard deadlines={deadlines} />
           <ActivityFeed status={status} />
         </div>
 
@@ -282,10 +293,168 @@ function DashboardBody({
           <AccountantCard accountant={status.accountant} />
           <ProgressCard status={status} />
           <StagesCard stages={status.stages} />
-          <BusinessMeta status={status} />
         </div>
       </div>
+
+      {/* EXPLORE — quick links, fills the width + helps new clients find their way */}
+      <ExploreBand />
+
+      {/* BUSINESS — full-width footer band, anchors the bottom edge */}
+      <BusinessBand status={status} firmName={firmName} />
     </>
+  );
+}
+
+// ─── DEADLINES (upcoming) ────────────────────────────────────────────────────
+const DEADLINE_ICON: Record<string, typeof CalendarClock> = {
+  accounts: FileText,
+  confirmation_statement: Landmark,
+  vat: Percent,
+  self_assessment: FileText,
+  corporation_tax: Landmark,
+  payroll: CalendarDays,
+};
+
+function DeadlinesCard({ deadlines }: { deadlines: PortalDeadline[] }) {
+  if (!deadlines || deadlines.length === 0) return null;
+  // Soonest first; drop already-submitted; cap to 4.
+  const upcoming = deadlines
+    .filter((d) => d.status !== "submitted" && d.dueDate)
+    .sort((x, y) => new Date(x.dueDate!).getTime() - new Date(y.dueDate!).getTime())
+    .slice(0, 4);
+  if (upcoming.length === 0) return null;
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
+      <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-3.5">
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <CalendarClock size={14} />
+          </span>
+          <h2 className="text-sm font-semibold text-text">Upcoming deadlines</h2>
+        </div>
+        <Link
+          href="/portal/deadlines"
+          className="text-xs font-medium text-[#1A7A9B] hover:underline"
+        >
+          View all
+        </Link>
+      </div>
+      <ul className="divide-y divide-neutral-100">
+        {upcoming.map((d) => {
+          const Icon = DEADLINE_ICON[d.kind] ?? CalendarClock;
+          const overdue = d.status === "overdue";
+          const soon = d.status === "due_soon";
+          return (
+            <li key={d.id} className="flex items-center gap-3 px-5 py-3">
+              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#1A7A9B]/10 text-[#1A7A9B]">
+                <Icon size={16} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-text">{d.title}</div>
+                {d.periodLabel && (
+                  <div className="truncate text-xs text-text-light">
+                    {d.periodLabel}
+                  </div>
+                )}
+              </div>
+              <div className="flex-shrink-0 text-right">
+                <div
+                  className={`text-xs font-semibold ${
+                    overdue
+                      ? "text-red-600"
+                      : soon
+                        ? "text-orange-600"
+                        : "text-text"
+                  }`}
+                >
+                  {d.dueDate ? formatDate(d.dueDate) : "—"}
+                </div>
+                {overdue ? (
+                  <div className="text-[11px] font-medium text-red-600">
+                    Overdue
+                  </div>
+                ) : (
+                  typeof d.daysUntil === "number" &&
+                  d.daysUntil >= 0 && (
+                    <div className="text-[11px] text-text-light">
+                      in {d.daysUntil} day{d.daysUntil === 1 ? "" : "s"}
+                    </div>
+                  )
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+// ─── EXPLORE (quick links) ───────────────────────────────────────────────────
+const EXPLORE: {
+  href: string;
+  icon: typeof FileText;
+  title: string;
+  sub: string;
+}[] = [
+  {
+    href: "/portal/deadlines",
+    icon: CalendarClock,
+    title: "Deadlines",
+    sub: "See what's due and when",
+  },
+  {
+    href: "/portal/documents",
+    icon: FileText,
+    title: "Documents",
+    sub: "Send us files, get yours",
+  },
+  {
+    href: "/portal/details",
+    icon: Building2,
+    title: "Your details",
+    sub: "Company & Companies House",
+  },
+  {
+    href: "/portal/messages",
+    icon: MessageSquare,
+    title: "Messages",
+    sub: "Talk to your accountant",
+  },
+];
+
+function ExploreBand() {
+  return (
+    <div className="mt-5">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-text-light">
+        Explore your portal
+      </h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {EXPLORE.map((e) => {
+          const Icon = e.icon;
+          return (
+            <Link
+              key={e.href}
+              href={e.href}
+              className="group flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-md transition hover:-translate-y-0.5 hover:border-[#1A7A9B]/40 hover:shadow-lg"
+            >
+              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1A7A9B]/12 to-[#1A7A9B]/5 text-[#1A7A9B]">
+                <Icon size={19} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-text">{e.title}</div>
+                <div className="truncate text-xs text-text-light">{e.sub}</div>
+              </div>
+              <ArrowRight
+                size={15}
+                className="flex-shrink-0 text-neutral-300 transition group-hover:translate-x-0.5 group-hover:text-[#1A7A9B]"
+              />
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -317,7 +486,7 @@ function NeedsYouPanel({
   const overdue = items.filter((i) => i.urgency === "overdue").length;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-3.5">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold text-text">
@@ -401,7 +570,7 @@ function NextStepHero({
 
   if (status.isComplete) {
     return (
-      <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm">
+      <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-md">
         <div className="h-1 w-full bg-gradient-to-r from-emerald-500 to-emerald-600" />
         <div className="p-6">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
@@ -420,7 +589,7 @@ function NextStepHero({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       {/* brand teal→orange hairline */}
       <div className="h-1 w-full bg-gradient-to-r from-[#1A7A9B] via-[#2E8DAE] to-[#F97316]" />
       {/* faint orange corner glow */}
@@ -536,9 +705,11 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   if (rows.length === 0) return null;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-3.5">
-        <Activity size={14} className="text-neutral-400" />
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <Activity size={14} />
+        </span>
         <span className="text-sm font-semibold text-text">Recent activity</span>
       </div>
       <ul className="divide-y divide-neutral-100">
@@ -565,7 +736,7 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
 // ─── ACCOUNTANT CARD ────────────────────────────────────────────────────────
 function AccountantCard({ accountant }: { accountant: PortalAccountantInfo }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-md">
       <div className="mb-3 text-xs font-medium uppercase tracking-wider text-text-light">
         Your accountant
       </div>
@@ -619,7 +790,7 @@ function ProgressCard({ status }: { status: PortalOnboardingStatus }) {
   const pct = Math.round((completed / status.totalStages) * 100);
 
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-md">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-xs font-medium uppercase tracking-wider text-text-light">
           Onboarding
@@ -664,8 +835,11 @@ function ProgressCard({ status }: { status: PortalOnboardingStatus }) {
 // ─── STAGES LIST ────────────────────────────────────────────────────────────
 function StagesCard({ stages }: { stages: PortalStageInfo[] }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-      <div className="border-b border-neutral-100 px-5 py-3.5">
+    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
+      <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-3.5">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <CalendarClock size={14} />
+        </span>
         <span className="text-sm font-semibold text-text">Your stages</span>
       </div>
       <ol className="divide-y divide-neutral-100">
@@ -716,39 +890,54 @@ function StagesCard({ stages }: { stages: PortalStageInfo[] }) {
   );
 }
 
-// ─── BUSINESS META ────────────────────────────────────────────────────────
-function BusinessMeta({ status }: { status: PortalOnboardingStatus }) {
+// ─── BUSINESS BAND (full-width footer anchor) ───────────────────────────────
+function BusinessBand({
+  status,
+  firmName,
+}: {
+  status: PortalOnboardingStatus;
+  firmName: string;
+}) {
+  const day = daysSince(status.joinedDate) ?? status.daysSinceSignup;
   return (
-    <section className="rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-5 text-white shadow-md">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/50">
-        <Building2 size={12} /> Your business
-      </div>
-      <div className="mt-2 text-base font-semibold">
-        {status.accountName ?? "—"}
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-        {status.joinedDate && (
+    <section className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white shadow-lg">
+      {/* brand teal→orange hairline */}
+      <div className="h-1 w-full bg-gradient-to-r from-[#1A7A9B] via-[#2E8DAE] to-[#F97316]" />
+      <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
+            <Building2 size={20} className="text-white/90" />
+          </span>
           <div>
-            <div className="text-white/50">With us since</div>
-            <div className="mt-0.5 text-sm font-medium">
-              {formatDate(status.joinedDate)}
+            <div className="text-[11px] uppercase tracking-wider text-white/50">
+              Your business
+            </div>
+            <div className="text-lg font-semibold">
+              {status.accountName ?? "—"}
             </div>
           </div>
-        )}
-        <div>
-          <div className="text-white/50">Day</div>
-          <div className="mt-0.5 text-sm font-medium">
-            {daysSince(status.joinedDate) ?? status.daysSinceSignup}
-          </div>
         </div>
-        <div>
-          <div className="text-white/50">Brand</div>
-          <div className="mt-0.5 text-sm font-medium capitalize">
-            {status.brand}
-          </div>
+        <div className="grid grid-cols-3 gap-6 sm:gap-10">
+          <Stat
+            label="With us since"
+            value={status.joinedDate ? formatDate(status.joinedDate) : "—"}
+          />
+          <Stat label="Day" value={String(day)} />
+          <Stat label="Brand" value={firmName} />
         </div>
       </div>
     </section>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-[11px] uppercase tracking-wider text-white/45">
+        {label}
+      </div>
+      <div className="mt-0.5 text-sm font-medium text-white/95">{value}</div>
+    </div>
   );
 }
 
