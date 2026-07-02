@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic';
 const BRANDS: ExpensesGuideBrandId[] = ['clever', 'workwell'];
 const VARIANTS: ExpensesVariant[] = ['ltd', 'sole'];
 const SECTORS: ExpensesSector[] = [
-  'general', 'cis', 'medical', 'creative', 'transport', 'hospitality', 'retail', 'consulting',
+  'general', 'cis', 'medical', 'creative', 'transport', 'hospitality', 'retail', 'consulting', 'property', 'beauty',
 ];
 
 const VARIANT_LABEL: Record<ExpensesVariant, string> = {
@@ -38,6 +38,8 @@ const SECTOR_LABEL: Record<ExpensesSector, string> = {
   hospitality: 'Hospitality & Food',
   retail: 'Retail & E-commerce',
   consulting: 'Consulting',
+  property: 'Property & Landlords',
+  beauty: 'Hair, Beauty & Personal Care',
 };
 
 export default async function ExpensesGuidePreview({

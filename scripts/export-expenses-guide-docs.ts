@@ -43,7 +43,7 @@ import {
 const BRANDS: ExpensesGuideBrandId[] = ['clever', 'workwell'];
 const VARIANTS: ExpensesVariant[] = ['ltd', 'sole'];
 const SECTORS: ExpensesSector[] = [
-  'general', 'cis', 'medical', 'creative', 'transport', 'hospitality', 'retail', 'consulting',
+  'general', 'cis', 'medical', 'creative', 'transport', 'hospitality', 'retail', 'consulting', 'property', 'beauty',
 ];
 const PRIORS = [false, true];
 
@@ -60,6 +60,8 @@ const SECTOR_LABEL: Record<ExpensesSector, string> = {
   hospitality: 'Hospitality & Food',
   retail: 'Retail & E-commerce',
   consulting: 'Consulting',
+  property: 'Property & Landlords',
+  beauty: 'Hair, Beauty & Personal Care',
 };
 const BRAND_LABEL: Record<ExpensesGuideBrandId, string> = {
   clever: 'Clever Accounts',

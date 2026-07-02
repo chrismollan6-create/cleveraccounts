@@ -21,6 +21,8 @@ export type ExpensesSector =
   | 'hospitality'
   | 'retail'
   | 'consulting'
+  | 'property'
+  | 'beauty'
   | 'general';
 
 export type EssentialIconKey =
@@ -1088,6 +1090,152 @@ export function getSectorBlock(
             'not deductible. The rule activates from the point you know the engagement ' +
             'will exceed 24 months. Consultants visiting multiple client sites (with no ' +
             'single site exceeding 40% of working time) avoid the rule entirely.',
+        },
+      ],
+    };
+  }
+
+  // ─── Property & landlords ───────────────────────────────────────────────
+  if (sector === 'property') {
+    return {
+      heading: 'Property & landlords — sector expenses',
+      intro:
+        'Letting property is taxed as a property business, not a trade — so several rules ' +
+        'differ from the rest of this guide. The single biggest difference is how mortgage ' +
+        'interest is treated, and it turns entirely on whether you hold the property ' +
+        'personally or through a company.',
+      items: [
+        {
+          title: 'Mortgage interest & finance costs — the key split',
+          body: isLtd
+            ? 'A property company deducts mortgage interest and other finance costs in full ' +
+              'against its rental profit, like any business cost — one of the main reasons ' +
+              'landlords incorporate. Weigh the flip side: extracting the profit personally ' +
+              '(as dividends) is taxed again, and moving existing personal properties into a ' +
+              'company can trigger SDLT and CGT on the way in. Ask us to model it before ' +
+              'incorporating.'
+            : 'As an individual landlord of residential property you can NO LONGER deduct ' +
+              'mortgage interest from your rental profit. Instead you get a basic-rate (20%) ' +
+              'tax reducer on the finance costs — the "section 24" restriction (s272A ITTOIA). ' +
+              'A higher-rate taxpayer therefore gets relief at 20%, not 40%, which is a real ' +
+              'cost. Full deduction still applies to genuinely commercial lettings; the ' +
+              'furnished-holiday-let regime that used to allow it was abolished from April 2025.',
+        },
+        {
+          title: 'Allowable running costs',
+          body:
+            'Letting agent and management fees, landlord insurance, ground rent and service ' +
+            'charges, and any council tax or utilities you pay between tenancies are ' +
+            'deductible. So are advertising for tenants, referencing and inventory fees, and ' +
+            'safety compliance — gas safety (CP12), EICR electrical reports and EPCs. Keep ' +
+            'invoices logged against each property.',
+        },
+        {
+          title: 'Repairs vs improvements — revenue or capital',
+          body:
+            'Repairs that restore the property (redecorating, replacing a broken boiler ' +
+            'like-for-like, fixing a roof) are deductible revenue costs. Improvements that ' +
+            'upgrade or extend it (an extension, a materially better kitchen, a loft ' +
+            'conversion) are capital — not deductible against rent, but they reduce your ' +
+            'Capital Gains Tax when you sell. The line between the two is a common enquiry ' +
+            'point, so ask us on anything substantial.',
+        },
+        {
+          title: 'Replacing furnishings — domestic items relief',
+          body:
+            'For a furnished let you can claim the cost of REPLACING domestic items — beds, ' +
+            'sofas, carpets, curtains, white goods, crockery — under Replacement of Domestic ' +
+            'Items relief. The initial purchase when you first furnish a let is not claimable, ' +
+            'only later replacements, and only on a like-for-like basis (any genuine upgrade ' +
+            'element is stripped out). The old 10% wear-and-tear allowance no longer exists.',
+        },
+        {
+          title: 'Professional fees',
+          body:
+            'Accountancy for the rental accounts, and legal/professional fees on SHORT ' +
+            'leases, lease renewals, rent reviews and evicting a tenant, are deductible. ' +
+            'Legal costs on BUYING a property or granting a long lease are capital (they add ' +
+            'to the property\'s cost for CGT). For individuals, mortgage arrangement and ' +
+            'broker fees on a residential let fall into the restricted finance-cost basket ' +
+            'above rather than being fully deductible.',
+        },
+        {
+          title: 'The £1,000 property allowance',
+          body:
+            'If your total rental income is £1,000 or less in the year it is tax-free and ' +
+            'need not be declared. Above that, you can either deduct your actual expenses or ' +
+            'claim the £1,000 allowance instead — whichever gives the better result — but ' +
+            'not both. For most established landlords, actual expenses win comfortably.',
+        },
+      ],
+    };
+  }
+
+  // ─── Hair, beauty & personal care ───────────────────────────────────────
+  if (sector === 'beauty') {
+    return {
+      heading: 'Hair, beauty & personal care — sector expenses',
+      intro:
+        'Salons, barbers, nail technicians, aesthetics practitioners and mobile stylists ' +
+        'share a set of deductions built around products, equipment and premises — plus a ' +
+        'couple of rules specific to chair rental and treatment insurance.',
+      items: [
+        {
+          title: 'Products, consumables & retail stock',
+          body:
+            'Colours, tints, developer, styling products, gels and acrylics, wax and ' +
+            'disposables (gloves, foils, towels, couch roll) used in treatments are ' +
+            'deductible as cost of sales. Products you buy to RE-SELL to clients are stock — ' +
+            'deductible when sold, with any unsold stock counted at the year-end. Keep the ' +
+            'trade-supplier invoices.',
+        },
+        {
+          title: 'Equipment & salon fit-out',
+          body: isLtd
+            ? 'Styling chairs, backwashes, dryers, nail stations, treatment couches, lasers ' +
+              'and sterilising equipment qualify for the Annual Investment Allowance — 100% ' +
+              'relief in the year of purchase. The company must own the equipment to claim it; ' +
+              'more than incidental private use of an item is taxed as a benefit in kind ' +
+              'rather than reducing the claim.'
+            : 'Styling chairs, backwashes, dryers, nail stations, treatment couches, lasers ' +
+              'and sterilising equipment qualify for the Annual Investment Allowance — 100% ' +
+              'relief in the year of purchase. Where an item has some private use, claim only ' +
+              'the business proportion.',
+        },
+        {
+          title: 'Chair / room rental',
+          body:
+            'If you rent a chair or a room in someone else\'s salon, the rent is a deductible ' +
+            'business cost — keep the agreement and payment records. If you are the salon ' +
+            'owner receiving chair rent, that rent is income, and mind the VAT trap: genuine ' +
+            '"rent a chair" can be VAT-exempt as a licence over land, but once you also ' +
+            'provide services (reception, products, towels, laundry) HMRC often treats the ' +
+            'whole charge as a standard-rated supply. Ask us which side of the line you are on.',
+        },
+        {
+          title: 'Uniforms, PPE & laundry',
+          body:
+            'Branded tunics, aprons, barber jackets and PPE (gloves, masks) genuinely ' +
+            'required for the work are deductible, as is laundering them. Ordinary clothing ' +
+            'you could wear outside work — a plain black outfit — is not deductible even if ' +
+            'you only wear it in the salon (the Mallalieu v Drummond principle).',
+        },
+        {
+          title: 'Training & CPD',
+          body:
+            'Courses that update or extend your existing skills — a new balayage technique, a ' +
+            'fresh nail system, an advanced facial qualification for an existing aesthetics ' +
+            'practice — are deductible. Training to enter the profession for the first time ' +
+            '(your initial hairdressing or beauty qualification) is not, and degrees are ' +
+            'never allowable.',
+        },
+        {
+          title: 'Insurance & licences',
+          body:
+            'Treatment liability, public liability and professional indemnity insurance are ' +
+            'fully deductible — essential for aesthetics and any skin-piercing work. Local ' +
+            'authority special-treatment and skin-piercing licences, and professional ' +
+            'registration fees, are also deductible as costs of carrying on the trade.',
         },
       ],
     };

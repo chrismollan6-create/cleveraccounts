@@ -39,6 +39,8 @@ import {
   Truck,
   UtensilsCrossed,
   ShoppingBag,
+  Building2,
+  Scissors,
   BarChart2,
   History,
   SearchCheck,
@@ -197,7 +199,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
     'Travel & mileage',
     isLtd ? 'Ltd company extras' : null,
     isPsc ? 'Contractor rules' : null,
-    sector === 'cis' ? 'CIS / Construction' : sector === 'medical' ? 'Healthcare' : sector === 'creative' ? 'Creative & tech' : null,
+    sector === 'cis' ? 'CIS / Construction' : sector === 'medical' ? 'Healthcare' : sector === 'creative' ? 'Creative & tech' : sector === 'property' ? 'Property & landlords' : sector === 'beauty' ? 'Hair & beauty' : null,
     'Grey areas',
     'Record-keeping',
   ].filter(Boolean) as string[];
@@ -927,6 +929,8 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
           sector === 'hospitality' ? UtensilsCrossed :
           sector === 'retail' ? ShoppingBag :
           sector === 'consulting' ? BarChart2 :
+          sector === 'property' ? Building2 :
+          sector === 'beauty' ? Scissors :
           Camera;
         return (
           <section className="px-[20mm] py-[13mm]">
