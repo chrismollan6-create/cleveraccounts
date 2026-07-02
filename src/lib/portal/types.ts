@@ -363,6 +363,27 @@ export interface PortalFinancials {
 
   /** Bookkeeping-health signal — unexplained transactions to tidy. */
   unexplainedCount: number | null;
+
+  /** Month-by-month movement (last ~12 months), oldest → newest. */
+  trend?: PortalFinancialsTrendPoint[];
+  /** Commonly-claimed expenses the client doesn't appear to be claiming. */
+  missedExpenses?: PortalMissedExpense[];
+}
+
+export interface PortalFinancialsTrendPoint {
+  /** "YYYY-MM". */
+  month: string;
+  /** Short month label, e.g. "Jun". */
+  label: string;
+  revenue: number;
+  grossProfit: number;
+  netProfit: number;
+}
+
+export interface PortalMissedExpense {
+  key: string;
+  title: string;
+  note: string;
 }
 
 /**
