@@ -13,6 +13,7 @@ import {
   Bell,
   CalendarClock,
   FileCheck,
+  PoundSterling,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import type { BrandConfig } from "@/lib/constants";
@@ -55,6 +56,7 @@ interface Props {
 
 const PRIMARY_NAV: NavItem[] = [
   { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
+  { label: "Financials", href: "/portal/financials", icon: PoundSterling },
   { label: "Notifications", href: "/portal/notifications", icon: Bell },
   { label: "Deadlines", href: "/portal/deadlines", icon: CalendarClock },
   { label: "Approvals", href: "/portal/approvals", icon: FileCheck },

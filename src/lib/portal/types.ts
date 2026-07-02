@@ -335,6 +335,36 @@ export interface PortalUploadInit {
   slots: PortalUploadSlot[];
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Financials — up-to-date P&L + money snapshot from FreeAgent (via SF).
+// Cached in portal.accounts.raw.financials (built by PortalFinancialsService).
+// ───────────────────────────────────────────────────────────────────────────
+
+export interface PortalFinancials {
+  /** Trial-balance period (YYYY-MM-DD). */
+  periodStart: string | null;
+  periodEnd: string | null;
+  /** When the trial balance was pulled from FreeAgent (ISO 8601). */
+  asOf: string | null;
+
+  revenue: number;
+  costOfSales: number;
+  grossProfit: number;
+  expenses: number;
+  netProfit: number;
+
+  /** Cash across GBP bank accounts (null if not synced). */
+  cashInBank: number | null;
+  cashAsAt: string | null;
+
+  /** Indicative tax-to-set-aside nudge (netProfit × taxRatePct) — NOT a filed figure. */
+  estTaxSetAside: number;
+  taxRatePct: number;
+
+  /** Bookkeeping-health signal — unexplained transactions to tidy. */
+  unexplainedCount: number | null;
+}
+
 /**
  * A single thing blocked on the client, aggregated across approvals, document
  * requests and deadlines — powers the dashboard "Needs you" hub.

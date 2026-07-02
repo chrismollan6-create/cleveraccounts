@@ -25,6 +25,9 @@ import {
   CalendarDays,
   Percent,
   Landmark,
+  PoundSterling,
+  Wallet,
+  Receipt,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
@@ -34,12 +37,14 @@ import {
   isOnboardingError,
 } from "@/lib/portal/onboarding";
 import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
+import { getFinancialsForCurrentUser } from "@/lib/portal/financials";
 import AccessGate from "@/components/portal/AccessGate";
 import type {
   PortalOnboardingStatus,
   PortalStageKey,
   PortalActionItem,
   PortalDeadline,
+  PortalFinancials,
 } from "@/lib/portal/types";
 import AccountantAvatar from "@/components/portal/AccountantAvatar";
 import { getActionItemsForCurrentUser } from "@/lib/portal/actionItems";
@@ -107,17 +112,26 @@ const STAGE_META: Record<
 };
 
 export default async function DashboardPage() {
-  const [brand, portalUser, onboardingResult, actionItems, deadlinesRes] =
-    await Promise.all([
-      getBrand(),
-      getCurrentPortalUser(),
-      getOnboardingForCurrentUser(),
-      getActionItemsForCurrentUser(),
-      // Fail-soft — the dashboard never breaks over a deadlines read.
-      getDeadlinesForCurrentUser().catch(() => null),
-    ]);
+  const [
+    brand,
+    portalUser,
+    onboardingResult,
+    actionItems,
+    deadlinesRes,
+    financialsRes,
+  ] = await Promise.all([
+    getBrand(),
+    getCurrentPortalUser(),
+    getOnboardingForCurrentUser(),
+    getActionItemsForCurrentUser(),
+    // Fail-soft — the dashboard never breaks over a deadlines read.
+    getDeadlinesForCurrentUser().catch(() => null),
+    getFinancialsForCurrentUser().catch(() => null),
+  ]);
   const deadlines =
     deadlinesRes && deadlinesRes.ok ? deadlinesRes.data : [];
+  const financials =
+    financialsRes && financialsRes.ok ? financialsRes.data : null;
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -208,6 +222,7 @@ export default async function DashboardPage() {
         firstName={firstName}
         actionItems={actionItems}
         deadlines={deadlines}
+        financials={financials}
         firmName={brand.name}
       />
     </Shell>
@@ -240,12 +255,14 @@ function DashboardBody({
   firstName,
   actionItems,
   deadlines,
+  financials,
   firmName,
 }: {
   status: PortalOnboardingStatus;
   firstName: string | null;
   actionItems: PortalActionItem[];
   deadlines: PortalDeadline[];
+  financials: PortalFinancials | null;
   firmName: string;
 }) {
   const a = status.accountant;
@@ -279,6 +296,9 @@ function DashboardBody({
       {/* HERO — the moment: book the next call, with your accountant */}
       <NextStepHero status={status} firstNameShort={firstNameShort} />
 
+      {/* MONEY — the recurring "reason to log in": where the business stands */}
+      <MoneyBand financials={financials} />
+
       {/* JOURNEY — the onboarding centrepiece */}
       <JourneyBand status={status} />
 
@@ -299,6 +319,109 @@ function DashboardBody({
       {/* BUSINESS — full-width footer band, anchors the bottom edge */}
       <BusinessBand status={status} firmName={firmName} />
     </>
+  );
+}
+
+// ─── MONEY BAND (financials headline) ───────────────────────────────────────
+/**
+ * The dashboard's money moment — leads with the numbers a business owner
+ * actually logs in for: net profit, cash, tax to set aside, books health. The
+ * full P&L is one click deeper on /portal/financials (same pattern as
+ * deadlines → deadlines page). Renders nothing until FreeAgent data syncs.
+ */
+function MoneyBand({ financials: fin }: { financials: PortalFinancials | null }) {
+  if (!fin || typeof fin.netProfit !== "number") return null;
+
+  const isLoss = fin.netProfit < 0;
+  const tiles: {
+    label: string;
+    value: string;
+    icon: typeof PoundSterling;
+    tint: string;
+  }[] = [
+    {
+      label: isLoss ? "Net loss" : "Net profit",
+      value: gbp(Math.abs(fin.netProfit)),
+      icon: isLoss ? Activity : TrendingUp,
+      tint: isLoss ? "bg-amber-50 text-amber-600" : "bg-[#1A7A9B]/10 text-[#1A7A9B]",
+    },
+    {
+      label: "Cash in the bank",
+      value: fin.cashInBank != null ? gbp(fin.cashInBank) : "—",
+      icon: Wallet,
+      tint: "bg-emerald-50 text-emerald-600",
+    },
+    {
+      label: `Set aside for tax (~${fin.taxRatePct}%)`,
+      value: gbp(fin.estTaxSetAside),
+      icon: Landmark,
+      tint: "bg-orange-50 text-orange-600",
+    },
+    {
+      label: "Bookkeeping",
+      value:
+        fin.unexplainedCount == null
+          ? "—"
+          : fin.unexplainedCount === 0
+            ? "All tidy"
+            : `${fin.unexplainedCount} to explain`,
+      icon: Receipt,
+      tint:
+        fin.unexplainedCount && fin.unexplainedCount > 0
+          ? "bg-amber-50 text-amber-600"
+          : "bg-emerald-50 text-emerald-600",
+    },
+  ];
+
+  return (
+    <section className="mt-5 overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-md">
+      <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-6 py-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <PoundSterling size={15} />
+          </span>
+          <div>
+            <h2 className="text-sm font-semibold text-text">
+              Where your business stands
+            </h2>
+            {fin.asOf && (
+              <p className="text-[11px] text-text-light">
+                Figures as of {formatDate(fin.asOf)}
+              </p>
+            )}
+          </div>
+        </div>
+        <Link
+          href="/portal/financials"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1A7A9B] hover:underline"
+        >
+          Full P&amp;L <ArrowRight size={13} />
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 divide-neutral-100 sm:grid-cols-4 sm:divide-x">
+        {tiles.map((t, i) => {
+          const Icon = t.icon;
+          return (
+            <div
+              key={i}
+              className={`p-5 ${i < 2 ? "border-b sm:border-b-0" : ""} ${
+                i % 2 === 1 ? "border-l sm:border-l-0" : ""
+              } border-neutral-100`}
+            >
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${t.tint}`}
+              >
+                <Icon size={15} />
+              </span>
+              <div className="mt-2.5 text-xl font-bold tracking-tight text-text">
+                {t.value}
+              </div>
+              <div className="mt-0.5 text-[11px] text-text-light">{t.label}</div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -966,6 +1089,14 @@ function formatDate(iso: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+function gbp(n: number): string {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+    maximumFractionDigits: 0,
+  }).format(n ?? 0);
 }
 
 /**
