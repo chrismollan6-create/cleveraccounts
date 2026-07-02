@@ -157,6 +157,12 @@ const TOPIC_ACCENTS: Record<string, TopicAccent> = {
     cardBg: "bg-white", blobBg: "bg-red-100",
     tagBg: "bg-red-50 text-red-700", hoverShadow: "hover:shadow-red-100/50",
   },
+  "tax-savings": {
+    iconBg: "bg-lime-100", iconText: "text-lime-600", ring: "ring-lime-100",
+    hoverBorder: "hover:border-lime-300", bullet: "text-lime-500",
+    cardBg: "bg-white", blobBg: "bg-lime-100",
+    tagBg: "bg-lime-50 text-lime-700", hoverShadow: "hover:shadow-lime-100/50",
+  },
 };
 function accentFor(slug?: string): TopicAccent {
   if (!slug) return DEFAULT_ACCENT;

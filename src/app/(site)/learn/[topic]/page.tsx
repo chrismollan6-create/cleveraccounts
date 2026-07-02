@@ -141,6 +141,12 @@ const ACCENTS: Record<string, Accent> = {
     hoverBorder: "hover:border-red-400",
     gradient: "from-red-500 to-red-700",
   },
+  "tax-savings": {
+    iconBg: "bg-lime-100", iconText: "text-lime-600", ring: "ring-lime-100",
+    bg: "bg-lime-500", bgSoft: "bg-lime-50", text: "text-lime-600",
+    hoverBorder: "hover:border-lime-400",
+    gradient: "from-lime-500 to-lime-700",
+  },
 };
 const DEFAULT_ACCENT: Accent = {
   iconBg: "bg-primary/10", iconText: "text-primary", ring: "ring-primary/20",

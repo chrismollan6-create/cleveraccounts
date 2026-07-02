@@ -88,6 +88,26 @@ export const TOPICS = [
     intro:
       "Every limited company files annual accounts at Companies House and a Corporation Tax return at HMRC for the same accounting period — collectively the 'year-end'. This is the moment everything from the year comes together, and it's also the most-questioned process by clients each year. These guides cover the deadlines, what documents your accountant needs from you, and how to actually read the accounts they produce.",
   },
+  {
+    name: "Tax Savings Guides",
+    slug: "tax-savings",
+    icon: "PiggyBank",
+    order: 90,
+    shortDescription:
+      "Legitimate ways to keep more of what you earn — pensions, allowances, tax-free benefits, electric cars and year-end planning.",
+    intro:
+      "Paying tax is unavoidable, but paying more than you need to isn't. There's a big difference between tax evasion (illegal) and tax planning (simply using the reliefs and allowances the rules give you). These guides cover the practical, above-board ways UK directors and the self-employed reduce their tax bill — from pension contributions and tax-free benefits to electric company cars, using your annual allowances, and the moves worth making before your year-end. None of it is a scheme; it's just making sure you don't leave money on the table.",
+  },
+  {
+    name: "IR35",
+    slug: "ir35",
+    icon: "ScrollText",
+    order: 100,
+    shortDescription:
+      "Inside or outside? What the off-payroll rules mean for contractors, how status is decided, and how to protect your position.",
+    intro:
+      "IR35 — the off-payroll working rules — decides whether HMRC treats you as genuinely self-employed or as a 'disguised employee' who should be taxed like a permanent member of staff. Get it wrong and the tax difference is significant. The rules changed substantially with the public-sector reform in 2017 and the private-sector reform in 2021, shifting who decides your status and who carries the risk. These guides explain what IR35 actually tests, how to tell if a contract is inside or outside, what being inside does to your take-home, and the practical steps — contract reviews and working practices — that keep you on the right side of the line.",
+  },
 ];
 
 export const HUBS = [
@@ -624,5 +644,133 @@ export const HUBS = [
     title: "HMRC investigation or compliance check: what to do",
     canonicalQuestion: "What should I do if HMRC opens an investigation or compliance check?",
     appliesTo: ["sole-trader", "ltd", "director", "landlord", "contractor"],
+  },
+
+  // ── Wave 6 — Tax Savings Guides topic launch (6) + IR35 topic launch (6) ──
+  // Two new topics. No clusters.jsonl entries exist for these, so the drafter
+  // (06-draft.mjs) will draft from the title + canonical question alone and
+  // ground every figure via Google Search — no CRM example phrasings.
+
+  // Tax Savings Guides topic — 6 articles
+  {
+    articleSlug: "tax-efficient-profit-extraction",
+    topicSlug: "tax-savings",
+    sourceTopic: "Tax-Savings",
+    sourceHub: "Extracting Profit Tax-Efficiently",
+    title: "How to take money out of your limited company tax-efficiently",
+    canonicalQuestion: "What's the most tax-efficient way to take money out of my limited company?",
+    appliesTo: ["ltd", "director", "contractor"],
+  },
+  {
+    articleSlug: "director-pension-contributions-to-save-tax",
+    topicSlug: "tax-savings",
+    sourceTopic: "Tax-Savings",
+    sourceHub: "Pension Contributions and Tax Relief",
+    title: "How company pension contributions cut your tax bill",
+    canonicalQuestion: "How do director pension contributions reduce my Corporation Tax and personal tax?",
+    appliesTo: ["ltd", "director", "contractor"],
+  },
+  {
+    articleSlug: "tax-free-and-trivial-benefits",
+    topicSlug: "tax-savings",
+    sourceTopic: "Tax-Savings",
+    sourceHub: "Tax-Free Benefits and Trivial Benefits",
+    title: "Tax-free benefits your company can give you (including trivial benefits)",
+    canonicalQuestion: "What tax-free benefits and perks can my company provide?",
+    appliesTo: ["ltd", "director", "employer"],
+  },
+  {
+    articleSlug: "electric-company-cars-and-tax",
+    topicSlug: "tax-savings",
+    sourceTopic: "Tax-Savings",
+    sourceHub: "Electric Vehicles and Company Car Tax",
+    title: "Are electric company cars tax-efficient? The director's guide",
+    canonicalQuestion: "Is buying an electric car through my limited company tax-efficient?",
+    appliesTo: ["ltd", "director", "contractor"],
+  },
+  {
+    articleSlug: "using-your-annual-tax-allowances",
+    topicSlug: "tax-savings",
+    sourceTopic: "Tax-Savings",
+    sourceHub: "Annual Tax Allowances and Bands",
+    title: "How to make the most of your annual tax allowances",
+    canonicalQuestion: "Which annual tax allowances should I use before I lose them?",
+    appliesTo: ["sole-trader", "ltd", "director", "landlord", "contractor"],
+  },
+  {
+    articleSlug: "year-end-tax-planning-for-directors",
+    topicSlug: "tax-savings",
+    sourceTopic: "Tax-Savings",
+    sourceHub: "Year-End Tax Planning",
+    title: "Year-end tax planning checklist for limited company directors",
+    canonicalQuestion: "What should I do before my company year-end to reduce my tax bill?",
+    appliesTo: ["ltd", "director"],
+  },
+
+  // IR35 topic — 6 articles
+  {
+    articleSlug: "what-is-ir35-inside-or-outside",
+    topicSlug: "ir35",
+    sourceTopic: "IR35",
+    sourceHub: "Determining IR35 Status",
+    title: "IR35 explained: how to tell if your contract is inside or outside",
+    canonicalQuestion: "How do I know if my contract is inside or outside IR35?",
+    appliesTo: ["contractor", "ltd", "director"],
+  },
+  {
+    articleSlug: "off-payroll-working-rules-explained",
+    topicSlug: "ir35",
+    sourceTopic: "IR35",
+    sourceHub: "Off-Payroll Working Rules",
+    title: "The off-payroll working rules: who decides your IR35 status",
+    canonicalQuestion: "What are the off-payroll working rules and who is responsible for deciding my IR35 status?",
+    appliesTo: ["contractor", "ltd", "director"],
+  },
+  {
+    articleSlug: "how-to-stay-outside-ir35",
+    topicSlug: "ir35",
+    sourceTopic: "IR35",
+    sourceHub: "Staying Outside IR35",
+    title: "How to stay outside IR35: contracts and working practices",
+    canonicalQuestion: "How can I make sure my contract and working practices keep me outside IR35?",
+    appliesTo: ["contractor", "ltd", "director"],
+  },
+  {
+    articleSlug: "inside-ir35-what-it-means-for-take-home",
+    topicSlug: "ir35",
+    sourceTopic: "IR35",
+    sourceHub: "Inside IR35 and Take-Home Pay",
+    title: "Inside IR35: what it means for your take-home pay",
+    canonicalQuestion: "What happens to my take-home pay if my contract is inside IR35?",
+    appliesTo: ["contractor", "ltd", "umbrella"],
+  },
+  {
+    articleSlug: "cest-and-checking-your-ir35-status",
+    topicSlug: "ir35",
+    sourceTopic: "IR35",
+    sourceHub: "CEST and Status Checks",
+    title: "Using CEST to check your IR35 status (and its limits)",
+    canonicalQuestion: "How do I use HMRC's CEST tool to check my IR35 status and can I rely on it?",
+    appliesTo: ["contractor", "ltd", "director"],
+  },
+  {
+    articleSlug: "ir35-contract-reviews",
+    topicSlug: "ir35",
+    sourceTopic: "IR35",
+    sourceHub: "IR35 Contract Reviews",
+    title: "IR35 contract reviews: what they check and why they matter",
+    canonicalQuestion: "Why should I get an IR35 contract review and what does it actually check?",
+    appliesTo: ["contractor", "ltd", "director"],
+  },
+
+  // ── Wave 7 — Self-Assessment filler ───────────────────────────────────────
+  {
+    articleSlug: "paying-your-self-assessment-tax-bill",
+    topicSlug: "self-assessment",
+    sourceTopic: "Self-Assessment",
+    sourceHub: "Paying Your Self-Assessment Bill",
+    title: "How and when to pay your Self-Assessment tax bill",
+    canonicalQuestion: "How and when do I pay my Self-Assessment tax bill?",
+    appliesTo: ["sole-trader", "landlord", "contractor", "ltd", "director"],
   },
 ];
