@@ -37,9 +37,7 @@ import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
 import AccessGate from "@/components/portal/AccessGate";
 import type {
   PortalOnboardingStatus,
-  PortalStageInfo,
   PortalStageKey,
-  PortalAccountantInfo,
   PortalActionItem,
   PortalDeadline,
 } from "@/lib/portal/types";
@@ -278,25 +276,24 @@ function DashboardBody({
         </span>
       </div>
 
-      {/* 2-COL LAYOUT */}
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-        {/* LEFT MAIN */}
+      {/* HERO — the moment: book the next call, with your accountant */}
+      <NextStepHero status={status} firstNameShort={firstNameShort} />
+
+      {/* JOURNEY — the onboarding centrepiece */}
+      <JourneyBand status={status} />
+
+      {/* CONTENT — what needs you + what's coming up, with recent activity beside */}
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_360px]">
         <div className="space-y-5">
-          <NextStepHero status={status} firstNameShort={firstNameShort} />
           <NeedsYouPanel items={actionItems} secondary={!status.isComplete} />
           <DeadlinesCard deadlines={deadlines} />
-          <ActivityFeed status={status} />
         </div>
-
-        {/* RIGHT RAIL */}
         <div className="space-y-5">
-          <AccountantCard accountant={status.accountant} />
-          <ProgressCard status={status} />
-          <StagesCard stages={status.stages} />
+          <ActivityFeed status={status} />
         </div>
       </div>
 
-      {/* EXPLORE — quick links, fills the width + helps new clients find their way */}
+      {/* EXPLORE — quick links */}
       <ExploreBand />
 
       {/* BUSINESS — full-width footer band, anchors the bottom edge */}
@@ -397,30 +394,40 @@ const EXPLORE: {
   icon: typeof FileText;
   title: string;
   sub: string;
+  tint: string;
+  hoverBorder: string;
 }[] = [
   {
     href: "/portal/deadlines",
     icon: CalendarClock,
     title: "Deadlines",
     sub: "See what's due and when",
+    tint: "bg-amber-100/70 text-amber-600",
+    hoverBorder: "hover:border-amber-300",
   },
   {
     href: "/portal/documents",
     icon: FileText,
     title: "Documents",
     sub: "Send us files, get yours",
+    tint: "bg-[#1A7A9B]/12 text-[#1A7A9B]",
+    hoverBorder: "hover:border-[#1A7A9B]/40",
   },
   {
     href: "/portal/details",
     icon: Building2,
     title: "Your details",
     sub: "Company & Companies House",
+    tint: "bg-indigo-100/70 text-indigo-600",
+    hoverBorder: "hover:border-indigo-300",
   },
   {
     href: "/portal/messages",
     icon: MessageSquare,
     title: "Messages",
     sub: "Talk to your accountant",
+    tint: "bg-orange-100/70 text-orange-600",
+    hoverBorder: "hover:border-orange-300",
   },
 ];
 
@@ -437,9 +444,11 @@ function ExploreBand() {
             <Link
               key={e.href}
               href={e.href}
-              className="group flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-md transition hover:-translate-y-0.5 hover:border-[#1A7A9B]/40 hover:shadow-lg"
+              className={`group flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg ${e.hoverBorder}`}
             >
-              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1A7A9B]/12 to-[#1A7A9B]/5 text-[#1A7A9B]">
+              <span
+                className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition group-hover:scale-105 ${e.tint}`}
+              >
                 <Icon size={19} />
               </span>
               <div className="min-w-0 flex-1">
@@ -448,7 +457,7 @@ function ExploreBand() {
               </div>
               <ArrowRight
                 size={15}
-                className="flex-shrink-0 text-neutral-300 transition group-hover:translate-x-0.5 group-hover:text-[#1A7A9B]"
+                className="flex-shrink-0 text-neutral-300 transition group-hover:translate-x-0.5 group-hover:text-neutral-600"
               />
             </Link>
           );
@@ -570,14 +579,21 @@ function NextStepHero({
 
   if (status.isComplete) {
     return (
-      <section className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-md">
-        <div className="h-1 w-full bg-gradient-to-r from-emerald-500 to-emerald-600" />
-        <div className="p-6">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-            <PartyPopper size={12} /> Onboarding complete
+      <section className="relative overflow-hidden rounded-3xl border border-emerald-200/70 shadow-lg">
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-[#1A7A9B]/[0.06]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl"
+        />
+        <div className="relative p-6 sm:p-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200/70 backdrop-blur">
+            <PartyPopper size={13} /> Onboarding complete
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight text-text">
-            You&apos;re all set up.
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-text sm:text-[34px]">
+            You&apos;re all set up. 🎉
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-light">
             All six onboarding stages are done. Your accountant relationship is
@@ -589,81 +605,106 @@ function NextStepHero({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
-      {/* brand teal→orange hairline */}
-      <div className="h-1 w-full bg-gradient-to-r from-[#1A7A9B] via-[#2E8DAE] to-[#F97316]" />
-      {/* faint orange corner glow */}
+    <section className="relative overflow-hidden rounded-3xl border border-orange-100/80 shadow-lg">
+      {/* warm brand gradient wash + soft glows — this is the page's one big moment */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 -top-10 h-44 w-44 rounded-full bg-orange-400/15 blur-3xl"
+        className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50/40 to-[#1A7A9B]/[0.07]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-orange-300/30 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-[#1A7A9B]/15 blur-3xl"
       />
 
-      <div className="relative px-6 py-6">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
-            <Video size={15} />
-          </span>
-          <span className="text-xs font-medium uppercase tracking-wider text-text-light">
-            Up next
-          </span>
-        </div>
+      <div className="relative grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_248px] lg:items-center">
+        {/* Content */}
+        <div>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-orange-700 ring-1 ring-orange-200/70 backdrop-blur">
+            <Video size={13} /> Up next
+          </div>
 
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text">
-          {status.nextActionLabel}
-        </h2>
-        <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-text-light">
-          {meta?.gist ??
-            "A hands-on session covering everything you need at this stage."}{" "}
-          Booking takes one tap.
-        </p>
-
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-text-light">
-          <span className="inline-flex items-center gap-1">
-            <Clock size={12} /> {meta?.duration ?? "30 min"}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Video size={12} /> Video call
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Calendar size={12} /> with {a.name ?? "your accountant"}
-          </span>
-        </div>
-
-        {/* CTA — one tap to book */}
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-          {a.calendlyUrl ? (
-            <a
-              href={a.calendlyUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
-            >
-              Choose a time <ArrowRight size={15} />
-            </a>
-          ) : (
-            <span className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-orange-500/40 px-5 py-2.5 text-sm font-semibold text-white">
-              Booking link coming
-            </span>
-          )}
-          <Link
-            href="/portal/messages"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-text-light transition hover:text-text"
-          >
-            Or message {firstNameShort} <ArrowUpRight size={12} />
-          </Link>
-        </div>
-
-        {/* Warm, honest closer — what you walk away with */}
-        <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-neutral-50 px-3.5 py-3">
-          <Check
-            size={14}
-            strokeWidth={3}
-            className="mt-0.5 flex-shrink-0 text-emerald-500"
-          />
-          <p className="text-xs text-text-light">
-            <span className="font-medium text-text">After this call</span>{" "}
-            {outcomeForStage(status.currentStage)}
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-text sm:text-[34px]">
+            {status.nextActionLabel}
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-light">
+            {meta?.gist ??
+              "A hands-on session covering everything you need at this stage."}
           </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-text-light">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock size={13} className="text-orange-500" /> {meta?.duration ?? "30 min"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Video size={13} className="text-orange-500" /> Video call
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar size={13} className="text-orange-500" /> with {a.name ?? "your accountant"}
+            </span>
+          </div>
+
+          {/* CTA — one tap to book */}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            {a.calendlyUrl ? (
+              <a
+                href={a.calendlyUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-600 hover:shadow-orange-500/40"
+              >
+                Choose a time <ArrowRight size={17} />
+              </a>
+            ) : (
+              <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500/40 px-6 py-3 text-base font-semibold text-white">
+                Booking link coming
+              </span>
+            )}
+            <Link
+              href="/portal/messages"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-text-light transition hover:text-text"
+            >
+              Or message {firstNameShort} <ArrowUpRight size={13} />
+            </Link>
+          </div>
+
+          {/* Warm, honest closer */}
+          <p className="mt-5 flex items-start gap-2 text-xs text-text-light">
+            <Check
+              size={13}
+              strokeWidth={3}
+              className="mt-0.5 flex-shrink-0 text-emerald-500"
+            />
+            <span>
+              <span className="font-medium text-text">After this call</span>{" "}
+              {outcomeForStage(status.currentStage)}
+            </span>
+          </p>
+        </div>
+
+        {/* The human you're booking with */}
+        <div className="flex items-center gap-4 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur lg:flex-col lg:gap-2.5 lg:text-center">
+          <div className="relative">
+            <AccountantAvatar
+              name={a.name}
+              hasPhoto={Boolean(a.photoUrl)}
+              sizeClass="h-16 w-16 lg:h-24 lg:w-24"
+              textClass="text-xl"
+            />
+            <span className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-[11px] uppercase tracking-wider text-text-light">
+              Your accountant
+            </div>
+            <div className="truncate text-sm font-semibold text-text">
+              {a.name ?? "—"}
+            </div>
+            <div className="text-xs text-text-light">Replies in ~2 hours</div>
+          </div>
         </div>
       </div>
     </section>
@@ -733,159 +774,110 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   );
 }
 
-// ─── ACCOUNTANT CARD ────────────────────────────────────────────────────────
-function AccountantCard({ accountant }: { accountant: PortalAccountantInfo }) {
-  return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-md">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wider text-text-light">
-        Your accountant
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <AccountantAvatar
-            name={accountant.name}
-            hasPhoto={Boolean(accountant.photoUrl)}
-            sizeClass="h-11 w-11"
-          />
-          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold text-text">
-            {accountant.name ?? "—"}
-          </div>
-          <div className="truncate text-xs text-text-light">
-            Replies in ~2 hours · Mon–Fri 9–5
-          </div>
-        </div>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        {accountant.calendlyUrl ? (
-          <a
-            href={accountant.calendlyUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-orange-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-orange-600"
-          >
-            <Calendar size={12} /> Book
-          </a>
-        ) : (
-          <span className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-orange-500/40 px-3 py-2 text-xs font-medium text-white">
-            <Calendar size={12} /> Book
-          </span>
-        )}
-        <Link
-          href="/portal/messages"
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-text transition hover:border-neutral-400"
-        >
-          <MessageSquare size={12} /> Message
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-// ─── PROGRESS (shown ONCE) ──────────────────────────────────────────────────
-function ProgressCard({ status }: { status: PortalOnboardingStatus }) {
+// ─── JOURNEY (onboarding centrepiece) ───────────────────────────────────────
+function JourneyBand({ status }: { status: PortalOnboardingStatus }) {
   const completed = status.stages.filter((s) => s.state === "complete").length;
   const pct = Math.round((completed / status.totalStages) * 100);
 
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-md">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-text-light">
-          Onboarding
-        </span>
-        <span className="text-xs text-text-light">
-          Stage {status.stageNumber} of {status.totalStages}
-        </span>
+    <section className="mt-5 rounded-3xl border border-neutral-200 bg-white p-6 shadow-md sm:p-7">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-text-light">
+            Your onboarding journey
+          </div>
+          <div className="mt-1 text-xl font-bold tracking-tight text-text">
+            {status.isComplete ? (
+              <>You&apos;re all set up 🎉</>
+            ) : (
+              <>
+                You&apos;re on{" "}
+                <span className="text-orange-600">{status.stageTitle}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-3xl font-bold leading-none text-[#1A7A9B]">
+            {pct}
+            <span className="text-lg">%</span>
+          </div>
+          <div className="mt-0.5 text-xs text-text-light">
+            {completed} of {status.totalStages} done
+          </div>
+        </div>
       </div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-3xl font-bold tracking-tight text-text">{pct}</span>
-        <span className="text-base text-text-light">%</span>
-        <span className="ml-auto text-xs text-text-light">
-          {completed} of {status.totalStages} done
-        </span>
-      </div>
-      {/* slim segmented bar — teal done, orange now */}
-      <div className="mt-3 flex gap-1">
-        {status.stages.map((st) => (
-          <div
-            key={st.key}
-            title={st.title}
-            className={`h-1.5 flex-1 rounded-full ${
-              st.state === "complete"
-                ? "bg-[#1A7A9B]"
-                : st.state === "current"
-                  ? "bg-orange-500"
-                  : "bg-neutral-200"
-            }`}
-          />
-        ))}
-      </div>
-      {!status.isComplete && (
-        <p className="mt-2.5 text-xs text-text-light">
-          You&apos;re on{" "}
-          <span className="font-medium text-text">{status.stageTitle}</span>.
-        </p>
-      )}
-    </section>
-  );
-}
 
-// ─── STAGES LIST ────────────────────────────────────────────────────────────
-function StagesCard({ stages }: { stages: PortalStageInfo[] }) {
-  return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
-      <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-3.5">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
-          <CalendarClock size={14} />
-        </span>
-        <span className="text-sm font-semibold text-text">Your stages</span>
-      </div>
-      <ol className="divide-y divide-neutral-100">
-        {stages.map((st) => {
-          const isComplete = st.state === "complete";
-          const isCurrent = st.state === "current";
-          return (
-            <li key={st.key} className="flex items-center gap-3 px-5 py-2.5">
-              <span
-                className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                  isComplete
-                    ? "bg-[#1A7A9B] text-white"
-                    : isCurrent
-                      ? "border-2 border-orange-500 bg-orange-50 text-orange-700"
-                      : "border border-neutral-200 bg-white text-neutral-400"
-                }`}
-              >
-                {isComplete ? (
-                  <Check size={10} strokeWidth={3} />
-                ) : (
-                  st.stageNumber
-                )}
-              </span>
-              <span
-                className={`flex-1 text-sm ${
-                  st.state === "upcoming"
-                    ? "text-text-light"
-                    : isCurrent
+      {/* Stepped path — icon per stage, connectors, the current node pulses */}
+      <div className="overflow-x-auto pb-1">
+        <div className="flex min-w-[580px] items-start">
+          {status.stages.map((st, i) => {
+            const done = st.state === "complete";
+            const now = st.state === "current";
+            const Icon = STAGE_META[st.key]?.icon ?? Sparkles;
+            const isFirst = i === 0;
+            const isLast = i === status.stages.length - 1;
+            return (
+              <div key={st.key} className="flex flex-1 flex-col items-center">
+                <div className="flex w-full items-center">
+                  <span
+                    className={`h-0.5 flex-1 rounded ${
+                      isFirst
+                        ? "opacity-0"
+                        : done || now
+                          ? "bg-[#1A7A9B]"
+                          : "bg-neutral-200"
+                    }`}
+                  />
+                  <span
+                    className={`relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full ${
+                      done
+                        ? "bg-[#1A7A9B] text-white shadow-sm shadow-[#1A7A9B]/30"
+                        : now
+                          ? "border-2 border-orange-500 bg-orange-50 text-orange-600"
+                          : "border-2 border-neutral-200 bg-white text-neutral-400"
+                    }`}
+                  >
+                    {done ? <Check size={18} strokeWidth={3} /> : <Icon size={18} />}
+                    {now && (
+                      <span className="absolute inset-[-3px] animate-ping rounded-full ring-2 ring-orange-400/50" />
+                    )}
+                  </span>
+                  <span
+                    className={`h-0.5 flex-1 rounded ${
+                      isLast
+                        ? "opacity-0"
+                        : done
+                          ? "bg-[#1A7A9B]"
+                          : "bg-neutral-200"
+                    }`}
+                  />
+                </div>
+                <div
+                  className={`mt-2.5 px-1 text-center text-xs leading-tight ${
+                    now
                       ? "font-semibold text-text"
-                      : "text-text"
-                }`}
-              >
-                {st.title}
-              </span>
-              {isComplete && st.completedDate && (
-                <span className="text-xs text-text-light">
-                  {formatDate(st.completedDate)}
-                </span>
-              )}
-              {isCurrent && (
-                <span className="text-xs font-medium text-orange-600">Now</span>
-              )}
-            </li>
-          );
-        })}
-      </ol>
+                      : done
+                        ? "text-text"
+                        : "text-text-light"
+                  }`}
+                >
+                  {st.title}
+                </div>
+                {done && st.completedDate ? (
+                  <div className="mt-0.5 text-[10px] text-text-light">
+                    {formatDate(st.completedDate)}
+                  </div>
+                ) : now ? (
+                  <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-orange-600">
+                    Now
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </section>
   );
 }
