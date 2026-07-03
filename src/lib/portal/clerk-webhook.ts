@@ -149,16 +149,39 @@ export async function handleUserCreatedOrUpdated(
     return { status: "disabled", action: "no_verified_email" };
   }
 
+  return reconcilePortalAccessByEmail(
+    getPortalDb(),
+    {
+      clerkUserId: event.data.id,
+      email,
+      firstName: event.data.first_name,
+      lastName: event.data.last_name,
+    },
+    "signup"
+  );
+}
+
+/**
+ * Re-resolve a portal user's access from Salesforce and persist it. Shared by:
+ *   - the Clerk webhook (source 'signup' — a user.created/updated event), and
+ *   - the Contact sync handler (source 'sync' — staff changed a Contact, e.g.
+ *     unticked Portal_Access__c, so we must re-check who can see what).
+ *
+ * Because /Portal/access filters on Contact.Portal_Access__c, a revoked contact
+ * simply drops out of the mapping set and reconciles to 'disabled'; re-granting
+ * brings it back — both fall out of the normal resolution path, no special case.
+ */
+export async function reconcilePortalAccessByEmail(
+  db: ReturnType<typeof getPortalDb>,
+  identity: PortalIdentity,
+  source: "signup" | "sync" = "signup"
+): Promise<{ status: PortalUserStatus; action: string }> {
+  const { clerkUserId, email, firstName, lastName } = identity;
   const mappings = await resolveSfMappings(email);
-  const db = getPortalDb();
-  const clerkUserId = event.data.id;
-  const firstName = event.data.first_name;
-  const lastName = event.data.last_name;
 
   if (mappings.length === 0) {
-    // No SF Contact match — soft-block. Keep an identity row for the audit
-    // trail, and disable any memberships this user previously held (their
-    // email stopped matching any company → access revoked).
+    // No SF Contact match (or all access revoked) — soft-block. Keep an
+    // identity row for the audit trail, and disable every membership.
     await db
       .insert(schema.users)
       .values({
@@ -180,22 +203,18 @@ export async function handleUserCreatedOrUpdated(
       .set({ status: "disabled", updatedAt: drizzleSql`now()` })
       .where(eq(schema.memberships.clerkUserId, clerkUserId));
     await logPortalEvent({
-      action: "user_signup",
+      action: source === "sync" ? "access_revoked" : "user_signup",
       target: clerkUserId,
-      metadata: { result: "no_sf_match", email },
+      metadata: { result: "no_sf_match", email, source },
       override: { clerkUserId },
     });
     return { status: "disabled", action: "no_sf_match" };
   }
 
-  const result = await syncMembershipsForUser(
-    db,
-    { clerkUserId, email, firstName, lastName },
-    mappings
-  );
+  const result = await syncMembershipsForUser(db, identity, mappings);
 
   await logPortalEvent({
-    action: "user_signup",
+    action: source === "sync" ? "access_reconciled" : "user_signup",
     target: clerkUserId,
     metadata: {
       result: "linked",
@@ -203,6 +222,7 @@ export async function handleUserCreatedOrUpdated(
       companies: mappings.length,
       brand: result.activeBrand,
       activeAccountSfId: result.activeAccountSfId,
+      source,
     },
     override: { clerkUserId, accountSfId: result.activeAccountSfId },
   });

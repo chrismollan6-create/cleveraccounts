@@ -1,6 +1,9 @@
+import { eq } from "drizzle-orm";
 import { getPortalSalesforceToken, sfApex } from "@/lib/salesforce";
 import { getPortalDb, schema } from "./db/client";
 import { sanitisedError } from "./log";
+import { reconcilePortalAccessByEmail } from "./clerk-webhook";
+import { revokeClerkSessions } from "./clerk-sessions";
 
 /**
  * Sync event handler — processes a single Portal_Sync_Event__e delivered
@@ -211,6 +214,10 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
             raw: s,
           },
         });
+      // Propagate access changes (e.g. staff toggling Portal_Access__c) to any
+      // portal user tied to this Contact — revoke/re-grant promptly instead of
+      // waiting for the client's next Clerk event.
+      await reconcileContactAccess(db, s);
       return;
     }
     case "Case": {
@@ -476,6 +483,73 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
         });
       return;
     }
+  }
+}
+
+/**
+ * After a Contact syncs, re-check portal access for any user tied to it — this
+ * is how staff unticking (or re-ticking) Contact.Portal_Access__c propagates
+ * promptly, rather than waiting for the client's next Clerk event.
+ *
+ * Affected users = those who currently hold a membership for this Contact, OR
+ * whose login email matches it (covers a newly-granted company). Each is
+ * re-resolved through the shared access logic (which re-queries /access, now
+ * gated on Portal_Access__c); a user left with no access at all is force-logged
+ * out. Best-effort — never throws, so a reconcile hiccup can't fail the cache
+ * upsert that already succeeded.
+ */
+async function reconcileContactAccess(
+  db: ReturnType<typeof getPortalDb>,
+  s: Record<string, unknown>
+): Promise<void> {
+  try {
+    const contactSfId = s.sfId as string;
+    const email = ((s.email as string) ?? "").toLowerCase().trim();
+
+    const affected = new Set<string>();
+    const byMembership = await db
+      .select({ clerkUserId: schema.memberships.clerkUserId })
+      .from(schema.memberships)
+      .where(eq(schema.memberships.contactSfId, contactSfId));
+    for (const r of byMembership) affected.add(r.clerkUserId);
+
+    if (email) {
+      const byEmail = await db
+        .select({ clerkUserId: schema.users.clerkUserId })
+        .from(schema.users)
+        .where(eq(schema.users.email, email));
+      for (const r of byEmail) affected.add(r.clerkUserId);
+    }
+
+    if (affected.size === 0) return;
+
+    for (const clerkUserId of affected) {
+      const rows = await db
+        .select({
+          email: schema.users.email,
+          firstName: schema.users.firstName,
+          lastName: schema.users.lastName,
+        })
+        .from(schema.users)
+        .where(eq(schema.users.clerkUserId, clerkUserId))
+        .limit(1);
+      if (rows.length === 0) continue;
+      const u = rows[0];
+
+      const res = await reconcilePortalAccessByEmail(
+        db,
+        { clerkUserId, email: u.email, firstName: u.firstName, lastName: u.lastName },
+        "sync"
+      );
+
+      // Fully revoked → sign them out. Their data is already denied on the next
+      // request by the scope check; this actually ends the session.
+      if (res.status === "disabled") {
+        await revokeClerkSessions(clerkUserId);
+      }
+    }
+  } catch (err) {
+    console.error("[sync] reconcileContactAccess failed:", sanitisedError(err));
   }
 }
 
