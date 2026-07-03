@@ -20,7 +20,9 @@ import type { BrandConfig } from "@/lib/constants";
 import type { PortalAccountantInfo } from "@/lib/portal/types";
 import MobileNav, { type MobileNavItem } from "./MobileNav";
 import AccountantAvatar from "./AccountantAvatar";
+import AccountSwitcher from "./AccountSwitcher";
 import { isSurfaceHidden } from "@/lib/portal/features";
+import type { PortalCompany } from "@/lib/portal/memberships";
 
 interface NavItem {
   label: string;
@@ -51,6 +53,8 @@ interface Props {
   nextAction?: NextAction | null;
   /** Compact onboarding progress strip — segments are per-stage states. */
   progress?: { pct: number; segments: string[] } | null;
+  /** Companies this login can access — drives the switcher (shown when >1). */
+  companies?: PortalCompany[];
   children: React.ReactNode;
 }
 
@@ -124,6 +128,7 @@ export default function PortalShell({
   accountant,
   nextAction,
   progress,
+  companies,
   children,
 }: Props) {
   // Pilot mode hides surfaces whose SF→cache sync isn't built yet.
@@ -195,6 +200,9 @@ export default function PortalShell({
               />
             </Link>
           </div>
+
+          {/* Account switcher — only renders when this login has >1 company */}
+          {companies && <AccountSwitcher companies={companies} />}
 
           {/* 1. ACCOUNTANT CHIP — replaces the trust pill */}
           {accountant && accountant.name && (

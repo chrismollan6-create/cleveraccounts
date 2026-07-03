@@ -12,6 +12,7 @@ import { countUnreadNotificationsForCurrentUser } from "@/lib/portal/notificatio
 import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
 import { countPendingApprovalsForCurrentUser } from "@/lib/portal/approvals";
 import { countOutstandingDocRequestsForCurrentUser } from "@/lib/portal/documents";
+import { listMyCompanies, type PortalCompany } from "@/lib/portal/memberships";
 import "../globals.css";
 
 /**
@@ -96,7 +97,15 @@ export default async function PortalLayout({
   let accountant: import("@/lib/portal/types").PortalAccountantInfo | null = null;
   let nextAction: { title: string; sub: string; href: string } | null = null;
   let progress: { pct: number; segments: string[] } | null = null;
+  let companies: PortalCompany[] = [];
   if (isSignedIn) {
+    // Companies this login can access — drives the sidebar switcher. Fail-soft
+    // to an empty list so the layout never breaks.
+    try {
+      companies = await listMyCompanies();
+    } catch {
+      companies = [];
+    }
     try {
       const result = await getOnboardingForCurrentUser();
       if (!isOnboardingError(result) && result.data) {
@@ -202,6 +211,7 @@ export default async function PortalLayout({
                 accountant={accountant}
                 nextAction={nextAction}
                 progress={progress}
+                companies={companies}
               >
                 {children}
               </PortalShell>
