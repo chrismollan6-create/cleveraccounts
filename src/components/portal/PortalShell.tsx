@@ -152,6 +152,7 @@ export default function PortalShell({
               primary={toMobile(primary)}
               secondary={toMobile(secondary)}
               activeHref={activeHref}
+              switcherSlot={companies && <AccountSwitcher companies={companies} />}
               footerSlot={
                 isSignedIn ? (
                   <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-50/50">

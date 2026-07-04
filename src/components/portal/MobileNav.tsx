@@ -23,6 +23,8 @@ interface Props {
   activeHref: string;
   /** Bottom-of-drawer slot: typically the user button. */
   footerSlot: React.ReactNode;
+  /** Optional slot below the header: the account switcher (multi-company only). */
+  switcherSlot?: React.ReactNode;
 }
 
 /**
@@ -39,6 +41,7 @@ export default function MobileNav({
   secondary,
   activeHref,
   footerSlot,
+  switcherSlot,
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -114,6 +117,9 @@ export default function MobileNav({
                 <X size={20} />
               </button>
             </div>
+
+            {/* Account switcher (only rendered for multi-company logins) */}
+            {switcherSlot}
 
             {/* Trust pill */}
             <div className="px-4 pt-4">
