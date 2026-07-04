@@ -2,6 +2,7 @@ import { getCurrentPortalUser, type PortalUser } from "./auth";
 import { getPortalDb } from "./db/client";
 import type { PortalBrand } from "./db/schema";
 import { decidePortalScope, type PortalScopeDeniedReason } from "./scopeDecision";
+import { getImpersonationSession } from "./impersonation";
 
 // Re-exported so existing importers (`./withAccountScope`) keep working after
 // the pure decision logic moved to ./scopeDecision.
@@ -27,12 +28,32 @@ export interface PortalAccountScope {
   contactSfId: string;
   /** Brand the user belongs to — for theming + Calendly routing. */
   brand: PortalBrand;
-  /** Clerk user id, in case audit logs need it. */
+  /** Clerk user id, in case audit logs need it. For staff view-as this is `staff:<sfUserId>`. */
   clerkUserId: string;
-  /** Verified email, lowercased. */
+  /** Verified email, lowercased. Empty under a staff view-as session. */
   email: string;
   /** Portal DB client — already cached, included so callers don't have to import. */
   db: ReturnType<typeof getPortalDb>;
+  /**
+   * True when this scope came from a staff "view as" impersonation session.
+   * Reads are allowed; ALL writes must be refused — call assertWritable(scope)
+   * at the top of any mutation.
+   */
+  readOnly: boolean;
+  /** SF User id of the staff member, when readOnly (view-as); null otherwise. */
+  impersonatedBy: string | null;
+}
+
+/**
+ * Guard for mutation paths — throws when the scope is a read-only staff
+ * view-as session, so an impersonating staff member can never write AS the
+ * client (send a message, upload, approve, switch company, …). Call this at
+ * the very top of every write.
+ */
+export function assertWritable(scope: PortalAccountScope): void {
+  if (scope.readOnly) {
+    throw new PortalScopeDeniedError("read_only", null);
+  }
 }
 
 /**
@@ -67,6 +88,24 @@ export class PortalScopeDeniedError extends Error {
 export async function withPortalScope<T>(
   caller: (scope: PortalAccountScope) => Promise<T>
 ): Promise<T> {
+  // Staff "view as" takes precedence: a valid impersonation session scopes the
+  // request READ-ONLY to the impersonated account, bypassing Clerk-user
+  // resolution entirely. getImpersonationSession verifies the cookie's HMAC —
+  // a forged/expired cookie returns null and we fall through to normal auth.
+  const imp = await getImpersonationSession();
+  if (imp) {
+    return caller({
+      accountSfId: imp.accountSfId,
+      contactSfId: imp.contactSfId ?? "",
+      brand: imp.brand,
+      clerkUserId: `staff:${imp.staffUserId}`,
+      email: "",
+      db: getPortalDb(),
+      readOnly: true,
+      impersonatedBy: imp.staffUserId,
+    });
+  }
+
   const user = await getCurrentPortalUser();
 
   const decision = decidePortalScope(user);
@@ -77,6 +116,8 @@ export async function withPortalScope<T>(
   return caller({
     ...decision.scope,
     db: getPortalDb(),
+    readOnly: false,
+    impersonatedBy: null,
   });
 }
 

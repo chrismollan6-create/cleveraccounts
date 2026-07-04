@@ -1,6 +1,7 @@
 import { and, desc, eq, count } from "drizzle-orm";
 import {
   tryWithPortalScope,
+  assertWritable,
   type PortalScopeResult,
 } from "./withAccountScope";
 import { logPortalEventScoped } from "./audit";
@@ -81,7 +82,9 @@ export async function countPendingApprovalsForCurrentUser(): Promise<
 export async function approveForCurrentUser(
   approvalId: string
 ): Promise<PortalScopeResult<PortalApproval | null>> {
-  return tryWithPortalScope(async ({ accountSfId, db, clerkUserId }) => {
+  return tryWithPortalScope(async (scope) => {
+    assertWritable(scope); // staff view-as must not approve as the client
+    const { accountSfId, db, clerkUserId } = scope;
     const updated = await db
       .update(schema.approvals)
       .set({ status: "approved", approvedAt: new Date(), updatedAt: new Date() })

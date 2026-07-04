@@ -19,7 +19,8 @@ export type PortalScopeDeniedReason =
   | "no_link_row" // Signed in but webhook hasn't created portal.users row yet
   | "pending" // Linked but workflow not yet active (long-standing client)
   | "disabled" // Soft-blocked — email doesn't match any SF Contact
-  | "missing_account"; // Active status but accountSfId is somehow null
+  | "missing_account" // Active status but accountSfId is somehow null
+  | "read_only"; // Staff view-as session — writes are forbidden
 
 /** Scope minus the DB handle — the part the pure decision can produce. */
 export interface BasePortalScope {

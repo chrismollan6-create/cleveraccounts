@@ -1,6 +1,7 @@
 import { and, eq, ne } from "drizzle-orm";
 import { getPortalDb, schema } from "./db/client";
 import { getCurrentPortalUser } from "./auth";
+import { getImpersonationSession } from "./impersonation";
 import type { PortalBrand, PortalUserStatus } from "./db/schema";
 
 /**
@@ -59,6 +60,26 @@ export async function listMyCompanies(): Promise<PortalCompany[]> {
       // (dual-write keeps user.accountSfId pointed at the active membership).
       isActive: r.accountSfId === user.accountSfId,
     }));
+}
+
+/**
+ * Banner context for an active staff view-as session, or null when not
+ * impersonating. Resolves the impersonated account's display name for the
+ * ImpersonationBanner. Independent of Clerk auth (staff have no Clerk session).
+ */
+export async function getImpersonationBanner(): Promise<{
+  clientName: string;
+  staffName: string | null;
+} | null> {
+  const imp = await getImpersonationSession();
+  if (!imp) return null;
+  const db = getPortalDb();
+  const rows = await db
+    .select({ name: schema.accounts.name })
+    .from(schema.accounts)
+    .where(eq(schema.accounts.sfId, imp.accountSfId))
+    .limit(1);
+  return { clientName: rows[0]?.name ?? imp.accountSfId, staffName: imp.staffName };
 }
 
 export type SwitchResolution =

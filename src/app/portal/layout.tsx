@@ -12,7 +12,7 @@ import { countUnreadNotificationsForCurrentUser } from "@/lib/portal/notificatio
 import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
 import { countPendingApprovalsForCurrentUser } from "@/lib/portal/approvals";
 import { countOutstandingDocRequestsForCurrentUser } from "@/lib/portal/documents";
-import { listMyCompanies, type PortalCompany } from "@/lib/portal/memberships";
+import { listMyCompanies, getImpersonationBanner, type PortalCompany } from "@/lib/portal/memberships";
 import "../globals.css";
 
 /**
@@ -97,6 +97,9 @@ export default async function PortalLayout({
   let accountant: import("@/lib/portal/types").PortalAccountantInfo | null = null;
   let nextAction: { title: string; sub: string; href: string } | null = null;
   let progress: { pct: number; segments: string[] } | null = null;
+  // Staff view-as banner — independent of Clerk auth (staff have no session).
+  const impersonation = await getImpersonationBanner().catch(() => null);
+
   let companies: PortalCompany[] = [];
   if (isSignedIn) {
     // Companies this login can access — drives the sidebar switcher. Fail-soft
@@ -212,6 +215,7 @@ export default async function PortalLayout({
                 nextAction={nextAction}
                 progress={progress}
                 companies={companies}
+                impersonation={impersonation}
               >
                 {children}
               </PortalShell>

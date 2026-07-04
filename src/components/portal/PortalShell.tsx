@@ -21,6 +21,7 @@ import type { PortalAccountantInfo } from "@/lib/portal/types";
 import MobileNav, { type MobileNavItem } from "./MobileNav";
 import AccountantAvatar from "./AccountantAvatar";
 import AccountSwitcher from "./AccountSwitcher";
+import ImpersonationBanner from "./ImpersonationBanner";
 import { isSurfaceHidden } from "@/lib/portal/features";
 import type { PortalCompany } from "@/lib/portal/memberships";
 
@@ -55,6 +56,8 @@ interface Props {
   progress?: { pct: number; segments: string[] } | null;
   /** Companies this login can access — drives the switcher (shown when >1). */
   companies?: PortalCompany[];
+  /** When set, a staff view-as session is active — shows the read-only banner. */
+  impersonation?: { clientName: string; staffName: string | null } | null;
   children: React.ReactNode;
 }
 
@@ -129,6 +132,7 @@ export default function PortalShell({
   nextAction,
   progress,
   companies,
+  impersonation,
   children,
 }: Props) {
   // Pilot mode hides surfaces whose SF→cache sync isn't built yet.
@@ -143,6 +147,12 @@ export default function PortalShell({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface via-white to-surface-alt/50">
+      {impersonation && (
+        <ImpersonationBanner
+          clientName={impersonation.clientName}
+          staffName={impersonation.staffName}
+        />
+      )}
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
         <div className="px-3 h-14 flex items-center justify-between gap-2">

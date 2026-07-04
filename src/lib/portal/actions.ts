@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { getPortalDb, schema } from "./db/client";
 import { getCurrentPortalUser } from "./auth";
 import { resolveSwitchTarget } from "./memberships";
+import { getImpersonationSession } from "./impersonation";
 import { logPortalEvent } from "./audit";
 
 export type SwitchAccountResult =
@@ -24,6 +25,10 @@ export type SwitchAccountResult =
 export async function setActiveAccount(
   accountSfId: string
 ): Promise<SwitchAccountResult> {
+  // A staff view-as session must never switch accounts (it's read-only, and
+  // the target account is fixed by the impersonation token).
+  if (await getImpersonationSession()) return { ok: false, error: "forbidden" };
+
   const user = await getCurrentPortalUser();
   if (!user || !user.clerkUserId) return { ok: false, error: "not_signed_in" };
 

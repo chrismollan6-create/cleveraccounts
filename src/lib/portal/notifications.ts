@@ -1,6 +1,7 @@
 import { and, desc, eq, isNull, count } from "drizzle-orm";
 import {
   tryWithPortalScope,
+  assertWritable,
   type PortalScopeResult,
 } from "./withAccountScope";
 import { schema } from "./db/client";
@@ -68,7 +69,9 @@ export async function countUnreadNotificationsForCurrentUser(): Promise<
 export async function markAllNotificationsRead(): Promise<
   PortalScopeResult<number>
 > {
-  return tryWithPortalScope(async ({ accountSfId, db }) => {
+  return tryWithPortalScope(async (scope) => {
+    assertWritable(scope); // staff view-as must not mutate the client's read state
+    const { accountSfId, db } = scope;
     const updated = await db
       .update(schema.notifications)
       .set({ readAt: new Date() })

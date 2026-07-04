@@ -2,6 +2,7 @@ import { desc, eq, and, count } from "drizzle-orm";
 import { fetchPortalApex } from "./salesforce";
 import {
   tryWithPortalScope,
+  assertWritable,
   type PortalScopeResult,
 } from "./withAccountScope";
 import { logPortalEventScoped } from "./audit";
@@ -157,7 +158,9 @@ export async function sendMessageForCurrentUser(
     };
   }
 
-  return tryWithPortalScope(async ({ accountSfId, contactSfId, brand, db, clerkUserId }) => {
+  return tryWithPortalScope(async (scope) => {
+    assertWritable(scope); // staff view-as must not send messages as the client
+    const { accountSfId, contactSfId, brand, db, clerkUserId } = scope;
     const result = await fetchPortalApex<SendMessageResult>(
       { clerkUserId, accountId: accountSfId, contactId: contactSfId, brand },
       "/messages",

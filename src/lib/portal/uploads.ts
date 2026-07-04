@@ -4,6 +4,7 @@ import { getSupabaseServerClient } from "./db";
 import { fetchPortalApex } from "./salesforce";
 import {
   tryWithPortalScope,
+  assertWritable,
   type PortalScopeResult,
 } from "./withAccountScope";
 import { logPortalEventScoped } from "./audit";
@@ -147,7 +148,9 @@ export async function registerUploadForCurrentUser(
   files: RegisterFileInput[],
   note: string | null
 ): Promise<PortalScopeResult<PortalUploadInit>> {
-  return tryWithPortalScope(async ({ accountSfId, contactSfId, db, clerkUserId }) => {
+  return tryWithPortalScope(async (scope) => {
+    assertWritable(scope); // staff view-as must not upload as the client
+    const { accountSfId, contactSfId, db, clerkUserId } = scope;
     const sb = getSupabaseServerClient();
     await ensureBucket(sb);
 
@@ -218,6 +221,7 @@ export async function completeUploadForCurrentUser(
   uploadId: string
 ): Promise<PortalScopeResult<PortalUpload | null>> {
   return tryWithPortalScope(async (scope) => {
+    assertWritable(scope); // staff view-as must not finalise uploads as the client
     const { accountSfId, db, clerkUserId } = scope;
     const idNum = Number(uploadId);
     if (!Number.isInteger(idNum)) return null;

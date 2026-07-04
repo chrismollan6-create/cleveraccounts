@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { brandIdFromHost } from '@/lib/brand-host';
 import { isPortalHost, portalBrandFromHost } from '@/lib/portal/host';
 import { BRANDS, type BrandId } from '@/lib/constants';
+import { IMPERSONATION_COOKIE } from '@/lib/portal/impersonation-cookie';
 
 /**
  * Multi-tenant brand detection + portal routing + Clerk auth gate.
@@ -38,6 +39,9 @@ const BRAND_OVERRIDE_PARAM = '_brand';
 const PUBLIC_PORTAL_PATTERNS: RegExp[] = [
   /^\/portal\/sign-in(\/.*)?$/,
   /^\/portal\/activate(\/.*)?$/, // invite redemption — invitee isn't signed in yet
+  // Staff "view as" entry/exit. No Clerk session (staff have none) — the
+  // SF-minted token is the credential, verified inside the route handler.
+  /^\/portal\/view-as(\/.*)?$/,
   /^\/portal\/?$/, // bare /portal — landing page can be public
 ];
 
@@ -148,6 +152,18 @@ function isValidBrand(v: string | null | undefined): v is BrandId {
 
 function isPublicPortalPath(portalPath: string): boolean {
   return PUBLIC_PORTAL_PATTERNS.some((p) => p.test(portalPath));
+}
+
+/**
+ * Whether a staff view-as impersonation cookie is present. If so, we let the
+ * request past the Clerk auth gate even without a Clerk session — staff have
+ * none. This is only a PRESENCE check: the Edge runtime can't run node:crypto,
+ * so the cookie's HMAC signature is verified for real downstream in
+ * withPortalScope (Node runtime). A forged cookie therefore reaches the page
+ * but is rejected there, so nothing leaks.
+ */
+function hasImpersonationCookie(req: NextRequest): boolean {
+  return Boolean(req.cookies.get(IMPERSONATION_COOKIE)?.value);
 }
 
 // ─── Security headers ───────────────────────────────────────────────────────
@@ -327,7 +343,7 @@ async function handle(req: NextRequest, getUserId: () => Promise<string | null |
     // highlighting) resolve against the real route.
     requestHeaders.set('x-pathname', portalPath);
 
-    if (!isPublicPortalPath(portalPath)) {
+    if (!isPublicPortalPath(portalPath) && !hasImpersonationCookie(req)) {
       const userId = await getUserId();
       if (!userId) {
         const signInUrl = url.clone();
@@ -361,7 +377,7 @@ async function handle(req: NextRequest, getUserId: () => Promise<string | null |
     }
 
     // Dev / preview: enforce auth gate but allow direct /portal/* access.
-    if (!isPublicPortalPath(url.pathname)) {
+    if (!isPublicPortalPath(url.pathname) && !hasImpersonationCookie(req)) {
       const userId = await getUserId();
       if (!userId) {
         const signInUrl = url.clone();
