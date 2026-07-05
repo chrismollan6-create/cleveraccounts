@@ -343,7 +343,7 @@ export default function PortalBooking({
               type="button"
               onClick={confirm}
               disabled={booking}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:opacity-60"
             >
               {booking ? (
                 <>
