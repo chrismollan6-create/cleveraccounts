@@ -588,11 +588,24 @@ function parseTimestamp(v: unknown): Date | null {
   return Number.isFinite(d.getTime()) ? d : null;
 }
 
-/** Parse SF 'YYYY-MM-DD' date string → string passthrough (Drizzle handles). */
+/**
+ * Coerce a value to a Postgres `date` literal, or null when it isn't a real
+ * date. Guards against free-text SF fields (e.g. VAT_Return_Deadline_Date__c
+ * actually holds a stagger day like "7th May") — passing those straight to a
+ * `date` column throws and aborts the whole Account sync (losing the sibling
+ * Corp Tax deadline too). A non-date value is treated as "no date" → skipped.
+ */
 function parseDate(v: unknown): string | null {
-  if (!v) return null;
-  if (typeof v !== "string") return null;
-  return v;
+  if (!v || typeof v !== "string") return null;
+  // Plain calendar date — use as-is.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  // ISO datetime — take the date part.
+  if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
+    const d = new Date(v);
+    return Number.isFinite(d.getTime()) ? v.slice(0, 10) : null;
+  }
+  // Anything else (free text like "7th May") isn't a date → skip.
+  return null;
 }
 
 /** Derive a deadline status from its due date (+ an explicit overdue flag). */
