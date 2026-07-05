@@ -4,9 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  Check,
   CalendarCheck,
   Loader2,
+  Clock,
+  User,
+  ArrowRight,
 } from "lucide-react";
 import type { BookingSlot } from "@/lib/portal/booking";
 
@@ -40,6 +42,7 @@ export default function PortalBooking({
   const [slots, setSlots] = useState<BookingSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selected, setSelected] = useState<BookingSlot | null>(null);
   const [booking, setBooking] = useState(false);
   const [booked, setBooked] = useState<BookingSlot | null>(null);
@@ -52,8 +55,9 @@ export default function PortalBooking({
     setLoading(true);
     setLoadError(null);
     setSelected(null);
-    const start = ymd(windowStart);
-    const end = ymd(addDays(windowStart, 6));
+    const wStart = addDays(startOfToday(), weekOffset * 7);
+    const start = ymd(wStart);
+    const end = ymd(addDays(wStart, 6));
     try {
       const res = await fetch(
         `/api/portal/booking/slots?eventTypeUri=${encodeURIComponent(
@@ -61,14 +65,18 @@ export default function PortalBooking({
         )}&start=${start}&end=${end}`
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setSlots((await res.json()) as BookingSlot[]);
+      const data = (await res.json()) as BookingSlot[];
+      setSlots(data);
+      const keys = Array.from({ length: 7 }, (_, i) => ymd(addDays(wStart, i)));
+      setSelectedDay(keys.find((k) => data.some((s) => s.dateKey === k)) ?? null);
     } catch {
       setLoadError("Couldn't load available times. Please try again.");
       setSlots([]);
+      setSelectedDay(null);
     } finally {
       setLoading(false);
     }
-  }, [eventTypeUri, weekOffset]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [eventTypeUri, weekOffset]);
 
   useEffect(() => {
     loadSlots();
@@ -94,7 +102,6 @@ export default function PortalBooking({
               ? "Booking is disabled in staff view."
               : "That time is no longer available — please pick another.")
         );
-        // Refresh availability — the slot may have just been taken.
         loadSlots();
       }
     } catch {
@@ -104,40 +111,50 @@ export default function PortalBooking({
     }
   }
 
+  // ── Booked confirmation ─────────────────────────────────────────────────────
   if (booked) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white">
-            <CalendarCheck size={20} />
-          </span>
-          <div>
-            <h2 className="text-base font-bold text-emerald-900">You&apos;re booked in</h2>
-            <p className="text-sm text-emerald-800">
-              {booked.displayDate} at {booked.displayTime} with {accountantName}
-            </p>
+      <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 px-6 py-7 text-center text-white">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
+            <CalendarCheck size={24} />
           </div>
+          <h2 className="text-lg font-bold">You&apos;re booked in</h2>
+          <p className="mt-1 text-sm text-emerald-50">
+            {booked.displayDate} at {booked.displayTime}
+          </p>
         </div>
-        <p className="mt-4 text-sm text-emerald-800">
-          A calendar invite is on its way to your inbox, with a link to reschedule if you
-          need to.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setBooked(null);
-            setSelected(null);
-            loadSlots();
-          }}
-          className="mt-4 inline-flex items-center rounded-lg border border-emerald-300 bg-white px-3.5 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100"
-        >
-          Book another time
-        </button>
+        <div className="px-6 py-5 text-center">
+          <p className="text-sm text-text-light">
+            Your call with <span className="font-semibold text-text">{accountantName}</span> is
+            confirmed. A calendar invite — with a link to reschedule — is on its way to your inbox.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setBooked(null);
+              setSelected(null);
+              loadSlots();
+            }}
+            className="mt-4 inline-flex items-center rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-semibold text-text hover:bg-gray-50"
+          >
+            Book another time
+          </button>
+        </div>
       </div>
     );
   }
 
-  const byDay = (key: string) => slots.filter((s) => s.dateKey === key);
+  const daySlots = selectedDay ? slots.filter((s) => s.dateKey === selectedDay) : [];
+  const morning = daySlots.filter((s) => Number(s.displayTime.slice(0, 2)) < 12);
+  const afternoon = daySlots.filter((s) => Number(s.displayTime.slice(0, 2)) >= 12);
+  const selectedDate = selectedDay
+    ? new Date(`${selectedDay}T00:00:00`).toLocaleDateString("en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      })
+    : null;
   const rangeLabel = `${windowStart.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -147,115 +164,173 @@ export default function PortalBooking({
   })}`;
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 lg:p-6">
-      {/* Heading + description */}
-      <div className="mb-4">
-        <h2 className="text-base font-bold text-text">{eventTypeName}</h2>
-        <p className="mt-0.5 text-sm text-text-light">
-          Choose a slot below to book with {accountantName}. Times are shown in UK time.
-        </p>
-      </div>
-
-      {/* Week nav */}
-      <div className="mb-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}
-          disabled={weekOffset === 0 || loading}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-text hover:bg-gray-50 disabled:opacity-40"
-          aria-label="Previous week"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <span className="text-sm font-semibold text-text">{rangeLabel}</span>
-        <button
-          type="button"
-          onClick={() => setWeekOffset((w) => w + 1)}
-          disabled={loading}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-text hover:bg-gray-50 disabled:opacity-40"
-          aria-label="Next week"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
-
-      {/* Grid */}
-      {loading ? (
-        <div className="flex items-center justify-center gap-2 py-12 text-sm text-text-light">
-          <Loader2 size={16} className="animate-spin" /> Loading available times…
-        </div>
-      ) : loadError ? (
-        <div className="py-10 text-center">
-          <p className="text-sm text-text-light">{loadError}</p>
-          <button
-            type="button"
-            onClick={loadSlots}
-            className="mt-3 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-text hover:bg-gray-50"
-          >
-            Try again
-          </button>
-        </div>
-      ) : slots.length === 0 ? (
-        <div className="py-10 text-center">
-          <p className="text-sm text-text-light">
-            No times available this week. Try the next week.
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="lg:flex">
+        {/* LEFT — context / details */}
+        <aside className="border-b border-gray-100 bg-gray-50/60 p-5 lg:w-72 lg:shrink-0 lg:border-b-0 lg:border-r lg:p-6">
+          <h2 className="text-lg font-bold leading-snug text-text">{eventTypeName}</h2>
+          <dl className="mt-4 space-y-2.5 text-sm text-text-light">
+            <div className="flex items-center gap-2.5">
+              <User size={15} className="shrink-0 text-primary" />
+              <span>
+                With <span className="font-medium text-text">{accountantName}</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <Clock size={15} className="shrink-0 text-primary" />
+              <span>Times shown in UK time</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CalendarCheck size={15} className="shrink-0 text-primary" />
+              <span>Calendar invite + reminder</span>
+            </div>
+          </dl>
+          <p className="mt-4 text-sm leading-relaxed text-text-light">
+            A quick, no-pressure call to talk through anything on your mind. Pick a slot that
+            suits you — you can reschedule anytime from the invite.
           </p>
-          <button
-            type="button"
-            onClick={() => setWeekOffset((w) => w + 1)}
-            className="mt-3 inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-dark"
-          >
-            Next week <ChevronRight size={14} />
-          </button>
-        </div>
-      ) : (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {days.map((d) => {
-            const key = ymd(d);
-            const daySlots = byDay(key);
-            return (
-              <div key={key} className="min-w-[7.25rem] flex-1">
-                <div className="mb-2 text-center">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-text-light">
-                    {d.toLocaleDateString("en-GB", { weekday: "short" })}
-                  </div>
-                  <div className="text-sm font-bold text-text">{d.getDate()}</div>
-                </div>
-                <div className="space-y-1.5">
-                  {daySlots.length === 0 ? (
-                    <div className="rounded-md border border-dashed border-gray-100 py-2 text-center text-[11px] text-text-light/60">
-                      —
-                    </div>
-                  ) : (
-                    daySlots.map((s) => {
-                      const isSel = selected?.startTime === s.startTime;
-                      return (
-                        <button
-                          key={s.startTime}
-                          type="button"
-                          onClick={() => setSelected(s)}
-                          className={`flex w-full items-center justify-center rounded-md border px-2 py-1.5 text-sm font-medium transition ${
-                            isSel
-                              ? "border-primary bg-primary text-white"
-                              : "border-gray-200 text-text hover:border-primary hover:text-primary"
-                          }`}
-                        >
-                          {s.displayTime}
-                          {isSel && <Check size={13} className="ml-1" />}
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+        </aside>
 
-      {/* Confirm bar */}
+        {/* RIGHT — scheduler */}
+        <div className="flex-1 p-5 lg:p-6">
+          {/* Week nav */}
+          <div className="mb-3 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}
+              disabled={weekOffset === 0 || loading}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-text transition hover:bg-gray-50 disabled:opacity-40"
+              aria-label="Previous week"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="text-sm font-semibold text-text">{rangeLabel}</span>
+            <button
+              type="button"
+              onClick={() => setWeekOffset((w) => w + 1)}
+              disabled={loading}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-text transition hover:bg-gray-50 disabled:opacity-40"
+              aria-label="Next week"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+          {/* Day selector */}
+          <div className="grid grid-cols-7 gap-1.5">
+            {days.map((d) => {
+              const key = ymd(d);
+              const count = slots.filter((s) => s.dateKey === key).length;
+              const isSel = selectedDay === key;
+              const disabled = count === 0;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => {
+                    setSelectedDay(key);
+                    setSelected(null);
+                  }}
+                  className={`flex flex-col items-center rounded-xl border py-2 transition ${
+                    isSel
+                      ? "border-primary bg-primary text-white shadow-sm"
+                      : disabled
+                        ? "cursor-not-allowed border-gray-100 text-text-light/40"
+                        : "border-gray-200 text-text hover:border-primary/60 hover:bg-primary/5"
+                  }`}
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-wide opacity-80">
+                    {d.toLocaleDateString("en-GB", { weekday: "short" })}
+                  </span>
+                  <span className="text-base font-bold leading-tight">{d.getDate()}</span>
+                  <span
+                    className={`mt-1 h-1.5 w-1.5 rounded-full ${
+                      isSel ? "bg-white" : disabled ? "bg-transparent" : "bg-primary/50"
+                    }`}
+                    aria-hidden
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Times */}
+          <div className="mt-5 min-h-[13rem]">
+            {loading ? (
+              <div className="flex items-center justify-center gap-2 py-16 text-sm text-text-light">
+                <Loader2 size={16} className="animate-spin" /> Loading available times…
+              </div>
+            ) : loadError ? (
+              <div className="py-12 text-center">
+                <p className="text-sm text-text-light">{loadError}</p>
+                <button
+                  type="button"
+                  onClick={loadSlots}
+                  className="mt-3 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-text hover:bg-gray-50"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : slots.length === 0 ? (
+              <div className="py-12 text-center">
+                <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-text-light">
+                  <Clock size={18} />
+                </div>
+                <p className="text-sm text-text-light">No times available this week.</p>
+                <button
+                  type="button"
+                  onClick={() => setWeekOffset((w) => w + 1)}
+                  className="mt-3 inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-dark"
+                >
+                  Try next week <ChevronRight size={14} />
+                </button>
+              </div>
+            ) : (
+              <div>
+                {selectedDate && (
+                  <p className="mb-3 text-sm font-semibold text-text">{selectedDate}</p>
+                )}
+                {[
+                  { label: "Morning", items: morning },
+                  { label: "Afternoon", items: afternoon },
+                ]
+                  .filter((g) => g.items.length > 0)
+                  .map((group) => (
+                    <div key={group.label} className="mb-4 last:mb-0">
+                      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-light/70">
+                        {group.label}
+                      </p>
+                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                        {group.items.map((s) => {
+                          const isSel = selected?.startTime === s.startTime;
+                          return (
+                            <button
+                              key={s.startTime}
+                              type="button"
+                              onClick={() => setSelected(s)}
+                              className={`rounded-lg border py-2 text-sm font-semibold transition ${
+                                isSel
+                                  ? "border-primary bg-primary text-white shadow-sm"
+                                  : "border-gray-200 text-text hover:border-primary hover:text-primary"
+                              }`}
+                            >
+                              {s.displayTime}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Confirm bar — spans the card */}
       {selected && (
-        <div className="mt-4 flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5 lg:px-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm">
             <span className="text-text-light">Selected: </span>
             <span className="font-semibold text-text">
@@ -268,14 +343,16 @@ export default function PortalBooking({
               type="button"
               onClick={confirm}
               disabled={booking}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
             >
               {booking ? (
                 <>
                   <Loader2 size={14} className="animate-spin" /> Booking…
                 </>
               ) : (
-                <>Confirm booking</>
+                <>
+                  Confirm booking <ArrowRight size={14} />
+                </>
               )}
             </button>
           </div>
