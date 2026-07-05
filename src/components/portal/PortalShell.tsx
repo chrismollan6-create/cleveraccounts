@@ -70,7 +70,7 @@ const PRIMARY_NAV: NavItem[] = [
   { label: "Messages", href: "/portal/messages", icon: MessageCircle },
   { label: "Your details", href: "/portal/details", icon: Building2 },
   { label: "Documents", href: "/portal/documents", icon: FileText },
-  { label: "Appointments", href: "/portal/appointments", icon: CalendarDays, disabled: true, badge: "Soon" },
+  { label: "Appointments", href: "/portal/appointments", icon: CalendarDays },
 ];
 
 const SECONDARY_NAV: NavItem[] = [
@@ -240,14 +240,12 @@ export default function PortalShell({
                 </div>
                 <div className="mt-2.5 grid grid-cols-2 gap-1">
                   {accountant.calendlyUrl ? (
-                    <a
-                      href={accountant.calendlyUrl}
-                      target="_blank"
-                      rel="noreferrer"
+                    <Link
+                      href="/portal/appointments"
                       className="inline-flex items-center justify-center gap-1 rounded-md bg-[#F97316] px-2 py-1 text-[10px] font-semibold text-white hover:bg-[#EA580C]"
                     >
                       <CalendarDays size={10} /> Book
-                    </a>
+                    </Link>
                   ) : (
                     <span className="inline-flex items-center justify-center gap-1 rounded-md bg-[#F97316]/40 px-2 py-1 text-[10px] font-semibold text-white">
                       <CalendarDays size={10} /> Book

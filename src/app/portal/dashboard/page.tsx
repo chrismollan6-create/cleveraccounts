@@ -776,14 +776,12 @@ function NextStepHero({
           {/* CTA — one tap to book */}
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             {a.calendlyUrl ? (
-              <a
-                href={a.calendlyUrl}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href="/portal/appointments"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-600 hover:shadow-orange-500/40"
               >
                 Choose a time <ArrowRight size={17} />
-              </a>
+              </Link>
             ) : (
               <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500/40 px-6 py-3 text-base font-semibold text-white">
                 Booking link coming

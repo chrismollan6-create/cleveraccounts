@@ -44,7 +44,7 @@ const THEMES: Record<PortalNextActionType, ActionTheme> = {
     body: () => "Pick a time that suits you. It'll only take a few minutes to set up.",
     cta: (s) =>
       s.accountant.calendlyUrl
-        ? { label: "Choose a time", href: s.accountant.calendlyUrl, external: true }
+        ? { label: "Choose a time", href: "/portal/appointments", external: false }
         : null,
   },
   awaiting_call: {
@@ -57,7 +57,7 @@ const THEMES: Record<PortalNextActionType, ActionTheme> = {
       "Nothing else to do for now — you'll get a calendar invite and a reminder before the call.",
     cta: (s) =>
       s.accountant.calendlyUrl
-        ? { label: "Need to reschedule?", href: s.accountant.calendlyUrl, external: true }
+        ? { label: "Need to reschedule?", href: "/portal/appointments", external: false }
         : null,
   },
   snoozed: {

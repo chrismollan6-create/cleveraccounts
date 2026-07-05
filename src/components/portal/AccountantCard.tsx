@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Mail, Calendar, MessageCircle, ShieldCheck } from "lucide-react";
 import type { PortalAccountantInfo } from "@/lib/portal/types";
 
@@ -89,15 +90,13 @@ export default function AccountantCard({ accountant, brandName }: Props) {
         {/* CTAs */}
         <div className="mt-6 space-y-2.5">
           {calendlyHref ? (
-            <a
-              href={calendlyHref}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/portal/appointments"
               className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:bg-primary-dark hover:shadow-md transition-all group"
             >
               <Calendar size={16} className="transition-transform group-hover:-rotate-6" />
               Book a call
-            </a>
+            </Link>
           ) : (
             <button
               disabled
