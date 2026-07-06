@@ -504,6 +504,8 @@ export const notifications = portal.table(
   "notifications",
   {
     id: bigserial("id", { mode: "number" }).primaryKey(),
+    /** Source Notification__c id. The sync upsert key. NULL for legacy seeded rows. */
+    sfId: text("sf_id"),
     accountSfId: text("account_sf_id").notNull(),
     /** 'message' | 'deadline' | 'approval' | 'request' | 'document' | 'general' */
     type: text("type").notNull(),
@@ -515,6 +517,7 @@ export const notifications = portal.table(
     actionRequired: boolean("action_required").notNull().default(false),
     readAt: timestamp("read_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    sfUpdatedAt: timestamp("sf_updated_at", { withTimezone: true }),
   },
   (t) => ({
     accountCreatedIdx: index("notifications_account_created_idx").on(
@@ -525,6 +528,9 @@ export const notifications = portal.table(
       t.accountSfId,
       t.readAt
     ),
+    // Idempotency key for the SF→cache sync (ON CONFLICT target). NULLs are
+    // distinct in Postgres, so legacy seeded rows (sf_id NULL) don't collide.
+    sfIdUq: uniqueIndex("notifications_sf_id_uq").on(t.sfId),
   })
 );
 

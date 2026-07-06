@@ -12,9 +12,10 @@ import type { PortalNotification } from "./types";
  * row in portal.notifications, deep-linking into the relevant surface. Drives
  * the sidebar bell badge + the /portal/notifications inbox.
  *
- * Reads/writes go through withPortalScope (same IDOR chokepoint). Rows are
- * raised server-side when events happen (deadline approaching, reply received,
- * item to approve, etc.) — for the demo they're seeded.
+ * Reads go through withPortalScope (same IDOR chokepoint). Rows originate in
+ * Salesforce as Notification__c and sync into portal.notifications (see
+ * sync-handler) — created by staff manually or by automation (accountant reply,
+ * approaching deadline). read_at is the one column owned portal-side.
  */
 
 export async function listNotificationsForCurrentUser(

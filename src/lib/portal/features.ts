@@ -17,12 +17,16 @@
  * real, working purpose (upload card + "Sent to us" history). The read-only
  * "shared"/"requested" sections stay empty until their SF sync is built, but
  * they simply don't render when empty, so the page is coherent.
+ *
+ * Update (2026-07-06): Notifications is now enabled — Notification__c syncs from
+ * Salesforce into portal.notifications (manual/staff-created, plus automated
+ * accountant-reply and approaching-deadline sources). The inbox + bell are real.
+ * Approvals stays hidden until the MTD approval-state fields land in prod.
  */
 export const PILOT_MODE = process.env.PORTAL_PILOT_MODE === "true";
 
 /** Nav hrefs / surfaces suppressed while PILOT_MODE is on. */
 const PILOT_HIDDEN_HREFS = new Set<string>([
-  "/portal/notifications",
   "/portal/approvals",
 ]);
 

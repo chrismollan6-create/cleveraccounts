@@ -43,6 +43,7 @@ const ALLOWED_OBJECTS = new Set([
   "User",
   "CH_Company__c",
   "CH_Company_Officer__c",
+  "Notification__c",
 ]);
 
 /**
@@ -483,6 +484,34 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
         });
       return;
     }
+    case "Notification__c": {
+      // read_at + created_at are deliberately EXCLUDED from the update set:
+      // read state is owned portal-side (markAllNotificationsRead), and
+      // created_at stays anchored to the SF CreatedDate for stable ordering.
+      // So a staff edit that re-syncs updates the content but never re-marks a
+      // read notification as unread or reshuffles the inbox.
+      const content = {
+        accountSfId: s.accountSfId as string,
+        type: s.type as string,
+        title: s.title as string,
+        body: (s.body as string) ?? null,
+        href: (s.href as string) ?? null,
+        actionRequired: (s.actionRequired as boolean) ?? false,
+        sfUpdatedAt: parseTimestamp(s.sfUpdatedAt),
+      };
+      await db
+        .insert(schema.notifications)
+        .values({
+          sfId: s.sfId as string,
+          ...content,
+          createdAt: parseTimestamp(s.createdAt) ?? new Date(),
+        })
+        .onConflictDoUpdate({
+          target: schema.notifications.sfId,
+          set: content,
+        });
+      return;
+    }
   }
 }
 
@@ -576,6 +605,8 @@ async function deleteFromCache(objectType: string, sfId: string): Promise<boolea
       return (await db.delete(schema.companies).where(eq(schema.companies.sfId, sfId))).length > 0;
     case "CH_Company_Officer__c":
       return (await db.delete(schema.officers).where(eq(schema.officers.sfId, sfId))).length > 0;
+    case "Notification__c":
+      return (await db.delete(schema.notifications).where(eq(schema.notifications.sfId, sfId))).length > 0;
   }
   return false;
 }
