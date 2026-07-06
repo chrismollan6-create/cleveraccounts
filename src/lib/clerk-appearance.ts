@@ -101,3 +101,84 @@ export function getPortalClerkAppearance(brand: BrandConfig) {
     },
   };
 }
+
+/**
+ * Immersive variant for the native-app sign-in — the Clerk widget dissolves
+ * into the branded gradient: transparent card (no white box), glassy inputs,
+ * white text, a solid white submit button. Used on the full-bleed app login.
+ */
+export function getPortalClerkAppearanceImmersive(brand: BrandConfig) {
+  return {
+    variables: {
+      colorPrimary: "#ffffff",
+      colorText: "#ffffff",
+      colorTextSecondary: "rgba(255,255,255,0.72)",
+      colorBackground: "transparent",
+      colorInputBackground: "rgba(255,255,255,0.10)",
+      colorInputText: "#ffffff",
+      colorDanger: "#fecaca",
+      colorSuccess: "#a7f3d0",
+      colorWarning: "#fde68a",
+      borderRadius: "0.75rem",
+      fontFamily: brand.font.family + ", system-ui, sans-serif",
+      fontSize: "0.95rem",
+      spacingUnit: "1rem",
+    },
+    elements: {
+      rootBox: "w-full",
+      cardBox: "bg-transparent shadow-none border-0",
+      card: "bg-transparent shadow-none border-0 rounded-none px-0 py-0",
+
+      header: "mb-6 text-center",
+      headerTitle: "text-2xl font-bold tracking-tight text-white",
+      headerSubtitle: "mt-1.5 text-sm text-white/70",
+
+      socialButtonsBlockButton:
+        "border border-white/20 bg-white/10 rounded-xl py-2.5 hover:bg-white/15 transition shadow-none",
+      socialButtonsBlockButtonText: "font-semibold text-sm text-white",
+      socialButtonsProviderIcon: "h-4 w-4",
+
+      dividerRow: "my-5",
+      dividerLine: "bg-white/20",
+      dividerText:
+        "text-[10px] font-bold uppercase tracking-[0.15em] text-white/50 px-3",
+
+      formField: "mb-3",
+      formFieldLabelRow: "mb-1.5",
+      formFieldLabel:
+        "text-[11px] font-bold uppercase tracking-[0.08em] text-white/70",
+      formFieldHintText: "text-xs text-white/55",
+      formFieldInput:
+        "rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:ring-2 focus:ring-white/25 focus:border-white/40 outline-none transition",
+      formFieldInputShowPasswordButton: "text-white/50 hover:text-white",
+      formFieldErrorText: "text-xs text-red-200 mt-1",
+
+      identityPreview:
+        "rounded-xl border border-white/20 bg-white/10 px-4 py-2.5",
+      identityPreviewText: "text-sm text-white/90",
+      identityPreviewEditButtonIcon: "text-white",
+      formFieldAction: "text-xs font-semibold text-white hover:text-white/80",
+      badge:
+        "inline-flex items-center rounded-full bg-white/15 text-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-white/20",
+
+      formButtonPrimary:
+        "rounded-xl bg-white text-primary-dark hover:bg-white/90 font-semibold py-3 shadow-sm transition normal-case tracking-normal",
+      formButtonPrimaryArrow: "hidden",
+
+      formResendCodeLink: "text-sm font-medium text-white hover:text-white/80",
+
+      footer: "bg-transparent border-0 px-0 pb-0 pt-4",
+      footerAction: "text-sm text-white/70",
+      footerActionText: "text-sm text-white/70",
+      footerActionLink: "text-sm font-semibold text-white hover:text-white/80",
+      logoBox: "hidden",
+      footerPages: "hidden",
+      poweredByClerk: "hidden",
+    },
+    layout: {
+      socialButtonsPlacement: "top" as const,
+      socialButtonsVariant: "blockButton" as const,
+      showOptionalFields: false,
+    },
+  };
+}

@@ -10,7 +10,10 @@ import {
   Lock,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
-import { getPortalClerkAppearance } from "@/lib/clerk-appearance";
+import {
+  getPortalClerkAppearance,
+  getPortalClerkAppearanceImmersive,
+} from "@/lib/clerk-appearance";
 import { isNativeAppUA } from "@/lib/portal/native";
 
 /**
@@ -49,23 +52,23 @@ export default async function PortalSignInPage() {
           <Image
             src={brand.assets.logo}
             alt={brand.name}
-            width={160}
-            height={42}
+            width={170}
+            height={44}
             priority
-            className="h-9 w-auto brightness-0 invert"
+            className="mb-10 h-10 w-auto brightness-0 invert"
           />
-          <h1 className="mt-8 text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="mt-1.5 text-sm text-white/70">Sign in to your portal</p>
 
-          <div className="mt-8 w-full max-w-sm">
+          {/* Clerk owns the step-aware white heading ("Sign in" → "Check your
+              email" → "Enter code") so it stays correct through the flow. */}
+          <div className="w-full max-w-sm">
             <SignIn
-              appearance={getPortalClerkAppearance(brand)}
+              appearance={getPortalClerkAppearanceImmersive(brand)}
               forceRedirectUrl="/portal/dashboard"
               signUpUrl="/portal/activate"
             />
           </div>
 
-          <p className="mt-6 text-center text-xs text-white/60">
+          <p className="mt-8 text-center text-xs text-white/60">
             New here?{" "}
             <Link href="/portal/activate" className="font-semibold text-white underline">
               Got an invite?
