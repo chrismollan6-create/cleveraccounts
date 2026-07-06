@@ -81,12 +81,12 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
 
   return (
     <div
-      className={`group relative flex gap-3.5 overflow-hidden rounded-2xl border bg-white p-4 shadow-sm ${
+      className={`group relative flex gap-3.5 overflow-hidden rounded-2xl border p-4 shadow-sm ${
         n.actionRequired
-          ? "border-orange-200"
+          ? "border-orange-200 bg-orange-50/50"
           : !n.read
-            ? "border-[#1A7A9B]/25"
-            : "border-neutral-200"
+            ? "border-[#1A7A9B]/25 bg-[#1A7A9B]/[0.045]"
+            : "border-neutral-200 bg-white"
       }`}
     >
       {(n.actionRequired || !n.read) && (
