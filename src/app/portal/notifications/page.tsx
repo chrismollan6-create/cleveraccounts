@@ -4,10 +4,7 @@ import { Bell, BellOff } from "lucide-react";
 import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
-import {
-  listNotificationsForCurrentUser,
-  markAllNotificationsRead,
-} from "@/lib/portal/notifications";
+import { listNotificationsForCurrentUser } from "@/lib/portal/notifications";
 import AccessGate from "@/components/portal/AccessGate";
 import NotificationCard from "@/components/portal/notifications/NotificationCard";
 import EnableNotifications from "@/components/portal/notifications/EnableNotifications";
@@ -53,12 +50,9 @@ export default async function NotificationsPage() {
     );
   }
 
-  // Snapshot read/unread BEFORE we clear the badge, so this render can still
-  // highlight what was unread.
+  // Inbox behaviour: DON'T clear everything on open — each row stays unread
+  // until the client taps it (NotificationCard → markNotificationReadAction).
   const items = result.ok === true ? result.data : [];
-  if (result.ok === true) {
-    await markAllNotificationsRead();
-  }
 
   const actionItems = items.filter((n) => n.actionRequired);
   const restItems = items.filter((n) => !n.actionRequired);

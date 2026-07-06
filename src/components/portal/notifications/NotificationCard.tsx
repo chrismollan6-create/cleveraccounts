@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import { markNotificationReadAction } from "@/app/portal/notifications/actions";
 import {
   Bell,
   MessageSquare,
@@ -74,22 +75,51 @@ const LONG_BODY = 160; // chars beyond which we clamp + offer "Read more"
 
 export default function NotificationCard({ n }: { n: PortalNotification }) {
   const [expanded, setExpanded] = useState(false);
+  const [read, setRead] = useState(n.read);
+  const [, startTransition] = useTransition();
   const meta = TYPE_META[n.type] ?? TYPE_META.general;
   const Icon = meta.icon;
   const action = actionFor(n);
   const isLong = !!n.body && n.body.length > LONG_BODY;
+  const showUnread = !read;
+
+  // Inbox behaviour: tapping the card reads it (optimistic) and opens the body.
+  function markRead() {
+    if (read) return;
+    setRead(true);
+    startTransition(() => {
+      markNotificationReadAction(n.id).catch(() => {
+        // Row stays unread server-side; nothing to undo visually mid-session.
+      });
+    });
+  }
+
+  function onOpen() {
+    markRead();
+    if (n.body) setExpanded((v) => !v);
+  }
 
   return (
     <div
-      className={`group relative flex gap-3.5 overflow-hidden rounded-2xl border p-4 shadow-sm ${
+      role="button"
+      tabIndex={0}
+      aria-expanded={n.body ? expanded : undefined}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className={`group relative flex cursor-pointer gap-3.5 overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A7A9B]/40 ${
         n.actionRequired
           ? "border-orange-200 bg-orange-50/50"
-          : !n.read
+          : showUnread
             ? "border-[#1A7A9B]/25 bg-[#1A7A9B]/[0.045]"
             : "border-neutral-200 bg-white"
       }`}
     >
-      {(n.actionRequired || !n.read) && (
+      {(n.actionRequired || showUnread) && (
         <span
           className={`absolute inset-y-0 left-0 w-1 ${
             n.actionRequired ? "bg-orange-500" : "bg-[#1A7A9B]"
@@ -106,10 +136,14 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="text-[0.95rem] font-semibold leading-snug text-text">
+            <p
+              className={`text-[0.95rem] leading-snug text-text ${
+                showUnread ? "font-bold" : "font-semibold"
+              }`}
+            >
               {n.title}
             </p>
-            {!n.read && !n.actionRequired && (
+            {showUnread && !n.actionRequired && (
               <span className="inline-flex items-center rounded-full bg-[#1A7A9B]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1A7A9B]">
                 New
               </span>
@@ -120,9 +154,14 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               </span>
             )}
           </div>
-          <span className="flex-shrink-0 whitespace-nowrap pt-0.5 text-xs text-text-light">
-            {formatRelative(n.createdAt)}
-          </span>
+          <div className="flex flex-shrink-0 items-center gap-2 pt-0.5">
+            <span className="whitespace-nowrap text-xs text-text-light">
+              {formatRelative(n.createdAt)}
+            </span>
+            {showUnread && (
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[#1A7A9B]" aria-label="Unread" />
+            )}
+          </div>
         </div>
 
         {n.body && (
@@ -135,13 +174,9 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               {n.body}
             </p>
             {isLong && (
-              <button
-                type="button"
-                onClick={() => setExpanded((v) => !v)}
-                className="mt-1 text-xs font-semibold text-[#1A7A9B] hover:underline"
-              >
+              <span className="mt-1 inline-block text-xs font-semibold text-[#1A7A9B]">
                 {expanded ? "Show less" : "Read more"}
-              </button>
+              </span>
             )}
           </div>
         )}
@@ -150,6 +185,10 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
           <div className="mt-3">
             <Link
               href={action.href}
+              onClick={(e) => {
+                e.stopPropagation();
+                markRead();
+              }}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                 n.actionRequired
                   ? "bg-orange-600 text-white hover:bg-orange-700"

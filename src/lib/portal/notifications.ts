@@ -64,6 +64,34 @@ export async function countUnreadNotificationsForCurrentUser(): Promise<
 }
 
 /**
+ * Mark a SINGLE notification read — inbox behaviour: a row only clears when the
+ * client actually taps it. Scoped to the current account (IDOR-safe) and
+ * writable-asserted so staff view-as can't mutate read state. Idempotent.
+ */
+export async function markNotificationRead(
+  id: string
+): Promise<PortalScopeResult<boolean>> {
+  return tryWithPortalScope(async (scope) => {
+    assertWritable(scope);
+    const { accountSfId, db } = scope;
+    const numId = Number(id);
+    if (!Number.isFinite(numId)) return false;
+    const updated = await db
+      .update(schema.notifications)
+      .set({ readAt: new Date() })
+      .where(
+        and(
+          eq(schema.notifications.accountSfId, accountSfId),
+          eq(schema.notifications.id, numId),
+          isNull(schema.notifications.readAt)
+        )
+      )
+      .returning({ id: schema.notifications.id });
+    return updated.length > 0;
+  });
+}
+
+/**
  * Mark all of the current user's notifications as read. Called when the inbox
  * page is opened so the bell badge clears. Idempotent.
  */
