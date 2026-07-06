@@ -84,13 +84,21 @@ html[data-native] [role="button"] {
 .clerk-immersive .cl-footerActionLink {
   color: #fff !important;
 }
-/* Kill the dark footer box + Clerk branding that don't theme onto the gradient */
+/* Flatten every Clerk container so the form dissolves into the gradient — no
+   card panel, no frosted box, no footer box. */
+.clerk-immersive .cl-rootBox,
+.clerk-immersive .cl-cardBox,
+.clerk-immersive .cl-card,
+.clerk-immersive .cl-main,
+.clerk-immersive .cl-form,
 .clerk-immersive .cl-footer,
-.clerk-immersive .cl-footerAction,
-.clerk-immersive .cl-card {
+.clerk-immersive .cl-footerAction {
   background: transparent !important;
+  background-color: transparent !important;
   box-shadow: none !important;
   border: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 .clerk-immersive .cl-footer * {
   color: rgba(255, 255, 255, 0.6) !important;
