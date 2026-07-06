@@ -1,15 +1,5 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  Bell,
-  BellOff,
-  MessageSquare,
-  CalendarClock,
-  PenLine,
-  ClipboardList,
-  FileText,
-  ArrowRight,
-} from "lucide-react";
+import { Bell, BellOff } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import {
@@ -17,8 +7,8 @@ import {
   markAllNotificationsRead,
 } from "@/lib/portal/notifications";
 import AccessGate from "@/components/portal/AccessGate";
+import NotificationCard from "@/components/portal/notifications/NotificationCard";
 import { isSurfaceHidden } from "@/lib/portal/features";
-import type { PortalNotification } from "@/lib/portal/types";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +16,7 @@ export const dynamic = "force-dynamic";
  * Notifications inbox. Opening the page marks everything read (so the sidebar
  * bell badge clears), but the list still highlights what WAS unread on this
  * view. Action-required items are grouped up top; the rest sit under "Earlier".
- * A row only navigates when it has a real destination (a specific surface — not
- * the dashboard, which is just "home"); purely informational rows don't link.
+ * Each card carries one contextual, type-driven action (see NotificationCard).
  */
 export default async function NotificationsPage() {
   if (isSurfaceHidden("/portal/notifications")) redirect("/portal/dashboard");
@@ -154,145 +143,6 @@ function Group({
   );
 }
 
-const TYPE_META: Record<
-  string,
-  { icon: typeof Bell; tint: string; label: string; cta: string }
-> = {
-  message: {
-    icon: MessageSquare,
-    tint: "text-[#1A7A9B] bg-[#1A7A9B]/10",
-    label: "Message",
-    cta: "View message",
-  },
-  deadline: {
-    icon: CalendarClock,
-    tint: "text-amber-600 bg-amber-50",
-    label: "Deadline",
-    cta: "View deadline",
-  },
-  approval: {
-    icon: PenLine,
-    tint: "text-orange-600 bg-orange-50",
-    label: "Approval",
-    cta: "Review & approve",
-  },
-  request: {
-    icon: ClipboardList,
-    tint: "text-orange-600 bg-orange-50",
-    label: "Request",
-    cta: "View request",
-  },
-  document: {
-    icon: FileText,
-    tint: "text-violet-600 bg-violet-50",
-    label: "Document",
-    cta: "View document",
-  },
-  general: {
-    icon: Bell,
-    tint: "text-slate-500 bg-slate-100",
-    label: "Update",
-    cta: "View",
-  },
-};
-
-/**
- * A row only links out when it points at a SPECIFIC surface. The dashboard is
- * "home", not a destination, so informational rows that carry `/portal/dashboard`
- * (or no href) render as plain, non-navigating cards.
- */
-function destinationOf(n: PortalNotification): string | null {
-  if (!n.href) return null;
-  if (n.href === "/portal/dashboard" || n.href === "/portal") return null;
-  return n.href;
-}
-
-function NotificationCard({ n }: { n: PortalNotification }) {
-  const meta = TYPE_META[n.type] ?? TYPE_META.general;
-  const Icon = meta.icon;
-  const href = destinationOf(n);
-
-  const card = (
-    <div
-      className={`group relative flex gap-3.5 overflow-hidden rounded-2xl border bg-white p-4 shadow-sm transition ${
-        href ? "cursor-pointer hover:border-[#1A7A9B]/40 hover:shadow-md" : ""
-      } ${
-        n.actionRequired
-          ? "border-orange-200"
-          : !n.read
-            ? "border-[#1A7A9B]/25"
-            : "border-neutral-200"
-      }`}
-    >
-      {/* Left accent: orange for action-required, teal for unread FYIs. */}
-      {(n.actionRequired || !n.read) && (
-        <span
-          className={`absolute inset-y-0 left-0 w-1 ${
-            n.actionRequired ? "bg-orange-500" : "bg-[#1A7A9B]"
-          }`}
-        />
-      )}
-
-      <span
-        className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${meta.tint}`}
-      >
-        <Icon size={17} />
-      </span>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="text-[0.95rem] font-semibold leading-snug text-text">
-              {n.title}
-            </p>
-            {!n.read && !n.actionRequired && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#1A7A9B]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1A7A9B]">
-                New
-              </span>
-            )}
-            {n.actionRequired && (
-              <span className="inline-flex items-center rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
-                Action needed
-              </span>
-            )}
-          </div>
-          <span className="flex-shrink-0 whitespace-nowrap pt-0.5 text-xs text-text-light">
-            {formatRelative(n.createdAt)}
-          </span>
-        </div>
-
-        {n.body && (
-          <p className="mt-1 text-[0.85rem] leading-relaxed text-text-light">
-            {n.body}
-          </p>
-        )}
-
-        {href && (
-          <span
-            className={`mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold ${
-              n.actionRequired ? "text-orange-700" : "text-[#1A7A9B]"
-            }`}
-          >
-            {meta.cta}
-            <ArrowRight
-              size={13}
-              className="transition group-hover:translate-x-0.5"
-            />
-          </span>
-        )}
-      </div>
-    </div>
-  );
-
-  return href ? (
-    <Link href={href} className="block">
-      {card}
-    </Link>
-  ) : (
-    card
-  );
-}
-
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-white px-8 py-16 text-center">
@@ -306,17 +156,4 @@ function EmptyState() {
       </p>
     </div>
   );
-}
-
-function formatRelative(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  const diffMin = Math.floor((Date.now() - d.getTime()) / 60000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
