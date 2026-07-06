@@ -14,6 +14,7 @@ import {
   Upload,
   Building2,
   ArrowRight,
+  ChevronDown,
 } from "lucide-react";
 import type { PortalNotification } from "@/lib/portal/types";
 
@@ -71,8 +72,6 @@ function actionFor(n: PortalNotification): Action | null {
   }
 }
 
-const LONG_BODY = 160; // chars beyond which we clamp + offer "Read more"
-
 export default function NotificationCard({ n }: { n: PortalNotification }) {
   const [expanded, setExpanded] = useState(false);
   const [read, setRead] = useState(n.read);
@@ -80,8 +79,11 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
   const meta = TYPE_META[n.type] ?? TYPE_META.general;
   const Icon = meta.icon;
   const action = actionFor(n);
-  const isLong = !!n.body && n.body.length > LONG_BODY;
   const showUnread = !read;
+  // Inbox rows are collapsed by default (title + one-line preview); tapping
+  // opens the full message + its action. Expandable when there's a body or an
+  // action to reveal.
+  const expandable = Boolean(n.body) || Boolean(action);
 
   // Inbox behaviour: tapping the card reads it (optimistic) and opens the body.
   function markRead() {
@@ -96,14 +98,14 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
 
   function onOpen() {
     markRead();
-    if (n.body) setExpanded((v) => !v);
+    if (expandable) setExpanded((v) => !v);
   }
 
   return (
     <div
       role="button"
       tabIndex={0}
-      aria-expanded={n.body ? expanded : undefined}
+      aria-expanded={expandable ? expanded : undefined}
       onClick={onOpen}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -161,27 +163,26 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
             {showUnread && (
               <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" aria-label="Unread" />
             )}
+            {expandable && (
+              <ChevronDown
+                size={15}
+                className={`text-text-light/50 transition-transform ${expanded ? "rotate-180" : ""}`}
+              />
+            )}
           </div>
         </div>
 
         {n.body && (
-          <div className="mt-1">
-            <p
-              className={`text-[0.85rem] leading-relaxed text-text-light ${
-                isLong && !expanded ? "line-clamp-2" : ""
-              }`}
-            >
-              {n.body}
-            </p>
-            {isLong && (
-              <span className="mt-1 inline-block text-xs font-semibold text-primary">
-                {expanded ? "Show less" : "Read more"}
-              </span>
-            )}
-          </div>
+          <p
+            className={`mt-1 text-[0.85rem] leading-relaxed text-text-light ${
+              expanded ? "" : "line-clamp-1"
+            }`}
+          >
+            {n.body}
+          </p>
         )}
 
-        {action && (
+        {expanded && action && (
           <div className="mt-3">
             <Link
               href={action.href}
