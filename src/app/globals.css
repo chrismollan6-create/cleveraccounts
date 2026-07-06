@@ -63,6 +63,46 @@ html[data-native] [role="button"] {
   user-select: none;
 }
 
+/* ── Immersive native sign-in — force Clerk legible on the dark gradient ────
+   The <SignIn> appearance object (clerk-appearance.ts) styles inputs/buttons,
+   but Clerk's default light-theme heading, field labels and footer branding
+   win on some elements — dark text on a dark gradient, plus a dark footer box.
+   These scoped !important rules on Clerk's stable .cl-* classes override it. */
+.clerk-immersive .cl-headerTitle {
+  color: #fff !important;
+}
+.clerk-immersive .cl-headerSubtitle,
+.clerk-immersive .cl-formFieldLabel,
+.clerk-immersive .cl-dividerText,
+.clerk-immersive .cl-formFieldHintText,
+.clerk-immersive .cl-formFieldInfoText,
+.clerk-immersive .cl-identityPreviewText {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+.clerk-immersive .cl-formFieldAction,
+.clerk-immersive .cl-formResendCodeLink,
+.clerk-immersive .cl-footerActionLink {
+  color: #fff !important;
+}
+/* Kill the dark footer box + Clerk branding that don't theme onto the gradient */
+.clerk-immersive .cl-footer,
+.clerk-immersive .cl-footerAction,
+.clerk-immersive .cl-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+.clerk-immersive .cl-footer * {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+.clerk-immersive .cl-footerActionLink {
+  color: #fff !important;
+}
+.clerk-immersive .cl-logoBox,
+.clerk-immersive .cl-poweredByClerk {
+  display: none !important;
+}
+
 /* ═══════════════════════════════════════
    GRADIENT BACKGROUNDS
    ═══════════════════════════════════════ */

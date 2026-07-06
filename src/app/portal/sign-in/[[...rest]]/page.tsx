@@ -60,7 +60,7 @@ export default async function PortalSignInPage() {
 
           {/* Clerk owns the step-aware white heading ("Sign in" → "Check your
               email" → "Enter code") so it stays correct through the flow. */}
-          <div className="w-full max-w-sm">
+          <div className="clerk-immersive w-full max-w-sm">
             <SignIn
               appearance={getPortalClerkAppearanceImmersive(brand)}
               forceRedirectUrl="/portal/dashboard"
