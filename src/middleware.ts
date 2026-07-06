@@ -426,7 +426,11 @@ export default hasClerk
 
 export const config = {
   // Skip static assets and Next internals — they don't need brand/auth awareness.
+  // sw.js MUST be excluded: on a portal host every other path is rewritten under
+  // /portal/*, which would turn /sw.js into a 404 HTML page and break service
+  // worker registration (unsupported MIME type). It must serve as the raw
+  // public/ asset at the origin root so its scope covers the whole site.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|brand/|images/|robots.txt|sitemap.xml).*)',
+    '/((?!_next/static|_next/image|favicon.ico|brand/|images/|sw.js|robots.txt|sitemap.xml).*)',
   ],
 };
