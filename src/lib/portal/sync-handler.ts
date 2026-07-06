@@ -520,15 +520,28 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
           set: content,
         });
 
-      // Web push on brand-new notifications only. Best-effort (never throws);
-      // awaited so the serverless function doesn't terminate mid-send.
+      // Web push on brand-new notifications only. Scheduled via `after()` so it
+      // runs AFTER the sync response is flushed — pushing (extra DB lookups + an
+      // FCM round-trip) must never add latency to, or risk timing out, the SF
+      // callout, especially on a cold start. Best-effort; never affects the sync.
       if (isNewNotif) {
-        await sendPushToAccount(content.accountSfId, {
+        const acctId = content.accountSfId;
+        const payload = {
           title: content.title,
           body: content.body,
           url: content.href || "/portal/notifications",
           tag: s.sfId as string,
-        });
+        };
+        try {
+          const { after } = await import("next/server");
+          after(() =>
+            sendPushToAccount(acctId, payload).catch((e) =>
+              console.warn("[sync] push failed:", sanitisedError(e))
+            )
+          );
+        } catch {
+          // after() only exists in a request context (not e.g. tests) — skip.
+        }
       }
       return;
     }
