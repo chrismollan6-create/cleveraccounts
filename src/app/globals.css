@@ -40,6 +40,29 @@ body {
   font-family: var(--font-sans);
 }
 
+/* ── Native app (Capacitor webview) — shed the "it's a browser" tells ──────
+   Applied only when the portal runs inside the app (html[data-native], set
+   from the user-agent in portal/layout.tsx). Content text stays selectable so
+   clients can still copy a reference / address. */
+html[data-native],
+html[data-native] body {
+  overscroll-behavior: none;              /* no rubber-band chaining */
+  -webkit-tap-highlight-color: transparent; /* no grey tap-flash */
+  touch-action: manipulation;             /* no 300ms delay / double-tap zoom */
+}
+html[data-native] body {
+  overscroll-behavior-y: contain;         /* no pull-to-refresh bounce */
+}
+html[data-native] a,
+html[data-native] button,
+html[data-native] nav,
+html[data-native] header,
+html[data-native] [role="button"] {
+  -webkit-touch-callout: none;            /* no long-press menu on chrome */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* ═══════════════════════════════════════
    GRADIENT BACKGROUNDS
    ═══════════════════════════════════════ */

@@ -20,6 +20,19 @@ export interface TabItem {
   notificationCount?: number;
 }
 
+/** Light haptic tick on tap — via the Capacitor bridge (no-op in a browser). */
+function tapHaptic() {
+  try {
+    (
+      window as unknown as {
+        Capacitor?: { Plugins?: { Haptics?: { impact?: (o: { style: string }) => void } } };
+      }
+    ).Capacitor?.Plugins?.Haptics?.impact?.({ style: "LIGHT" });
+  } catch {
+    /* not in the app — ignore */
+  }
+}
+
 export default function PortalTabBar({
   tabs,
   moreItems,
@@ -103,6 +116,7 @@ export default function PortalTabBar({
             <li key={t.href} className="flex-1">
               <Link
                 href={t.href}
+                onClick={tapHaptic}
                 className={`relative flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
                   isActive(t.href) ? "text-primary" : "text-text-light"
                 }`}
@@ -123,7 +137,10 @@ export default function PortalTabBar({
           <li className="flex-1">
             <button
               type="button"
-              onClick={() => setMoreOpen(true)}
+              onClick={() => {
+                tapHaptic();
+                setMoreOpen(true);
+              }}
               className={`flex w-full flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
                 moreActive ? "text-primary" : "text-text-light"
               }`}

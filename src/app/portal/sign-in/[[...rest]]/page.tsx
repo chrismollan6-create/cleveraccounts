@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { SignIn } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getPortalClerkAppearance } from "@/lib/clerk-appearance";
+import { isNativeAppUA } from "@/lib/portal/native";
 
 /**
  * Portal sign-in — split-screen layout.
@@ -24,6 +26,55 @@ import { getPortalClerkAppearance } from "@/lib/clerk-appearance";
 export default async function PortalSignInPage() {
   const brand = await getBrand();
   const isWorkwell = brand.id === "workwell";
+  const isNativeApp = isNativeAppUA((await headers()).get("user-agent"));
+
+  // ── Native app: full-bleed, branded sign-in (no split-screen marketing rail,
+  //    no web footer) so login reads as an app screen, not a web page. ──────
+  if (isNativeApp) {
+    return (
+      <div
+        className="relative flex min-h-screen flex-col overflow-hidden text-white"
+        style={{
+          background: isWorkwell
+            ? `linear-gradient(160deg, ${brand.colors.primaryDark} 0%, ${brand.colors.primary} 55%, ${brand.colors.secondaryDark} 100%)`
+            : `linear-gradient(160deg, #0a1d2e 0%, #0e3a5a 55%, ${brand.colors.primary} 100%)`,
+          paddingTop: "env(safe-area-inset-top)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+      >
+        <div className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
+
+        <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-10">
+          <Image
+            src={brand.assets.logo}
+            alt={brand.name}
+            width={160}
+            height={42}
+            priority
+            className="h-9 w-auto brightness-0 invert"
+          />
+          <h1 className="mt-8 text-2xl font-bold tracking-tight">Welcome back</h1>
+          <p className="mt-1.5 text-sm text-white/70">Sign in to your portal</p>
+
+          <div className="mt-8 w-full max-w-sm">
+            <SignIn
+              appearance={getPortalClerkAppearance(brand)}
+              forceRedirectUrl="/portal/dashboard"
+              signUpUrl="/portal/activate"
+            />
+          </div>
+
+          <p className="mt-6 text-center text-xs text-white/60">
+            New here?{" "}
+            <Link href="/portal/activate" className="font-semibold text-white underline">
+              Got an invite?
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">

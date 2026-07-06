@@ -50,6 +50,12 @@ const config: CapacitorConfig = {
       backgroundColor: "#1A7A9B",
       showSpinner: false,
     },
+    Keyboard: {
+      // Resize the webview (not the whole page) when the keyboard opens, so
+      // inputs stay visible and the layout doesn't jump like a mobile web page.
+      resize: "native",
+      resizeOnFullScreen: true,
+    },
   },
 };
 
