@@ -110,6 +110,29 @@ html[data-native] [role="button"] {
 .clerk-immersive .cl-poweredByClerk {
   display: none !important;
 }
+/* Verification-code (OTP) step — the segment boxes are a separate Clerk element.
+   Make them solid white with dark digits (matching the email input) so the code
+   is clearly visible, and keep the resend prompt legible on the gradient. */
+.clerk-immersive .cl-otpCodeFieldInput {
+  color: #0d2530 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  caret-color: #0d2530 !important;
+}
+.clerk-immersive .cl-otpCodeFieldInput:focus {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25) !important;
+}
+.clerk-immersive .cl-formResendCodeLink,
+.clerk-immersive .cl-otpCodeFieldErrorText,
+.clerk-immersive .cl-formHeaderSubtitle {
+  color: #ffffff !important;
+}
+/* iOS autofill would otherwise repaint code/email inputs with a solid tint */
+.clerk-immersive input:-webkit-autofill {
+  -webkit-text-fill-color: #0d2530 !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
 
 /* ═══════════════════════════════════════
    GRADIENT BACKGROUNDS
