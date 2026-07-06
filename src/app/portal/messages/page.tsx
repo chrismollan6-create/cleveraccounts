@@ -1,4 +1,6 @@
 import { AlertTriangle } from "lucide-react";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { listMessagesForCurrentUser } from "@/lib/portal/messages";
@@ -12,14 +14,16 @@ export const dynamic = "force-dynamic";
 export default async function MessagesPage() {
   // Profile name now comes from the portal.users cache via
   // getCurrentPortalUser — no Clerk API call needed on render.
-  const [brand, portalUser, initialMessages, initialEl, onboarding] =
+  const [brand, portalUser, initialMessages, initialEl, onboarding, hdrs] =
     await Promise.all([
       getBrand(),
       getCurrentPortalUser(),
       listMessagesForCurrentUser(50),
       getEngagementLetterForCurrentUser(),
       getOnboardingForCurrentUser(),
+      headers(),
     ]);
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -73,6 +77,7 @@ export default async function MessagesPage() {
         accountant={accountant}
         currentUserFirstName={firstName ?? "you"}
         brandName={brand.name}
+        isNativeApp={isNativeApp}
       />
     </div>
   );

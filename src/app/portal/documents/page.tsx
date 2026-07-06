@@ -15,6 +15,8 @@ import {
   Clock,
 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { getDocumentsForCurrentUser } from "@/lib/portal/documents";
@@ -34,7 +36,7 @@ export const dynamic = "force-dynamic";
 export default async function DocumentsPage() {
   if (isSurfaceHidden("/portal/documents")) redirect("/portal/dashboard");
 
-  const [brand, portalUser, result, uploadsRes] = await Promise.all([
+  const [brand, portalUser, result, uploadsRes, hdrs] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     getDocumentsForCurrentUser(),
@@ -42,7 +44,10 @@ export default async function DocumentsPage() {
     // this read would throw — degrade to an empty history rather than 500 the
     // whole Documents page.
     listUploadsForCurrentUser().catch(() => null),
+    headers(),
   ]);
+  // Native shell renders the big "Documents" title already — drop the in-page one.
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
   const uploads = uploadsRes && uploadsRes.ok ? uploadsRes.data : [];
 
   const firstName =
@@ -79,26 +84,28 @@ export default async function DocumentsPage() {
 
   return (
     <Wrap>
-      <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
-            <FileText size={22} />
-          </span>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text">
-              Documents
-            </h1>
-            <p className="mt-0.5 text-sm text-text-light">
-              Send us documents securely, and see everything you&apos;ve shared.
-            </p>
+      {!isNativeApp && (
+        <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+              <FileText size={22} />
+            </span>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-text">
+                Documents
+              </h1>
+              <p className="mt-0.5 text-sm text-text-light">
+                Send us documents securely, and see everything you&apos;ve shared.
+              </p>
+            </div>
           </div>
+          {outstanding > 0 && (
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+              <Upload size={12} /> {outstanding} needed from you
+            </span>
+          )}
         </div>
-        {outstanding > 0 && (
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-            <Upload size={12} /> {outstanding} needed from you
-          </span>
-        )}
-      </div>
+      )}
 
       {/* SEND US A DOCUMENT — client → us uploads */}
       <div className="mb-7">

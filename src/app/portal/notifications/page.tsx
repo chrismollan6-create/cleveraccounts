@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { Bell, BellOff } from "lucide-react";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import {
@@ -22,11 +24,15 @@ export const dynamic = "force-dynamic";
 export default async function NotificationsPage() {
   if (isSurfaceHidden("/portal/notifications")) redirect("/portal/dashboard");
 
-  const [brand, portalUser, result] = await Promise.all([
+  const [brand, portalUser, result, hdrs] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     listNotificationsForCurrentUser(50),
+    headers(),
   ]);
+  // In the app, PortalShell already renders the big "Notifications" title, so
+  // the in-page header would double up — drop it and let the list breathe.
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -60,28 +66,30 @@ export default async function NotificationsPage() {
 
   return (
     <Wrap>
-      {/* ── Header ─────────────────────────────────────────────────── */}
-      <div className="mb-8 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1A7A9B] to-[#155f79] text-white shadow-sm shadow-[#1A7A9B]/20">
-            <Bell size={19} />
-          </span>
-          <div>
-            <h1 className="text-[1.7rem] font-bold leading-tight tracking-tight text-text">
-              Notifications
-            </h1>
-            <p className="mt-0.5 text-sm text-text-light">
-              Replies, deadlines and anything that needs you — in one place.
-            </p>
+      {/* ── Header — web only; the native shell shows the big title itself ─ */}
+      {!isNativeApp && (
+        <div className="mb-8 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1A7A9B] to-[#155f79] text-white shadow-sm shadow-[#1A7A9B]/20">
+              <Bell size={19} />
+            </span>
+            <div>
+              <h1 className="text-[1.7rem] font-bold leading-tight tracking-tight text-text">
+                Notifications
+              </h1>
+              <p className="mt-0.5 text-sm text-text-light">
+                Replies, deadlines and anything that needs you — in one place.
+              </p>
+            </div>
           </div>
+          {unreadCount > 0 && (
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-[#1A7A9B]/10 px-3 py-1 text-xs font-semibold text-[#1A7A9B]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#1A7A9B]" />
+              {unreadCount} new
+            </span>
+          )}
         </div>
-        {unreadCount > 0 && (
-          <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-[#1A7A9B]/10 px-3 py-1 text-xs font-semibold text-[#1A7A9B]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#1A7A9B]" />
-            {unreadCount} new
-          </span>
-        )}
-      </div>
+      )}
 
       <EnableNotifications />
 

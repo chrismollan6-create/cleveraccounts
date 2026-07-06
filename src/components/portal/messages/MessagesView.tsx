@@ -21,6 +21,8 @@ interface Props {
   accountant: PortalAccountantInfo | null;
   currentUserFirstName: string;
   brandName: string;
+  /** In the app the native shell shows the big "Messages" title already. */
+  isNativeApp?: boolean;
 }
 
 /**
@@ -36,6 +38,7 @@ export default function MessagesView({
   accountant,
   currentUserFirstName,
   brandName,
+  isNativeApp = false,
 }: Props) {
   const [tabVisible, setTabVisible] = useState(true);
   const [optimisticPending, setOptimisticPending] = useState<PortalMessage[]>([]);
@@ -102,24 +105,26 @@ export default function MessagesView({
 
   return (
     <>
-      {/* Page header — matches the other portal surfaces */}
-      <div className="mb-7">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
-            <MessageSquare size={22} />
-          </span>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text">
-              Messages
-            </h1>
-            <p className="mt-0.5 text-sm text-text-light">
-              {accountantFirstName
-                ? `Your direct line to ${accountantFirstName} at ${brandName}.`
-                : `Your direct line to your accountant at ${brandName}.`}
-            </p>
+      {/* Page header — web only; native shell renders the big title itself */}
+      {!isNativeApp && (
+        <div className="mb-7">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+              <MessageSquare size={22} />
+            </span>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-text">
+                Messages
+              </h1>
+              <p className="mt-0.5 text-sm text-text-light">
+                {accountantFirstName
+                  ? `Your direct line to ${accountantFirstName} at ${brandName}.`
+                  : `Your direct line to your accountant at ${brandName}.`}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column: conversation first (oldest→newest), composer pinned
