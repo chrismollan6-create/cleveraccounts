@@ -4,6 +4,7 @@ import { getPortalDb, schema } from "./db/client";
 import { sanitisedError } from "./log";
 import { reconcilePortalAccessByEmail } from "./clerk-webhook";
 import { revokeClerkSessions } from "./clerk-sessions";
+import { sendPushToAccount } from "./push";
 
 /**
  * Sync event handler — processes a single Portal_Sync_Event__e delivered
@@ -499,6 +500,14 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
         actionRequired: (s.actionRequired as boolean) ?? false,
         sfUpdatedAt: parseTimestamp(s.sfUpdatedAt),
       };
+      // Detect first-time creation so a staff edit / re-sync doesn't re-push.
+      const priorNotif = await db
+        .select({ id: schema.notifications.id })
+        .from(schema.notifications)
+        .where(eq(schema.notifications.sfId, s.sfId as string))
+        .limit(1);
+      const isNewNotif = priorNotif.length === 0;
+
       await db
         .insert(schema.notifications)
         .values({
@@ -510,6 +519,17 @@ async function upsertCache(objectType: string, s: Record<string, unknown>): Prom
           target: schema.notifications.sfId,
           set: content,
         });
+
+      // Web push on brand-new notifications only. Best-effort (never throws);
+      // awaited so the serverless function doesn't terminate mid-send.
+      if (isNewNotif) {
+        await sendPushToAccount(content.accountSfId, {
+          title: content.title,
+          body: content.body,
+          url: content.href || "/portal/notifications",
+          tag: s.sfId as string,
+        });
+      }
       return;
     }
   }

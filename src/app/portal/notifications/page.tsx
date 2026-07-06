@@ -8,6 +8,7 @@ import {
 } from "@/lib/portal/notifications";
 import AccessGate from "@/components/portal/AccessGate";
 import NotificationCard from "@/components/portal/notifications/NotificationCard";
+import EnableNotifications from "@/components/portal/notifications/EnableNotifications";
 import { isSurfaceHidden } from "@/lib/portal/features";
 
 export const dynamic = "force-dynamic";
@@ -81,6 +82,8 @@ export default async function NotificationsPage() {
           </span>
         )}
       </div>
+
+      <EnableNotifications />
 
       {items.length === 0 ? (
         <EmptyState />
