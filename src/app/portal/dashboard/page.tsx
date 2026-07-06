@@ -38,6 +38,9 @@ import {
 } from "@/lib/portal/onboarding";
 import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
 import { getFinancialsForCurrentUser } from "@/lib/portal/financials";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
+import NativeHome from "@/components/portal/native/NativeHome";
 import AccessGate from "@/components/portal/AccessGate";
 import type {
   PortalOnboardingStatus,
@@ -119,6 +122,7 @@ export default async function DashboardPage() {
     actionItems,
     deadlinesRes,
     financialsRes,
+    hdrs,
   ] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
@@ -127,7 +131,12 @@ export default async function DashboardPage() {
     // Fail-soft — the dashboard never breaks over a deadlines read.
     getDeadlinesForCurrentUser().catch(() => null),
     getFinancialsForCurrentUser().catch(() => null),
+    headers(),
   ]);
+  // Running inside the Capacitor app → the immersive native Home, not the
+  // web dashboard. Same data, different presentation (PortalShell drops its
+  // title header for this route so the hero bleeds under the status bar).
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
   const deadlines =
     deadlinesRes && deadlinesRes.ok ? deadlinesRes.data : [];
   const financials =
@@ -214,6 +223,20 @@ export default async function DashboardPage() {
       blockedOn: status.blockedOn,
     },
   });
+
+  // Native app → full-bleed immersive Home (no web Shell wash / max-width cap).
+  if (isNativeApp) {
+    return (
+      <NativeHome
+        brand={brand}
+        status={status}
+        firstName={firstName}
+        firmName={brand.name}
+        deadlines={deadlines}
+        financials={financials}
+      />
+    );
+  }
 
   return (
     <Shell>

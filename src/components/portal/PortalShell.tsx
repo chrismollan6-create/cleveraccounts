@@ -64,6 +64,9 @@ interface Props {
   children: React.ReactNode;
 }
 
+/** Native routes that render their own full-bleed hero → no generic title header. */
+const HERO_ROUTES = new Set(["/portal/dashboard"]);
+
 /** The 4 primary destinations that get their own bottom-tab (rest go in "More"). */
 const TAB_HREFS = [
   "/portal/dashboard",
@@ -190,6 +193,11 @@ export default function PortalShell({
       .filter((i) => !TAB_HREFS.includes(i.href))
       .map((i) => toTab(i, 20));
 
+    // Hero routes (the dashboard) paint their own full-bleed brand hero that
+    // bleeds under the status bar — so we drop the generic title header and
+    // float just the account cluster over the top-right of the hero.
+    const isHeroRoute = HERO_ROUTES.has(activeHref);
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-surface via-white to-surface-alt/50">
         {impersonation && (
@@ -198,26 +206,43 @@ export default function PortalShell({
             staffName={impersonation.staffName}
           />
         )}
-        {/* Bold large-title app header (iOS-style) — the screen name in big type,
-            account avatar on the right. Sits under the status bar. */}
-        <header
-          className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl"
-          style={{ paddingTop: "env(safe-area-inset-top)" }}
-        >
-          <div className="flex items-center justify-between gap-3 px-5 pb-2 pt-2.5">
-            <h1 className="text-[1.75rem] font-extrabold leading-none tracking-tight text-text">
-              {NATIVE_TITLES[activeHref] ?? brand.name}
-            </h1>
-            <div className="flex items-center gap-2">
-              {companies && companies.length > 1 && (
-                <AccountSwitcher companies={companies} />
-              )}
-              {isSignedIn && (
-                <UserButton appearance={{ elements: { avatarBox: "h-8 w-8" } }} />
-              )}
-            </div>
+        {isHeroRoute ? (
+          /* Floating account cluster over the page's own hero. */
+          <div
+            className="fixed right-4 z-50 flex items-center gap-2"
+            style={{ top: "calc(env(safe-area-inset-top) + 14px)" }}
+          >
+            {companies && companies.length > 1 && (
+              <AccountSwitcher companies={companies} />
+            )}
+            {isSignedIn && (
+              <UserButton
+                appearance={{ elements: { avatarBox: "h-8 w-8 ring-2 ring-white/40" } }}
+              />
+            )}
           </div>
-        </header>
+        ) : (
+          /* Bold large-title app header (iOS-style) — the screen name in big
+             type, account avatar on the right. Sits under the status bar. */
+          <header
+            className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl"
+            style={{ paddingTop: "env(safe-area-inset-top)" }}
+          >
+            <div className="flex items-center justify-between gap-3 px-5 pb-2 pt-2.5">
+              <h1 className="text-[1.75rem] font-extrabold leading-none tracking-tight text-text">
+                {NATIVE_TITLES[activeHref] ?? brand.name}
+              </h1>
+              <div className="flex items-center gap-2">
+                {companies && companies.length > 1 && (
+                  <AccountSwitcher companies={companies} />
+                )}
+                {isSignedIn && (
+                  <UserButton appearance={{ elements: { avatarBox: "h-8 w-8" } }} />
+                )}
+              </div>
+            </div>
+          </header>
+        )}
 
         {/* Content clears the fixed tab bar (~64px) + home-indicator inset. */}
         <main
