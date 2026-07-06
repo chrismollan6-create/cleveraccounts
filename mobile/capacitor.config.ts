@@ -22,6 +22,17 @@ const config: CapacitorConfig = {
     url: "https://my.cleveraccounts.com",
     androidScheme: "https",
     iosScheme: "https",
+    // Keep cross-subdomain auth navigations INSIDE the webview instead of
+    // bouncing to Safari (which breaks sign-in — the session lands in Safari,
+    // not the app). Clerk's Frontend API + hosted pages live on clerk.* /
+    // accounts.*; Turnstile is the bot-check iframe.
+    allowNavigation: [
+      "my.cleveraccounts.com",
+      "clerk.cleveraccounts.com",
+      "accounts.cleveraccounts.com",
+      "*.clerk.accounts.dev",
+      "challenges.cloudflare.com",
+    ],
   },
   ios: {
     contentInset: "always",
