@@ -72,6 +72,19 @@ const TAB_HREFS = [
   "/portal/documents",
 ];
 
+/** Large-title header text per screen in the native app. */
+const NATIVE_TITLES: Record<string, string> = {
+  "/portal/dashboard": "Home",
+  "/portal/notifications": "Notifications",
+  "/portal/messages": "Messages",
+  "/portal/documents": "Documents",
+  "/portal/financials": "Financials",
+  "/portal/deadlines": "Deadlines",
+  "/portal/details": "Your details",
+  "/portal/appointments": "Appointments",
+  "/portal/approvals": "Approvals",
+};
+
 function toTab(item: NavItem, size: number): TabItem {
   const Icon = item.icon;
   return {
@@ -185,28 +198,24 @@ export default function PortalShell({
             staffName={impersonation.staffName}
           />
         )}
-        {/* Slim app header — brand logo centred, sits under the status bar. */}
+        {/* Bold large-title app header (iOS-style) — the screen name in big type,
+            account avatar on the right. Sits under the status bar. */}
         <header
-          className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-md"
+          className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl"
           style={{ paddingTop: "env(safe-area-inset-top)" }}
         >
-          <div className="flex h-12 items-center justify-between px-4">
-            {companies && companies.length > 1 ? (
-              <AccountSwitcher companies={companies} />
-            ) : (
-              <span className="w-8" />
-            )}
-            <Link href="/portal/dashboard" aria-label={`${brand.name} portal home`}>
-              <Image
-                src={brand.assets.logo}
-                alt={brand.name}
-                width={130}
-                height={34}
-                priority
-                className="h-7 w-auto"
-              />
-            </Link>
-            <span className="w-8" />
+          <div className="flex items-center justify-between gap-3 px-5 pb-2 pt-2.5">
+            <h1 className="text-[1.75rem] font-extrabold leading-none tracking-tight text-text">
+              {NATIVE_TITLES[activeHref] ?? brand.name}
+            </h1>
+            <div className="flex items-center gap-2">
+              {companies && companies.length > 1 && (
+                <AccountSwitcher companies={companies} />
+              )}
+              {isSignedIn && (
+                <UserButton appearance={{ elements: { avatarBox: "h-8 w-8" } }} />
+              )}
+            </div>
           </div>
         </header>
 
