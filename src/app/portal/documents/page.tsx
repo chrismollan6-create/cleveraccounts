@@ -87,7 +87,7 @@ export default async function DocumentsPage() {
       {!isNativeApp && (
         <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <FileText size={22} />
             </span>
             <div>
@@ -263,7 +263,7 @@ function SharedRow({ d }: { d: PortalDocument }) {
 
   return (
     <li className="group flex items-center gap-3 px-5 py-3.5 transition hover:bg-neutral-50">
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <Icon size={18} />
       </span>
       <div className="min-w-0 flex-1">
@@ -305,7 +305,7 @@ function UploadRow({ u, isNewest }: { u: PortalUpload; isNewest?: boolean }) {
               key={f.id}
               className="flex items-center gap-2.5 rounded-lg bg-neutral-50 px-2.5 py-1.5"
             >
-              <Icon size={14} className="flex-shrink-0 text-[#1A7A9B]" />
+              <Icon size={14} className="flex-shrink-0 text-primary" />
               <span className="min-w-0 flex-1 truncate text-xs text-text">
                 {f.fileName}
               </span>
@@ -319,7 +319,7 @@ function UploadRow({ u, isNewest }: { u: PortalUpload; isNewest?: boolean }) {
                   href={f.downloadUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex flex-shrink-0 items-center gap-1 text-[11px] font-medium text-[#1A7A9B] hover:underline"
+                  className="inline-flex flex-shrink-0 items-center gap-1 text-[11px] font-medium text-primary hover:underline"
                 >
                   <Download size={12} /> View
                 </a>

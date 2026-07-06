@@ -13,10 +13,10 @@ import { isSurfaceHidden } from "@/lib/portal/features";
 export const dynamic = "force-dynamic";
 
 /**
- * Notifications inbox. Opening the page marks everything read (so the sidebar
- * bell badge clears), but the list still highlights what WAS unread on this
- * view. Action-required items are grouped up top; the rest sit under "Earlier".
- * Each card carries one contextual, type-driven action (see NotificationCard).
+ * Notifications inbox. Inbox behaviour: rows stay unread (tinted, bold, "New")
+ * until the client taps a card, which marks just that one read (NotificationCard
+ * → markNotificationReadAction). Action-required items are grouped up top; the
+ * rest sit under "Earlier". Each card carries one contextual, type-driven action.
  */
 export default async function NotificationsPage() {
   if (isSurfaceHidden("/portal/notifications")) redirect("/portal/dashboard");
@@ -64,7 +64,7 @@ export default async function NotificationsPage() {
       {!isNativeApp && (
         <div className="mb-8 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1A7A9B] to-[#155f79] text-white shadow-sm shadow-[#1A7A9B]/20">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-dark text-white shadow-sm shadow-primary/20">
               <Bell size={19} />
             </span>
             <div>
@@ -77,8 +77,8 @@ export default async function NotificationsPage() {
             </div>
           </div>
           {unreadCount > 0 && (
-            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-[#1A7A9B]/10 px-3 py-1 text-xs font-semibold text-[#1A7A9B]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#1A7A9B]" />
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               {unreadCount} new
             </span>
           )}

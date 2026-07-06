@@ -228,7 +228,7 @@ export default function DocumentUpload() {
                 key={`${f.name}-${f.size}-${i}`}
                 className="flex items-center gap-2.5 rounded-lg border border-neutral-200 bg-white px-3 py-2"
               >
-                <FileText size={15} className="flex-shrink-0 text-[#1A7A9B]" />
+                <FileText size={15} className="flex-shrink-0 text-primary" />
                 <span className="min-w-0 flex-1 truncate text-sm text-text">
                   {f.name}
                 </span>
@@ -266,7 +266,7 @@ export default function DocumentUpload() {
             rows={2}
             maxLength={2000}
             placeholder="e.g. Bank statements for March, or my new photo ID"
-            className="w-full resize-none rounded-xl border border-neutral-200 px-3 py-2 text-sm text-text outline-none transition focus:border-[#1A7A9B] disabled:opacity-60"
+            className="w-full resize-none rounded-xl border border-neutral-200 px-3 py-2 text-sm text-text outline-none transition focus:border-primary disabled:opacity-60"
           />
         </div>
 

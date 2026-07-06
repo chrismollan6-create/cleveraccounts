@@ -109,7 +109,7 @@ export default function MessagesView({
       {!isNativeApp && (
         <div className="mb-7">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <MessageSquare size={22} />
             </span>
             <div>

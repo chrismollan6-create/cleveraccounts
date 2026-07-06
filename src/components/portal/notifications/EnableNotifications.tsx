@@ -111,9 +111,9 @@ export default function EnableNotifications() {
 
   if (state === "granted") {
     return (
-      <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-[#1A7A9B]/20 bg-[#1A7A9B]/5 px-4 py-3">
+      <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
         <div className="flex items-center gap-2.5 text-sm text-text">
-          <BellRing size={16} className="text-[#1A7A9B]" />
+          <BellRing size={16} className="text-primary" />
           <span>Push notifications are on for this device.</span>
         </div>
         <button
@@ -142,9 +142,9 @@ export default function EnableNotifications() {
 
   // default — offer to enable
   return (
-    <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#1A7A9B]/20 bg-gradient-to-br from-[#1A7A9B]/5 to-transparent px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-2.5">
-        <Bell size={17} className="mt-0.5 flex-shrink-0 text-[#1A7A9B]" />
+        <Bell size={17} className="mt-0.5 flex-shrink-0 text-primary" />
         <div>
           <p className="text-sm font-semibold text-text">Get notified instantly</p>
           <p className="text-xs text-text-light">
@@ -157,7 +157,7 @@ export default function EnableNotifications() {
         type="button"
         onClick={enable}
         disabled={busy}
-        className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#1A7A9B] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#155f79] disabled:opacity-60"
+        className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
       >
         {busy ? <Loader2 size={14} className="animate-spin" /> : <Bell size={14} />}
         Turn on notifications

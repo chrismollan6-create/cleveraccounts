@@ -65,7 +65,7 @@ export default async function FinancialsPage() {
     <Wrap>
       {!isNativeApp && (
         <div className="mb-7 flex items-center gap-3">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <PoundSterling size={22} />
           </span>
           <div>
@@ -106,7 +106,7 @@ function Wrap({ children }: { children: React.ReactNode }) {
 function EmptyState() {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center shadow-md sm:p-12">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
         <Sparkles size={26} />
       </div>
       <h3 className="mt-5 text-lg font-semibold text-text">
@@ -170,7 +170,7 @@ function Snapshot({ fin }: { fin: PortalFinancials }) {
 }
 
 const TONES: Record<string, { chip: string; ring: string }> = {
-  teal: { chip: "bg-[#1A7A9B]/10 text-[#1A7A9B]", ring: "" },
+  teal: { chip: "bg-primary/10 text-primary", ring: "" },
   orange: { chip: "bg-orange-50 text-orange-600", ring: "" },
   amber: { chip: "bg-amber-50 text-amber-600", ring: "" },
 };
@@ -192,7 +192,7 @@ function StatCard({
   return (
     <div
       className={`rounded-2xl border bg-white p-5 shadow-md ${
-        hero ? "border-[#1A7A9B]/30" : "border-neutral-200"
+        hero ? "border-primary/30" : "border-neutral-200"
       }`}
     >
       <div
@@ -213,7 +213,7 @@ function ProfitLoss({ fin }: { fin: PortalFinancials }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-4">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
           <TrendingUp size={14} />
         </span>
         <h2 className="text-sm font-semibold text-text">Profit &amp; loss</h2>
@@ -250,7 +250,7 @@ function Row({
   return (
     <div
       className={`flex items-center justify-between gap-3 px-5 py-3 ${
-        highlight ? "bg-[#1A7A9B]/[0.04]" : ""
+        highlight ? "bg-primary/[0.04]" : ""
       }`}
     >
       <dt
@@ -279,7 +279,7 @@ function TrendSection({ trend }: { trend: PortalFinancialsTrendPoint[] }) {
   return (
     <section className="mb-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-4">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
           <BarChart3 size={14} />
         </span>
         <h2 className="text-sm font-semibold text-text">Month by month</h2>
@@ -306,7 +306,7 @@ function TrendSection({ trend }: { trend: PortalFinancialsTrendPoint[] }) {
                 </div>
                 <div
                   className={`w-full rounded-t-md transition-all ${
-                    loss ? "bg-amber-400" : "bg-[#1A7A9B]"
+                    loss ? "bg-amber-400" : "bg-primary"
                   }`}
                   style={{ height: h }}
                 />
@@ -378,7 +378,7 @@ function TrendRow({
             className={`px-3 py-2.5 text-right tabular-nums ${
               strong ? "font-semibold" : ""
             } ${v < 0 ? "text-amber-600" : "text-text"} ${
-              last ? "bg-[#1A7A9B]/[0.04]" : ""
+              last ? "bg-primary/[0.04]" : ""
             }`}
           >
             {gbp(v)}

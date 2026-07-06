@@ -373,7 +373,7 @@ export default function PortalShell({
                       key={i}
                       className={`h-1.5 flex-1 rounded-full ${
                         st === "complete"
-                          ? "bg-[#1A7A9B]"
+                          ? "bg-primary"
                           : st === "current"
                             ? "bg-[#F97316]"
                             : "bg-gray-200"

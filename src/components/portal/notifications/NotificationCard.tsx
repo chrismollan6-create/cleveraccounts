@@ -31,7 +31,7 @@ const TYPE_META: Record<
   string,
   { icon: typeof Bell; tint: string }
 > = {
-  message: { icon: MessageSquare, tint: "text-[#1A7A9B] bg-[#1A7A9B]/10" },
+  message: { icon: MessageSquare, tint: "text-primary bg-primary/10" },
   deadline: { icon: CalendarClock, tint: "text-amber-600 bg-amber-50" },
   approval: { icon: PenLine, tint: "text-orange-600 bg-orange-50" },
   request: { icon: ClipboardList, tint: "text-orange-600 bg-orange-50" },
@@ -111,18 +111,18 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
           onOpen();
         }
       }}
-      className={`group relative flex cursor-pointer gap-3.5 overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A7A9B]/40 ${
+      className={`group relative flex cursor-pointer gap-3.5 overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
         n.actionRequired
           ? "border-orange-200 bg-orange-50/50"
           : showUnread
-            ? "border-[#1A7A9B]/25 bg-[#1A7A9B]/[0.045]"
+            ? "border-primary/25 bg-primary/[0.045]"
             : "border-neutral-200 bg-white"
       }`}
     >
       {(n.actionRequired || showUnread) && (
         <span
           className={`absolute inset-y-0 left-0 w-1 ${
-            n.actionRequired ? "bg-orange-500" : "bg-[#1A7A9B]"
+            n.actionRequired ? "bg-orange-500" : "bg-primary"
           }`}
         />
       )}
@@ -144,7 +144,7 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               {n.title}
             </p>
             {showUnread && !n.actionRequired && (
-              <span className="inline-flex items-center rounded-full bg-[#1A7A9B]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1A7A9B]">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
                 New
               </span>
             )}
@@ -159,7 +159,7 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               {formatRelative(n.createdAt)}
             </span>
             {showUnread && (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[#1A7A9B]" aria-label="Unread" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" aria-label="Unread" />
             )}
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               {n.body}
             </p>
             {isLong && (
-              <span className="mt-1 inline-block text-xs font-semibold text-[#1A7A9B]">
+              <span className="mt-1 inline-block text-xs font-semibold text-primary">
                 {expanded ? "Show less" : "Read more"}
               </span>
             )}
@@ -192,7 +192,7 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                 n.actionRequired
                   ? "bg-orange-600 text-white hover:bg-orange-700"
-                  : "border border-[#1A7A9B]/30 text-[#1A7A9B] hover:bg-[#1A7A9B]/5"
+                  : "border border-primary/30 text-primary hover:bg-primary/5"
               }`}
             >
               <action.icon size={13} />

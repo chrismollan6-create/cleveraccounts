@@ -205,7 +205,7 @@ export default async function DashboardPage() {
           </p>
           <a
             href={`mailto:${brand.supportEmail}`}
-            className="mt-6 inline-block font-semibold text-[#1A7A9B] hover:underline"
+            className="mt-6 inline-block font-semibold text-primary hover:underline"
           >
             {brand.supportEmail}
           </a>
@@ -366,7 +366,7 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
       label: isLoss ? "Net loss" : "Net profit",
       value: gbp(Math.abs(fin.netProfit)),
       icon: isLoss ? Activity : TrendingUp,
-      tint: isLoss ? "bg-amber-50 text-amber-600" : "bg-[#1A7A9B]/10 text-[#1A7A9B]",
+      tint: isLoss ? "bg-amber-50 text-amber-600" : "bg-primary/10 text-primary",
     },
     {
       label: fin.cashInBank != null && fin.cashInBank < 0 ? "Overdrawn" : "Cash in the bank",
@@ -403,7 +403,7 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
     <section className="mt-5 overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-6 py-4">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
             <PoundSterling size={15} />
           </span>
           <div>
@@ -419,7 +419,7 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
         </div>
         <Link
           href="/portal/financials"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1A7A9B] hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
         >
           Full P&amp;L <ArrowRight size={13} />
         </Link>
@@ -474,14 +474,14 @@ function DeadlinesCard({ deadlines }: { deadlines: PortalDeadline[] }) {
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-3.5">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
             <CalendarClock size={14} />
           </span>
           <h2 className="text-sm font-semibold text-text">Upcoming deadlines</h2>
         </div>
         <Link
           href="/portal/deadlines"
-          className="text-xs font-medium text-[#1A7A9B] hover:underline"
+          className="text-xs font-medium text-primary hover:underline"
         >
           View all
         </Link>
@@ -493,7 +493,7 @@ function DeadlinesCard({ deadlines }: { deadlines: PortalDeadline[] }) {
           const soon = d.status === "due_soon";
           return (
             <li key={d.id} className="flex items-center gap-3 px-5 py-3">
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#1A7A9B]/10 text-[#1A7A9B]">
+              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Icon size={16} />
               </span>
               <div className="min-w-0 flex-1">
@@ -559,8 +559,8 @@ const EXPLORE: {
     icon: FileText,
     title: "Documents",
     sub: "Send us files, get yours",
-    tint: "bg-[#1A7A9B]/12 text-[#1A7A9B]",
-    hoverBorder: "hover:border-[#1A7A9B]/40",
+    tint: "bg-primary/12 text-primary",
+    hoverBorder: "hover:border-primary/40",
   },
   {
     href: "/portal/details",
@@ -628,7 +628,7 @@ const ACTION_ICON: Record<string, typeof PenLine> = {
 // upload=blue, deadline=amber.
 const ACTION_TINT: Record<string, string> = {
   approval: "bg-orange-50 text-orange-600",
-  task: "bg-[#1A7A9B]/10 text-[#1A7A9B]",
+  task: "bg-primary/10 text-primary",
   document: "bg-blue-50 text-blue-600",
   deadline: "bg-amber-50 text-amber-600",
 };
@@ -731,7 +731,7 @@ function NextStepHero({
       <section className="relative overflow-hidden rounded-3xl border border-emerald-200/70 shadow-lg">
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-[#1A7A9B]/[0.06]"
+          className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-primary/[0.06]"
         />
         <div
           aria-hidden
@@ -758,7 +758,7 @@ function NextStepHero({
       {/* warm brand gradient wash + soft glows — this is the page's one big moment */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50/40 to-[#1A7A9B]/[0.07]"
+        className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50/40 to-primary/[0.07]"
       />
       <div
         aria-hidden
@@ -766,7 +766,7 @@ function NextStepHero({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-[#1A7A9B]/15 blur-3xl"
+        className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
       />
 
       <div className="relative grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_248px] lg:items-center">
@@ -895,7 +895,7 @@ function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-3.5">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1A7A9B]/10 text-[#1A7A9B]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
           <Activity size={14} />
         </span>
         <span className="text-sm font-semibold text-text">Recent activity</span>
@@ -945,7 +945,7 @@ function JourneyBand({ status }: { status: PortalOnboardingStatus }) {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-bold leading-none text-[#1A7A9B]">
+          <div className="text-3xl font-bold leading-none text-primary">
             {pct}
             <span className="text-lg">%</span>
           </div>
@@ -972,14 +972,14 @@ function JourneyBand({ status }: { status: PortalOnboardingStatus }) {
                       isFirst
                         ? "opacity-0"
                         : done || now
-                          ? "bg-[#1A7A9B]"
+                          ? "bg-primary"
                           : "bg-neutral-200"
                     }`}
                   />
                   <span
                     className={`relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full ${
                       done
-                        ? "bg-[#1A7A9B] text-white shadow-sm shadow-[#1A7A9B]/30"
+                        ? "bg-primary text-white shadow-sm shadow-primary/30"
                         : now
                           ? "border-2 border-orange-500 bg-orange-50 text-orange-600"
                           : "border-2 border-neutral-200 bg-white text-neutral-400"
@@ -995,7 +995,7 @@ function JourneyBand({ status }: { status: PortalOnboardingStatus }) {
                       isLast
                         ? "opacity-0"
                         : done
-                          ? "bg-[#1A7A9B]"
+                          ? "bg-primary"
                           : "bg-neutral-200"
                     }`}
                   />
@@ -1041,7 +1041,7 @@ function BusinessBand({
   return (
     <section className="mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white shadow-lg">
       {/* brand teal→orange hairline */}
-      <div className="h-1 w-full bg-gradient-to-r from-[#1A7A9B] via-[#2E8DAE] to-[#F97316]" />
+      <div className="h-1 w-full bg-gradient-to-r from-primary via-[#2E8DAE] to-[#F97316]" />
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">

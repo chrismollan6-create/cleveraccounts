@@ -41,7 +41,7 @@ export default function AccountantAvatar({
     <div className={`relative ${sizeClass}`}>
       {/* Initials base — always present underneath. */}
       <div
-        className={`absolute inset-0 flex items-center justify-center rounded-full bg-gradient-to-br from-[#1A7A9B] to-[#136280] ${textClass} font-bold text-white`}
+        className={`absolute inset-0 flex items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark ${textClass} font-bold text-white`}
       >
         {init}
       </div>

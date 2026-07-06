@@ -86,7 +86,7 @@ export default async function DetailsPage() {
     <Wrap>
       {!isNativeApp && (
         <div className="mb-7 flex items-center gap-3">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Building2 size={22} />
           </span>
           <div>
@@ -280,7 +280,7 @@ function OfficersCard({ officers }: { officers: PortalOfficer[] }) {
         <ul className="divide-y divide-neutral-100">
           {officers.map((o) => (
             <li key={o.id} className="flex items-start gap-3 py-4 first:pt-0">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1A7A9B] to-[#136280] text-xs font-bold text-white">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark text-xs font-bold text-white">
                 {initials(o.name)}
               </div>
               <div className="min-w-0 flex-1">
@@ -334,7 +334,7 @@ function Card({
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-4">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1A7A9B]/10 text-[#1A7A9B]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             {icon}
           </span>
           <div>

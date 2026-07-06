@@ -83,7 +83,7 @@ export default async function DeadlinesPage() {
       {!isNativeApp && (
         <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <CalendarClock size={22} />
             </span>
             <div>
@@ -228,7 +228,7 @@ function ComingUpRow({ d }: { d: PortalDeadline }) {
         className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${
           submitted
             ? "bg-emerald-50 text-emerald-600"
-            : "bg-[#1A7A9B]/10 text-[#1A7A9B]"
+            : "bg-primary/10 text-primary"
         }`}
       >
         <Icon size={16} />
@@ -251,7 +251,7 @@ function ComingUpRow({ d }: { d: PortalDeadline }) {
             ? "bg-emerald-50 text-emerald-700"
             : d.blockedOn === "client"
               ? "bg-neutral-100 text-text-light"
-              : "bg-[#1A7A9B]/10 text-[#1A7A9B]"
+              : "bg-primary/10 text-primary"
         }`}
       >
         {submitted
