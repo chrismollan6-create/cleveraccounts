@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { isNativeAppUA } from "@/lib/portal/native";
 import BrandProvider from "@/components/brand/BrandProvider";
 import PortalShell from "@/components/portal/PortalShell";
+import NativePush from "@/components/portal/NativePush";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
 import { getBrand } from "@/lib/brand";
 import { getOnboardingForCurrentUser, isOnboardingError } from "@/lib/portal/onboarding";
@@ -239,6 +240,8 @@ export default async function PortalLayout({
               </PortalShell>
             )}
           </BrandProvider>
+          {/* Native-app FCM push registration (no-op in a web browser). */}
+          {isSignedIn && <NativePush />}
           <VercelMonitoring />
         </body>
       </html>

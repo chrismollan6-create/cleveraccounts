@@ -1,7 +1,8 @@
 import webpush from "web-push";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, count, isNull } from "drizzle-orm";
 import { getPortalDb, schema } from "./db/client";
 import { sanitisedError } from "./log";
+import { sendFcmToClerkUsers } from "./fcm";
 
 /**
  * Web push — delivers a portal notification to a client's browser/device even
@@ -22,6 +23,8 @@ export interface PushPayload {
   url?: string | null;
   /** Coalesces repeat notifications on the device. */
   tag?: string | null;
+  /** iOS app-icon badge count (native push only). */
+  badge?: number;
 }
 
 let configured: boolean | null = null;
@@ -50,14 +53,30 @@ export function pushEnabled(): boolean {
 }
 
 /**
- * Send a push to every web subscription held by the given Clerk users. Expired
- * subscriptions (404/410) are pruned. Best-effort: never throws.
+ * Send a push to every device held by the given Clerk users — web (browser)
+ * AND native (iOS/Android via FCM). Each channel is independent: web sends when
+ * VAPID is configured, native when Firebase is (see fcm.ts). Dead tokens are
+ * pruned. Best-effort: never throws.
  */
 export async function sendPushToClerkUsers(
   clerkUserIds: string[],
   payload: PushPayload
 ): Promise<number> {
-  if (!ensureConfigured() || clerkUserIds.length === 0) return 0;
+  if (clerkUserIds.length === 0) return 0;
+
+  const [web, native] = await Promise.all([
+    sendWebPushToClerkUsers(clerkUserIds, payload),
+    sendFcmToClerkUsers(clerkUserIds, payload).catch(() => 0),
+  ]);
+  return web + native;
+}
+
+/** Web-push (browser) leg of sendPushToClerkUsers. Prunes expired subs. */
+async function sendWebPushToClerkUsers(
+  clerkUserIds: string[],
+  payload: PushPayload
+): Promise<number> {
+  if (!ensureConfigured()) return 0;
   const db = getPortalDb();
 
   const tokens = await db
@@ -110,7 +129,9 @@ export async function sendPushToAccount(
   accountSfId: string,
   payload: PushPayload
 ): Promise<number> {
-  if (!ensureConfigured() || !accountSfId) return 0;
+  // Web/native config is checked per-channel inside sendPushToClerkUsers, so
+  // native still fires when web (VAPID) is off and vice-versa.
+  if (!accountSfId) return 0;
   const db = getPortalDb();
 
   const [members, legacy] = await Promise.all([
@@ -130,5 +151,27 @@ export async function sendPushToAccount(
       ...legacy.map((l) => l.clerkUserId),
     ])
   );
-  return sendPushToClerkUsers(ids, payload);
+  if (ids.length === 0) return 0;
+
+  // iOS app-icon badge = the account's total unread notifications, so the red
+  // dot on the app icon matches the inbox. Fail-soft to no badge.
+  let badge = payload.badge;
+  if (badge === undefined) {
+    try {
+      const [row] = await db
+        .select({ n: count() })
+        .from(schema.notifications)
+        .where(
+          and(
+            eq(schema.notifications.accountSfId, accountSfId),
+            isNull(schema.notifications.readAt)
+          )
+        );
+      badge = Number(row?.n ?? 0);
+    } catch {
+      /* no badge */
+    }
+  }
+
+  return sendPushToClerkUsers(ids, { ...payload, badge });
 }
