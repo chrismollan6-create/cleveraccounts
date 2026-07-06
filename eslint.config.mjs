@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The Capacitor mobile shell is a self-contained project with its own
+    // toolchain — keep it out of the web app's lint/typecheck.
+    "mobile/**",
   ]),
 ]);
 
