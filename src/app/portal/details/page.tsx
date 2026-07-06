@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   Info,
 } from "lucide-react";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { getDetailsForCurrentUser } from "@/lib/portal/details";
@@ -30,11 +32,13 @@ export const dynamic = "force-dynamic";
  * style to match the dashboard.
  */
 export default async function DetailsPage() {
-  const [brand, portalUser, result] = await Promise.all([
+  const [brand, portalUser, result, hdrs] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     getDetailsForCurrentUser(),
+    headers(),
   ]);
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -80,20 +84,22 @@ export default async function DetailsPage() {
 
   return (
     <Wrap>
-      <div className="mb-7 flex items-center gap-3">
-        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
-          <Building2 size={22} />
-        </span>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Your details
-          </h1>
-          <p className="mt-0.5 text-sm text-text-light">
-            Your personal, company and Companies House records — kept in sync so
-            you always know what&apos;s on file.
-          </p>
+      {!isNativeApp && (
+        <div className="mb-7 flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <Building2 size={22} />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-text">
+              Your details
+            </h1>
+            <p className="mt-0.5 text-sm text-text-light">
+              Your personal, company and Companies House records — kept in sync so
+              you always know what&apos;s on file.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-2">
         {/* Left: who you are + the people on the company */}

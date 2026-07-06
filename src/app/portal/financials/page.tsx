@@ -12,6 +12,8 @@ import {
   Lightbulb,
   ArrowRight,
 } from "lucide-react";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { getFinancialsForCurrentUser } from "@/lib/portal/financials";
@@ -30,11 +32,13 @@ export const dynamic = "force-dynamic";
  * what to set aside. Matches the shared portal surface style.
  */
 export default async function FinancialsPage() {
-  const [brand, portalUser, result] = await Promise.all([
+  const [brand, portalUser, result, hdrs] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     getFinancialsForCurrentUser(),
+    headers(),
   ]);
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -59,20 +63,22 @@ export default async function FinancialsPage() {
 
   return (
     <Wrap>
-      <div className="mb-7 flex items-center gap-3">
-        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
-          <PoundSterling size={22} />
-        </span>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Your finances
-          </h1>
-          <p className="mt-0.5 text-sm text-text-light">
-            An up-to-date snapshot of how your business is doing — straight from
-            your bookkeeping.
-          </p>
+      {!isNativeApp && (
+        <div className="mb-7 flex items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+            <PoundSterling size={22} />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-text">
+              Your finances
+            </h1>
+            <p className="mt-0.5 text-sm text-text-light">
+              An up-to-date snapshot of how your business is doing — straight from
+              your bookkeeping.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {!fin ? (
         <EmptyState />

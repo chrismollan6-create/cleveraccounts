@@ -1,4 +1,6 @@
 import { CalendarDays } from "lucide-react";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBookingConfig } from "@/lib/portal/booking";
 import PortalBooking from "@/components/portal/PortalBooking";
 
@@ -12,25 +14,28 @@ export const metadata = { title: "Appointments" };
  * PortalBooking client component (live availability from the Calendly API).
  */
 export default async function AppointmentsPage() {
-  const result = await getBookingConfig();
+  const [result, hdrs] = await Promise.all([getBookingConfig(), headers()]);
   const config = result.ok ? result.data : null;
   const bookable = Boolean(config?.success && config?.eventTypeUri);
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 lg:px-8 lg:py-8">
-      <header className="mb-6">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <CalendarDays size={18} />
-          </span>
-          <div>
-            <h1 className="text-xl font-bold text-text">Book a call</h1>
-            <p className="text-sm text-text-light">
-              Pick a time that suits you — you&apos;ll get a calendar invite and a reminder.
-            </p>
+      {!isNativeApp && (
+        <header className="mb-6">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <CalendarDays size={18} />
+            </span>
+            <div>
+              <h1 className="text-xl font-bold text-text">Book a call</h1>
+              <p className="text-sm text-text-light">
+                Pick a time that suits you — you&apos;ll get a calendar invite and a reminder.
+              </p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {bookable ? (
         <PortalBooking

@@ -9,6 +9,8 @@ import {
   Coins,
 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { getApprovalsForCurrentUser } from "@/lib/portal/approvals";
@@ -27,11 +29,13 @@ export const dynamic = "force-dynamic";
 export default async function ApprovalsPage() {
   if (isSurfaceHidden("/portal/approvals")) redirect("/portal/dashboard");
 
-  const [brand, portalUser, result] = await Promise.all([
+  const [brand, portalUser, result, hdrs] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     getApprovalsForCurrentUser(),
+    headers(),
   ]);
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -68,26 +72,28 @@ export default async function ApprovalsPage() {
 
   return (
     <Wrap>
-      <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Approvals
-          </h1>
-          <p className="mt-0.5 text-sm text-text-light">
-            Review and sign off what we&apos;ve prepared — so we can file it for
-            you.
-          </p>
+      {!isNativeApp && (
+        <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-text">
+              Approvals
+            </h1>
+            <p className="mt-0.5 text-sm text-text-light">
+              Review and sign off what we&apos;ve prepared — so we can file it for
+              you.
+            </p>
+          </div>
+          {pending.length > 0 ? (
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+              <PenLine size={12} /> {pending.length} awaiting you
+            </span>
+          ) : (
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+              <CheckCircle2 size={12} /> Nothing to approve
+            </span>
+          )}
         </div>
-        {pending.length > 0 ? (
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-            <PenLine size={12} /> {pending.length} awaiting you
-          </span>
-        ) : (
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            <CheckCircle2 size={12} /> Nothing to approve
-          </span>
-        )}
-      </div>
+      )}
 
       {approvals.length === 0 && (
         <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-sm text-text-light shadow-sm">

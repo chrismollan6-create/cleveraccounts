@@ -281,36 +281,40 @@ function NativeMoney({
   const cashLow = fin.cashInBank != null && fin.cashInBank < 0;
   const needsBooks = (fin.unexplainedCount ?? 0) > 0;
 
-  const AMBER = "linear-gradient(155deg, #fbbf24, #d97706)";
-  const EMERALD = "linear-gradient(155deg, #2fb984, #0f9d6b)";
+  // Semantic status colours (brand-independent) — used only where a figure
+  // signals something (loss, overdrawn, books to tidy). Everything else stays
+  // ink on white so the money row reads calm, not a rainbow.
+  const AMBER = "#d97706";
+  const RED = "#dc2626";
+  const EMERALD = "#0f9d6b";
 
   const cards: {
     label: string;
     value: string;
     icon: typeof PoundSterling;
-    grad: string;
-    shadow: string;
+    chip: string;
+    valueColor: string;
   }[] = [
     {
       label: isLoss ? "Net loss" : "Net profit",
       value: gbp(Math.abs(fin.netProfit)),
       icon: isLoss ? Activity : TrendingUp,
-      grad: isLoss ? AMBER : `linear-gradient(155deg, ${c.primaryLight}, ${c.primaryDark})`,
-      shadow: isLoss ? "rgba(217,119,6,.5)" : withAlpha(c.primaryDark, 0.5),
+      chip: isLoss ? AMBER : c.primary,
+      valueColor: isLoss ? AMBER : c.text,
     },
     {
       label: cashLow ? "Overdrawn" : "Cash in the bank",
       value: fin.cashInBank != null ? gbp(fin.cashInBank) : "—",
       icon: Wallet,
-      grad: cashLow ? AMBER : EMERALD,
-      shadow: cashLow ? "rgba(217,119,6,.5)" : "rgba(15,157,107,.5)",
+      chip: cashLow ? RED : EMERALD,
+      valueColor: cashLow ? RED : c.text,
     },
     {
       label: `Set aside for tax · ~${fin.taxRatePct}%`,
       value: gbp(fin.estTaxSetAside),
       icon: Landmark,
-      grad: `linear-gradient(155deg, ${c.secondary}, ${c.secondaryDark})`,
-      shadow: withAlpha(c.secondaryDark, 0.5),
+      chip: c.secondaryDark,
+      valueColor: c.text,
     },
     {
       label: "Bookkeeping",
@@ -321,8 +325,8 @@ function NativeMoney({
             ? "All tidy"
             : `${fin.unexplainedCount} to explain`,
       icon: Receipt,
-      grad: needsBooks ? AMBER : EMERALD,
-      shadow: needsBooks ? "rgba(217,119,6,.5)" : "rgba(15,157,107,.5)",
+      chip: needsBooks ? AMBER : EMERALD,
+      valueColor: needsBooks ? AMBER : c.text,
     },
   ];
 
@@ -335,17 +339,22 @@ function NativeMoney({
           return (
             <div
               key={i}
-              className="flex min-h-[112px] flex-col justify-between overflow-hidden rounded-[20px] p-4 text-white"
-              style={{ background: card.grad, boxShadow: `0 14px 26px -16px ${card.shadow}` }}
+              className="flex min-h-[104px] flex-col justify-between rounded-[20px] bg-white p-4 shadow-[0_10px_26px_-18px_rgba(13,37,48,.4),0_0_0_1px_rgba(13,37,48,.05)]"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/22">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-[10px]"
+                style={{ background: withAlpha(card.chip, 0.12), color: card.chip }}
+              >
                 <Icon size={16} />
               </span>
               <div>
-                <div className="text-[23px] font-extrabold tracking-tight [font-variant-numeric:tabular-nums]">
+                <div
+                  className="text-[22px] font-extrabold tracking-tight [font-variant-numeric:tabular-nums]"
+                  style={{ color: card.valueColor }}
+                >
                   {card.value}
                 </div>
-                <div className="mt-0.5 text-[11px] font-semibold text-white/90">
+                <div className="mt-0.5 text-[11px] font-semibold" style={{ color: c.textLight }}>
                   {card.label}
                 </div>
               </div>

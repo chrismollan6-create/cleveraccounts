@@ -12,6 +12,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
 import { getDeadlinesForCurrentUser } from "@/lib/portal/deadlines";
@@ -26,11 +28,13 @@ export const dynamic = "force-dynamic";
  * "Coming up" list for everything we're handling. Cache-backed + Aurora style.
  */
 export default async function DeadlinesPage() {
-  const [brand, portalUser, result] = await Promise.all([
+  const [brand, portalUser, result, hdrs] = await Promise.all([
     getBrand(),
     getCurrentPortalUser(),
     getDeadlinesForCurrentUser(),
+    headers(),
   ]);
+  const isNativeApp = isNativeAppUA(hdrs.get("user-agent"));
 
   const firstName =
     portalUser?.firstName ?? portalUser?.email?.split("@")[0] ?? null;
@@ -76,32 +80,34 @@ export default async function DeadlinesPage() {
 
   return (
     <Wrap>
-      <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
-            <CalendarClock size={22} />
-          </span>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text">
-              Deadlines
-            </h1>
-            <p className="mt-0.5 text-sm text-text-light">
-              Everything you need to file or approve — and exactly when
-              it&apos;s due.
-            </p>
+      {!isNativeApp && (
+        <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1A7A9B]/10 text-[#1A7A9B]">
+              <CalendarClock size={22} />
+            </span>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-text">
+                Deadlines
+              </h1>
+              <p className="mt-0.5 text-sm text-text-light">
+                Everything you need to file or approve — and exactly when
+                it&apos;s due.
+              </p>
+            </div>
           </div>
+          {actionNow.length > 0 ? (
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+              <AlertTriangle size={12} /> {actionNow.length} need
+              {actionNow.length === 1 ? "s" : ""} you
+            </span>
+          ) : (
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+              <CheckCircle2 size={12} /> Nothing needs you right now
+            </span>
+          )}
         </div>
-        {actionNow.length > 0 ? (
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-            <AlertTriangle size={12} /> {actionNow.length} need
-            {actionNow.length === 1 ? "s" : ""} you
-          </span>
-        ) : (
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            <CheckCircle2 size={12} /> Nothing needs you right now
-          </span>
-        )}
-      </div>
+      )}
 
       {deadlines.length === 0 && (
         <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-sm text-text-light shadow-md">
