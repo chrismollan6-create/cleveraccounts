@@ -19,6 +19,7 @@ import { UserButton } from "@clerk/nextjs";
 import type { BrandConfig } from "@/lib/constants";
 import type { PortalAccountantInfo } from "@/lib/portal/types";
 import MobileNav, { type MobileNavItem } from "./MobileNav";
+import PortalTabBar, { type TabItem } from "./PortalTabBar";
 import AccountantAvatar from "./AccountantAvatar";
 import AccountSwitcher from "./AccountSwitcher";
 import ImpersonationBanner from "./ImpersonationBanner";
@@ -58,7 +59,27 @@ interface Props {
   companies?: PortalCompany[];
   /** When set, a staff view-as session is active — shows the read-only banner. */
   impersonation?: { clientName: string; staffName: string | null } | null;
+  /** True when rendered inside the Capacitor app → native bottom-tab shell. */
+  isNativeApp?: boolean;
   children: React.ReactNode;
+}
+
+/** The 4 primary destinations that get their own bottom-tab (rest go in "More"). */
+const TAB_HREFS = [
+  "/portal/dashboard",
+  "/portal/notifications",
+  "/portal/messages",
+  "/portal/documents",
+];
+
+function toTab(item: NavItem, size: number): TabItem {
+  const Icon = item.icon;
+  return {
+    label: item.href === "/portal/dashboard" ? "Home" : item.label,
+    href: item.href,
+    iconNode: <Icon size={size} />,
+    notificationCount: item.notificationCount,
+  };
 }
 
 const PRIMARY_NAV: NavItem[] = [
@@ -133,6 +154,7 @@ export default function PortalShell({
   progress,
   companies,
   impersonation,
+  isNativeApp,
   children,
 }: Props) {
   // Pilot mode hides surfaces whose SF→cache sync isn't built yet.
@@ -144,6 +166,62 @@ export default function PortalShell({
     SECONDARY_NAV.filter((i) => !isSurfaceHidden(i.href)),
     notifications
   );
+
+  // ── Native app shell: slim header + bottom tab bar (no sidebar) ──────────
+  if (isNativeApp) {
+    const byHref = new Map(primary.map((i) => [i.href, i]));
+    const tabItems = TAB_HREFS.map((href) => byHref.get(href))
+      .filter((i): i is NavItem => Boolean(i))
+      .map((i) => toTab(i, 22));
+    const moreItems = primary
+      .filter((i) => !TAB_HREFS.includes(i.href))
+      .map((i) => toTab(i, 20));
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-surface via-white to-surface-alt/50">
+        {impersonation && (
+          <ImpersonationBanner
+            clientName={impersonation.clientName}
+            staffName={impersonation.staffName}
+          />
+        )}
+        {/* Slim app header — brand logo centred, sits under the status bar. */}
+        <header
+          className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-md"
+          style={{ paddingTop: "env(safe-area-inset-top)" }}
+        >
+          <div className="flex h-12 items-center justify-between px-4">
+            {companies && companies.length > 1 ? (
+              <AccountSwitcher companies={companies} />
+            ) : (
+              <span className="w-8" />
+            )}
+            <Link href="/portal/dashboard" aria-label={`${brand.name} portal home`}>
+              <Image
+                src={brand.assets.logo}
+                alt={brand.name}
+                width={130}
+                height={34}
+                priority
+                className="h-7 w-auto"
+              />
+            </Link>
+            <span className="w-8" />
+          </div>
+        </header>
+
+        {/* Content clears the fixed tab bar (~64px) + home-indicator inset. */}
+        <main
+          className="min-w-0"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 64px)" }}
+        >
+          {children}
+        </main>
+
+        <PortalTabBar tabs={tabItems} moreItems={moreItems} isSignedIn={isSignedIn} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface via-white to-surface-alt/50">

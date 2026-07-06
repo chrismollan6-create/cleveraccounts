@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
+import { isNativeAppUA } from "@/lib/portal/native";
 import BrandProvider from "@/components/brand/BrandProvider";
 import PortalShell from "@/components/portal/PortalShell";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
@@ -14,6 +15,14 @@ import { countPendingApprovalsForCurrentUser } from "@/lib/portal/approvals";
 import { countOutstandingDocRequestsForCurrentUser } from "@/lib/portal/documents";
 import { listMyCompanies, getImpersonationBanner, type PortalCompany } from "@/lib/portal/memberships";
 import "../globals.css";
+
+// viewport-fit=cover is required for `env(safe-area-inset-*)` to resolve on
+// notched devices — the native shell relies on it for the header + tab bar.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 /**
  * Portal layout — root layout for all `src/app/portal/*` routes.
@@ -189,9 +198,17 @@ export default async function PortalLayout({
     pathname.startsWith("/portal/sign-in") ||
     pathname.startsWith("/portal/activate");
 
+  // Running inside the Capacitor app? → native bottom-tab shell + safe areas.
+  const isNativeApp = isNativeAppUA((await headers()).get("user-agent"));
+
   return (
     <ClerkProvider localization={PORTAL_CLERK_LOCALIZATION}>
-      <html lang="en" className="h-full" data-brand={brand.id}>
+      <html
+        lang="en"
+        className="h-full"
+        data-brand={brand.id}
+        data-native={isNativeApp ? "true" : undefined}
+      >
         <head>
           {fontHref && (
             <>
@@ -216,6 +233,7 @@ export default async function PortalLayout({
                 progress={progress}
                 companies={companies}
                 impersonation={impersonation}
+                isNativeApp={isNativeApp}
               >
                 {children}
               </PortalShell>

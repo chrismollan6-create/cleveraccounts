@@ -18,6 +18,10 @@ const config: CapacitorConfig = {
   appName: "Clever Accounts",
   // Required by the CLI even in remote-server mode — a minimal offline fallback.
   webDir: "www",
+  // Marks the webview's user-agent so the (server-rendered) portal can detect
+  // it's running inside the app and render the native-style shell (bottom tab
+  // bar, safe areas) instead of the web sidebar — no flash, no hydration diff.
+  appendUserAgent: "CleverAccountsApp",
   server: {
     url: "https://my.cleveraccounts.com",
     androidScheme: "https",
