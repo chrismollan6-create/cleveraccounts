@@ -117,14 +117,14 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
         n.actionRequired
           ? "border-orange-200 bg-orange-50/50"
           : showUnread
-            ? "border-primary/25 bg-primary/[0.045]"
+            ? "border-emerald-200 bg-white shadow-md shadow-emerald-500/10"
             : "border-neutral-200 bg-white"
       }`}
     >
       {(n.actionRequired || showUnread) && (
         <span
           className={`absolute inset-y-0 left-0 w-1 ${
-            n.actionRequired ? "bg-orange-500" : "bg-primary"
+            n.actionRequired ? "bg-orange-500" : "bg-emerald-500"
           }`}
         />
       )}
@@ -146,7 +146,7 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               {n.title}
             </p>
             {showUnread && !n.actionRequired && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
                 New
               </span>
             )}
@@ -161,7 +161,7 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
               {formatRelative(n.createdAt)}
             </span>
             {showUnread && (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" aria-label="Unread" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" aria-label="Unread" />
             )}
             {expandable && (
               <ChevronDown

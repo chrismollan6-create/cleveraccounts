@@ -77,8 +77,8 @@ export default async function NotificationsPage() {
             </div>
           </div>
           {unreadCount > 0 && (
-            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="mt-1 inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {unreadCount} new
             </span>
           )}
