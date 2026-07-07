@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { MoreHorizontal, X } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
@@ -31,6 +31,39 @@ function tapHaptic() {
   } catch {
     /* not in the app — ignore */
   }
+}
+
+/**
+ * Tab content — lives INSIDE <Link> so useLinkStatus() gives instant "pending"
+ * feedback the moment you tap, before the (network) navigation resolves. The
+ * tab lights up + the icon pulses immediately, so a tap never feels dead while
+ * the server renders the next screen.
+ */
+function TabInner({ item, settledActive }: { item: TabItem; settledActive: boolean }) {
+  const { pending } = useLinkStatus();
+  const on = settledActive || pending;
+  const count = item.notificationCount ?? 0;
+  return (
+    <>
+      <span className={`relative transition-colors ${on ? "text-primary" : "text-text-light"}`}>
+        {item.iconNode}
+        {pending && (
+          <span
+            aria-hidden
+            className="absolute -inset-2 rounded-full ring-2 ring-primary/40 animate-ping motion-reduce:animate-none"
+          />
+        )}
+        {count > 0 && (
+          <span className="absolute -right-2 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white ring-2 ring-white">
+            {count > 9 ? "9+" : count}
+          </span>
+        )}
+      </span>
+      <span className={`text-[10px] font-medium transition-colors ${on ? "text-primary" : "text-text-light"}`}>
+        {item.label}
+      </span>
+    </>
+  );
 }
 
 export default function PortalTabBar({
@@ -117,19 +150,9 @@ export default function PortalTabBar({
               <Link
                 href={t.href}
                 onClick={tapHaptic}
-                className={`relative flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
-                  isActive(t.href) ? "text-primary" : "text-text-light"
-                }`}
+                className="relative flex flex-col items-center gap-0.5 py-2 transition-transform duration-100 active:scale-90"
               >
-                <span className="relative">
-                  {t.iconNode}
-                  {(t.notificationCount ?? 0) > 0 && (
-                    <span className="absolute -right-2 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white ring-2 ring-white">
-                      {t.notificationCount! > 9 ? "9+" : t.notificationCount}
-                    </span>
-                  )}
-                </span>
-                <span>{t.label}</span>
+                <TabInner item={t} settledActive={isActive(t.href)} />
               </Link>
             </li>
           ))}
