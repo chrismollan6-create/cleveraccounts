@@ -193,11 +193,7 @@ export default function PortalShell({
         )}
         {/* Client-side so the title / hero decision stays correct on tab nav
             (the layout doesn't re-render between sibling routes). */}
-        <NativeHeader
-          brandName={brand.name}
-          isSignedIn={isSignedIn}
-          companies={companies}
-        />
+        <NativeHeader brandName={brand.name} companies={companies} />
 
         {/* Content clears the fixed tab bar (~64px) + home-indicator inset. */}
         <main

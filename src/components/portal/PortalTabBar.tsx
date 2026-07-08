@@ -33,6 +33,11 @@ function tapHaptic() {
   }
 }
 
+/** Strip the internal /portal prefix so clean urls (/dashboard) and /portal/* compare equal. */
+function stripPortal(p: string): string {
+  return p.replace(/^\/portal(?=\/|$)/, "") || "/";
+}
+
 /**
  * Tab content — lives INSIDE <Link> so useLinkStatus() gives instant "pending"
  * feedback the moment you tap, before the (network) navigation resolves. The
@@ -78,7 +83,14 @@ export default function PortalTabBar({
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  // The portal serves CLEAN urls (/dashboard) but tab hrefs + link navigations
+  // use /portal/dashboard — so normalise the /portal prefix off both sides,
+  // otherwise the active tab never matches on a clean-url load.
+  const isActive = (href: string) => {
+    const h = stripPortal(href);
+    const p = stripPortal(pathname);
+    return p === h || p.startsWith(h + "/");
+  };
   const moreActive = moreItems.some((m) => isActive(m.href));
 
   return (

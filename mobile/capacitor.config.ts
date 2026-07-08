@@ -39,16 +39,21 @@ const config: CapacitorConfig = {
     ],
   },
   ios: {
-    contentInset: "always",
+    // "never" — the webview does NOT add its own scroll content-inset, which was
+    // causing a white band + downward content shift after scrolling on the
+    // immersive dashboard. Safe areas are handled in CSS via env(safe-area-*).
+    contentInset: "never",
   },
   plugins: {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
     SplashScreen: {
-      launchShowDuration: 1200,
+      launchShowDuration: 1500,
       backgroundColor: "#0d2c40",
-      showSpinner: false,
+      showSpinner: true,
+      spinnerColor: "#ffffff",
+      iosSpinnerStyle: "large",
     },
     Keyboard: {
       // Resize the webview (not the whole page) when the keyboard opens, so
