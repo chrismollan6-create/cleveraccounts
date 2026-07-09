@@ -19,11 +19,20 @@ import "../globals.css";
 
 // viewport-fit=cover is required for `env(safe-area-inset-*)` to resolve on
 // notched devices — the native shell relies on it for the header + tab bar.
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-};
+//
+// In the NATIVE app we also lock zoom (maximumScale 1 / userScalable false):
+// iOS auto-zooms into any input with font-size < 16px on focus, which makes the
+// whole screen "grow" and stop fitting when the keyboard opens. The web keeps
+// pinch-zoom (accessibility) — only the app locks it.
+export async function generateViewport(): Promise<Viewport> {
+  const isNativeApp = isNativeAppUA((await headers()).get("user-agent"));
+  return {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+    ...(isNativeApp ? { maximumScale: 1, userScalable: false } : {}),
+  };
+}
 
 /**
  * Portal layout — root layout for all `src/app/portal/*` routes.
