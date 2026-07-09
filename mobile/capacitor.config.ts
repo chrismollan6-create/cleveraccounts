@@ -51,9 +51,9 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 1500,
       backgroundColor: "#0d2c40",
-      showSpinner: true,
-      spinnerColor: "#ffffff",
-      iosSpinnerStyle: "large",
+      // No spinner — the centred CA lockup is the whole splash; a spinner would
+      // clutter it. The navy matches the splash image so there's no seam.
+      showSpinner: false,
     },
     Keyboard: {
       // Resize the webview (not the whole page) when the keyboard opens, so
