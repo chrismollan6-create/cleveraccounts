@@ -899,7 +899,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
 
             {showLearnLinks && (
               <a
-                href={`https://${LEARN_CENTRE_DOMAIN[data.brandId]}/learn/24-month-rule-contractors`}
+                href={`https://${LEARN_CENTRE_DOMAIN[data.brandId]}/learn/ir35`}
                 className="mt-4 flex break-inside-avoid items-center gap-3 rounded-xl border border-border bg-white p-4 no-underline shadow-[0_2px_10px_rgba(15,23,42,0.05)]"
               >
                 <div
@@ -909,8 +909,8 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
                   <BookOpen size={16} strokeWidth={2} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-[12.5px] font-extrabold text-text">The 24-month rule — full guide</p>
-                  <p className="text-[11px] text-text-light">{LEARN_CENTRE_DOMAIN[data.brandId]}/learn/24-month-rule-contractors</p>
+                  <p className="text-[12.5px] font-extrabold text-text">IR35 & contractor travel — full guide</p>
+                  <p className="text-[11px] text-text-light">{LEARN_CENTRE_DOMAIN[data.brandId]}/learn/ir35</p>
                 </div>
                 <ArrowRight size={13} className="shrink-0" style={{ color: c.primary }} />
               </a>

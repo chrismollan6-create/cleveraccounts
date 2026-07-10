@@ -1397,9 +1397,9 @@ export function getLearnItems(d: ExpensesGuideData): ExpensesLearnItem[] {
 
   if (d.clientType === 'PSC') {
     base.push({
-      title: 'The 24-month rule',
-      blurb: 'Travel deductions for contractors',
-      slug: '/learn/24-month-rule-contractors',
+      title: 'IR35 & contractor travel',
+      blurb: 'How your status affects expenses',
+      slug: '/learn/ir35',
     });
   }
 
@@ -1407,7 +1407,7 @@ export function getLearnItems(d: ExpensesGuideData): ExpensesLearnItem[] {
     base.push({
       title: 'Self Assessment for sole traders',
       blurb: 'Filing, deadlines, payments',
-      slug: '/learn/self-assessment',
+      slug: '/learn/self-assessment/self-assessment-complete-guide',
     });
   }
 
