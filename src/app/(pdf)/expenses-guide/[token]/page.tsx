@@ -23,7 +23,7 @@ export const dynamic = 'force-dynamic';
 const BRAND_IDS: ExpensesGuideBrandId[] = ['clever', 'workwell'];
 const VARIANTS: ExpensesVariant[] = ['ltd', 'sole'];
 const SECTORS: ExpensesSector[] = [
-  'cis', 'medical', 'creative', 'transport', 'hospitality', 'retail', 'consulting', 'general',
+  'cis', 'medical', 'creative', 'transport', 'hospitality', 'retail', 'consulting', 'property', 'beauty', 'general',
 ];
 
 function isGuideData(v: unknown): v is ExpensesGuideData {
