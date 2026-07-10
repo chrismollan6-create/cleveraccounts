@@ -122,7 +122,7 @@ export function getEverydayEssentials(d: ExpensesGuideData): EssentialItem[] {
       : 'Claim £6/week (£312/year) with zero receipts needed. Or calculate the actual ' +
         'proportional cost of heating, electricity, mortgage interest and council tax. ' +
         'See Section 2 for the full breakdown of both methods.',
-    learnSlug: '/learn/use-of-home-as-office',
+    learnSlug: '/learn/expenses/home-office-expenses',
   },
   {
     iconKey: 'car',
@@ -134,7 +134,7 @@ export function getEverydayEssentials(d: ExpensesGuideData): EssentialItem[] {
       'from 45p in April 2026), 25p/mile after that. The same rate applies to a personally ' +
       'owned electric car. Motorbike: 24p/mile. Bicycle: 20p/mile. A mileage log is ' +
       'essential — see Section 5.',
-    learnSlug: '/learn/mileage-and-travel-expenses',
+    learnSlug: '/learn/expenses/vehicle-and-travel-expenses',
   },
   {
     iconKey: 'phone',
@@ -176,7 +176,7 @@ export function getEverydayEssentials(d: ExpensesGuideData): EssentialItem[] {
       'Annual membership of trade bodies, professional institutes, or industry associations ' +
       'directly related to your trade. LinkedIn Premium (if used for business development), ' +
       'relevant journals, and trade publications. HMRC publishes an approved list.',
-    learnSlug: '/learn/allowable-business-expenses',
+    learnSlug: '/learn/expenses/allowable-business-expenses',
   },
   {
     iconKey: 'training',
@@ -1373,17 +1373,17 @@ export function getLearnItems(d: ExpensesGuideData): ExpensesLearnItem[] {
     {
       title: 'Allowable business expenses',
       blurb: 'Full list with HMRC references',
-      slug: '/learn/allowable-business-expenses',
+      slug: '/learn/expenses/allowable-business-expenses',
     },
     {
       title: 'Use of home as office',
       blurb: 'Both methods explained with examples',
-      slug: '/learn/use-of-home-as-office',
+      slug: '/learn/expenses/home-office-expenses',
     },
     {
       title: 'Mileage & travel expenses',
       blurb: 'AMAP rates, logs, overnight rules',
-      slug: '/learn/mileage-and-travel-expenses',
+      slug: '/learn/expenses/vehicle-and-travel-expenses',
     },
   ];
 
@@ -1391,7 +1391,7 @@ export function getLearnItems(d: ExpensesGuideData): ExpensesLearnItem[] {
     base.push({
       title: 'Director salary & dividends',
       blurb: 'Tax-efficient extraction strategies',
-      slug: '/learn/director-salary-and-dividends',
+      slug: '/learn/paye-payroll',
     });
   }
 
