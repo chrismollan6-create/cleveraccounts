@@ -34,14 +34,11 @@ export default function PdfViewer({ url, title }: Props) {
     (async () => {
       try {
         const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-        // pdfjs requires a worker script in the browser. new URL(..., import.meta.url)
-        // lets the bundler emit and fingerprint the worker asset; rendering then
-        // happens off the main thread (smoother scrolling on mobile).
+        // pdfjs requires a worker script in the browser. It's served as a
+        // static asset copied from node_modules by the `prebuild` script
+        // (see package.json) so the worker version always matches the API.
         if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-          pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-            'pdfjs-dist/legacy/build/pdf.worker.min.mjs',
-            import.meta.url,
-          ).toString();
+          pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
         }
         const res = await fetch(url, { credentials: 'same-origin' });
         if (!res.ok) throw new Error(`PDF fetch ${res.status}`);
