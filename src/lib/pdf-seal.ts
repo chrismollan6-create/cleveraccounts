@@ -33,6 +33,7 @@ export interface CoverLetterContent {
   profit?: string | null;
   dividends?: string | null;
   adjustments?: string[];
+  s455Amount?: string | null;
   dlaNote?: string | null;
   commentary?: string | null;
 }
@@ -274,12 +275,23 @@ function prependCoverLetter(
     y -= 12;
   }
 
-  // DLA note
-  if (letter.dlaNote) {
-    need(48);
-    page.drawText('DIRECTOR’S LOAN ACCOUNT', { x: marginX, y, size: 8, font: helveticaBold, color: GREY });
+  // DLA / S455 note
+  if (letter.dlaNote || letter.s455Amount) {
+    need(60);
+    page.drawText(letter.s455Amount ? 'DIRECTOR’S LOAN ACCOUNT & S455 TAX' : 'DIRECTOR’S LOAN ACCOUNT', {
+      x: marginX, y, size: 8, font: helveticaBold, color: GREY,
+    });
     y -= 16;
-    y = drawWrapped(page, letter.dlaNote.replace(/\s+/g, ' ').trim(), marginX, y, maxW, 10.5, helvetica, DARK) - 12;
+    if (letter.s455Amount) {
+      page.drawText(`S455 tax arising: ${letter.s455Amount}`, {
+        x: marginX, y, size: 11, font: helveticaBold, color: DARK,
+      });
+      y -= 16;
+    }
+    if (letter.dlaNote) {
+      y = drawWrapped(page, letter.dlaNote.replace(/\s+/g, ' ').trim(), marginX, y, maxW, 10.5, helvetica, DARK);
+    }
+    y -= 12;
   }
 
   need(30);

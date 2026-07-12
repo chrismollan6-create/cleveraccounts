@@ -26,8 +26,48 @@ export interface CoverLetter {
   profit?: string | null;
   dividends?: string | null;
   adjustments?: string[];
+  adjustmentsHtml?: string | null; // accountant-composed rich text (sanitised before render)
+  s455Amount?: string | null;
   dlaNote?: string | null;
+  dlaNoteHtml?: string | null;
   commentary?: string | null;
+}
+
+/**
+ * Strict allowlist sanitiser for the accountant-composed rich-text fields.
+ * Keeps basic formatting (bold/italic/underline/lists/paragraphs), drops every
+ * attribute and any other tag. Content is staff-authored, but the letter is
+ * public-token-served — never render it unfiltered.
+ */
+function sanitizeRichHtml(html: string): string {
+  const ALLOWED = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'UL', 'OL', 'LI', 'P', 'BR', 'DIV', 'SPAN']);
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const walk = (node: Node): string => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return (node.textContent ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return '';
+    const el = node as Element;
+    const inner = [...el.childNodes].map(walk).join('');
+    if (!ALLOWED.has(el.tagName)) return inner; // unwrap unknown tags, keep content
+    const tag = el.tagName.toLowerCase();
+    return tag === 'br' ? '<br/>' : `<${tag}>${inner}</${tag}>`;
+  };
+  return [...doc.body.childNodes].map(walk).join('');
+}
+
+function RichBlock({ html }: { html: string }) {
+  const [safe, setSafe] = useState('');
+  useEffect(() => setSafe(sanitizeRichHtml(html)), [html]);
+  return (
+    <div
+      className="text-sm text-text leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_p]:mb-2 last:[&_p]:mb-0"
+      dangerouslySetInnerHTML={{ __html: safe }}
+    />
+  );
 }
 
 interface Meta {
@@ -492,27 +532,44 @@ export default function SignClient({ token, meta, coverLetter, confirmations, br
             </div>
           )}
 
-          {coverLetter.adjustments && coverLetter.adjustments.length > 0 && (
+          {(coverLetter.adjustmentsHtml || (coverLetter.adjustments && coverLetter.adjustments.length > 0)) && (
             <div className="mb-6">
               <h3 className="text-sm font-bold text-text mb-2">Year-end adjustments we&rsquo;ve made</h3>
-              <ul className="space-y-1.5">
-                {coverLetter.adjustments.map((adj, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-text leading-relaxed">
-                    <CheckCircle2 size={15} className="text-primary mt-0.5 shrink-0" />
-                    {adj}
-                  </li>
-                ))}
-              </ul>
+              {coverLetter.adjustmentsHtml ? (
+                <RichBlock html={coverLetter.adjustmentsHtml} />
+              ) : (
+                <ul className="space-y-1.5">
+                  {(coverLetter.adjustments ?? []).map((adj, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-text leading-relaxed">
+                      <CheckCircle2 size={15} className="text-primary mt-0.5 shrink-0" />
+                      {adj}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p className="text-xs text-text-light mt-2">
                 These will be reflected in your bookkeeping once you approve the accounts.
               </p>
             </div>
           )}
 
-          {coverLetter.dlaNote && (
+          {(coverLetter.dlaNoteHtml || coverLetter.dlaNote || coverLetter.s455Amount) && (
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-2">
-              <h3 className="text-sm font-bold text-text mb-1">Director&rsquo;s loan account</h3>
-              <p className="text-sm text-text leading-relaxed">{coverLetter.dlaNote}</p>
+              <h3 className="text-sm font-bold text-text mb-1">
+                Director&rsquo;s loan account{coverLetter.s455Amount ? ' & S455 tax' : ''}
+              </h3>
+              {coverLetter.s455Amount && (
+                <p className="text-sm text-text mb-2">
+                  <span className="inline-block rounded-md bg-amber-100 text-amber-900 font-bold px-2 py-0.5">
+                    S455 tax arising: {coverLetter.s455Amount}
+                  </span>
+                </p>
+              )}
+              {coverLetter.dlaNoteHtml ? (
+                <RichBlock html={coverLetter.dlaNoteHtml} />
+              ) : coverLetter.dlaNote ? (
+                <p className="text-sm text-text leading-relaxed">{coverLetter.dlaNote}</p>
+              ) : null}
             </div>
           )}
 
