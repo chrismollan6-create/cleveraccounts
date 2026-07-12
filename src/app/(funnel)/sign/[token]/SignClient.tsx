@@ -17,8 +17,16 @@ import {
 import SignaturePad from '../../engagement-letter/[token]/SignaturePad';
 import PdfViewer from './PdfViewer';
 
+export interface LetterPeriod {
+  label?: string | null;
+  taxLiability?: string | null;
+  paymentDue?: string | null;
+  paymentReference?: string | null;
+}
+
 export interface CoverLetter {
   noPayment?: boolean;
+  periods?: LetterPeriod[] | null; // split period: >12-month year = two CT600s
   taxLiability?: string | null;
   paymentDue?: string | null;
   paymentReference?: string | null;
@@ -305,6 +313,27 @@ export default function SignClient({ token, meta, coverLetter, confirmations, br
               {step}
             </li>
           ))}
+          {(coverLetter?.periods ?? [])
+            .filter((p) => p.taxLiability && p.paymentDue)
+            .map((p, i) => (
+              <li key={`p${i}`} className="flex gap-2.5 text-sm text-text leading-relaxed">
+                <span className="w-5 h-5 shrink-0 rounded-full bg-amber-100 text-amber-700 font-bold text-[11px] flex items-center justify-center mt-0.5">
+                  !
+                </span>
+                <span>
+                  Diarise: <strong>{p.taxLiability}</strong> corporation tax ({p.label || `period ${i + 1}`})
+                  due to HMRC by{' '}
+                  <strong>
+                    {new Date(p.paymentDue as string).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </strong>
+                  .
+                </span>
+              </li>
+            ))}
           {coverLetter?.taxLiability && coverLetter?.paymentDue && (
             <li className="flex gap-2.5 text-sm text-text leading-relaxed">
               <span className="w-5 h-5 shrink-0 rounded-full bg-amber-100 text-amber-700 font-bold text-[11px] flex items-center justify-center mt-0.5">
@@ -417,7 +446,13 @@ export default function SignClient({ token, meta, coverLetter, confirmations, br
   // ---------------------------------------------------------------- ready / submitting
 
   const hasFigures = !!(coverLetter && (coverLetter.revenue || coverLetter.profit || coverLetter.dividends));
-  const hasPayment = !!(coverLetter && (coverLetter.taxLiability || coverLetter.paymentDue || coverLetter.paymentReference));
+  const splitPeriods = (coverLetter?.periods ?? []).filter(
+    (p) => p.taxLiability || p.paymentDue || p.paymentReference,
+  );
+  const hasPayment = !!(
+    coverLetter &&
+    (coverLetter.taxLiability || coverLetter.paymentDue || coverLetter.paymentReference || splitPeriods.length)
+  );
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
@@ -496,38 +531,85 @@ export default function SignClient({ token, meta, coverLetter, confirmations, br
 
           {!coverLetter.noPayment && hasPayment && (
             <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 mb-6">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-1">
                 <CalendarClock size={18} className="text-amber-600" />
-                <h3 className="text-sm font-bold text-text">Corporation tax to pay</h3>
+                <h3 className="text-sm font-bold text-text">
+                  Corporation tax to pay{splitPeriods.length > 0 ? ' — two periods' : ''}
+                </h3>
               </div>
-              <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 mb-4">
-                {coverLetter.taxLiability && (
-                  <span className="text-2xl font-bold text-text">{coverLetter.taxLiability}</span>
-                )}
-                {coverLetter.paymentDue && (
-                  <span className="text-sm text-text-light">
-                    due by{' '}
-                    <strong className="text-text">
-                      {new Date(coverLetter.paymentDue).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </strong>
-                  </span>
-                )}
-              </div>
+
+              {splitPeriods.length > 0 ? (
+                <>
+                  <p className="text-xs text-text-light mb-4">
+                    Your accounting period ran longer than 12 months, so HMRC splits it into two tax
+                    returns — <strong className="text-text">two separate payments with two different
+                    references and deadlines</strong>.
+                  </p>
+                  <div className="space-y-3 mb-4">
+                    {splitPeriods.map((p, i) => (
+                      <div key={i} className="rounded-lg border border-amber-200/80 bg-white/70 p-4">
+                        <div className="text-[11px] font-bold uppercase tracking-wide text-amber-700 mb-1.5">
+                          {p.label || `Period ${i + 1}`}
+                        </div>
+                        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 mb-2">
+                          {p.taxLiability && (
+                            <span className="text-xl font-bold text-text">{p.taxLiability}</span>
+                          )}
+                          {p.paymentDue && (
+                            <span className="text-sm text-text-light">
+                              due by{' '}
+                              <strong className="text-text">
+                                {new Date(p.paymentDue).toLocaleDateString('en-GB', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                })}
+                              </strong>
+                            </span>
+                          )}
+                        </div>
+                        {p.paymentReference && (
+                          <div className="text-sm text-text">
+                            <span className="text-text-light">Reference: </span>
+                            <span className="font-mono font-semibold">{p.paymentReference}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 mb-4 mt-2">
+                  {coverLetter.taxLiability && (
+                    <span className="text-2xl font-bold text-text">{coverLetter.taxLiability}</span>
+                  )}
+                  {coverLetter.paymentDue && (
+                    <span className="text-sm text-text-light">
+                      due by{' '}
+                      <strong className="text-text">
+                        {new Date(coverLetter.paymentDue).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </strong>
+                    </span>
+                  )}
+                </div>
+              )}
+
               <dl className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
                 <PayRow label="Pay to" value="HMRC" />
                 <PayRow label="Sort code · Account" value="08-32-10 · 12001039" />
-                {coverLetter.paymentReference && (
+                {splitPeriods.length === 0 && coverLetter.paymentReference && (
                   <PayRow label="Payment reference" value={coverLetter.paymentReference} mono />
                 )}
               </dl>
               <p className="text-xs text-text-light mt-3">
-                Use the exact reference shown — an incorrect reference delays HMRC allocating your
-                payment. Paying late accrues daily interest; if you may struggle to pay in full, contact
-                HMRC early to arrange a plan. This is paid by the company, not by us.
+                Use the exact reference{splitPeriods.length > 0 ? ' for each period' : ' shown'} — an
+                incorrect reference delays HMRC allocating your payment. Paying late accrues daily
+                interest; if you may struggle to pay in full, contact HMRC early to arrange a plan.
+                This is paid by the company, not by us.
               </p>
             </div>
           )}

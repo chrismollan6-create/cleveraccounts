@@ -24,8 +24,16 @@ import { PDFDocument, PDFFont, PDFImage, PDFPage, StandardFonts, rgb } from 'pdf
  * evidence lives on the Salesforce record, not in this stamp.
  */
 
+export interface LetterPeriod {
+  label?: string | null;
+  taxLiability?: string | null;
+  paymentDue?: string | null;
+  paymentReference?: string | null;
+}
+
 export interface CoverLetterContent {
   noPayment?: boolean;
+  periods?: LetterPeriod[] | null; // split period: >12-month year = two CT600s
   taxLiability?: string | null;
   paymentDue?: string | null;
   paymentReference?: string | null;
@@ -221,6 +229,9 @@ function prependCoverLetter(
   }
 
   // Tax + payment
+  const splitPeriods = (letter.periods ?? []).filter(
+    (p) => p.taxLiability || p.paymentDue || p.paymentReference,
+  );
   if (letter.noPayment) {
     need(40);
     page.drawText('CORPORATION TAX', { x: marginX, y, size: 8, font: helveticaBold, color: GREY });
@@ -228,6 +239,51 @@ function prependCoverLetter(
     y = drawWrapped(page,
       'There is no corporation tax to pay for this period — nothing needs to be paid to HMRC.',
       marginX, y, maxW, 10.5, helvetica, DARK) - 14;
+  } else if (splitPeriods.length) {
+    need(90 + splitPeriods.length * 60);
+    page.drawText('CORPORATION TAX TO PAY — TWO PERIODS', { x: marginX, y, size: 8, font: helveticaBold, color: GREY });
+    y -= 14;
+    y = drawWrapped(page,
+      'The accounting period ran longer than 12 months, so HMRC splits it into two tax returns — '
+      + 'two separate payments with two different references and deadlines.',
+      marginX, y, maxW, 9, helvetica, GREY) - 8;
+    for (const p of splitPeriods) {
+      need(64);
+      page.drawText((p.label || 'Period').toUpperCase(), { x: marginX, y, size: 7.5, font: helveticaBold, color: GREY });
+      y -= 15;
+      if (p.taxLiability) {
+        page.drawText(p.taxLiability, { x: marginX, y, size: 14, font: helveticaBold, color: DARK });
+        if (p.paymentDue) {
+          page.drawText(`due by ${formatDateUk(p.paymentDue)}`, {
+            x: marginX + helveticaBold.widthOfTextAtSize(p.taxLiability, 14) + 8,
+            y: y + 1, size: 9.5, font: helvetica, color: GREY,
+          });
+        }
+        y -= 16;
+      } else if (p.paymentDue) {
+        page.drawText(`Payment due by ${formatDateUk(p.paymentDue)}`, { x: marginX, y, size: 10, font: helvetica, color: DARK });
+        y -= 14;
+      }
+      if (p.paymentReference) {
+        page.drawText('Payment reference', { x: marginX, y, size: 9, font: helvetica, color: GREY });
+        page.drawText(p.paymentReference, { x: marginX + 110, y, size: 9.5, font: helveticaBold, color: DARK });
+        y -= 16;
+      }
+    }
+    const payRowsSplit: Array<[string, string]> = [
+      ['Pay to', 'HMRC'],
+      ['Sort code / account', '08-32-10 / 12001039'],
+    ];
+    for (const [label, value] of payRowsSplit) {
+      page.drawText(label, { x: marginX, y, size: 9.5, font: helvetica, color: GREY });
+      page.drawText(value, { x: marginX + 130, y, size: 9.5, font: helveticaBold, color: DARK });
+      y -= 14;
+    }
+    y -= 4;
+    y = drawWrapped(page,
+      'Use the exact payment reference for each period — an incorrect reference delays HMRC allocating '
+      + 'your payment. Late payment accrues daily interest; contact HMRC early if you need a payment plan.',
+      marginX, y, maxW, 8.5, helvetica, GREY) - 14;
   } else if (letter.taxLiability || letter.paymentDue || letter.paymentReference) {
     need(120);
     page.drawText('CORPORATION TAX TO PAY', { x: marginX, y, size: 8, font: helveticaBold, color: GREY });
