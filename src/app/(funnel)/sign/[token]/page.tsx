@@ -130,6 +130,40 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
     );
   }
 
+  // Portal-aware signing: a client already logged into the portal (Clerk)
+  // skips the postcode/DOB challenge — their session is stronger auth.
+  // Every step is best-effort; any failure falls back to the normal challenge.
+  let portalSessionKey: string | null = null;
+  try {
+    const { auth } = await import('@clerk/nextjs/server');
+    const { userId } = await auth();
+    if (userId) {
+      const { getPortalDb, schema } = await import('@/lib/portal/db/client');
+      const { eq, and } = await import('drizzle-orm');
+      const db = getPortalDb();
+      const rows = await db
+        .select({ contactSfId: schema.memberships.contactSfId })
+        .from(schema.memberships)
+        .where(and(eq(schema.memberships.clerkUserId, userId), eq(schema.memberships.status, 'active')));
+      const contactSfIds = rows.map((r) => r.contactSfId).filter(Boolean);
+      if (contactSfIds.length) {
+        const sfToken = await getSalesforceToken();
+        const res = await fetch(sfApex(`/SignatureRequest/portal-session?t=${encodeURIComponent(token)}`), {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${sfToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contactSfIds }),
+          cache: 'no-store',
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.success && data?.sessionKey) portalSessionKey = data.sessionKey;
+        }
+      }
+    }
+  } catch {
+    portalSessionKey = null; // no Clerk/portal on this deployment — normal flow
+  }
+
   let coverLetter = null;
   if (dto.coverLetterJson) {
     try {
@@ -167,6 +201,7 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
       }}
       coverLetter={coverLetter}
       confirmations={confirmations}
+      portalSessionKey={portalSessionKey}
       brandPhone={brand.phone}
       brandEmail={brand.email}
       brandName={brand.name}

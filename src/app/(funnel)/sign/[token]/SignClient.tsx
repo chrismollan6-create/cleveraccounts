@@ -97,6 +97,7 @@ interface Props {
   meta: Meta;
   coverLetter: CoverLetter | null;
   confirmations: string[];
+  portalSessionKey?: string | null; // Clerk-verified portal login: skip the challenge
   brandPhone: string;
   brandEmail: string;
   brandName: string;
@@ -111,9 +112,21 @@ type Phase = 'challenge' | 'ready' | 'submitting' | 'signed' | 'declined' | 'loc
  * The PDF (and the letter contents) only render once Salesforce has issued a
  * session key for a passed challenge, so nothing sensitive shows on a bare link.
  */
-export default function SignClient({ token, meta, coverLetter, confirmations, brandPhone, brandEmail, brandName }: Props) {
-  const [phase, setPhase] = useState<Phase>('challenge');
-  const [sessionKey, setSessionKey] = useState<string | null>(null);
+export default function SignClient({ token, meta, coverLetter, confirmations, portalSessionKey, brandPhone, brandEmail, brandName }: Props) {
+  const [phase, setPhase] = useState<Phase>(portalSessionKey ? 'ready' : 'challenge');
+  const [sessionKey, setSessionKey] = useState<string | null>(portalSessionKey ?? null);
+
+  // Portal-authenticated arrivals skip the challenge — still log the view.
+  useEffect(() => {
+    if (portalSessionKey) {
+      fetch(`/api/sign/view?t=${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionKey: portalSessionKey }),
+      }).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [challengeAnswer, setChallengeAnswer] = useState('');
   const [challengeError, setChallengeError] = useState<string | null>(null);
   const [challengeBusy, setChallengeBusy] = useState(false);
