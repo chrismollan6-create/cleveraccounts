@@ -4,7 +4,9 @@ const nextConfig: NextConfig = {
   // puppeteer-core + @sparticuz/chromium ship a native Chromium bundle that
   // must not be processed by the bundler — keep them external to the server
   // build so the onboarding-guide PDF route works on Vercel.
-  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  // pdfjs-dist likewise: bundling its legacy build breaks text extraction in
+  // the /api/sign seal step — load it natively.
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core", "pdfjs-dist"],
   images: {
     remotePatterns: [
       {
