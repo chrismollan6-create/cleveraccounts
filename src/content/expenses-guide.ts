@@ -46,7 +46,9 @@ export interface ExpensesGuideData {
   variant: ExpensesVariant;
   clientFirstName: string;
   companyName: string;
-  accountant: { name: string; email: string; phone: string };
+  /** No email here on purpose — the guide always points clients at the brand
+   *  support inbox (`support.email`), never an individual accountant's address. */
+  accountant: { name: string; phone: string };
   support: { email: string; phone: string };
   /** 'PSC' triggers the contractor / 24-month rule section */
   clientType?: string;
@@ -1570,7 +1572,6 @@ export function buildSampleData(
     companyName: variant === 'ltd' ? 'Mitchell Consulting Ltd' : 'Sarah Mitchell',
     accountant: {
       name: 'Jimmy Patel',
-      email: brandId === 'clever' ? 'jimmy@cleveraccounts.com' : 'jimmy@workwellsolutions.com',
       phone: brand.phone,
     },
     support: { email: brand.supportEmail, phone: brand.phone },

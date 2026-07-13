@@ -1142,7 +1142,7 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
             <div className="shrink-0 space-y-2 text-right text-[12.5px]">
               <p className="flex items-center justify-end gap-2">
                 <Mail size={14} style={{ color: c.secondary }} />
-                {data.accountant.email}
+                {data.support.email}
               </p>
               <p className="flex items-center justify-end gap-2">
                 <Phone size={14} style={{ color: c.secondary }} />
@@ -1153,8 +1153,8 @@ export default function ExpensesGuide({ data }: { data: ExpensesGuideData }) {
           <p className="mt-6 flex items-start gap-2 border-t border-white/[0.12] pt-5 text-[11.5px] leading-[1.65] text-white/60">
             <ArrowRight size={13} className="mt-0.5 shrink-0" style={{ color: c.secondary }} />
             Ask us before claiming anything you&rsquo;re unsure about — it is always easier to
-            check first than to unwind a mis-claim later.
-            General enquiries: {data.support.email} · {data.support.phone}
+            check first than to unwind a mis-claim later. Email {data.support.email} or call{' '}
+            {data.support.phone}.
           </p>
         </div>
       </footer>

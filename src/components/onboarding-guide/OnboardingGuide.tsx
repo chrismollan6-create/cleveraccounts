@@ -449,7 +449,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
                         </span>
                       ) : (
                         <a
-                          href={data.calendlyUrl ?? `mailto:${data.accountant.email}`}
+                          href={data.calendlyUrl ?? `mailto:${data.support.email}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-white no-underline shadow-sm"
@@ -936,7 +936,7 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
             <div className="shrink-0 space-y-2 text-right text-[13px]">
               <p className="flex items-center justify-end gap-2">
                 <Mail size={15} style={{ color: c.secondary }} />
-                {data.accountant.email}
+                {data.support.email}
               </p>
               <p className="flex items-center justify-end gap-2">
                 <Phone size={15} style={{ color: c.secondary }} />
@@ -947,7 +947,8 @@ export default function OnboardingGuide({ data }: { data: OnboardingGuideData })
           <p className="mt-6 flex items-center gap-2 border-t border-white/15 pt-5 text-[12px] leading-[1.6] text-white/70">
             <ArrowRight size={14} className="shrink-0" style={{ color: c.secondary }} />
             Call or email as often as you need — unlimited advice is part of your package.
-            General enquiries: {data.support.email} · {data.support.phone}
+            Emails to {data.support.email} reach your accountant and the wider team, so nothing
+            waits on one person being at their desk.
           </p>
         </div>
       </footer>

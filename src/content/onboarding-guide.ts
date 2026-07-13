@@ -36,7 +36,9 @@ export interface OnboardingGuideData {
   variant: GuideVariant;
   clientFirstName: string;
   companyName: string;
-  accountant: { name: string; email: string; phone: string; photoUrl?: string };
+  /** No email here on purpose — the guide always points clients at the brand
+   *  support inbox (`support.email`), never an individual accountant's address. */
+  accountant: { name: string; phone: string; photoUrl?: string };
   dates: JourneyDate;
   support: { email: string; phone: string };
   vatStatus?: string;
@@ -997,7 +999,6 @@ export function buildSampleData(
     companyName: isSole ? 'Sarah Mitchell' : 'Mitchell Consulting Ltd',
     accountant: {
       name: 'Jimmy Patel',
-      email: brandId === 'clever' ? 'jimmy@cleveraccounts.com' : 'jimmy@workwellsolutions.com',
       phone: brand.phone,
       photoUrl: 'https://i.pravatar.cc/240?img=12',
     },
