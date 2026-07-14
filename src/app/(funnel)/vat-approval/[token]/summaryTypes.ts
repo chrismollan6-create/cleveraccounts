@@ -18,3 +18,13 @@ export interface VatCheck {
   description: string;
   flagged: number;
 }
+
+/** A mis-allocation note — either corrected by us, or flagged for the client to check. */
+export interface HousekeepingNote {
+  fixed: boolean;
+  txnDate?: string | null;
+  payee?: string | null;
+  amountText?: string | null;
+  fromCategory?: string | null;
+  toCategory?: string | null;
+}

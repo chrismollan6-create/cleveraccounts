@@ -88,6 +88,54 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
         </div>
       )}
 
+      {/* Housekeeping — mis-allocations we corrected or want the client to know about */}
+      {(dto.housekeeping?.length ?? 0) > 0 && (
+        <div>
+          <SectionLabel>A little housekeeping</SectionLabel>
+          <p className="mt-2 text-[13px] leading-relaxed text-text-light">
+            While preparing your return we check the category on every transaction. A few items
+            looked like they were filed under a different category to where they usually belong:
+          </p>
+          <ul className="mt-2 rounded-lg border border-gray-200 divide-y divide-gray-100">
+            {dto.housekeeping!.map((n, i) => (
+              <li key={i} className="px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`mt-0.5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
+                      n.fixed ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                    }`}
+                  >
+                    {n.fixed ? "We've fixed this" : 'Worth checking'}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-text">
+                      {n.payee ?? 'Transaction'}
+                      {n.amountText ? <span className="font-normal text-text-light"> · {n.amountText}</span> : null}
+                      {n.txnDate ? <span className="font-normal text-text-light"> · {n.txnDate}</span> : null}
+                    </p>
+                    <p className="text-[13px] leading-relaxed text-text-light">
+                      {n.fromCategory ? (
+                        <>Was in <span className="font-medium text-text">{n.fromCategory}</span> — </>
+                      ) : null}
+                      {n.fixed ? (
+                        <>we&apos;ve moved it to <span className="font-medium text-text">{n.toCategory}</span> for you.</>
+                      ) : (
+                        <>this looks like it belongs in <span className="font-medium text-text">{n.toCategory}</span>.
+                        {' '}Could you move it when you get a moment — or just reply to let us know if it&apos;s deliberate.</>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[12px] leading-relaxed text-text-light">
+            These don&apos;t hold up your approval — keeping categories tidy just makes your VAT and
+            year-end accounts more accurate.
+          </p>
+        </div>
+      )}
+
       {/* Assurance checks */}
       {checks.length > 0 && (
         <div>

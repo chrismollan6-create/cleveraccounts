@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
-import type { VatBox, VatCheck } from './summaryTypes';
+import type { VatBox, VatCheck, HousekeepingNote } from './summaryTypes';
 import VatApprovalClient from './VatApprovalClient';
 
 export interface VatApprovalDto {
@@ -21,6 +21,7 @@ export interface VatApprovalDto {
   alreadyResponded: boolean;
   boxes: VatBox[];           // the 9 VAT return boxes
   checks: VatCheck[];
+  housekeeping?: HousekeepingNote[];  // mis-allocations we corrected / flagged
 }
 
 export const dynamic = 'force-dynamic';
