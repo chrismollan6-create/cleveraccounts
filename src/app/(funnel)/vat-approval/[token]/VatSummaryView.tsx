@@ -24,6 +24,16 @@ function fmtDay(iso: string | null | undefined): string {
 export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
   const boxes = dto.boxes ?? [];
   const checks = dto.checks ?? [];
+  const months = dto.months ?? [];
+  const noSalesMonths = months.filter((m) => m.noSales);
+  const totals = months.reduce(
+    (a, m) => ({
+      sales: a.sales + (m.sales ?? 0),
+      salesVat: a.salesVat + (m.salesVat ?? 0),
+      purchases: a.purchases + (m.purchases ?? 0),
+    }),
+    { sales: 0, salesVat: 0, purchases: 0 },
+  );
   const net = dto.netVatDue ?? null;
   const isReclaim = net != null && net < 0;
   const headlineLabel = isReclaim ? 'Net VAT to reclaim from HMRC' : 'Net VAT to pay to HMRC';
@@ -81,6 +91,74 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Month by month — a quarter total can hide an income gap; months cannot. */}
+      {months.length > 0 && (
+        <div>
+          <SectionLabel>Month by month</SectionLabel>
+          <p className="mt-2 text-[13px] leading-relaxed text-text-light">
+            {noSalesMonths.length > 0 ? (
+              <>
+                Please check this carefully. We haven&apos;t found any sales invoiced in{' '}
+                <span className="font-semibold text-text">{noSalesMonths.map((m) => m.label).join(' or ')}</span>.
+                If that&apos;s right, approve as normal. If you&apos;ve done work you haven&apos;t
+                invoiced yet, please decline below and tell us — we&apos;ll hold the return.
+              </>
+            ) : (
+              <>How the quarter breaks down, so you can sense-check the income we&apos;re reporting.</>
+            )}
+          </p>
+          <div className="mt-2 rounded-lg border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-primary text-white text-left">
+                    <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide">Month</th>
+                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">Sales</th>
+                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">VAT on sales</th>
+                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">Purchases</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {months.map((m) => (
+                    <tr
+                      key={m.month}
+                      className={`border-t border-gray-100 ${m.noSales ? 'bg-amber-50' : ''}`}
+                    >
+                      <td className="px-4 py-2.5 whitespace-nowrap font-medium text-text">{m.label}</td>
+                      <td
+                        className={`px-4 py-2.5 text-right whitespace-nowrap tabular-nums ${
+                          m.noSales ? 'font-bold text-amber-700' : 'text-text-light'
+                        }`}
+                      >
+                        {m.noSales ? 'No sales invoiced' : fmtMoney(m.sales)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
+                        {fmtMoney(m.salesVat)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
+                        {fmtMoney(m.purchases)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="border-t border-gray-200 bg-primary/[0.05]">
+                    <td className="px-4 py-2.5 font-bold text-text">Total</td>
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text">
+                      {fmtMoney(totals.sales)}
+                    </td>
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text">
+                      {fmtMoney(totals.salesVat)}
+                    </td>
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text">
+                      {fmtMoney(totals.purchases)}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

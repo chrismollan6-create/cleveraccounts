@@ -19,6 +19,20 @@ export interface VatCheck {
   flagged: number;
 }
 
+/**
+ * One month of the quarter, in figures. A quarter total hides an income gap — a client who
+ * invoiced nothing for two months looks identical to one who simply had a quieter quarter.
+ * Only the client can say which it is, so we show them the months and let them decline.
+ */
+export interface VatMonth {
+  month: string;      // "2026-05"
+  label: string;      // "May 26"
+  sales: number;
+  salesVat: number;
+  purchases: number;
+  noSales: boolean;   // £0 invoiced — the thing worth their attention
+}
+
 /** A mis-allocation note — either corrected by us, or flagged for the client to check. */
 export interface HousekeepingNote {
   fixed: boolean;
