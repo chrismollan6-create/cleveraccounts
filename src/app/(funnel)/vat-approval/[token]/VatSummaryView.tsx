@@ -24,7 +24,17 @@ function fmtDay(iso: string | null | undefined): string {
  * read as three competing objects, and the client's eye should land on the figures. The brand
  * carries in the headline and the section rules instead.
  */
-export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
+export default function VatSummaryView({
+  dto,
+  part = 'all',
+}: {
+  dto: VatApprovalDto;
+  /** 'hero' = just the headline net-VAT figure; 'detail' = the 9 boxes, months and housekeeping;
+   *  'all' = both. Split so the parent can put the to-do list BETWEEN the headline and the detail. */
+  part?: 'all' | 'hero' | 'detail';
+}) {
+  const showHero = part === 'all' || part === 'hero';
+  const showDetail = part === 'all' || part === 'detail';
   const boxes = dto.boxes ?? [];
   const months = dto.months ?? [];
   const noSalesMonths = months.filter((m) => m.noSales);
@@ -49,6 +59,7 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
   return (
     <div className="space-y-8">
       {/* Headline — net VAT */}
+      {showHero && (
       <div className="flex overflow-hidden rounded-xl border border-gray-200">
         <span className="w-1.5 shrink-0 bg-primary" />
         <div className="flex-1 bg-primary/[0.03] px-5 py-6 text-center">
@@ -68,9 +79,10 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
           </p>
         </div>
       </div>
+      )}
 
       {/* The 9-box VAT return */}
-      {boxes.length > 0 && (
+      {showDetail && boxes.length > 0 && (
         <section>
           <SectionLabel>Your VAT return</SectionLabel>
           <Card>
@@ -110,7 +122,7 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
       )}
 
       {/* Month by month — a quarter total can hide an income gap; months cannot. */}
-      {months.length > 0 && (
+      {showDetail && months.length > 0 && (
         <section>
           <SectionLabel>Month by month</SectionLabel>
           <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
@@ -179,7 +191,7 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
       )}
 
       {/* Housekeeping — mis-allocations we corrected or want the client to know about */}
-      {(dto.housekeeping?.length ?? 0) > 0 && (
+      {showDetail && (dto.housekeeping?.length ?? 0) > 0 && (
         <section>
           <SectionLabel>A little housekeeping</SectionLabel>
           <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">

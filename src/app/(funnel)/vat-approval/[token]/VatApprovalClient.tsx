@@ -15,6 +15,7 @@ import {
   HardHat,
   FolderTree,
   Search,
+  ChevronDown,
   type LucideIcon,
 } from 'lucide-react';
 import type { VatApprovalDto, ReverseCharge, FindingGroup } from './page';
@@ -191,13 +192,12 @@ export default function VatApprovalClient({
           </div>
 
           <div className="px-6 sm:px-9 py-7 space-y-8">
-            {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
-            <VatSummaryView dto={dto} />
+            {/* Order is deliberate: the headline figure they came to see, THEN the short to-do list
+                (so what needs them is high on the page and impossible to miss), THEN the detailed
+                return. Nothing is hidden behind a tab — an approval page must show both the return
+                and what needs checking; only each issue's long transaction list is on a toggle. */}
+            <VatSummaryView dto={dto} part="hero" />
 
-            {/* Everything that wants their eye, collected under ONE heading with a count — so it
-                reads as a short to-do list to work through, not a run of separate alarms. Each item
-                lists its own transactions, so they can settle it rather than emailing to ask which
-                payment we mean. */}
             {attention > 0 && (
               <section>
                 <div className="flex items-center gap-2.5">
@@ -227,6 +227,8 @@ export default function VatApprovalClient({
                 </div>
               </section>
             )}
+
+            <VatSummaryView dto={dto} part="detail" />
           </div>
         </div>
 
@@ -367,8 +369,15 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
 function FindingGroupSection({ group }: { group: FindingGroup }) {
   const g = group;
   const Icon = GROUP_ICONS[g.code] ?? ReceiptText;
-  return (
-    <AttentionCard icon={<Icon size={16} />} title={g.title} intro={g.intro}>
+  const [open, setOpen] = useState(false);
+  // Short lists stay in view — collapsing one or two rows saves nothing and just adds a click.
+  // Long ones tuck away so the page is a scannable to-do list, not a wall of tables. The total is
+  // in the intro either way, so the amount is never behind the toggle.
+  const collapsible = g.lines.length > 3;
+  const tableId = `lines-${g.code}`;
+
+  const detail = (
+    <>
       <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full text-[13px]">
           <thead>
@@ -401,6 +410,28 @@ function FindingGroupSection({ group }: { group: FindingGroup }) {
           …and {g.moreCount} more
           {g.totalVatText ? `, included in the ${g.totalVatText} total` : ''}.
         </p>
+      )}
+    </>
+  );
+
+  return (
+    <AttentionCard icon={<Icon size={16} />} title={g.title} intro={g.intro}>
+      {collapsible ? (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls={tableId}
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary hover:underline"
+          >
+            <ChevronDown size={15} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+            {open ? 'Hide payments' : `Show the ${g.lines.length} payments`}
+          </button>
+          {open && <div id={tableId}>{detail}</div>}
+        </div>
+      ) : (
+        detail
       )}
       <p className="text-[13px] leading-relaxed text-text-light mt-3">{g.action}</p>
     </AttentionCard>
