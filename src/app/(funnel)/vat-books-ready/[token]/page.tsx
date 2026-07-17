@@ -12,6 +12,7 @@ export interface BooksReadyDto {
   alreadyConfirmed: boolean;
   confirmedAt?: string | null;
   confirmedBy?: string | null;   // "Client", or the staff member who did it for them
+  freeAgentUrl?: string | null;  // their own FreeAgent; null for clients we hold no subdomain for
 }
 
 export const dynamic = 'force-dynamic';
