@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, CalendarDays } from 'lucide-react';
 import type { VatApprovalDto } from './page';
 import type { VatBox } from './summaryTypes';
 
@@ -60,27 +60,26 @@ export default function VatSummaryView({
 
   return (
     <div className="space-y-8">
-      {/* Headline — net VAT */}
+      {/* Headline — net VAT. The one number they came to see, given room to breathe on a soft
+          brand-tinted panel so the page opens on something confident, not a bordered box. */}
       {showHero && (
-      <div className="flex overflow-hidden rounded-xl border border-gray-200">
-        <span className="w-1.5 shrink-0 bg-primary" />
-        <div className="flex-1 bg-primary/[0.03] px-5 py-6 text-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-light">
+        <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-50 via-primary-50/50 to-white px-6 py-8 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary/70">
             {headlineLabel}
           </p>
           <p
-            className={`mt-2 text-[2.5rem] leading-none font-bold tracking-tight tabular-nums ${
+            className={`mt-2.5 text-[2.75rem] sm:text-[3.25rem] leading-[1.02] font-bold tracking-tight tabular-nums ${
               isReclaim ? 'text-emerald-600' : 'text-text'
             }`}
           >
             {headlineValue}
           </p>
-          <p className="mt-3 text-[13px] text-text-light">
-            {fmtDay(dto.periodStart)} → {fmtDay(dto.periodEnd)}
+          <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-text-light">
+            <CalendarDays size={13} className="opacity-70" />
+            Quarter ended {fmtDay(dto.periodEnd)}
             {meta ? ` · ${meta}` : ''}
           </p>
         </div>
-      </div>
       )}
 
       {/* Your VAT return — the plain-English derivation of the net figure, not the raw 9-box HMRC
@@ -97,9 +96,9 @@ export default function VatSummaryView({
               )}
               <CalcRow label="Less VAT reclaimed on purchases" value={-boxValue(boxes, 4)} />
             </div>
-            <div className="flex items-baseline justify-between gap-4 border-t border-gray-100 bg-primary/[0.04] px-5 sm:px-6 py-4">
+            <div className="flex items-baseline justify-between gap-4 border-t border-primary/10 bg-primary-50 px-5 sm:px-6 py-4">
               <span className="text-sm font-semibold text-text">{headlineLabel}</span>
-              <span className={`text-xl font-bold tabular-nums ${isReclaim ? 'text-emerald-600' : 'text-text'}`}>
+              <span className={`text-[1.35rem] font-bold tabular-nums tracking-tight ${isReclaim ? 'text-emerald-600' : 'text-text'}`}>
                 {headlineValue}
               </span>
             </div>
@@ -199,7 +198,7 @@ export default function VatSummaryView({
                     </td>
                   </tr>
                 ))}
-                <tr className="border-t-2 border-gray-200 bg-gray-50/60">
+                <tr className="border-t-2 border-primary/10 bg-primary-50/60">
                   <td className="px-4 py-2.5 font-bold text-text">Total</td>
                   {[totals.sales, totals.salesVat, totals.purchases].map((v, i) => (
                     <td

@@ -16,6 +16,8 @@ import {
   FolderTree,
   Search,
   ChevronDown,
+  FileText,
+  Lock,
   type LucideIcon,
 } from 'lucide-react';
 import type { VatApprovalDto, ReverseCharge, FindingGroup } from './page';
@@ -27,6 +29,19 @@ function fmtDate(iso: string | undefined): string {
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+
+function fmtMoney(n: number | null | undefined): string {
+  if (n == null || Number.isNaN(n)) return '—';
+  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(n);
+}
+
+function capitalise(s: string): string {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+/** Consistent card elevation across the page — soft, layered, never a hard drop shadow. */
+const CARD =
+  'bg-white rounded-2xl border border-gray-100 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_-14px_rgba(16,24,40,0.14)]';
 
 type Outcome = null | 'approved' | 'queried' | 'rechecking';
 type Action = 'approve' | 'query' | 'recheck';
@@ -99,9 +114,9 @@ export default function VatApprovalClient({
   if (outcome === 'approved') {
     return (
       <Centered>
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 text-emerald-600 bg-emerald-50">
-          <CheckCircle2 size={28} />
-        </div>
+        <StateIcon tone="emerald">
+          <CheckCircle2 size={30} />
+        </StateIcon>
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thank you — VAT return approved</h1>
         <p className="text-text-light leading-relaxed mb-4">
           We&rsquo;ve recorded your approval of the VAT return for{' '}
@@ -116,9 +131,9 @@ export default function VatApprovalClient({
   if (outcome === 'rechecking') {
     return (
       <Centered>
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 text-emerald-600 bg-emerald-50">
+        <StateIcon tone="emerald">
           <RefreshCw size={28} />
-        </div>
+        </StateIcon>
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we&rsquo;re re-checking</h1>
         <p className="text-text-light leading-relaxed">
           We&rsquo;re pulling your latest figures through and running our checks again. If everything
@@ -134,9 +149,9 @@ export default function VatApprovalClient({
   if (outcome === 'queried') {
     return (
       <Centered>
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 text-primary bg-primary/10">
+        <StateIcon tone="primary">
           <MessageCircleQuestion size={28} />
-        </div>
+        </StateIcon>
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we&rsquo;ve got your question</h1>
         <p className="text-text-light leading-relaxed">
           We&rsquo;ve logged it and your accountant will take a look and come back to you before this
@@ -177,21 +192,29 @@ export default function VatApprovalClient({
   // tables — on a wide screen the client scrolled past the return to reach the thing the page
   // exists for, and the rest of the viewport was white space. Below lg it stacks back to one
   // column and the actions land at the foot, which is the right place on a phone.
+  const net = dto.netVatDue ?? 0;
+  const isReclaim = net < 0;
+  const netLabel = isReclaim ? 'Net VAT to reclaim' : 'Net VAT to pay';
+  const netText = fmtMoney(Math.abs(net));
+
   return (
-    <main className="min-h-[70vh] px-4 py-8 sm:py-10">
-      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-6 lg:items-start">
+    <main className="min-h-[70vh] px-4 py-8 sm:py-12">
+      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-7 lg:items-start">
         {/* ── Left: the return itself ── */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-          {/* Context header */}
-          <div className="px-6 sm:px-9 pt-8 pb-6 border-b border-gray-100">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+        <div className={`${CARD} overflow-hidden`}>
+          {/* Context header — a slim brand-tinted band so the page opens on something designed */}
+          <div className="px-6 sm:px-9 pt-7 pb-6 border-b border-gray-100 bg-gradient-to-b from-primary-50/60 to-transparent">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+              <FileText size={13} strokeWidth={2.5} />
               VAT Return
-            </p>
-            <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-text leading-tight">{heading}</h1>
-            <p className="mt-1 text-sm text-text-light">{periodLabel}</p>
+            </div>
+            <h1 className="mt-2.5 text-[1.7rem] sm:text-[2rem] font-bold text-text leading-[1.1] tracking-tight">
+              {heading}
+            </h1>
+            <p className="mt-1.5 text-sm text-text-light">{periodLabel}</p>
           </div>
 
-          <div className="px-6 sm:px-9 py-7 space-y-8">
+          <div className="px-6 sm:px-9 py-7 space-y-9">
             {/* Order is deliberate: the headline figure they came to see, THEN the short to-do list
                 (so what needs them is high on the page and impossible to miss), THEN the detailed
                 return. Nothing is hidden behind a tab — an approval page must show both the return
@@ -200,16 +223,16 @@ export default function VatApprovalClient({
 
             {attention > 0 && (
               <section>
-                <div className="flex items-center gap-2.5">
-                  <span className="block h-[3px] w-6 rounded-full bg-amber-400" />
-                  <h2 className="text-[12px] font-bold uppercase tracking-[0.16em] text-amber-600">
-                    Before you approve
-                  </h2>
-                </div>
+                <SectionHead tone="amber">
+                  Before you approve
+                  <span className="ml-2 inline-flex items-center justify-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold tabular-nums text-amber-700 tracking-normal">
+                    {attention}
+                  </span>
+                </SectionHead>
                 <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
                   {attention === 1
                     ? 'One thing is worth a quick look first. It won’t hold anything up — each note says what to check and what to do.'
-                    : `${numberWord(attention)} things are worth a quick look first. They won’t hold anything up — each note says what to check and what to do.`}
+                    : `${capitalise(numberWord(attention))} things are worth a quick look first. They won’t hold anything up — each note says what to check and what to do.`}
                 </p>
                 <div className="mt-4 space-y-3.5">
                   {groups.map((g) => (
@@ -233,94 +256,107 @@ export default function VatApprovalClient({
         </div>
 
         {/* ── Right: the decision, pinned ── */}
-        <aside className="mt-5 lg:mt-0 lg:sticky lg:top-6 space-y-4">
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5 sm:p-6">
-            <p className="text-sm font-semibold text-text mb-1.5">Ready to approve?</p>
-            <p className="text-[13px] leading-relaxed text-text-light">
-              These figures come from your bookkeeping as it stands today, so they&rsquo;ll change if
-              you amend anything in FreeAgent from here. Nothing is filed until you approve.
-            </p>
-
-            {attention > 0 && (
-              <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] leading-relaxed text-amber-800">
-                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
-                <span>
-                  {attention === 1
-                    ? 'One thing to look at first'
-                    : `${numberWord(attention)} things to look at first`}
-                  {' '}&mdash; see &ldquo;Before you approve&rdquo;.
-                </span>
+        <aside className="mt-6 lg:mt-0 lg:sticky lg:top-8 space-y-4">
+          <div className={`${CARD} overflow-hidden`}>
+            {/* What they're approving, right by the button that approves it */}
+            <div className="bg-gradient-to-b from-primary-50 to-primary-50/40 px-5 sm:px-6 py-4 border-b border-primary/10">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/70">
+                You&rsquo;re approving
               </p>
-            )}
-
-            {error && (
-              <div className="mt-4 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
-                {error}
+              <div className="mt-1.5 flex items-baseline justify-between gap-3">
+                <span className="text-[13px] text-text-light">{netLabel}</span>
+                <span className={`text-xl font-bold tabular-nums tracking-tight ${isReclaim ? 'text-emerald-600' : 'text-text'}`}>
+                  {netText}
+                </span>
               </div>
-            )}
+            </div>
 
-            <button
-              onClick={() => submit('approve')}
-              disabled={busy !== null}
-              className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
-            >
-              {busy === 'approve' ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-              {busy === 'approve' ? 'Submitting…' : 'Approve this VAT return'}
-            </button>
+            <div className="p-5 sm:p-6">
+              <p className="text-[13px] leading-relaxed text-text-light">
+                These figures come from your bookkeeping as it stands today, so they&rsquo;ll change
+                if you amend anything in FreeAgent from here. Nothing is filed until you approve.
+              </p>
 
-            {!showQuery ? (
+              {attention > 0 && (
+                <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2.5 text-[13px] leading-relaxed text-amber-800">
+                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
+                  <span>
+                    {attention === 1
+                      ? 'One thing to look at first'
+                      : `${capitalise(numberWord(attention))} things to look at first`}
+                    {' '}&mdash; see &ldquo;Before you approve&rdquo;.
+                  </span>
+                </p>
+              )}
+
+              {error && (
+                <div className="mt-4 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
+                  {error}
+                </div>
+              )}
+
               <button
-                onClick={() => setShowQuery(true)}
+                onClick={() => submit('approve')}
                 disabled={busy !== null}
-                className="w-full mt-2.5 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
+                className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
               >
-                <MessageCircleQuestion size={17} className="text-primary" />
-                Something needs checking
+                {busy === 'approve' ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+                {busy === 'approve' ? 'Submitting…' : 'Approve this VAT return'}
               </button>
-            ) : (
-              <div className="mt-4 rounded-lg border border-gray-200 p-3.5">
-                <label htmlFor="vat-query-notes" className="block text-sm font-semibold text-text mb-2">
-                  What needs checking?
-                </label>
-                <textarea
-                  id="vat-query-notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={5}
-                  maxLength={5000}
-                  placeholder="e.g. I've corrected the VAT on the Google Ads bills, or an invoice is missing, or why is the VAT higher than last quarter?"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                />
-                {/* Amber, not primary blue: on this page amber means "something needs you", and a
-                    second blue button beside Approve reads as a second way to say yes. */}
-                <button
-                  onClick={() => submit('query')}
-                  disabled={busy !== null}
-                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60"
-                >
-                  {busy === 'query' ? <Loader2 size={16} className="animate-spin" /> : null}
-                  {busy === 'query' ? 'Sending…' : 'Send to my accountant'}
-                </button>
-                <button
-                  onClick={() => setShowQuery(false)}
-                  disabled={busy !== null}
-                  className="w-full mt-1.5 px-5 py-2 rounded-lg text-text-light text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
 
-            <div className="mt-5 pt-4 border-t border-gray-100">
-              <WhatNext />
+              {!showQuery ? (
+                <button
+                  onClick={() => setShowQuery(true)}
+                  disabled={busy !== null}
+                  className="w-full mt-2.5 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                >
+                  <MessageCircleQuestion size={17} className="text-amber-500" />
+                  Something needs checking
+                </button>
+              ) : (
+                <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50/60 p-3.5">
+                  <label htmlFor="vat-query-notes" className="block text-sm font-semibold text-text mb-2">
+                    What needs checking?
+                  </label>
+                  <textarea
+                    id="vat-query-notes"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    rows={5}
+                    maxLength={5000}
+                    placeholder="e.g. I've corrected the VAT on the Google Ads bills, or an invoice is missing, or why is the VAT higher than last quarter?"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  />
+                  {/* Amber, not primary blue: on this page amber means "something needs you", and a
+                      second blue button beside Approve reads as a second way to say yes. */}
+                  <button
+                    onClick={() => submit('query')}
+                    disabled={busy !== null}
+                    className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60"
+                  >
+                    {busy === 'query' ? <Loader2 size={16} className="animate-spin" /> : null}
+                    {busy === 'query' ? 'Sending…' : 'Send to my accountant'}
+                  </button>
+                  <button
+                    onClick={() => setShowQuery(false)}
+                    disabled={busy !== null}
+                    className="w-full mt-1.5 px-5 py-2 rounded-lg text-text-light text-sm font-medium hover:bg-gray-100 transition-colors disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              <div className="mt-5 pt-4 border-t border-gray-100">
+                <WhatNext />
+              </div>
             </div>
           </div>
 
-          <p className="px-1 text-center text-xs leading-relaxed text-text-light">
-            Questions? Email{' '}
-            <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>{brandEmail}</a>{' '}
-            or call{' '}
-            <a className="text-primary hover:underline" href={`tel:${brandPhone.replace(/\s/g, '')}`}>{brandPhone}</a>.
+          <p className="flex items-center justify-center gap-1.5 px-1 text-center text-xs leading-relaxed text-text-light">
+            <Lock size={11} className="shrink-0" />
+            Secure &amp; encrypted. Questions?{' '}
+            <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>{brandEmail}</a>
           </p>
         </aside>
       </div>
@@ -423,9 +459,9 @@ function FindingGroupSection({ group }: { group: FindingGroup }) {
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls={tableId}
-            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-primary hover:underline"
+            className="inline-flex items-center gap-1.5 rounded-md text-[13px] font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
           >
-            <ChevronDown size={15} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+            <ChevronDown size={15} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             {open ? 'Hide payments' : `Show the ${g.lines.length} payments`}
           </button>
           {open && <div id={tableId}>{detail}</div>}
@@ -494,6 +530,29 @@ function Th({ children, right }: { children: React.ReactNode; right?: boolean })
   );
 }
 
+/** The one section-heading style used across the page: a short rule, a tracked uppercase label. */
+function SectionHead({
+  children,
+  tone = 'primary',
+}: {
+  children: React.ReactNode;
+  tone?: 'primary' | 'amber';
+}) {
+  const amber = tone === 'amber';
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className={`block h-[3px] w-6 rounded-full ${amber ? 'bg-amber-400' : 'bg-primary'}`} />
+      <h2
+        className={`flex items-center text-[12px] font-bold uppercase tracking-[0.16em] ${
+          amber ? 'text-amber-600' : 'text-primary'
+        }`}
+      >
+        {children}
+      </h2>
+    </div>
+  );
+}
+
 /** Small words for small counts; the numeral above about ten. */
 function numberWord(n: number): string {
   return (
@@ -541,10 +600,21 @@ function WhatNext() {
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-md border border-gray-100 p-8 sm:p-10">
-        {children}
-      </div>
+      <div className={`max-w-lg w-full ${CARD} p-8 sm:p-10`}>{children}</div>
     </main>
+  );
+}
+
+/** The circular status glyph on the outcome screens — a soft tinted disc with a matching ring. */
+function StateIcon({ children, tone }: { children: React.ReactNode; tone: 'emerald' | 'primary' }) {
+  const cls =
+    tone === 'emerald'
+      ? 'text-emerald-600 bg-emerald-50 ring-emerald-100'
+      : 'text-primary bg-primary-50 ring-primary/10';
+  return (
+    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ring-8 ${cls}`}>
+      {children}
+    </div>
   );
 }
 
