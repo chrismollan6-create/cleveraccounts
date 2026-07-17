@@ -26,7 +26,6 @@ function fmtDay(iso: string | null | undefined): string {
  */
 export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
   const boxes = dto.boxes ?? [];
-  const flaggedChecks = (dto.checks ?? []).filter((c) => c.status === 'Flagged');
   const months = dto.months ?? [];
   const noSalesMonths = months.filter((m) => m.noSales);
   const totals = months.reduce(
@@ -227,30 +226,10 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
         </section>
       )}
 
-      {/* Checks that FOUND something. A passing check is our reassurance, not theirs: a wall of
-          CLEAN rows describing our own mechanics is a page they scroll past, taking the one or
-          two rows that need them with it. Nothing found, nothing shown. */}
-      {flaggedChecks.length > 0 && (
-        <section>
-          <SectionLabel>Worth a look</SectionLabel>
-          <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
-            We check your bookkeeping for the quarter before we file. Everything else looked fine —
-            {flaggedChecks.length === 1 ? ' this is the one' : ' these are the ones'} we&rsquo;d like
-            you to cast an eye over:
-          </p>
-          <ul className="mt-3 rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
-            {flaggedChecks.map((c, i) => (
-              <li key={`${c.title}-${i}`} className="flex items-start gap-3 px-4 py-3.5">
-                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
-                <div>
-                  <p className="text-sm font-semibold text-text">{c.title}</p>
-                  <p className="text-[13px] leading-relaxed text-text-light">{c.description}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {/* Flagged checks are NOT rendered here — they belong with the finding groups under the
+          client component's single "Before you approve" heading, so the client has one to-do list
+          rather than an attention section buried among the figures. This view is now purely the
+          figures. */}
     </div>
   );
 }

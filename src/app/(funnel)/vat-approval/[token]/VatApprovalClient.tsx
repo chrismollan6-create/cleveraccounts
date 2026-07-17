@@ -14,6 +14,7 @@ import {
   Car,
   HardHat,
   FolderTree,
+  Search,
   type LucideIcon,
 } from 'lucide-react';
 import type { VatApprovalDto, ReverseCharge, FindingGroup } from './page';
@@ -63,13 +64,14 @@ export default function VatApprovalClient({
         ? [reverseChargeAsGroup(dto.reverseCharge)]
         : [];
 
-  // What the rail warns about — everything on the page asking for their eye, counted the same
-  // way they'd count it. Must stay in step with what actually renders.
-  const attention =
-    groups.length +
-    (dto.confirmIncomeNote ? 1 : 0) +
-    (dto.checks ?? []).filter((c) => c.status === 'Flagged').length +
-    (dto.housekeeping ?? []).filter((h) => !h.fixed).length;
+  // Flagged assurance checks that don't have a transaction table of their own (e.g. "Missing
+  // output VAT on sales", "VAT return reconciliation") — they belong on the to-do list too.
+  const flaggedChecks = (dto.checks ?? []).filter((c) => c.status === 'Flagged');
+
+  // The count MUST equal exactly what "Before you approve" renders, or the heading lies. So it is
+  // groups + flagged checks + the income note — nothing else. Housekeeping is deliberately excluded:
+  // it has its own section and its own copy that says it does NOT hold up approval.
+  const attention = groups.length + flaggedChecks.length + (dto.confirmIncomeNote ? 1 : 0);
 
   async function submit(kind: Action) {
     setBusy(kind);
@@ -192,29 +194,38 @@ export default function VatApprovalClient({
             {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
             <VatSummaryView dto={dto} />
 
-            {/* The things we need FROM them. Last in the column, nearest the buttons. Each check
-                that flagged something renders with its actual transactions, so the client can go
-                and settle it rather than emailing us to ask which payment we mean. */}
-            {groups.map((g) => (
-              <FindingGroupSection key={g.code} group={g} />
-            ))}
-
-            {dto.confirmIncomeNote && (
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-                <div className="flex items-start gap-3">
-                  <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <TrendingDown size={16} />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-text mb-1">
-                      A quieter quarter than usual
-                    </p>
-                    <p className="text-[13px] leading-relaxed text-text-light">
-                      {dto.confirmIncomeNote}
-                    </p>
-                  </div>
+            {/* Everything that wants their eye, collected under ONE heading with a count — so it
+                reads as a short to-do list to work through, not a run of separate alarms. Each item
+                lists its own transactions, so they can settle it rather than emailing to ask which
+                payment we mean. */}
+            {attention > 0 && (
+              <section>
+                <div className="flex items-center gap-2.5">
+                  <span className="block h-[3px] w-6 rounded-full bg-amber-400" />
+                  <h2 className="text-[12px] font-bold uppercase tracking-[0.16em] text-amber-600">
+                    Before you approve
+                  </h2>
                 </div>
-              </div>
+                <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
+                  {attention === 1
+                    ? 'One thing is worth a quick look first. It won’t hold anything up — each note says what to check and what to do.'
+                    : `${numberWord(attention)} things are worth a quick look first. They won’t hold anything up — each note says what to check and what to do.`}
+                </p>
+                <div className="mt-4 space-y-3.5">
+                  {groups.map((g) => (
+                    <FindingGroupSection key={g.code} group={g} />
+                  ))}
+                  {flaggedChecks.map((c, i) => (
+                    <AttentionCard
+                      key={`chk-${i}`}
+                      icon={<Search size={16} />}
+                      title={c.title}
+                      intro={c.description}
+                    />
+                  ))}
+                  {dto.confirmIncomeNote && <IncomeNoteCard note={dto.confirmIncomeNote} />}
+                </div>
+              </section>
             )}
           </div>
         </div>
@@ -232,8 +243,10 @@ export default function VatApprovalClient({
               <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] leading-relaxed text-amber-800">
                 <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
                 <span>
-                  {attention === 1 ? "There's one thing" : `There are ${attention} things`}
-                  {' '}we&rsquo;d like you to look at first.
+                  {attention === 1
+                    ? 'One thing to look at first'
+                    : `${numberWord(attention)} things to look at first`}
+                  {' '}&mdash; see &ldquo;Before you approve&rdquo;.
                 </span>
               </p>
             )}
@@ -355,54 +368,84 @@ function FindingGroupSection({ group }: { group: FindingGroup }) {
   const g = group;
   const Icon = GROUP_ICONS[g.code] ?? ReceiptText;
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50/60 overflow-hidden">
-      <div className="px-4 sm:px-5 pt-4 pb-3">
-        <div className="flex items-start gap-3">
-          <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-            <Icon size={16} />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-text">{g.title}</p>
-            <p className="text-[13px] leading-relaxed text-text-light mt-1">{g.intro}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4 sm:px-5 pb-5">
-        <div className="overflow-x-auto rounded-lg border border-amber-200/80 bg-white">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="text-left bg-gray-50/80 border-b border-gray-100">
-                <Th>Date</Th>
-                <Th>{g.showVat ? 'Supplier' : 'Item'}</Th>
-                <Th right>Amount</Th>
-                {g.showVat && <Th right>VAT claimed</Th>}
+    <AttentionCard icon={<Icon size={16} />} title={g.title} intro={g.intro}>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full text-[13px]">
+          <thead>
+            <tr className="text-left bg-gray-50/80 border-b border-gray-100">
+              <Th>Date</Th>
+              <Th>{g.showVat ? 'Supplier' : 'Item'}</Th>
+              <Th right>Amount</Th>
+              {g.showVat && <Th right>VAT</Th>}
+            </tr>
+          </thead>
+          <tbody>
+            {g.lines.map((l, i) => (
+              <tr key={i} className="border-b border-gray-50 last:border-0">
+                <td className="px-3 py-2 text-text-light whitespace-nowrap tabular-nums align-top">{l.txnDate}</td>
+                <td className="px-3 py-2 text-text">
+                  {cleanPayee(l.payee)}
+                  {l.note && <span className="block text-[12px] text-text-light">{l.note}</span>}
+                </td>
+                <td className="px-3 py-2 text-text-light text-right whitespace-nowrap tabular-nums align-top">{l.amountText}</td>
+                {g.showVat && (
+                  <td className="px-3 py-2 text-text font-semibold text-right whitespace-nowrap tabular-nums align-top">{l.vatText}</td>
+                )}
               </tr>
-            </thead>
-            <tbody>
-              {g.lines.map((l, i) => (
-                <tr key={i} className="border-b border-gray-50 last:border-0">
-                  <td className="px-3 py-2 text-text-light whitespace-nowrap tabular-nums align-top">{l.txnDate}</td>
-                  <td className="px-3 py-2 text-text">
-                    {l.payee}
-                    {l.note && <span className="block text-[12px] text-text-light">{l.note}</span>}
-                  </td>
-                  <td className="px-3 py-2 text-text-light text-right whitespace-nowrap tabular-nums align-top">{l.amountText}</td>
-                  {g.showVat && (
-                    <td className="px-3 py-2 text-text font-semibold text-right whitespace-nowrap tabular-nums align-top">{l.vatText}</td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {g.moreCount > 0 && (
+        <p className="text-xs text-text-light mt-2">
+          …and {g.moreCount} more
+          {g.totalVatText ? `, included in the ${g.totalVatText} total` : ''}.
+        </p>
+      )}
+      <p className="text-[13px] leading-relaxed text-text-light mt-3">{g.action}</p>
+    </AttentionCard>
+  );
+}
+
+/** "Your sales are well down on their usual" — a question only they can answer, not a finding. */
+function IncomeNoteCard({ note }: { note: string }) {
+  return (
+    <AttentionCard
+      icon={<TrendingDown size={16} />}
+      title="A quieter quarter than usual"
+      intro={note}
+    />
+  );
+}
+
+/**
+ * One item on the "before you approve" list. White card, amber left-rail and icon — the section
+ * heading already says these need attention, so each card doesn't have to shout it in full amber.
+ * A run of three amber-filled slabs was a wall of yellow that drowned the signal it was meant to
+ * carry.
+ */
+function AttentionCard({
+  icon,
+  title,
+  intro,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  intro: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-gray-200 border-l-[3px] border-l-amber-400 bg-white p-4 sm:p-5">
+      <div className="flex items-start gap-3">
+        <span className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          {icon}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-text">{title}</p>
+          <p className="text-[13px] leading-relaxed text-text-light mt-1">{intro}</p>
+          {children}
         </div>
-        {g.moreCount > 0 && (
-          <p className="text-xs text-text-light mt-2">
-            …and {g.moreCount} more
-            {g.totalVatText ? `, included in the ${g.totalVatText} total` : ''}.
-          </p>
-        )}
-        <p className="text-[13px] leading-relaxed text-text-light mt-3">{g.action}</p>
       </div>
     </div>
   );
@@ -418,6 +461,36 @@ function Th({ children, right }: { children: React.ReactNode; right?: boolean })
       {children}
     </th>
   );
+}
+
+/** Small words for small counts; the numeral above about ten. */
+function numberWord(n: number): string {
+  return (
+    ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][n] ??
+    String(n)
+  );
+}
+
+/**
+ * Tidy a raw bank-feed narrative for display. These arrive as the bank wrote them —
+ * "Google Ads8935894141   Dublin   Irl", "SumUp **Secure valetin Birmingham GBR" — long runs of
+ * whitespace and a trailing transaction reference the client doesn't need to read. We collapse the
+ * spacing and trim an obvious long digit-run, but keep the words: the payee is how they recognise
+ * the transaction, so tidying must never remove the name.
+ */
+function cleanPayee(raw?: string): string {
+  if (!raw) return '';
+  const collapsed = raw.replace(/\s+/g, ' ').trim();
+  // Strip a long reference number (7+ digits) — often glued to the payee, so no word boundary to
+  // rely on ("Google Ads8935894141"). Then clear any separator the number left stranded ("04851-"
+  // → "04851") and re-collapse. Only keep the result if letters survive, so a payee that is ONLY a
+  // reference is shown as-is rather than blanked.
+  const stripped = collapsed
+    .replace(/\d{7,}/g, ' ')
+    .replace(/\s[-*/]+(?=\s|$)/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return /[a-z]/i.test(stripped) ? stripped : collapsed;
 }
 
 function WhatNext() {
