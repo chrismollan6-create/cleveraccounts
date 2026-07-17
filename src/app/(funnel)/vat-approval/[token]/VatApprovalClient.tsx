@@ -159,8 +159,7 @@ export default function VatApprovalClient({
           </div>
 
           {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
-          <div className="px-6 sm:px-9 pt-6">
-            <p className="text-sm font-semibold text-text mb-3">Your VAT return</p>
+          <div className="px-6 sm:px-9 pt-7">
             <VatSummaryView dto={dto} />
           </div>
 
@@ -192,19 +191,12 @@ export default function VatApprovalClient({
             </div>
           )}
 
-          <div className="px-6 sm:px-9 py-6">
-            <div className="flex items-start gap-3 rounded-lg bg-amber-50 border-l-4 border-amber-400 px-4 py-3 mb-6">
-              <p className="text-[13px] leading-relaxed text-text">
-                <span className="font-bold">Please review before we file.</span>{' '}
-                These figures are based on your bookkeeping to date. They can change if you add or
-                amend transactions in FreeAgent after this point.
-              </p>
-            </div>
-
-            <p className="text-sm text-text-light mb-5">
-              Please review your VAT return for the quarter and approve before we file it with HMRC.
-              If you have a question about anything, just ask — we&rsquo;ll come back to you before
-              submitting.
+          <div className="px-6 sm:px-9 pt-7 pb-7 mt-7 border-t border-gray-100">
+            <p className="text-sm leading-relaxed text-text-light mb-5">
+              These figures come from your bookkeeping as it stands today, so they&rsquo;ll change if
+              you add or amend anything in FreeAgent from here. Once you approve, we&rsquo;ll file
+              the return with HMRC. If something doesn&rsquo;t look right, tell us instead —
+              nothing is filed until you&rsquo;ve approved it.
             </p>
 
             {error && (
@@ -316,24 +308,30 @@ function ReverseChargeSection({ rc }: { rc: ReverseCharge }) {
         </div>
       </div>
 
-      <div className="px-4 sm:px-5 pb-4">
-        <div className="overflow-x-auto rounded-lg border border-amber-200 bg-white">
+      <div className="px-4 sm:px-5 pb-5">
+        <div className="overflow-x-auto rounded-lg border border-amber-200/80 bg-white">
           <table className="w-full text-[13px]">
             <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wide text-text-light border-b border-gray-100">
-                <th className="px-3 py-2 font-semibold">Date</th>
-                <th className="px-3 py-2 font-semibold">Supplier</th>
-                <th className="px-3 py-2 font-semibold text-right">Amount</th>
-                <th className="px-3 py-2 font-semibold text-right">VAT claimed</th>
+              <tr className="text-left bg-gray-50/80 border-b border-gray-100">
+                {['Date', 'Supplier', 'Amount', 'VAT claimed'].map((h, i) => (
+                  <th
+                    key={h}
+                    className={`px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-text-light whitespace-nowrap ${
+                      i >= 2 ? 'text-right' : ''
+                    }`}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {rc.lines.map((l, i) => (
                 <tr key={i} className="border-b border-gray-50 last:border-0">
-                  <td className="px-3 py-2 text-text-light whitespace-nowrap">{l.txnDate}</td>
+                  <td className="px-3 py-2 text-text-light whitespace-nowrap tabular-nums">{l.txnDate}</td>
                   <td className="px-3 py-2 text-text">{l.payee}</td>
-                  <td className="px-3 py-2 text-text-light text-right whitespace-nowrap">{l.amountText}</td>
-                  <td className="px-3 py-2 text-text font-semibold text-right whitespace-nowrap">{l.vatText}</td>
+                  <td className="px-3 py-2 text-text-light text-right whitespace-nowrap tabular-nums">{l.amountText}</td>
+                  <td className="px-3 py-2 text-text font-semibold text-right whitespace-nowrap tabular-nums">{l.vatText}</td>
                 </tr>
               ))}
             </tbody>

@@ -17,13 +17,16 @@ function fmtDay(iso: string | null | undefined): string {
 }
 
 /**
- * Native, responsive presentation of the VAT return — the headline net VAT,
- * the 9-box return, and the assurance checks — rendered as HTML so it's
- * consistently on-brand and chrome-free across every client's browser.
+ * Native, responsive presentation of the VAT return — the headline net VAT, the 9-box return,
+ * the month-by-month breakdown and anything the checks want them to look at.
+ *
+ * Table chrome is deliberately quiet: solid brand-blue header bars on every table made the page
+ * read as three competing objects, and the client's eye should land on the figures. The brand
+ * carries in the headline and the section rules instead.
  */
 export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
   const boxes = dto.boxes ?? [];
-  const checks = dto.checks ?? [];
+  const flaggedChecks = (dto.checks ?? []).filter((c) => c.status === 'Flagged');
   const months = dto.months ?? [];
   const noSalesMonths = months.filter((m) => m.noSales);
   const totals = months.reduce(
@@ -42,18 +45,22 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
   const meta = [dto.scheme, dto.basis ? `${dto.basis} basis` : null].filter(Boolean).join(' · ');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Headline — net VAT */}
       <div className="flex overflow-hidden rounded-xl border border-gray-200">
         <span className="w-1.5 shrink-0 bg-primary" />
-        <div className="flex-1 bg-primary/[0.03] px-5 py-5 text-center">
+        <div className="flex-1 bg-primary/[0.03] px-5 py-6 text-center">
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-light">
             {headlineLabel}
           </p>
-          <p className={`mt-1.5 text-3xl font-bold tracking-tight ${isReclaim ? 'text-emerald-600' : 'text-text'}`}>
+          <p
+            className={`mt-2 text-[2.5rem] leading-none font-bold tracking-tight tabular-nums ${
+              isReclaim ? 'text-emerald-600' : 'text-text'
+            }`}
+          >
             {headlineValue}
           </p>
-          <p className="mt-2 text-[13px] text-text-light">
+          <p className="mt-3 text-[13px] text-text-light">
             {fmtDay(dto.periodStart)} → {fmtDay(dto.periodEnd)}
             {meta ? ` · ${meta}` : ''}
           </p>
@@ -62,47 +69,49 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
 
       {/* The 9-box VAT return */}
       {boxes.length > 0 && (
-        <div>
+        <section>
           <SectionLabel>Your VAT return</SectionLabel>
-          <div className="mt-2 rounded-lg border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-primary text-white text-left">
-                    <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide">Box</th>
-                    <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide">Description</th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {boxes.map((b, i) => (
-                    <tr
-                      key={b.num ?? i}
-                      className={`border-t border-gray-100 ${b.emphasise ? 'bg-primary/[0.05]' : ''}`}
+          <Card>
+            <table className="w-full text-sm">
+              <thead>
+                <Th3 cols={['Box', 'Description', 'Value']} />
+              </thead>
+              <tbody>
+                {boxes.map((b, i) => (
+                  <tr
+                    key={b.num ?? i}
+                    className={`border-t border-gray-100 ${b.emphasise ? 'bg-primary/[0.04]' : ''}`}
+                  >
+                    <td
+                      className={`px-4 py-2.5 whitespace-nowrap tabular-nums ${
+                        b.emphasise ? 'font-bold text-text' : 'font-medium text-text-light'
+                      }`}
                     >
-                      <td className={`px-4 py-2.5 whitespace-nowrap ${b.emphasise ? 'font-bold text-text' : 'font-medium text-text'}`}>
-                        {b.num}
-                      </td>
-                      <td className={`px-4 py-2.5 ${b.emphasise ? 'font-semibold text-text' : 'text-text-light'}`}>
-                        {b.label}
-                      </td>
-                      <td className={`px-4 py-2.5 text-right whitespace-nowrap ${b.emphasise ? 'font-bold text-text' : 'text-text-light'}`}>
-                        {fmtMoney(b.value)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+                      {b.num}
+                    </td>
+                    <td className={`px-4 py-2.5 ${b.emphasise ? 'font-semibold text-text' : 'text-text-light'}`}>
+                      {b.label}
+                    </td>
+                    <td
+                      className={`px-4 py-2.5 text-right whitespace-nowrap tabular-nums ${
+                        b.emphasise ? 'font-bold text-text' : 'text-text'
+                      }`}
+                    >
+                      {fmtMoney(b.value)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </section>
       )}
 
       {/* Month by month — a quarter total can hide an income gap; months cannot. */}
       {months.length > 0 && (
-        <div>
+        <section>
           <SectionLabel>Month by month</SectionLabel>
-          <p className="mt-2 text-[13px] leading-relaxed text-text-light">
+          <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
             {noSalesMonths.length > 0 ? (
               <>
                 Please check this carefully. We haven&apos;t found any sales invoiced in{' '}
@@ -114,69 +123,70 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
               <>How the quarter breaks down, so you can sense-check the income we&apos;re reporting.</>
             )}
           </p>
-          <div className="mt-2 rounded-lg border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-primary text-white text-left">
-                    <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wide">Month</th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">Sales</th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">VAT on sales</th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-bold uppercase tracking-wide">Purchases</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {months.map((m) => (
-                    <tr
-                      key={m.month}
-                      className={`border-t border-gray-100 ${m.noSales ? 'bg-amber-50' : ''}`}
+          <Card>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50/80 text-left">
+                  <th className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-text-light">
+                    Month
+                  </th>
+                  {['Sales', 'VAT on sales', 'Purchases'].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-2.5 text-right text-[10px] font-bold uppercase tracking-[0.1em] text-text-light whitespace-nowrap"
                     >
-                      <td className="px-4 py-2.5 whitespace-nowrap font-medium text-text">{m.label}</td>
-                      <td
-                        className={`px-4 py-2.5 text-right whitespace-nowrap tabular-nums ${
-                          m.noSales ? 'font-bold text-amber-700' : 'text-text-light'
-                        }`}
-                      >
-                        {m.noSales ? 'No sales invoiced' : fmtMoney(m.sales)}
-                      </td>
-                      <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
-                        {fmtMoney(m.salesVat)}
-                      </td>
-                      <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
-                        {fmtMoney(m.purchases)}
-                      </td>
-                    </tr>
+                      {h}
+                    </th>
                   ))}
-                  <tr className="border-t border-gray-200 bg-primary/[0.05]">
-                    <td className="px-4 py-2.5 font-bold text-text">Total</td>
-                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text">
-                      {fmtMoney(totals.sales)}
+                </tr>
+              </thead>
+              <tbody>
+                {months.map((m) => (
+                  <tr key={m.month} className={`border-t border-gray-100 ${m.noSales ? 'bg-amber-50/70' : ''}`}>
+                    <td className="px-4 py-2.5 whitespace-nowrap font-medium text-text">{m.label}</td>
+                    <td
+                      className={`px-4 py-2.5 text-right whitespace-nowrap tabular-nums ${
+                        m.noSales ? 'font-bold text-amber-700' : 'text-text'
+                      }`}
+                    >
+                      {m.noSales ? 'No sales invoiced' : fmtMoney(m.sales)}
                     </td>
-                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text">
-                      {fmtMoney(totals.salesVat)}
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
+                      {fmtMoney(m.salesVat)}
                     </td>
-                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text">
-                      {fmtMoney(totals.purchases)}
+                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
+                      {fmtMoney(m.purchases)}
                     </td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+                ))}
+                <tr className="border-t-2 border-gray-200 bg-gray-50/60">
+                  <td className="px-4 py-2.5 font-bold text-text">Total</td>
+                  {[totals.sales, totals.salesVat, totals.purchases].map((v, i) => (
+                    <td
+                      key={i}
+                      className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text"
+                    >
+                      {fmtMoney(v)}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </Card>
+        </section>
       )}
 
       {/* Housekeeping — mis-allocations we corrected or want the client to know about */}
       {(dto.housekeeping?.length ?? 0) > 0 && (
-        <div>
+        <section>
           <SectionLabel>A little housekeeping</SectionLabel>
-          <p className="mt-2 text-[13px] leading-relaxed text-text-light">
+          <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
             While preparing your return we check the category on every transaction. A few items
             looked like they were filed under a different category to where they usually belong:
           </p>
-          <ul className="mt-2 rounded-lg border border-gray-200 divide-y divide-gray-100">
+          <ul className="mt-3 rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
             {dto.housekeeping!.map((n, i) => (
-              <li key={i} className="px-4 py-3">
+              <li key={i} className="px-4 py-3.5">
                 <div className="flex items-start gap-3">
                   <span
                     className={`mt-0.5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
@@ -207,25 +217,28 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[12px] leading-relaxed text-text-light">
+          <p className="mt-2.5 text-[12px] leading-relaxed text-text-light">
             These don&apos;t hold up your approval — keeping categories tidy just makes your VAT and
             year-end accounts more accurate.
           </p>
-        </div>
+        </section>
       )}
 
-      {/* Assurance checks */}
-      {checks.length > 0 && (
-        <div>
-          <SectionLabel>Assurance checks</SectionLabel>
-          <p className="mt-2 text-[13px] text-text-light">
-            {dto.checksRun ?? checks.length} check{(dto.checksRun ?? checks.length) === 1 ? '' : 's'} performed,{' '}
-            {dto.flagged ?? checks.filter((c) => c.status === 'Flagged').length} flagged
+      {/* Checks that FOUND something. A passing check is our reassurance, not theirs: a wall of
+          CLEAN rows describing our own mechanics is a page they scroll past, taking the one or
+          two rows that need them with it. Nothing found, nothing shown. */}
+      {flaggedChecks.length > 0 && (
+        <section>
+          <SectionLabel>Worth a look</SectionLabel>
+          <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
+            We check your bookkeeping for the quarter before we file. Everything else looked fine —
+            {flaggedChecks.length === 1 ? ' this is the one' : ' these are the ones'} we&rsquo;d like
+            you to cast an eye over:
           </p>
-          <ul className="mt-2 rounded-lg border border-gray-200 divide-y divide-gray-100">
-            {checks.map((c, i) => (
-              <li key={`${c.title}-${i}`} className="flex items-start gap-3 px-4 py-3">
-                <StatusPill status={c.status} />
+          <ul className="mt-3 rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+            {flaggedChecks.map((c, i) => (
+              <li key={`${c.title}-${i}`} className="flex items-start gap-3 px-4 py-3.5">
+                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
                 <div>
                   <p className="text-sm font-semibold text-text">{c.title}</p>
                   <p className="text-[13px] leading-relaxed text-text-light">{c.description}</p>
@@ -233,22 +246,35 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
     </div>
   );
 }
 
-function StatusPill({ status }: { status: 'Clean' | 'Flagged' }) {
-  const clean = status === 'Clean';
+/** Rounded, clipped table shell that scrolls on its own rather than the page. */
+function Card({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className={`mt-0.5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
-        clean ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-      }`}
-    >
-      {status}
-    </span>
+    <div className="mt-3 rounded-xl border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">{children}</div>
+    </div>
+  );
+}
+
+function Th3({ cols }: { cols: [string, string, string] | string[] }) {
+  return (
+    <tr className="bg-gray-50/80 text-left">
+      {cols.map((c, i) => (
+        <th
+          key={c}
+          className={`px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-text-light whitespace-nowrap ${
+            i === cols.length - 1 ? 'text-right' : ''
+          }`}
+        >
+          {c}
+        </th>
+      ))}
+    </tr>
   );
 }
 
