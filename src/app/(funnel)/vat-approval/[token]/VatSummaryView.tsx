@@ -1,4 +1,6 @@
+import { ChevronDown } from 'lucide-react';
 import type { VatApprovalDto } from './page';
+import type { VatBox } from './summaryTypes';
 
 function fmtMoney(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';
@@ -81,43 +83,67 @@ export default function VatSummaryView({
       </div>
       )}
 
-      {/* The 9-box VAT return */}
+      {/* Your VAT return — the plain-English derivation of the net figure, not the raw 9-box HMRC
+          form. Most clients can't read "Box 1 / Box 6 / dispatches to the EU (NI)" and shouldn't
+          have to; the formal return is one click away for the record and for anyone who wants it. */}
       {showDetail && boxes.length > 0 && (
         <section>
           <SectionLabel>Your VAT return</SectionLabel>
-          <Card>
-            <table className="w-full text-sm">
-              <thead>
-                <Th3 cols={['Box', 'Description', 'Value']} />
-              </thead>
-              <tbody>
-                {boxes.map((b, i) => (
-                  <tr
-                    key={b.num ?? i}
-                    className={`border-t border-gray-100 ${b.emphasise ? 'bg-primary/[0.04]' : ''}`}
-                  >
-                    <td
-                      className={`px-4 py-2.5 whitespace-nowrap tabular-nums ${
-                        b.emphasise ? 'font-bold text-text' : 'font-medium text-text-light'
-                      }`}
+          <div className="mt-3 rounded-xl border border-gray-200 bg-white overflow-hidden">
+            <div className="px-5 sm:px-6 py-4 space-y-3">
+              <CalcRow label="VAT charged on your sales" value={boxValue(boxes, 1)} />
+              {boxValue(boxes, 2) !== 0 && (
+                <CalcRow label="VAT on acquisitions from the EU" value={boxValue(boxes, 2)} />
+              )}
+              <CalcRow label="Less VAT reclaimed on purchases" value={-boxValue(boxes, 4)} />
+            </div>
+            <div className="flex items-baseline justify-between gap-4 border-t border-gray-100 bg-primary/[0.04] px-5 sm:px-6 py-4">
+              <span className="text-sm font-semibold text-text">{headlineLabel}</span>
+              <span className={`text-xl font-bold tabular-nums ${isReclaim ? 'text-emerald-600' : 'text-text'}`}>
+                {headlineValue}
+              </span>
+            </div>
+          </div>
+
+          <details className="group mt-3">
+            <summary className="flex w-fit cursor-pointer items-center gap-1.5 list-none text-[13px] font-medium text-primary hover:underline [&::-webkit-details-marker]:hidden">
+              <ChevronDown size={15} className="transition-transform group-open:rotate-180" />
+              View the full HMRC return (all 9 boxes)
+            </summary>
+            <Card>
+              <table className="w-full text-sm">
+                <thead>
+                  <Th3 cols={['Box', 'Description', 'Value']} />
+                </thead>
+                <tbody>
+                  {boxes.map((b, i) => (
+                    <tr
+                      key={b.num ?? i}
+                      className={`border-t border-gray-100 ${b.emphasise ? 'bg-primary/[0.04]' : ''}`}
                     >
-                      {b.num}
-                    </td>
-                    <td className={`px-4 py-2.5 ${b.emphasise ? 'font-semibold text-text' : 'text-text-light'}`}>
-                      {b.label}
-                    </td>
-                    <td
-                      className={`px-4 py-2.5 text-right whitespace-nowrap tabular-nums ${
-                        b.emphasise ? 'font-bold text-text' : 'text-text'
-                      }`}
-                    >
-                      {fmtMoney(b.value)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+                      <td
+                        className={`px-4 py-2.5 whitespace-nowrap tabular-nums ${
+                          b.emphasise ? 'font-bold text-text' : 'font-medium text-text-light'
+                        }`}
+                      >
+                        {b.num}
+                      </td>
+                      <td className={`px-4 py-2.5 ${b.emphasise ? 'font-semibold text-text' : 'text-text-light'}`}>
+                        {b.label}
+                      </td>
+                      <td
+                        className={`px-4 py-2.5 text-right whitespace-nowrap tabular-nums ${
+                          b.emphasise ? 'font-bold text-text' : 'text-text'
+                        }`}
+                      >
+                        {fmtMoney(b.value)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          </details>
         </section>
       )}
 
@@ -270,6 +296,21 @@ function Th3({ cols }: { cols: [string, string, string] | string[] }) {
       ))}
     </tr>
   );
+}
+
+/** One line of the plain-English VAT derivation: label left, money right, aligned on the pound. */
+function CalcRow({ label, value }: { label: string; value: number | null | undefined }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <span className="text-[13px] leading-relaxed text-text-light">{label}</span>
+      <span className="text-sm tabular-nums text-text whitespace-nowrap">{fmtMoney(value)}</span>
+    </div>
+  );
+}
+
+/** A box's value by HMRC number (1–9); 0 when absent so the arithmetic never shows a blank. */
+function boxValue(boxes: VatBox[], num: number): number {
+  return boxes.find((b) => b.num === num)?.value ?? 0;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
