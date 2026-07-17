@@ -25,7 +25,8 @@ export interface VatApprovalDto {
   months?: VatMonth[];                // month-by-month figures for the quarter
   hasNoSalesMonth?: boolean;          // any month with nothing invoiced at all
   confirmIncomeNote?: string | null;  // sales well down on their norm — ask them to confirm
-  reverseCharge?: ReverseCharge | null; // overseas suppliers with UK VAT reclaimed
+  reverseCharge?: ReverseCharge | null; // DEPRECATED — superseded by `groups`; kept one release
+  groups?: FindingGroup[];             // checks that found something, each with its transactions
 }
 
 /** Over-claimed VAT on overseas suppliers — the one thing we ask the client to CHANGE. */
@@ -41,6 +42,26 @@ export interface ReverseChargeLine {
   payee?: string;
   amountText?: string;
   vatText?: string;
+}
+
+/** A check that flagged something, with the real transactions listed so the client can act. */
+export interface FindingGroup {
+  code: string;
+  title: string;
+  intro: string;                 // why we're asking
+  action: string;                // what we'd like them to do
+  totalVatText?: string | null;  // null when the group isn't about a VAT sum
+  showVat: boolean;
+  lines: FindingLine[];
+  moreCount: number;
+}
+
+export interface FindingLine {
+  txnDate?: string;
+  payee?: string;
+  amountText?: string;
+  vatText?: string;
+  note?: string | null;          // e.g. "Posted to Rent"
 }
 
 export const dynamic = 'force-dynamic';

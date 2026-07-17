@@ -42,7 +42,10 @@ export default function VatSummaryView({ dto }: { dto: VatApprovalDto }) {
   const headlineLabel = isReclaim ? 'Net VAT to reclaim from HMRC' : 'Net VAT to pay to HMRC';
   const headlineValue = fmtMoney(net == null ? null : Math.abs(net));
 
-  const meta = [dto.scheme, dto.basis ? `${dto.basis} basis` : null].filter(Boolean).join(' · ');
+  // Scheme is deliberately NOT shown. We hold it, but not always accurately, and stating
+  // "Standard Rated Scheme" to a client who is on Flat Rate is the kind of small confident
+  // error that costs us the benefit of the doubt on every figure above it.
+  const meta = dto.basis ? `${dto.basis} basis` : '';
 
   return (
     <div className="space-y-8">

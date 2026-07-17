@@ -9,8 +9,14 @@ import {
   Globe2,
   TrendingDown,
   RefreshCw,
+  ReceiptText,
+  Ban,
+  Car,
+  HardHat,
+  FolderTree,
+  type LucideIcon,
 } from 'lucide-react';
-import type { VatApprovalDto, ReverseCharge } from './page';
+import type { VatApprovalDto, ReverseCharge, FindingGroup } from './page';
 import VatSummaryView from './VatSummaryView';
 
 function fmtDate(iso: string | undefined): string {
@@ -47,10 +53,20 @@ export default function VatApprovalClient({
   const periodLabel = `${fmtDate(dto.periodStart)} → ${fmtDate(dto.periodEnd)}`;
   const heading = dto.clientName || 'your business';
 
+  // Prefer the new grouped findings; fall back to the deprecated single reverse-charge payload so
+  // a page served from a not-yet-updated deploy still renders that section. Drop the fallback once
+  // the Apex change has been live a release.
+  const groups: FindingGroup[] =
+    dto.groups && dto.groups.length > 0
+      ? dto.groups
+      : dto.reverseCharge
+        ? [reverseChargeAsGroup(dto.reverseCharge)]
+        : [];
+
   // What the rail warns about — everything on the page asking for their eye, counted the same
   // way they'd count it. Must stay in step with what actually renders.
   const attention =
-    (dto.reverseCharge ? 1 : 0) +
+    groups.length +
     (dto.confirmIncomeNote ? 1 : 0) +
     (dto.checks ?? []).filter((c) => c.status === 'Flagged').length +
     (dto.housekeeping ?? []).filter((h) => !h.fixed).length;
@@ -176,8 +192,12 @@ export default function VatApprovalClient({
             {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
             <VatSummaryView dto={dto} />
 
-            {/* The things we need FROM them. Last in the column, nearest the buttons. */}
-            {dto.reverseCharge && <ReverseChargeSection rc={dto.reverseCharge} />}
+            {/* The things we need FROM them. Last in the column, nearest the buttons. Each check
+                that flagged something renders with its actual transactions, so the client can go
+                and settle it rather than emailing us to ask which payment we mean. */}
+            {groups.map((g) => (
+              <FindingGroupSection key={g.code} group={g} />
+            ))}
 
             {dto.confirmIncomeNote && (
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
@@ -212,8 +232,8 @@ export default function VatApprovalClient({
               <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] leading-relaxed text-amber-800">
                 <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
                 <span>
-                  {attention === 1 ? "There's one thing" : `There are ${attention} things`} we&rsquo;d
-                  like you to look at first.
+                  {attention === 1 ? "There's one thing" : `There are ${attention} things`}
+                  {' '}we&rsquo;d like you to look at first.
                 </span>
               </p>
             )}
@@ -256,10 +276,12 @@ export default function VatApprovalClient({
                   placeholder="e.g. I've corrected the VAT on the Google Ads bills, or an invoice is missing, or why is the VAT higher than last quarter?"
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
+                {/* Amber, not primary blue: on this page amber means "something needs you", and a
+                    second blue button beside Approve reads as a second way to say yes. */}
                 <button
                   onClick={() => submit('query')}
                   disabled={busy !== null}
-                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
+                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60"
                 >
                   {busy === 'query' ? <Loader2 size={16} className="animate-spin" /> : null}
                   {busy === 'query' ? 'Sending…' : 'Send to my accountant'}
@@ -291,36 +313,57 @@ export default function VatApprovalClient({
   );
 }
 
+/** Bridge the deprecated single reverse-charge payload onto the general group shape. */
+function reverseChargeAsGroup(rc: ReverseCharge): FindingGroup {
+  return {
+    code: 'TXN_RC_OVERCLAIM',
+    title: 'VAT reclaimed on overseas suppliers',
+    intro:
+      `These look like overseas suppliers, but ${rc.totalVatText} of UK VAT has been reclaimed on ` +
+      `them. Overseas suppliers don't normally charge UK VAT — so if there's no VAT on the invoice, ` +
+      `there's none to reclaim, and claiming it means underpaying HMRC.`,
+    action:
+      `If we're right, please correct them in FreeAgent and tell us — we'll re-check and send the ` +
+      `return back to you. If the invoices do show UK VAT, just continue and click Approve.`,
+    totalVatText: rc.totalVatText,
+    showVat: true,
+    lines: rc.lines,
+    moreCount: rc.moreCount,
+  };
+}
+
 /**
- * VAT reclaimed on overseas suppliers — the only thing on this page we ask the client to go and
- * CHANGE rather than confirm.
+ * A check that flagged something, with its actual transactions listed.
  *
- * Almost always FreeAgent auto-applying 20% to an invoice billed from Ireland or Cyprus. There is
- * no UK VAT on those invoices to reclaim, so the return over-claims and the money is owed back to
- * HMRC. It is normally a standing setup issue rather than a one-off, which is why the client fixes
- * it: stripping the VAT ourselves each quarter corrects one return and nothing else.
- *
- * The supplier's country is right there in the bank narrative ("Google Ads ... Dublin Irl"), so the
- * table explains itself without us lecturing. We state the position plainly and let them look.
+ * The pattern each of these follows: state the position plainly (the bank narrative usually
+ * carries the reason — "Google Ads … Dublin Irl", "AXA Insurance"), list the payments so the
+ * client can recognise them, and always give both ways out — fix it, or tell us it's right and
+ * approve. A section that only describes a problem strands the client, and a stranded client
+ * emails us, which is the human touch this is meant to remove.
  */
-function ReverseChargeSection({ rc }: { rc: ReverseCharge }) {
+const GROUP_ICONS: Record<string, LucideIcon> = {
+  TXN_RC_OVERCLAIM: Globe2,
+  TXN_VAT_ON_EXEMPT: ReceiptText,
+  TXN_BLOCKED_VAT: Ban,
+  TXN_CAR_LEASE: Car,
+  TXN_UNEXPECTED_VAT: HardHat,
+  TXN_ACCY_NO_VAT: ReceiptText,
+  TXN_MISPOST_AI: FolderTree,
+};
+
+function FindingGroupSection({ group }: { group: FindingGroup }) {
+  const g = group;
+  const Icon = GROUP_ICONS[g.code] ?? ReceiptText;
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50/60 overflow-hidden">
       <div className="px-4 sm:px-5 pt-4 pb-3">
         <div className="flex items-start gap-3">
           <span className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-            <Globe2 size={16} />
+            <Icon size={16} />
           </span>
           <div>
-            <p className="text-sm font-semibold text-text">
-              Please check these before you approve
-            </p>
-            <p className="text-[13px] leading-relaxed text-text-light mt-1">
-              These look like overseas suppliers, but <strong className="text-text">{rc.totalVatText}</strong>{' '}
-              of UK VAT has been reclaimed on them. Overseas suppliers don&rsquo;t normally charge UK
-              VAT — so if there&rsquo;s no VAT on the invoice, there&rsquo;s none to reclaim, and
-              claiming it means underpaying HMRC.
-            </p>
+            <p className="text-sm font-semibold text-text">{g.title}</p>
+            <p className="text-[13px] leading-relaxed text-text-light mt-1">{g.intro}</p>
           </div>
         </div>
       </div>
@@ -330,43 +373,50 @@ function ReverseChargeSection({ rc }: { rc: ReverseCharge }) {
           <table className="w-full text-[13px]">
             <thead>
               <tr className="text-left bg-gray-50/80 border-b border-gray-100">
-                {['Date', 'Supplier', 'Amount', 'VAT claimed'].map((h, i) => (
-                  <th
-                    key={h}
-                    className={`px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-text-light whitespace-nowrap ${
-                      i >= 2 ? 'text-right' : ''
-                    }`}
-                  >
-                    {h}
-                  </th>
-                ))}
+                <Th>Date</Th>
+                <Th>{g.showVat ? 'Supplier' : 'Item'}</Th>
+                <Th right>Amount</Th>
+                {g.showVat && <Th right>VAT claimed</Th>}
               </tr>
             </thead>
             <tbody>
-              {rc.lines.map((l, i) => (
+              {g.lines.map((l, i) => (
                 <tr key={i} className="border-b border-gray-50 last:border-0">
-                  <td className="px-3 py-2 text-text-light whitespace-nowrap tabular-nums">{l.txnDate}</td>
-                  <td className="px-3 py-2 text-text">{l.payee}</td>
-                  <td className="px-3 py-2 text-text-light text-right whitespace-nowrap tabular-nums">{l.amountText}</td>
-                  <td className="px-3 py-2 text-text font-semibold text-right whitespace-nowrap tabular-nums">{l.vatText}</td>
+                  <td className="px-3 py-2 text-text-light whitespace-nowrap tabular-nums align-top">{l.txnDate}</td>
+                  <td className="px-3 py-2 text-text">
+                    {l.payee}
+                    {l.note && <span className="block text-[12px] text-text-light">{l.note}</span>}
+                  </td>
+                  <td className="px-3 py-2 text-text-light text-right whitespace-nowrap tabular-nums align-top">{l.amountText}</td>
+                  {g.showVat && (
+                    <td className="px-3 py-2 text-text font-semibold text-right whitespace-nowrap tabular-nums align-top">{l.vatText}</td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {rc.moreCount > 0 && (
+        {g.moreCount > 0 && (
           <p className="text-xs text-text-light mt-2">
-            …and {rc.moreCount} more, included in the {rc.totalVatText} total.
+            …and {g.moreCount} more
+            {g.totalVatText ? `, included in the ${g.totalVatText} total` : ''}.
           </p>
         )}
-        <p className="text-[13px] leading-relaxed text-text-light mt-3">
-          If we&rsquo;re right, please correct them in FreeAgent and use{' '}
-          <strong className="text-text">Something needs checking</strong>{' '}to tell us — we&rsquo;ll
-          re-check and send the return back to you. If the invoices{' '}<em>do</em>{' '}show UK VAT,
-          say so and we&rsquo;ll leave them alone.
-        </p>
+        <p className="text-[13px] leading-relaxed text-text-light mt-3">{g.action}</p>
       </div>
     </div>
+  );
+}
+
+function Th({ children, right }: { children: React.ReactNode; right?: boolean }) {
+  return (
+    <th
+      className={`px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-text-light whitespace-nowrap ${
+        right ? 'text-right' : ''
+      }`}
+    >
+      {children}
+    </th>
   );
 }
 
