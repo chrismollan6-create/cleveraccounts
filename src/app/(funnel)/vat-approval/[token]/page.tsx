@@ -24,6 +24,23 @@ export interface VatApprovalDto {
   housekeeping?: HousekeepingNote[];  // mis-allocations we corrected / flagged
   months?: VatMonth[];                // month-by-month figures for the quarter
   hasNoSalesMonth?: boolean;          // any month with nothing invoiced at all
+  confirmIncomeNote?: string | null;  // sales well down on their norm — ask them to confirm
+  reverseCharge?: ReverseCharge | null; // overseas suppliers with UK VAT reclaimed
+}
+
+/** Over-claimed VAT on overseas suppliers — the one thing we ask the client to CHANGE. */
+export interface ReverseCharge {
+  totalVat: number;
+  totalVatText: string;
+  lines: ReverseChargeLine[];
+  moreCount: number;
+}
+
+export interface ReverseChargeLine {
+  txnDate?: string;
+  payee?: string;
+  amountText?: string;
+  vatText?: string;
 }
 
 export const dynamic = 'force-dynamic';
@@ -142,13 +159,15 @@ export default async function VatApprovalPage({
         />
       );
     }
+    // Queried: not a dead end. They may have come back precisely because they've fixed what we
+    // flagged, so hand them the client with the "I've updated my books" button rather than a card.
     return (
-      <StateCard
-        variant="warning"
-        title="Thanks — we're looking into your query"
-        body="You've flagged a query on this VAT return and your accountant has been notified. We'll be in touch. You don't need to do anything else for now."
-        email={brand.email}
-        phone={brand.phone}
+      <VatApprovalClient
+        token={token}
+        dto={dto}
+        brandEmail={brand.email}
+        brandPhone={brand.phone}
+        initialOutcome="queried"
       />
     );
   }
