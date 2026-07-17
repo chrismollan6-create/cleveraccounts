@@ -47,6 +47,14 @@ export default function VatApprovalClient({
   const periodLabel = `${fmtDate(dto.periodStart)} → ${fmtDate(dto.periodEnd)}`;
   const heading = dto.clientName || 'your business';
 
+  // What the rail warns about — everything on the page asking for their eye, counted the same
+  // way they'd count it. Must stay in step with what actually renders.
+  const attention =
+    (dto.reverseCharge ? 1 : 0) +
+    (dto.confirmIncomeNote ? 1 : 0) +
+    (dto.checks ?? []).filter((c) => c.status === 'Flagged').length +
+    (dto.housekeeping ?? []).filter((h) => !h.fixed).length;
+
   async function submit(kind: Action) {
     setBusy(kind);
     setError(null);
@@ -145,9 +153,15 @@ export default function VatApprovalClient({
   }
 
   // ── Active approval view ────────────────────────────────────────
+  // Two columns from lg up: the figures they read on the left, the decision they make on the
+  // right, pinned. The single narrow column meant Approve sat below a full quarter's worth of
+  // tables — on a wide screen the client scrolled past the return to reach the thing the page
+  // exists for, and the rest of the viewport was white space. Below lg it stacks back to one
+  // column and the actions land at the foot, which is the right place on a phone.
   return (
     <main className="min-h-[70vh] px-4 py-8 sm:py-10">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-6 lg:items-start">
+        {/* ── Left: the return itself ── */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
           {/* Context header */}
           <div className="px-6 sm:px-9 pt-8 pb-6 border-b border-gray-100">
@@ -158,21 +172,14 @@ export default function VatApprovalClient({
             <p className="mt-1 text-sm text-text-light">{periodLabel}</p>
           </div>
 
-          {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
-          <div className="px-6 sm:px-9 pt-7">
+          <div className="px-6 sm:px-9 py-7 space-y-8">
+            {/* Summary — rendered natively (chrome-free, on-brand, responsive) */}
             <VatSummaryView dto={dto} />
-          </div>
 
-          {/* The two things we need FROM them, above the buttons — a client who has already
-              approved is not coming back to read a note underneath. */}
-          {dto.reverseCharge && (
-            <div className="px-6 sm:px-9 pt-6">
-              <ReverseChargeSection rc={dto.reverseCharge} />
-            </div>
-          )}
+            {/* The things we need FROM them. Last in the column, nearest the buttons. */}
+            {dto.reverseCharge && <ReverseChargeSection rc={dto.reverseCharge} />}
 
-          {dto.confirmIncomeNote && (
-            <div className="px-6 sm:px-9 pt-6">
+            {dto.confirmIncomeNote && (
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
                 <div className="flex items-start gap-3">
                   <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -188,19 +195,31 @@ export default function VatApprovalClient({
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        </div>
 
-          <div className="px-6 sm:px-9 pt-7 pb-7 mt-7 border-t border-gray-100">
-            <p className="text-sm leading-relaxed text-text-light mb-5">
+        {/* ── Right: the decision, pinned ── */}
+        <aside className="mt-5 lg:mt-0 lg:sticky lg:top-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5 sm:p-6">
+            <p className="text-sm font-semibold text-text mb-1.5">Ready to approve?</p>
+            <p className="text-[13px] leading-relaxed text-text-light">
               These figures come from your bookkeeping as it stands today, so they&rsquo;ll change if
-              you add or amend anything in FreeAgent from here. Once you approve, we&rsquo;ll file
-              the return with HMRC. If something doesn&rsquo;t look right, tell us instead —
-              nothing is filed until you&rsquo;ve approved it.
+              you amend anything in FreeAgent from here. Nothing is filed until you approve.
             </p>
 
+            {attention > 0 && (
+              <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] leading-relaxed text-amber-800">
+                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />
+                <span>
+                  {attention === 1 ? "There's one thing" : `There are ${attention} things`} we&rsquo;d
+                  like you to look at first.
+                </span>
+              </p>
+            )}
+
             {error && (
-              <div className="mb-4 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
+              <div className="mt-4 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700">
                 {error}
               </div>
             )}
@@ -208,7 +227,7 @@ export default function VatApprovalClient({
             <button
               onClick={() => submit('approve')}
               disabled={busy !== null}
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
+              className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
             >
               {busy === 'approve' ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
               {busy === 'approve' ? 'Submitting…' : 'Approve this VAT return'}
@@ -218,13 +237,13 @@ export default function VatApprovalClient({
               <button
                 onClick={() => setShowQuery(true)}
                 disabled={busy !== null}
-                className="w-full mt-3 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
+                className="w-full mt-2.5 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
               >
                 <MessageCircleQuestion size={17} className="text-primary" />
                 Something needs checking
               </button>
             ) : (
-              <div className="mt-4 rounded-lg border border-gray-200 p-4">
+              <div className="mt-4 rounded-lg border border-gray-200 p-3.5">
                 <label htmlFor="vat-query-notes" className="block text-sm font-semibold text-text mb-2">
                   What needs checking?
                 </label>
@@ -232,43 +251,41 @@ export default function VatApprovalClient({
                   id="vat-query-notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={4}
+                  rows={5}
                   maxLength={5000}
                   placeholder="e.g. I've corrected the VAT on the Google Ads bills, or an invoice is missing, or why is the VAT higher than last quarter?"
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
-                <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={() => submit('query')}
-                    disabled={busy !== null}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
-                  >
-                    {busy === 'query' ? <Loader2 size={16} className="animate-spin" /> : null}
-                    {busy === 'query' ? 'Sending…' : 'Send to my accountant'}
-                  </button>
-                  <button
-                    onClick={() => setShowQuery(false)}
-                    disabled={busy !== null}
-                    className="px-5 py-2.5 rounded-lg text-text-light font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <button
+                  onClick={() => submit('query')}
+                  disabled={busy !== null}
+                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
+                >
+                  {busy === 'query' ? <Loader2 size={16} className="animate-spin" /> : null}
+                  {busy === 'query' ? 'Sending…' : 'Send to my accountant'}
+                </button>
+                <button
+                  onClick={() => setShowQuery(false)}
+                  disabled={busy !== null}
+                  className="w-full mt-1.5 px-5 py-2 rounded-lg text-text-light text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
+                >
+                  Cancel
+                </button>
               </div>
             )}
 
-            <div className="mt-6 pt-5 border-t border-gray-100">
+            <div className="mt-5 pt-4 border-t border-gray-100">
               <WhatNext />
             </div>
           </div>
-        </div>
 
-        <p className="mt-5 text-center text-xs text-text-light">
-          Questions? Email{' '}
-          <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>{brandEmail}</a>{' '}
-          or call{' '}
-          <a className="text-primary hover:underline" href={`tel:${brandPhone.replace(/\s/g, '')}`}>{brandPhone}</a>.
-        </p>
+          <p className="px-1 text-center text-xs leading-relaxed text-text-light">
+            Questions? Email{' '}
+            <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>{brandEmail}</a>{' '}
+            or call{' '}
+            <a className="text-primary hover:underline" href={`tel:${brandPhone.replace(/\s/g, '')}`}>{brandPhone}</a>.
+          </p>
+        </aside>
       </div>
     </main>
   );
@@ -344,9 +361,9 @@ function ReverseChargeSection({ rc }: { rc: ReverseCharge }) {
         )}
         <p className="text-[13px] leading-relaxed text-text-light mt-3">
           If we&rsquo;re right, please correct them in FreeAgent and use{' '}
-          <strong className="text-text">Something needs checking</strong> below to tell us — we&rsquo;ll
-          re-check and send the return back to you. If the invoices <em>do</em> show UK VAT, say so
-          and we&rsquo;ll leave them alone.
+          <strong className="text-text">Something needs checking</strong>{' '}to tell us — we&rsquo;ll
+          re-check and send the return back to you. If the invoices{' '}<em>do</em>{' '}show UK VAT,
+          say so and we&rsquo;ll leave them alone.
         </p>
       </div>
     </div>
