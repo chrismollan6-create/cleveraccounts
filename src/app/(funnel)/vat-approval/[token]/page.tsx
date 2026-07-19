@@ -83,8 +83,14 @@ async function fetchApproval(
     headers: { Authorization: `Bearer ${sfToken}` },
     cache: 'no-store',
   });
-  const data = await res.json();
-  return { status: res.status, data };
+  // A Salesforce gateway timeout / 502 returns an HTML body, so res.json() would throw and drop the
+  // client on Next's generic 500 instead of our branded error card. Parse defensively.
+  try {
+    const data = await res.json();
+    return { status: res.status, data };
+  } catch {
+    return { status: res.status >= 400 ? res.status : 502, data: { error: 'We couldn’t load your VAT return just now. Please try again in a moment.' } };
+  }
 }
 
 function StateCard({

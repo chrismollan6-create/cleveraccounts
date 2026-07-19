@@ -70,6 +70,11 @@ export default function VatApprovalClient({
   const periodLabel = `${fmtDate(dto.periodStart)} → ${fmtDate(dto.periodEnd)}`;
   const heading = dto.clientName || 'your business';
 
+  const net = dto.netVatDue ?? 0;
+  const isReclaim = net < 0;
+  const netLabel = isReclaim ? 'Net VAT to reclaim' : 'Net VAT to pay';
+  const netText = fmtMoney(Math.abs(net));
+
   // Prefer the new grouped findings; fall back to the deprecated single reverse-charge payload so
   // a page served from a not-yet-updated deploy still renders that section. Drop the fallback once
   // the Apex change has been live a release.
@@ -120,7 +125,14 @@ export default function VatApprovalClient({
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thank you — VAT return approved</h1>
         <p className="text-text-light leading-relaxed mb-4">
           We&rsquo;ve recorded your approval of the VAT return for{' '}
-          <span className="font-semibold text-text">{heading}</span>.
+          <span className="font-semibold text-text">{heading}</span>
+          {dto.netVatDue != null && (
+            <>
+              {' '}— <span className="font-semibold text-text">{netLabel.toLowerCase()} {netText}</span>
+              {dto.periodEnd ? ` for the quarter ended ${fmtDate(dto.periodEnd)}` : ''}
+            </>
+          )}
+          .
         </p>
         <WhatNext />
         <HelpFooter email={brandEmail} phone={brandPhone} />
@@ -192,11 +204,6 @@ export default function VatApprovalClient({
   // tables — on a wide screen the client scrolled past the return to reach the thing the page
   // exists for, and the rest of the viewport was white space. Below lg it stacks back to one
   // column and the actions land at the foot, which is the right place on a phone.
-  const net = dto.netVatDue ?? 0;
-  const isReclaim = net < 0;
-  const netLabel = isReclaim ? 'Net VAT to reclaim' : 'Net VAT to pay';
-  const netText = fmtMoney(Math.abs(net));
-
   return (
     <main className="min-h-[70vh] px-4 py-8 sm:py-12">
       <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-7 lg:items-start">

@@ -8,6 +8,7 @@ import UTMCapture from "@/components/seo/UTMCapture";
 import CookieConsent from "@/components/ui/CookieConsent";
 import BrandProvider from "@/components/brand/BrandProvider";
 import { VercelMonitoring } from "@/components/VercelMonitoring";
+import AnalyticsGate from "@/components/AnalyticsGate";
 import { getBrand } from "@/lib/brand";
 import "../globals.css";
 
@@ -58,9 +59,13 @@ export default async function FunnelLayout({
         <OrganizationJsonLd />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased bg-gradient-to-b from-gray-50 to-white">
-        <GoogleTagManagerHead gtmId={brand.analytics?.gtmId} />
-        <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
-        <UTMCapture />
+        {/* Analytics is suppressed on the token-bearing VAT pages so the capability token in the
+            URL path is never sent to GTM/Vercel as page_path. See AnalyticsGate. */}
+        <AnalyticsGate>
+          <GoogleTagManagerHead gtmId={brand.analytics?.gtmId} />
+          <GoogleTagManagerBody gtmId={brand.analytics?.gtmId} />
+          <UTMCapture />
+        </AnalyticsGate>
         <BrandProvider brandId={brand.id}>
           {/* ── Funnel header — clean, focused, no nav distractions ── */}
           <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -159,7 +164,9 @@ export default async function FunnelLayout({
 
           <CookieConsent />
         </BrandProvider>
-        <VercelMonitoring />
+        <AnalyticsGate>
+          <VercelMonitoring />
+        </AnalyticsGate>
       </body>
     </html>
   );

@@ -34,8 +34,14 @@ async function fetchBooksReady(
     headers: { Authorization: `Bearer ${sfToken}` },
     cache: 'no-store',
   });
-  const data = await res.json();
-  return { status: res.status, data };
+  // Defensive parse — a Salesforce 502/timeout returns HTML, which would throw here and drop the
+  // client on Next's generic error page instead of the branded StateCard below.
+  try {
+    const data = await res.json();
+    return { status: res.status, data };
+  } catch {
+    return { status: res.status >= 400 ? res.status : 502, data: { error: 'We couldn’t load this just now. Please try again in a moment.' } };
+  }
 }
 
 function StateCard({
