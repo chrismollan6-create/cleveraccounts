@@ -7,9 +7,11 @@ import {
   CheckCircle2,
   Download,
   FileText,
+  HelpCircle,
   Landmark,
   Lock,
   MessageSquareWarning,
+  Phone,
   PenLine,
   ShieldCheck,
   TrendingUp,
@@ -514,7 +516,9 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
             Hello {meta.signerFirstName || 'there'},
           </h2>
           <p className="text-text-light text-sm leading-relaxed mb-5">
-            Your year-end accounts{meta.documentType.includes('CT600') ? ' and corporation tax return' : ''} are
+            {meta.documentType.includes('CT600')
+              ? 'Your year-end accounts and corporation tax return are'
+              : 'Your year-end accounts are'}{' '}
             ready for your approval. Please read the summary, check the full document, and sign at
             the bottom. Once signed, we&rsquo;ll file everything with Companies House and HMRC for you.
           </p>
@@ -755,18 +759,21 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
 
       {/* FAQs */}
       {meta.documentType.includes('CT600') || meta.documentType.includes('Accounts') ? (
-        <section>
-          <h2 className="text-sm font-bold text-text-light uppercase tracking-wide mb-3">
-            Frequently asked questions
-          </h2>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y divide-gray-100">
+        <section className={`${SIGN_CARD} overflow-hidden`}>
+          <div className="flex items-center gap-2 px-5 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-b from-gray-50/80 to-transparent">
+            <HelpCircle size={17} className="text-primary" />
+            <h2 className="text-sm font-bold text-text">Common questions</h2>
+          </div>
+          <div className="divide-y divide-gray-100">
             {CT_FAQS.map((faq) => (
-              <details key={faq.q} className="group px-5 py-3.5">
-                <summary className="cursor-pointer list-none flex items-center justify-between text-sm font-semibold text-text">
+              <details key={faq.q} className="group">
+                <summary className="cursor-pointer list-none flex items-center justify-between gap-4 px-5 sm:px-6 py-4 text-sm font-semibold text-text hover:bg-gray-50/60 transition-colors">
                   {faq.q}
-                  <span className="text-text-light group-open:rotate-45 transition-transform text-lg leading-none">+</span>
+                  <span className="shrink-0 grid place-items-center w-6 h-6 rounded-full bg-gray-100 text-text-light group-open:bg-primary/10 group-open:text-primary group-open:rotate-45 transition-all text-lg leading-none">
+                    +
+                  </span>
                 </summary>
-                <p className="text-sm text-text-light leading-relaxed mt-2">{faq.a}</p>
+                <p className="text-sm text-text-light leading-relaxed px-5 sm:px-6 pb-4 -mt-1">{faq.a}</p>
               </details>
             ))}
           </div>
@@ -871,6 +878,27 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
                 </div>
               </div>
             )}
+
+            {/* Reassurance / help — sits with the decision, and stops the rail
+                orphaning beside the long left column. */}
+            <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <ShieldCheck size={15} className="text-primary" />
+                <h3 className="text-[13px] font-bold text-text">Nothing is filed until you sign</h3>
+              </div>
+              <p className="text-[13px] text-text-light leading-relaxed">
+                Not sure about anything? Use &ldquo;Request changes&rdquo; and we&rsquo;ll put it
+                right, or get in touch:
+              </p>
+              <div className="mt-3 space-y-1.5 text-[13px]">
+                <a href={`tel:${brandPhone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-primary hover:underline font-medium">
+                  <Phone size={14} /> {brandPhone}
+                </a>
+                <a href={`mailto:${brandEmail}`} className="flex items-center gap-2 text-primary hover:underline font-medium break-all">
+                  <MessageSquareWarning size={14} /> {brandEmail}
+                </a>
+              </div>
+            </div>
           </aside>
         )}
       </div>{/* ── /grid ── */}
