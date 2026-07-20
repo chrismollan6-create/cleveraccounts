@@ -78,6 +78,11 @@ function RichBlock({ html }: { html: string }) {
   );
 }
 
+// Shared card treatment — matches the VAT approval page's depth so the two
+// client-facing decision pages read as one system.
+const SIGN_CARD =
+  'bg-white rounded-2xl border border-gray-100 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_-14px_rgba(16,24,40,0.14)]';
+
 interface Meta {
   documentTitle: string;
   documentType: string;
@@ -468,9 +473,9 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
   );
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+    <main className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
       {/* Header + what-to-do steps */}
-      <header className="mb-8">
+      <header className="mb-6">
         <div className="flex items-center gap-2 text-primary mb-2">
           <FileText size={20} />
           <span className="text-sm font-semibold uppercase tracking-wide">{meta.documentType}</span>
@@ -478,11 +483,11 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
             ~2 minutes
           </span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-text">{meta.documentTitle}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">{meta.documentTitle}</h1>
         {meta.businessName && <p className="text-text-light mt-1">{meta.businessName}</p>}
 
         <ol className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-          {['Read the summary below', 'Review the full document', 'Sign at the bottom — 2 minutes'].map(
+          {['Read the summary', 'Review the full document', 'Sign — 2 minutes'].map(
             (step, i) => (
               <li key={step} className="flex items-center gap-2.5 bg-white border border-gray-100 rounded-xl px-3.5 py-2.5 shadow-sm">
                 <span className="w-6 h-6 shrink-0 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
@@ -495,15 +500,22 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
         </ol>
       </header>
 
+      {/* Two columns from lg: the document + commentary on the left, the key
+          figures and CT payment pinned on the right so the numbers stay in
+          view while the client reads and scrolls. Stacks to one column below lg. */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-6 lg:items-start">
+        {/* ── Left: letter, document, signature ── */}
+        <div className="space-y-6 min-w-0">
+
       {/* Covering letter */}
       {coverLetter && (
-        <section className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 mb-6">
+        <section className={`${SIGN_CARD} p-6 sm:p-8`}>
           <h2 className="text-lg font-bold text-text mb-1">
             Hello {meta.signerFirstName || 'there'},
           </h2>
           <p className="text-text-light text-sm leading-relaxed mb-5">
             Your year-end accounts{meta.documentType.includes('CT600') ? ' and corporation tax return' : ''} are
-            ready for your approval. Please read the summary below, check the full document, and sign at
+            ready for your approval. Please read the summary, check the full document, and sign at
             the bottom. Once signed, we&rsquo;ll file everything with Companies House and HMRC for you.
           </p>
 
@@ -515,115 +527,6 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
                   {para}
                 </p>
               ))}
-            </div>
-          )}
-
-          {hasFigures && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-              {coverLetter.revenue && (
-                <StatCard icon={<TrendingUp size={17} />} label="Revenue this year" value={coverLetter.revenue} />
-              )}
-              {coverLetter.profit && (
-                <StatCard icon={<Banknote size={17} />} label="Profit / (loss)" value={coverLetter.profit} />
-              )}
-              {coverLetter.dividends && (
-                <StatCard icon={<Landmark size={17} />} label="Dividends taken" value={coverLetter.dividends} />
-              )}
-            </div>
-          )}
-
-          {coverLetter.noPayment && (
-            <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 px-5 py-4 mb-6">
-              <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
-              <p className="text-sm text-text">
-                <strong>No corporation tax to pay</strong> for this period — there&rsquo;s nothing you
-                need to pay HMRC.
-              </p>
-            </div>
-          )}
-
-          {!coverLetter.noPayment && hasPayment && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 mb-6">
-              <div className="flex items-center gap-2 mb-1">
-                <CalendarClock size={18} className="text-amber-600" />
-                <h3 className="text-sm font-bold text-text">
-                  Corporation tax to pay{splitPeriods.length > 0 ? ' — two periods' : ''}
-                </h3>
-              </div>
-
-              {splitPeriods.length > 0 ? (
-                <>
-                  <p className="text-xs text-text-light mb-4">
-                    Your accounting period ran longer than 12 months, so HMRC splits it into two tax
-                    returns — <strong className="text-text">two separate payments with two different
-                    references and deadlines</strong>.
-                  </p>
-                  <div className="space-y-3 mb-4">
-                    {splitPeriods.map((p, i) => (
-                      <div key={i} className="rounded-lg border border-amber-200/80 bg-white/70 p-4">
-                        <div className="text-[11px] font-bold uppercase tracking-wide text-amber-700 mb-1.5">
-                          {p.label || `Period ${i + 1}`}
-                        </div>
-                        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 mb-2">
-                          {p.taxLiability && (
-                            <span className="text-xl font-bold text-text">{p.taxLiability}</span>
-                          )}
-                          {p.paymentDue && (
-                            <span className="text-sm text-text-light">
-                              due by{' '}
-                              <strong className="text-text">
-                                {new Date(p.paymentDue).toLocaleDateString('en-GB', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                })}
-                              </strong>
-                            </span>
-                          )}
-                        </div>
-                        {p.paymentReference && (
-                          <div className="text-sm text-text">
-                            <span className="text-text-light">Reference: </span>
-                            <span className="font-mono font-semibold">{p.paymentReference}</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 mb-4 mt-2">
-                  {coverLetter.taxLiability && (
-                    <span className="text-2xl font-bold text-text">{coverLetter.taxLiability}</span>
-                  )}
-                  {coverLetter.paymentDue && (
-                    <span className="text-sm text-text-light">
-                      due by{' '}
-                      <strong className="text-text">
-                        {new Date(coverLetter.paymentDue).toLocaleDateString('en-GB', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </strong>
-                    </span>
-                  )}
-                </div>
-              )}
-
-              <dl className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-                <PayRow label="Pay to" value="HMRC" />
-                <PayRow label="Sort code · Account" value="08-32-10 · 12001039" />
-                {splitPeriods.length === 0 && coverLetter.paymentReference && (
-                  <PayRow label="Payment reference" value={coverLetter.paymentReference} mono />
-                )}
-              </dl>
-              <p className="text-xs text-text-light mt-3">
-                Use the exact reference{splitPeriods.length > 0 ? ' for each period' : ' shown'} — an
-                incorrect reference delays HMRC allocating your payment. Paying late accrues daily
-                interest; if you may struggle to pay in full, contact HMRC early to arrange a plan.
-                This is paid by the company, not by us.
-              </p>
             </div>
           )}
 
@@ -677,12 +580,12 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
       )}
 
       {/* Document viewer */}
-      <section className="bg-white rounded-2xl shadow-md border border-gray-100 mb-6">
+      <section className={`${SIGN_CARD} overflow-hidden`}>
         {pdfUrl && <PdfViewer url={pdfUrl} title={meta.documentTitle} />}
       </section>
 
       {/* Sign card */}
-      <section id="sign-card" className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 scroll-mt-6">
+      <section id="sign-card" className={`${SIGN_CARD} p-6 sm:p-8 scroll-mt-6`}>
         <div className="flex items-center gap-2 mb-3">
           <PenLine size={18} className="text-primary" />
           <h2 className="text-lg font-bold text-text">Approve and sign</h2>
@@ -850,33 +753,9 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
         </div>
       </section>
 
-      {/* Sticky go-to-sign bar */}
-      {phase === 'ready' && !signCardVisible && (
-        <div className="fixed bottom-0 inset-x-0 z-40 pointer-events-none">
-          <div className="max-w-4xl mx-auto px-4 pb-4">
-            <div className="pointer-events-auto flex items-center justify-between gap-3 bg-white/95 backdrop-blur border border-gray-200 shadow-lg rounded-2xl px-4 py-3">
-              <span className="text-sm text-text hidden sm:block">
-                Reviewed everything? Signing takes under a minute.
-              </span>
-              <span className="text-sm text-text sm:hidden">Ready when you are.</span>
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById('sign-card')?.scrollIntoView({ behavior: 'smooth' })
-                }
-                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
-              >
-                <PenLine size={15} />
-                Go to signature
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* FAQs */}
       {meta.documentType.includes('CT600') || meta.documentType.includes('Accounts') ? (
-        <section className="mt-6">
+        <section>
           <h2 className="text-sm font-bold text-text-light uppercase tracking-wide mb-3">
             Frequently asked questions
           </h2>
@@ -893,6 +772,127 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
           </div>
         </section>
       ) : null}
+
+        </div>{/* ── /Left ── */}
+
+        {/* ── Right: figures + CT payment, pinned ── */}
+        {coverLetter && (hasFigures || hasPayment || coverLetter.noPayment) && (
+          <aside className="mt-6 lg:mt-0 lg:sticky lg:top-8 space-y-4">
+            {(hasFigures || hasPayment || coverLetter.noPayment) && (
+              <div className={`${SIGN_CARD} overflow-hidden`}>
+                <div className="bg-gradient-to-b from-primary-50 to-primary-50/40 px-5 py-3.5 border-b border-primary/10">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/70">
+                    Your year at a glance
+                  </p>
+                </div>
+                <div className="p-5 space-y-3.5">
+                  {hasFigures && (
+                    <dl className="space-y-2.5">
+                      {coverLetter.revenue && <GlanceRow icon={<TrendingUp size={15} />} label="Revenue" value={coverLetter.revenue} />}
+                      {coverLetter.profit && <GlanceRow icon={<Banknote size={15} />} label="Profit / (loss)" value={coverLetter.profit} />}
+                      {coverLetter.dividends && <GlanceRow icon={<Landmark size={15} />} label="Dividends taken" value={coverLetter.dividends} />}
+                    </dl>
+                  )}
+
+                  {coverLetter.noPayment && (
+                    <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3.5 py-3">
+                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                      <p className="text-[13px] text-text leading-snug">
+                        <strong>No corporation tax to pay</strong> this period.
+                      </p>
+                    </div>
+                  )}
+
+                  {!coverLetter.noPayment && hasPayment && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <CalendarClock size={15} className="text-amber-600" />
+                        <h3 className="text-[13px] font-bold text-text">
+                          Corporation tax to pay{splitPeriods.length > 0 ? ' — two periods' : ''}
+                        </h3>
+                      </div>
+
+                      {splitPeriods.length > 0 ? (
+                        <div className="space-y-2.5">
+                          {splitPeriods.map((p, i) => (
+                            <div key={i} className="rounded-md border border-amber-200/80 bg-white/70 px-3 py-2.5">
+                              <div className="text-[10px] font-bold uppercase tracking-wide text-amber-700 mb-1">
+                                {p.label || `Period ${i + 1}`}
+                              </div>
+                              {p.taxLiability && <div className="text-lg font-bold text-text leading-tight">{p.taxLiability}</div>}
+                              {p.paymentDue && (
+                                <div className="text-xs text-text-light mt-0.5">
+                                  due by{' '}
+                                  <strong className="text-text">
+                                    {new Date(p.paymentDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                  </strong>
+                                </div>
+                              )}
+                              {p.paymentReference && (
+                                <div className="text-xs mt-1"><span className="text-text-light">Ref: </span><span className="font-mono font-semibold text-text">{p.paymentReference}</span></div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            {coverLetter.taxLiability && <span className="text-2xl font-bold text-text tracking-tight">{coverLetter.taxLiability}</span>}
+                            {coverLetter.paymentDue && (
+                              <span className="text-xs text-text-light">
+                                due by{' '}
+                                <strong className="text-text">
+                                  {new Date(coverLetter.paymentDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </strong>
+                              </span>
+                            )}
+                          </div>
+                          <dl className="mt-3 space-y-1.5 text-[13px]">
+                            <GlanceRow label="Pay to" value="HMRC" />
+                            <GlanceRow label="Sort code · Account" value="08-32-10 · 12001039" />
+                            {coverLetter.paymentReference && <GlanceRow label="Reference" value={coverLetter.paymentReference} mono />}
+                          </dl>
+                        </>
+                      )}
+                      <p className="text-[11px] text-text-light mt-2.5 leading-snug">
+                        Use the exact reference{splitPeriods.length > 0 ? ' for each period' : ''} — a wrong one delays HMRC allocating your payment. Paid by the company, not by us.
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('sign-card')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="hidden lg:inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
+                  >
+                    <PenLine size={15} />
+                    Go to signature
+                  </button>
+                </div>
+              </div>
+            )}
+          </aside>
+        )}
+      </div>{/* ── /grid ── */}
+
+      {/* Sticky go-to-sign bar — mobile only (the pinned rail covers desktop) */}
+      {phase === 'ready' && !signCardVisible && (
+        <div className="fixed bottom-0 inset-x-0 z-40 pointer-events-none lg:hidden">
+          <div className="max-w-3xl mx-auto px-4 pb-4">
+            <div className="pointer-events-auto flex items-center justify-between gap-3 bg-white/95 backdrop-blur border border-gray-200 shadow-lg rounded-2xl px-4 py-3">
+              <span className="text-sm text-text">Ready when you are.</span>
+              <button
+                type="button"
+                onClick={() => document.getElementById('sign-card')?.scrollIntoView({ behavior: 'smooth' })}
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
+              >
+                <PenLine size={15} />
+                Go to signature
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -926,23 +926,26 @@ const CT_FAQS: Array<{ q: string; a: string }> = [
 
 // ---------------------------------------------------------------------------
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function GlanceRow({
+  icon,
+  label,
+  value,
+  mono,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-3.5">
-      <div className="flex items-center gap-1.5 text-text-light mb-1">
-        {icon}
-        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
-      </div>
-      <div className="text-lg font-bold text-text">{value}</div>
-    </div>
-  );
-}
-
-function PayRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div className="bg-white/70 rounded-lg px-3 py-2 border border-amber-100">
-      <dt className="text-[11px] font-semibold uppercase tracking-wide text-text-light">{label}</dt>
-      <dd className={`text-sm font-semibold text-text ${mono ? 'font-mono' : ''}`}>{value}</dd>
+    <div className="flex items-center justify-between gap-3">
+      <dt className="flex items-center gap-1.5 text-[13px] text-text-light min-w-0">
+        {icon && <span className="text-text-light shrink-0">{icon}</span>}
+        <span className="truncate">{label}</span>
+      </dt>
+      <dd className={`text-sm font-bold text-text tabular-nums text-right shrink-0 ${mono ? 'font-mono' : ''}`}>
+        {value}
+      </dd>
     </div>
   );
 }
