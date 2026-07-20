@@ -58,6 +58,7 @@ export interface SealParams {
   documentType: string;
   sourcePdfSha256: string;
   approvalStatement: string;
+  challengeFactors?: string | null; // e.g. "Date of birth + SMS code"
   brandName: string;
   brandPrimaryHex?: string | null;  // letter accent colour, e.g. '#1A7A9B'
   businessName?: string | null;
@@ -590,6 +591,7 @@ function appendCertificate(
     ['Signed by', params.signerName],
     ['Signer email', params.signerEmail],
     ['Signed at', `${formatUk(params.signedAtIso)} (UTC)`],
+    ['Identity verified by', params.challengeFactors || 'Private link + identity check'],
     ['Signer IP address', params.signerIp || 'not recorded'],
     ['Document SHA-256', params.sourcePdfSha256],
   ];
@@ -616,8 +618,9 @@ function appendCertificate(
 
   drawWrapped(
     cert,
-    'This document was signed electronically. The signer authenticated via a private signing link and an ' +
-      'identity check against details held on file, and gave explicit consent to sign electronically. The ' +
+    'This document was signed electronically. The signer authenticated via a private signing link, a ' +
+      'two-factor identity check (a detail held on file and a one-time code sent to them — see “Identity ' +
+      'verified by” above), and gave explicit consent to sign electronically. The ' +
       'SHA-256 fingerprint above identifies the exact document presented and signed; it was verified at the ' +
       'moment of signing. A full tamper-evident audit trail (creation, delivery, identity check, viewing and ' +
       `signing events with timestamps, IP addresses and browser details) is retained by ${params.brandName} ` +

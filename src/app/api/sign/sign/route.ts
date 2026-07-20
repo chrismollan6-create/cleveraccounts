@@ -31,6 +31,7 @@ interface ApexSignResult {
   documentTitle?: string;
   sourcePdfSha256?: string;
   approvalStatement?: string;
+  challengeFactors?: string;
   brandName?: string;
   brandPrimaryHex?: string;
   businessName?: string;
@@ -137,6 +138,7 @@ export async function POST(request: NextRequest) {
           documentType: signData.documentType || 'Other',
           sourcePdfSha256: signData.sourcePdfSha256 || body.sourcePdfSha256 || '',
           approvalStatement: signData.approvalStatement || '',
+          challengeFactors: signData.challengeFactors,
           brandName: signData.brandName || 'Clever Accounts',
           brandPrimaryHex: signData.brandPrimaryHex,
           businessName: signData.businessName,

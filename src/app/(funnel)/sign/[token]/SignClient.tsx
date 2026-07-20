@@ -138,6 +138,15 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
   const [challengeError, setChallengeError] = useState<string | null>(null);
   const [challengeBusy, setChallengeBusy] = useState(false);
 
+  // Second factor (one-time code) — shown after the knowledge answer passes.
+  const [challengeStage, setChallengeStage] = useState<'knowledge' | 'otp'>('knowledge');
+  const [otpChannel, setOtpChannel] = useState<string | null>(null);
+  const [otpSentTo, setOtpSentTo] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpBusy, setOtpBusy] = useState(false);
+  const [resendMsg, setResendMsg] = useState<string | null>(null);
+
   const [consentRead, setConsentRead] = useState(false);
   const [consentEsign, setConsentEsign] = useState(false);
   const [mode, setMode] = useState<'drawn' | 'typed'>('drawn');
@@ -180,14 +189,15 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
           body: JSON.stringify({ answer }),
         });
         const data = await res.json();
-        if (res.ok && data.success && data.sessionKey) {
-          setSessionKey(data.sessionKey);
-          setPhase('ready');
-          fetch(`/api/sign/view?t=${encodeURIComponent(token)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionKey: data.sessionKey }),
-          }).catch(() => {});
+        if (res.ok && data.success && data.stage === 'otp') {
+          // Knowledge passed — now the one-time code.
+          setOtpChannel(data.otpChannel || null);
+          setOtpSentTo(data.otpSentTo || null);
+          setChallengeStage('otp');
+          setChallengeAnswer('');
+        } else if (res.ok && data.success && data.sessionKey) {
+          // No-challenge / portal path that hands a key straight back.
+          unlockWithKey(data.sessionKey);
         } else if (data.locked) {
           setPhase('locked');
         } else {
@@ -199,8 +209,70 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
         setChallengeBusy(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [token],
   );
+
+  const unlockWithKey = useCallback(
+    (key: string) => {
+      setSessionKey(key);
+      setPhase('ready');
+      fetch(`/api/sign/view?t=${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionKey: key }),
+      }).catch(() => {});
+    },
+    [token],
+  );
+
+  const submitOtp = useCallback(
+    async (code: string) => {
+      setOtpBusy(true);
+      setOtpError(null);
+      setResendMsg(null);
+      try {
+        const res = await fetch(`/api/sign/otp?t=${encodeURIComponent(token)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.sessionKey) {
+          unlockWithKey(data.sessionKey);
+        } else if (data.locked) {
+          setPhase('locked');
+        } else {
+          setOtpError(data.message || data.error || 'That code is not right.');
+        }
+      } catch {
+        setOtpError('Something went wrong — please try again.');
+      } finally {
+        setOtpBusy(false);
+      }
+    },
+    [token, unlockWithKey],
+  );
+
+  const resendOtp = useCallback(async () => {
+    setOtpError(null);
+    setResendMsg(null);
+    try {
+      const res = await fetch(`/api/sign/otp/resend?t=${encodeURIComponent(token)}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOtpChannel(data.otpChannel || otpChannel);
+        setOtpSentTo(data.otpSentTo || otpSentTo);
+        setResendMsg('We’ve sent a new code.');
+      } else if (data.locked) {
+        setPhase('locked');
+      } else {
+        setOtpError(data.message || data.error || 'Could not resend — please try again.');
+      }
+    } catch {
+      setOtpError('Something went wrong — please try again.');
+    }
+  }, [token, otpChannel, otpSentTo]);
 
   useEffect(() => {
     if (isNoneChallenge && phase === 'challenge' && !challengeBusy && !sessionKey) {
@@ -402,21 +474,65 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
             {meta.businessName ? ` for ${meta.businessName}` : ''} is ready for your review and signature.
           </p>
           <p className="text-text-light text-sm mb-2">
-            Because this document contains personal financial information, please confirm a detail we
-            hold on file before it opens.
+            {challengeStage === 'otp'
+              ? 'One more step — we’ve sent you a single-use code to confirm it’s really you.'
+              : 'Because this document contains personal financial information, we’ll confirm your identity in two quick steps before it opens.'}
           </p>
           <details className="mb-6 text-xs text-text-light">
             <summary className="cursor-pointer text-primary hover:underline">
               Why do we ask this?
             </summary>
             <p className="mt-1.5 leading-relaxed">
-              Email links can be forwarded. This quick check makes sure only you — not anyone who
-              happens to have the link — can open documents containing your financial details. It
-              also forms part of the legal evidence that it was really you who signed.
+              Email links can be forwarded. Checking a detail we hold on file <em>and</em> a one-time
+              code sent to you makes sure only you — not anyone who happens to have the link — can open
+              documents containing your financial details. It also forms part of the legal evidence
+              that it was really you who signed.
             </p>
           </details>
 
-          {isNoneChallenge ? (
+          {challengeStage === 'otp' ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (otpCode.trim().length >= 4) submitOtp(otpCode.trim());
+              }}
+            >
+              <label className="block text-sm font-semibold text-text mb-1">
+                Enter your code
+              </label>
+              <p className="text-xs text-text-light mb-2">
+                {otpChannel === 'SMS'
+                  ? `Sent by text to ${otpSentTo || 'your mobile'}.`
+                  : `Sent by email to ${otpSentTo || 'your inbox'} (check spam if it’s not there).`}
+              </p>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="6-digit code"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg tracking-[0.3em] font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
+              />
+              {otpError && <p className="text-rose-600 text-sm mt-2" role="alert">{otpError}</p>}
+              {resendMsg && <p className="text-emerald-600 text-sm mt-2">{resendMsg}</p>}
+              <button
+                type="submit"
+                disabled={otpBusy || otpCode.trim().length < 4}
+                className="mt-4 w-full px-5 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {otpBusy ? 'Checking…' : 'View document'}
+              </button>
+              <button
+                type="button"
+                onClick={resendOtp}
+                className="mt-3 w-full text-sm text-primary hover:underline"
+              >
+                Didn’t get it? Send a new code
+              </button>
+            </form>
+          ) : isNoneChallenge ? (
             <p className="text-text-light text-sm">Opening your document…</p>
           ) : (
             <form
@@ -446,7 +562,7 @@ export default function SignClient({ token, meta, coverLetter, confirmations, po
                 disabled={challengeBusy || !challengeAnswer.trim()}
                 className="mt-4 w-full px-5 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {challengeBusy ? 'Checking…' : 'View document'}
+                {challengeBusy ? 'Checking…' : 'Continue'}
               </button>
             </form>
           )}
