@@ -236,7 +236,7 @@ export const BRANDS = {
     email: 'clientsupport@workwellsolutions.com',
     senderEmail: 'clientsupport@workwellsolutions.com',
     supportEmail: 'clientsupport@workwellsolutions.com',
-    postalAddress: 'Radius House, 51 Clarendon Road, Watford, Hertfordshire, WD17 1HP',
+    postalAddress: 'Ground Floor East, Hyde, 38 Clarendon Road, Watford, Hertfordshire, WD17 1JW',
     salesforceLeadValue: 'Workwell Accountancy Solutions',
     salesforceAccountValue: 'Workwell',
     assets: {
@@ -278,7 +278,7 @@ export const BRANDS = {
     offices: [
       {
         city: 'Watford',
-        address: 'Radius House, 51 Clarendon Road, Watford, Hertfordshire, WD17 1HP',
+        address: 'Ground Floor East, Hyde, 38 Clarendon Road, Watford, Hertfordshire, WD17 1JW',
       },
     ],
     stats: { years: 20, businesses: 10000, setupFee: 0, rating: 5 },

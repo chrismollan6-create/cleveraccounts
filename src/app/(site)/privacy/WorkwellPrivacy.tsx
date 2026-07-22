@@ -297,7 +297,7 @@ export default function WorkwellPrivacy() {
             <h2 className="text-xl font-black text-dark mb-3">Contact</h2>
             <p className="text-dark font-bold text-sm">Workwell People Solutions Limited</p>
             <p className="text-text-light text-sm">Registered in England and Wales, No. 2407547</p>
-            <p className="text-text-light text-sm mt-3 whitespace-pre-line">{"Radius House\n51 Clarendon Road\nWatford\nHertfordshire, WD17 1HP"}</p>
+            <p className="text-text-light text-sm mt-3 whitespace-pre-line">{"Ground Floor East\nHyde\n38 Clarendon Road\nWatford\nHertfordshire, WD17 1JW"}</p>
             <p className="text-text-light text-sm mt-3">
               Phone: <a href="tel:01923257257" className="text-primary hover:underline">01923 257257</a>
             </p>
