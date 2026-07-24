@@ -83,7 +83,13 @@ function extensionOf(name: string): string {
 
 function sanitiseName(name: string): string {
   // Keep it readable but path-safe. Storage key gets a UUID prefix regardless.
-  const base = name.replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/_+/g, "_");
+  // Non-allowlist chars (incl. every '/') become '_', so a filename can't add
+  // path segments; collapsing runs of dots then neutralises '..' explicitly, so
+  // no traversal is possible even if the path template around this ever changes.
+  const base = name
+    .replace(/[^a-zA-Z0-9._-]+/g, "_")
+    .replace(/\.{2,}/g, ".")
+    .replace(/_+/g, "_");
   return base.slice(0, 120) || "file";
 }
 
