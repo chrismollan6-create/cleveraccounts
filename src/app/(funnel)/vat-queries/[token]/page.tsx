@@ -24,6 +24,7 @@ export interface QuerySection {
 export interface VatQueriesDto {
   clientName?: string;
   period?: string;
+  dueDate?: string; // HMRC filing deadline, display text
   email?: string;
   status?: string | null; // 'sent' | 'responded'
   alreadyResponded: boolean;
@@ -177,6 +178,7 @@ export default async function VatQueriesPage({
       token={token}
       clientName={dto.clientName}
       period={dto.period}
+      dueDate={dto.dueDate}
       sections={sections}
       brandEmail={brand.email}
       brandPhone={brand.phone}
