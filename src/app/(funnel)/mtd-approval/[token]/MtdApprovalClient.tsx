@@ -25,11 +25,13 @@ export default function MtdApprovalClient({
   dto,
   brandEmail,
   brandPhone,
+  preview = false,
 }: {
   token: string;
   dto: MtdApprovalDto;
   brandEmail: string;
   brandPhone: string;
+  preview?: boolean;
 }) {
   const [outcome, setOutcome] = useState<Outcome>(null);
   const [busy, setBusy] = useState<'approve' | 'query' | null>(null);
@@ -42,6 +44,7 @@ export default function MtdApprovalClient({
   const pdfUrl = `/api/mtd-approval/pdf?t=${encodeURIComponent(token)}`;
 
   async function submit(kind: 'approve' | 'query') {
+    if (preview) return; // staff preview — never record a response
     setBusy(kind);
     setError(null);
     try {
@@ -100,6 +103,15 @@ export default function MtdApprovalClient({
   return (
     <main className="min-h-[70vh] px-4 py-8 sm:py-10">
       <div className="max-w-3xl mx-auto">
+        {preview && (
+          <div className="mb-4 rounded-lg bg-slate-800 text-white px-4 py-3 text-sm flex items-center gap-2">
+            <ShieldCheck size={16} className="shrink-0" />
+            <span>
+              <span className="font-semibold">Staff preview.</span> This is exactly what the client
+              sees. Approve and query actions are disabled here.
+            </span>
+          </div>
+        )}
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
           {/* Context header */}
           <div className="px-6 sm:px-9 pt-8 pb-6 border-b border-gray-100">
@@ -157,7 +169,7 @@ export default function MtdApprovalClient({
 
             <button
               onClick={() => submit('approve')}
-              disabled={busy !== null}
+              disabled={preview || busy !== null}
               className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-60"
             >
               {busy === 'approve' ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
@@ -167,7 +179,7 @@ export default function MtdApprovalClient({
             {!showQuery ? (
               <button
                 onClick={() => setShowQuery(true)}
-                disabled={busy !== null}
+                disabled={preview || busy !== null}
                 className="w-full mt-3 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
               >
                 <MessageCircleQuestion size={17} className="text-primary" />
