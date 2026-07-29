@@ -6,6 +6,7 @@ import {
   Building2,
   Users,
   ShieldCheck,
+  Mail,
   Tag,
   FileText,
   Lock,
@@ -34,7 +35,61 @@ const SECTIONS: SectionDef[] = [
   { key: 'officers', label: 'Directors', icon: Users },
   { key: 'pscs', label: 'People with significant control', icon: ShieldCheck },
   { key: 'sic', label: 'Nature of business', icon: Tag },
+  { key: 'email', label: 'Registered email', icon: Mail },
 ];
+
+type ChangeVal = Record<string, string | string[]>;
+
+/** True when the client has entered enough structured detail for a flagged section to be actioned. */
+function changeComplete(key: string, c: ChangeVal): boolean {
+  const s = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  switch (key) {
+    case 'companyName':
+      return !!s(c.newName);
+    case 'registeredOffice':
+      return !!(s(c.line1) && s(c.town) && s(c.postcode));
+    case 'officers':
+    case 'pscs':
+      return !!(s(c.changeType) && s(c.name));
+    case 'sic':
+      return Array.isArray(c.codes) && c.codes.length > 0;
+    case 'email':
+      return /.+@.+\..+/.test(s(c.email));
+    default:
+      return false;
+  }
+}
+
+/** A short human summary of a structured change, stored as the section note for staff. */
+function changeSummary(key: string, c: ChangeVal): string {
+  const g = (k: string) => (typeof c[k] === 'string' ? (c[k] as string).trim() : '');
+  switch (key) {
+    case 'companyName':
+      return `New name: ${g('newName')}`;
+    case 'registeredOffice':
+      return ['New office:', g('line1'), g('line2'), g('town'), g('county'), g('postcode')]
+        .filter(Boolean)
+        .join(' ');
+    case 'officers':
+    case 'pscs':
+      return `${g('changeType')} — ${g('name')}${g('details') ? ': ' + g('details') : ''}`;
+    case 'email':
+      return `New email: ${g('email')}`;
+    case 'sic':
+      return `SIC: ${(Array.isArray(c.codes) ? c.codes : []).join(', ')}`;
+    default:
+      return '';
+  }
+}
+
+const COMPLETE_HINT: Record<string, string> = {
+  companyName: 'Enter the new company name.',
+  registeredOffice: 'Enter the new address — line 1, town and postcode.',
+  officers: 'Choose what’s changed and enter the director’s name.',
+  pscs: 'Choose what’s changed and enter the person’s name.',
+  sic: 'Add at least one SIC code.',
+  email: 'Enter a valid email address.',
+};
 
 export default function ChConfirmationClient({
   token,
@@ -48,7 +103,7 @@ export default function ChConfirmationClient({
   brandPhone: string;
 }) {
   const [flagged, setFlagged] = useState<Record<string, boolean>>({});
-  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [changes, setChanges] = useState<Record<string, ChangeVal>>({});
   const [lawful, setLawful] = useState(true); // opt-out: the company confirms it will keep trading lawfully
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<null | 'confirmed' | 'changes'>(null);
@@ -121,25 +176,42 @@ export default function ChConfirmationClient({
 
   const flaggedKeys = SECTIONS.filter((s) => flagged[s.key]).map((s) => s.key);
   const anyFlagged = flaggedKeys.length > 0;
-  const allFlaggedHaveNotes = flaggedKeys.every((k) => (notes[k] || '').trim().length > 0);
+  const allFlaggedComplete = flaggedKeys.every((k) => changeComplete(k, changes[k] || {}));
+
+  const setChange = (key: string, patch: ChangeVal) =>
+    setChanges((c) => ({ ...c, [key]: { ...(c[key] || {}), ...patch } }));
 
   const setFlag = (key: string, on: boolean) => {
     setFlagged((f) => ({ ...f, [key]: on }));
-    if (!on) setNotes((n) => ({ ...n, [key]: '' }));
+    if (!on) {
+      setChanges((c) => {
+        const next = { ...c };
+        delete next[key];
+        return next;
+      });
+    } else if (key === 'sic') {
+      // Prefill the SIC editor with what's on file so they edit rather than retype.
+      setChanges((c) => (c.sic ? c : { ...c, sic: { codes: [...(dto.sicCodes || [])] } }));
+    }
   };
 
   async function post() {
     // Guards mirror the button disabled state, so nothing slips through.
-    if (anyFlagged && !allFlaggedHaveNotes) return;
+    if (anyFlagged && !allFlaggedComplete) return;
     if (!anyFlagged && !lawful) return;
 
     setSubmitting(true);
     setError('');
     try {
-      const sections: Record<string, { ok: boolean; note: string }> = {};
+      const sections: Record<string, { ok: boolean; note: string; change?: ChangeVal }> = {};
       for (const s of SECTIONS) {
         const isChanged = !!flagged[s.key];
-        sections[s.key] = { ok: !isChanged, note: isChanged ? notes[s.key] || '' : '' };
+        const c = changes[s.key] || {};
+        sections[s.key] = {
+          ok: !isChanged,
+          note: isChanged ? changeSummary(s.key, c) : '',
+          ...(isChanged ? { change: c } : {}),
+        };
       }
       const res = await fetch('/api/ch-confirmation/respond', {
         method: 'POST',
@@ -153,6 +225,85 @@ export default function ChConfirmationClient({
       setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  const FIELD_CLS =
+    'w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400';
+
+  function changeFields(key: string): ReactNode {
+    const c = changes[key] || {};
+    const val = (k: string) => (typeof c[k] === 'string' ? (c[k] as string) : '');
+    switch (key) {
+      case 'companyName':
+        return (
+          <input
+            className={FIELD_CLS}
+            placeholder="New company name"
+            value={val('newName')}
+            onChange={(e) => setChange(key, { newName: e.target.value })}
+          />
+        );
+      case 'registeredOffice':
+        return (
+          <div className="grid gap-2">
+            <input className={FIELD_CLS} placeholder="Address line 1" value={val('line1')} onChange={(e) => setChange(key, { line1: e.target.value })} />
+            <input className={FIELD_CLS} placeholder="Address line 2 (optional)" value={val('line2')} onChange={(e) => setChange(key, { line2: e.target.value })} />
+            <div className="grid grid-cols-2 gap-2">
+              <input className={FIELD_CLS} placeholder="Town / city" value={val('town')} onChange={(e) => setChange(key, { town: e.target.value })} />
+              <input className={FIELD_CLS} placeholder="County (optional)" value={val('county')} onChange={(e) => setChange(key, { county: e.target.value })} />
+            </div>
+            <input
+              className={`${FIELD_CLS} uppercase placeholder:normal-case`}
+              placeholder="Postcode"
+              value={val('postcode')}
+              onChange={(e) => setChange(key, { postcode: e.target.value.toUpperCase() })}
+            />
+          </div>
+        );
+      case 'officers':
+      case 'pscs': {
+        const noun = key === 'officers' ? 'director' : 'person with significant control';
+        const Noun = noun.charAt(0).toUpperCase() + noun.slice(1);
+        return (
+          <div className="grid gap-2">
+            <select className={FIELD_CLS} value={val('changeType')} onChange={(e) => setChange(key, { changeType: e.target.value })}>
+              <option value="">What’s changed?…</option>
+              <option value="add">Add a {noun}</option>
+              <option value="remove">Remove a {noun}</option>
+              <option value="update">Update a {noun}’s details</option>
+            </select>
+            <input className={FIELD_CLS} placeholder={`${Noun}’s full name`} value={val('name')} onChange={(e) => setChange(key, { name: e.target.value })} />
+            <textarea
+              className={FIELD_CLS}
+              rows={2}
+              placeholder="Any details we should know — dates, address, etc. (optional)"
+              value={val('details')}
+              onChange={(e) => setChange(key, { details: e.target.value })}
+            />
+          </div>
+        );
+      }
+      case 'email':
+        return (
+          <input
+            type="email"
+            className={FIELD_CLS}
+            placeholder="New registered email address"
+            value={val('email')}
+            onChange={(e) => setChange(key, { email: e.target.value })}
+          />
+        );
+      case 'sic':
+        return (
+          <SicEditor
+            codes={Array.isArray(c.codes) ? (c.codes as string[]) : []}
+            onChange={(next) => setChange(key, { codes: next })}
+            fieldCls={FIELD_CLS}
+          />
+        );
+      default:
+        return null;
     }
   }
 
@@ -228,7 +379,7 @@ export default function ChConfirmationClient({
             <div>
               {SECTIONS.map((s) => {
                 const on = !!flagged[s.key];
-                const noteMissing = on && (notes[s.key] || '').trim().length === 0;
+                const incomplete = on && !changeComplete(s.key, changes[s.key] || {});
                 return (
                   <div
                     key={s.key}
@@ -243,22 +394,12 @@ export default function ChConfirmationClient({
                     <div className="flex-1 min-w-0">
                       {renderValue(s.key, dto)}
                       {on ? (
-                        <>
-                          <textarea
-                            className={`mt-2.5 w-full rounded-lg border bg-white px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 ${
-                              noteMissing
-                                ? 'border-amber-300 focus:ring-amber-400/40 focus:border-amber-400'
-                                : 'border-amber-200 focus:ring-amber-400/40 focus:border-amber-400'
-                            }`}
-                            rows={2}
-                            placeholder="Please tell us what’s changed"
-                            value={notes[s.key] || ''}
-                            onChange={(e) => setNotes((n) => ({ ...n, [s.key]: e.target.value }))}
-                          />
-                          {noteMissing ? (
-                            <p className="mt-1 text-[12px] text-amber-700">Add a quick note so we know what to change.</p>
+                        <div className="mt-3 space-y-2">
+                          {changeFields(s.key)}
+                          {incomplete ? (
+                            <p className="text-[12px] text-amber-700">{COMPLETE_HINT[s.key] || 'Please complete the details above.'}</p>
                           ) : null}
-                        </>
+                        </div>
                       ) : null}
                     </div>
                     <div className="shrink-0 sm:pt-0.5">
@@ -297,15 +438,15 @@ export default function ChConfirmationClient({
                   Send these to us and we’ll sort them out with you before filing. Everything else will be confirmed
                   as correct. We won’t file anything with Companies House until it’s resolved.
                 </p>
-                {!allFlaggedHaveNotes ? (
+                {!allFlaggedComplete ? (
                   <p className="mt-3 text-[13px] font-medium text-amber-700">
-                    Please add a note on each flagged item so we know what’s changed.
+                    Please fill in the details on each flagged item so we can action it.
                   </p>
                 ) : null}
                 {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
                 <button
                   onClick={post}
-                  disabled={submitting || !allFlaggedHaveNotes}
+                  disabled={submitting || !allFlaggedComplete}
                   className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-amber-500 text-white font-semibold shadow-sm hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <PenLine size={18} />}
@@ -509,6 +650,78 @@ function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
     default:
       return null;
   }
+}
+
+function SicEditor({
+  codes,
+  onChange,
+  fieldCls,
+}: {
+  codes: string[];
+  onChange: (next: string[]) => void;
+  fieldCls: string;
+}) {
+  const [val, setVal] = useState('');
+  const add = () => {
+    const code = val.trim();
+    if (!/^\d{4,5}$/.test(code) || codes.includes(code) || codes.length >= 4) {
+      setVal('');
+      return;
+    }
+    onChange([...codes, code]);
+    setVal('');
+  };
+  return (
+    <div>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {codes.length ? (
+          codes.map((code) => (
+            <span key={code} className="inline-flex items-center gap-1 rounded-md bg-primary-50 text-primary pl-2 pr-1 py-0.5 text-[13px]">
+              <span className="font-semibold tabular-nums">{code}</span>
+              {sicDescription(code) ? <span className="text-text-light">· {sicDescription(code)}</span> : null}
+              <button
+                type="button"
+                onClick={() => onChange(codes.filter((x) => x !== code))}
+                className="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-primary/70 hover:bg-primary/10 hover:text-primary"
+                aria-label={`Remove ${code}`}
+              >
+                ×
+              </button>
+            </span>
+          ))
+        ) : (
+          <span className="text-[13px] text-text-light">No SIC codes selected.</span>
+        )}
+      </div>
+      {codes.length < 4 ? (
+        <div className="flex gap-2">
+          <input
+            className={fieldCls}
+            placeholder="Add SIC code (4–5 digits)"
+            value={val}
+            maxLength={5}
+            inputMode="numeric"
+            onChange={(e) => setVal(e.target.value.replace(/[^0-9]/g, ''))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                add();
+              }
+            }}
+          />
+          <button
+            type="button"
+            onClick={add}
+            className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 text-sm font-semibold text-amber-700 hover:bg-amber-50"
+          >
+            Add
+          </button>
+        </div>
+      ) : (
+        <p className="text-[12px] text-text-light">Up to 4 codes on a confirmation statement.</p>
+      )}
+    </div>
+  );
 }
 
 function HelpFooter({ email, phone }: { email: string; phone: string }) {
