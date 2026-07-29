@@ -1,8 +1,21 @@
 'use client';
 
 import { useState, type ComponentType, type ReactNode } from 'react';
-import { CheckCircle2, Building2, Users, ShieldCheck, Mail, Tag, FileText, Lock, Loader2, PenLine } from 'lucide-react';
+import {
+  CheckCircle2,
+  Building2,
+  Users,
+  ShieldCheck,
+  Mail,
+  Tag,
+  FileText,
+  Lock,
+  Loader2,
+  PenLine,
+  CalendarClock,
+} from 'lucide-react';
 import type { ChConfirmationDto } from './page';
+import { sicDescription } from '@/lib/sic-codes';
 
 /** Same premium elevation as the VAT approval + accounts signing pages, so the three read as one system. */
 const CARD =
@@ -33,23 +46,28 @@ export default function ChConfirmationClient({
   brandEmail: string;
   brandPhone: string;
 }) {
-  const [flagging, setFlagging] = useState(false);
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [note, setNote] = useState('');
-  const [submitting, setSubmitting] = useState<null | 'confirm' | 'changes'>(null);
+  const [flagged, setFlagged] = useState<Record<string, boolean>>({});
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<null | 'confirmed' | 'changes'>(null);
   const [error, setError] = useState('');
 
-  const checkedKeys = SECTIONS.filter((s) => checked[s.key]).map((s) => s.key);
+  const flaggedKeys = SECTIONS.filter((s) => flagged[s.key]).map((s) => s.key);
+  const anyFlagged = flaggedKeys.length > 0;
 
-  async function post(kind: 'confirm' | 'changes') {
-    setSubmitting(kind);
+  const setFlag = (key: string, on: boolean) => {
+    setFlagged((f) => ({ ...f, [key]: on }));
+    if (!on) setNotes((n) => ({ ...n, [key]: '' }));
+  };
+
+  async function post() {
+    setSubmitting(true);
     setError('');
     try {
       const sections: Record<string, { ok: boolean; note: string }> = {};
       for (const s of SECTIONS) {
-        const isChanged = kind === 'changes' && !!checked[s.key];
-        sections[s.key] = { ok: !isChanged, note: isChanged ? note : '' };
+        const isChanged = !!flagged[s.key];
+        sections[s.key] = { ok: !isChanged, note: isChanged ? notes[s.key] || '' : '' };
       }
       const res = await fetch('/api/ch-confirmation/respond', {
         method: 'POST',
@@ -58,11 +76,11 @@ export default function ChConfirmationClient({
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Something went wrong.');
-      setDone(kind === 'changes' ? 'changes' : 'confirmed');
+      setDone(anyFlagged ? 'changes' : 'confirmed');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     } finally {
-      setSubmitting(null);
+      setSubmitting(false);
     }
   }
 
@@ -90,8 +108,8 @@ export default function ChConfirmationClient({
 
   // ---------- Review ----------
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-6 lg:items-start">
+    <main className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-7 lg:items-start">
         {/* Left: read-only summary + one decision */}
         <div className={CARD}>
           {/* tinted context band */}
@@ -108,7 +126,8 @@ export default function ChConfirmationClient({
             </p>
             <p className="mt-4 text-sm text-text-light leading-relaxed max-w-prose">
               Each year we confirm to Companies House that your company details are up to date. Here’s what’s on
-              file — please check it over and confirm it’s correct. It only takes a minute.
+              file — please check it over. If everything’s right, confirm below; if not, hit <strong className="font-semibold text-text">Update</strong> next to
+              anything that’s changed.
             </p>
           </div>
 
@@ -118,22 +137,79 @@ export default function ChConfirmationClient({
               <span className="block h-[3px] w-6 rounded-full bg-primary" />
               <h2 className="text-[12px] font-bold uppercase tracking-[0.16em] text-primary">Details on file</h2>
             </div>
-            <dl className="divide-y divide-gray-100">
-              {SECTIONS.map((s) => (
-                <div key={s.key} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-5 py-4">
-                  <dt className="sm:w-48 shrink-0 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-text-light">
-                    <s.icon size={14} className="text-primary" />
-                    {s.label}
-                  </dt>
-                  <dd className="flex-1 min-w-0">{renderValue(s.key, dto)}</dd>
-                </div>
-              ))}
-            </dl>
+            <div>
+              {SECTIONS.map((s) => {
+                const on = !!flagged[s.key];
+                return (
+                  <div
+                    key={s.key}
+                    className={`py-4 border-b border-gray-100 last:border-b-0 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-5 transition-colors ${
+                      on ? 'bg-amber-50/50 rounded-lg px-3 -mx-3 border-b-transparent' : ''
+                    }`}
+                  >
+                    <div className="sm:w-52 shrink-0 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-text-light">
+                      <s.icon size={14} className="text-primary" />
+                      {s.label}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {renderValue(s.key, dto)}
+                      {on ? (
+                        <textarea
+                          className="mt-2.5 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400"
+                          rows={2}
+                          placeholder="What’s changed? (optional — we’ll confirm the details with you)"
+                          value={notes[s.key] || ''}
+                          onChange={(e) => setNotes((n) => ({ ...n, [s.key]: e.target.value }))}
+                        />
+                      ) : null}
+                    </div>
+                    <div className="shrink-0 sm:pt-0.5">
+                      {on ? (
+                        <button
+                          type="button"
+                          onClick={() => setFlag(s.key, false)}
+                          className="inline-flex items-center gap-1 text-[13px] font-semibold text-amber-700 hover:underline whitespace-nowrap"
+                        >
+                          Flagged · Undo
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setFlag(s.key, true)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-[13px] font-semibold text-primary hover:bg-primary-50 hover:border-primary/30 transition-colors whitespace-nowrap"
+                        >
+                          <PenLine size={13} /> Update
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* decision */}
           <div className="px-6 sm:px-9 pt-4 pb-8">
-            {!flagging ? (
+            {anyFlagged ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 sm:p-6">
+                <p className="text-[15px] font-semibold text-text">
+                  You’ve flagged {flaggedKeys.length} change{flaggedKeys.length > 1 ? 's' : ''}
+                </p>
+                <p className="mt-1 text-[13px] text-text-light leading-relaxed">
+                  Send these to us and we’ll sort them out with you before filing. Everything else will be confirmed
+                  as correct. You don’t need the exact new details here.
+                </p>
+                {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
+                <button
+                  onClick={post}
+                  disabled={submitting}
+                  className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-amber-500 text-white font-semibold shadow-sm hover:bg-amber-600 transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2"
+                >
+                  {submitting ? <Loader2 size={18} className="animate-spin" /> : <PenLine size={18} />}
+                  {submitting ? 'Sending…' : 'Send my changes'}
+                </button>
+              </div>
+            ) : (
               <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-5 sm:p-6">
                 <p className="text-[15px] font-semibold text-text">Is everything above correct?</p>
                 <p className="mt-1 text-[13px] text-text-light leading-relaxed">
@@ -141,81 +217,13 @@ export default function ChConfirmationClient({
                 </p>
                 {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
                 <button
-                  onClick={() => post('confirm')}
-                  disabled={submitting !== null}
+                  onClick={post}
+                  disabled={submitting}
                   className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                 >
-                  {submitting === 'confirm' ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-                  {submitting === 'confirm' ? 'Confirming…' : 'Confirm these details are correct'}
+                  {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+                  {submitting ? 'Confirming…' : 'Confirm these details are correct'}
                 </button>
-                <button
-                  onClick={() => setFlagging(true)}
-                  disabled={submitting !== null}
-                  className="w-full mt-2.5 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-text-light hover:text-text transition-colors disabled:opacity-60"
-                >
-                  <PenLine size={14} /> Something’s changed
-                </button>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-gray-200 border-l-[3px] border-l-amber-400 bg-white p-5 sm:p-6">
-                <p className="text-[15px] font-semibold text-text">What’s changed?</p>
-                <p className="mt-1 text-[13px] text-text-light leading-relaxed">
-                  Tick anything that’s no longer right. We’ll get it sorted with you before we file — you don’t need
-                  the exact new details here.
-                </p>
-                <div className="mt-4 grid sm:grid-cols-2 gap-2">
-                  {SECTIONS.map((s) => {
-                    const on = !!checked[s.key];
-                    return (
-                      <button
-                        key={s.key}
-                        type="button"
-                        onClick={() => setChecked((c) => ({ ...c, [s.key]: !c[s.key] }))}
-                        className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm text-left transition-colors ${
-                          on ? 'border-amber-300 bg-amber-50 text-amber-800' : 'border-gray-200 bg-white text-text hover:border-gray-300'
-                        }`}
-                      >
-                        <span
-                          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
-                            on ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-300'
-                          }`}
-                        >
-                          {on ? <CheckCircle2 size={12} /> : null}
-                        </span>
-                        <span className="min-w-0">{s.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <textarea
-                  className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  rows={3}
-                  placeholder="Anything else we should know? (optional)"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                />
-                {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
-                <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
-                  <button
-                    onClick={() => post('changes')}
-                    disabled={submitting !== null || checkedKeys.length === 0}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-500 text-white font-semibold shadow-sm hover:bg-amber-600 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2"
-                  >
-                    {submitting === 'changes' ? <Loader2 size={18} className="animate-spin" /> : <PenLine size={18} />}
-                    {submitting === 'changes' ? 'Sending…' : 'Send my changes'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setFlagging(false);
-                      setChecked({});
-                      setError('');
-                    }}
-                    disabled={submitting !== null}
-                    className="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
-                  >
-                    Cancel
-                  </button>
-                </div>
               </div>
             )}
           </div>
@@ -227,8 +235,23 @@ export default function ChConfirmationClient({
             <div className="bg-gradient-to-b from-primary-50 to-primary-50/40 px-5 sm:px-6 py-4 border-b border-primary/10">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/70">Your confirmation</p>
               <p className="mt-1.5 text-[15px] font-bold text-text leading-snug">{dto.companyName}</p>
-              {dto.dueDate ? <p className="text-[13px] text-text-light mt-0.5">Due {dto.dueDate}</p> : null}
             </div>
+
+            {dto.dueDate ? (
+              <div className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-start gap-3">
+                <span className="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                  <CalendarClock size={18} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-text-light">Confirmation due</p>
+                  <p className="text-lg font-bold text-text leading-tight">{dto.dueDate}</p>
+                  <p className="text-[12px] text-text-light mt-0.5 leading-relaxed">
+                    Please confirm by this date so your company stays compliant with Companies House.
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
             <div className="px-5 sm:px-6 py-5">
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-light mb-2">What happens next</p>
               <p className="text-[13px] text-text-light leading-relaxed">
@@ -280,11 +303,19 @@ function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
       );
     case 'sic':
       return dto.sicCodes && dto.sicCodes.length ? (
-        <div className="flex flex-wrap gap-1.5">
-          {dto.sicCodes.map((c, i) => (
-            <span key={i} className="inline-flex items-center rounded-full bg-primary-50 text-primary px-2.5 py-0.5 text-sm font-medium tabular-nums">{c}</span>
-          ))}
-        </div>
+        <ul className="space-y-1.5">
+          {dto.sicCodes.map((c, i) => {
+            const desc = sicDescription(c);
+            return (
+              <li key={i} className="flex items-baseline gap-2.5">
+                <span className="inline-flex items-center rounded-md bg-primary-50 text-primary px-2 py-0.5 text-[13px] font-semibold tabular-nums shrink-0">
+                  {c}
+                </span>
+                {desc ? <span className="text-[15px] text-text">{desc}</span> : null}
+              </li>
+            );
+          })}
+        </ul>
       ) : (
         <p className="text-[15px] text-text-light">No SIC codes on record</p>
       );
