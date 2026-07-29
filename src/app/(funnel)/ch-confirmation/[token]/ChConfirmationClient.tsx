@@ -1,22 +1,26 @@
 'use client';
 
 import { useState, type ComponentType, type ReactNode } from 'react';
-import { CheckCircle2, Building2, Users, ShieldCheck, Mail, Tag, FileText, Lock, Loader2 } from 'lucide-react';
+import { CheckCircle2, Building2, Users, ShieldCheck, Mail, Tag, FileText, Lock, Loader2, PenLine } from 'lucide-react';
 import type { ChConfirmationDto } from './page';
 
 /** Same premium elevation as the VAT approval + accounts signing pages, so the three read as one system. */
 const CARD =
   'bg-white rounded-2xl border border-gray-100 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_-14px_rgba(16,24,40,0.14)]';
 
-type Lane = 'red' | 'green';
-interface Answer {
-  ok: boolean;
-  note: string;
-  value?: string;
+interface SectionDef {
+  key: string;
+  label: string;
+  icon: ComponentType<{ size?: number; className?: string }>;
 }
-type AnswerMap = Record<string, Answer>;
-
-const SECTION_KEYS = ['companyName', 'registeredOffice', 'officers', 'pscs', 'sic', 'email'];
+const SECTIONS: SectionDef[] = [
+  { key: 'companyName', label: 'Company name', icon: Tag },
+  { key: 'registeredOffice', label: 'Registered office', icon: Building2 },
+  { key: 'officers', label: 'Directors', icon: Users },
+  { key: 'pscs', label: 'People with significant control', icon: ShieldCheck },
+  { key: 'sic', label: 'Nature of business', icon: Tag },
+  { key: 'email', label: 'Registered email', icon: Mail },
+];
 
 export default function ChConfirmationClient({
   token,
@@ -29,26 +33,24 @@ export default function ChConfirmationClient({
   brandEmail: string;
   brandPhone: string;
 }) {
-  const [ans, setAns] = useState<AnswerMap>(() =>
-    Object.fromEntries(SECTION_KEYS.map((k) => [k, { ok: true, note: '', value: '' } as Answer])),
-  );
-  const [submitting, setSubmitting] = useState(false);
+  const [flagging, setFlagging] = useState(false);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [note, setNote] = useState('');
+  const [submitting, setSubmitting] = useState<null | 'confirm' | 'changes'>(null);
   const [done, setDone] = useState<null | 'confirmed' | 'changes'>(null);
   const [error, setError] = useState('');
 
-  const setOk = (key: string, ok: boolean) => setAns((a) => ({ ...a, [key]: { ...a[key], ok } }));
-  const setNote = (key: string, note: string) => setAns((a) => ({ ...a, [key]: { ...a[key], note } }));
-  const setValue = (key: string, value: string) => setAns((a) => ({ ...a, [key]: { ...a[key], value } }));
+  const checkedKeys = SECTIONS.filter((s) => checked[s.key]).map((s) => s.key);
 
-  const changedCount = SECTION_KEYS.filter((k) => !ans[k].ok).length;
-  const anyChanges = changedCount > 0;
-
-  async function submit() {
-    setSubmitting(true);
+  async function post(kind: 'confirm' | 'changes') {
+    setSubmitting(kind);
     setError('');
     try {
-      const sections: Record<string, Answer> = {};
-      for (const k of SECTION_KEYS) sections[k] = ans[k];
+      const sections: Record<string, { ok: boolean; note: string }> = {};
+      for (const s of SECTIONS) {
+        const isChanged = kind === 'changes' && !!checked[s.key];
+        sections[s.key] = { ok: !isChanged, note: isChanged ? note : '' };
+      }
       const res = await fetch('/api/ch-confirmation/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,11 +58,11 @@ export default function ChConfirmationClient({
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Something went wrong.');
-      setDone(anyChanges ? 'changes' : 'confirmed');
+      setDone(kind === 'changes' ? 'changes' : 'confirmed');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     } finally {
-      setSubmitting(false);
+      setSubmitting(null);
     }
   }
 
@@ -90,7 +92,7 @@ export default function ChConfirmationClient({
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-6 lg:items-start">
-        {/* Left: the review */}
+        {/* Left: read-only summary + one decision */}
         <div className={CARD}>
           {/* tinted context band */}
           <div className="px-6 sm:px-9 pt-7 pb-6 border-b border-gray-100 bg-gradient-to-b from-primary-50/60 to-transparent">
@@ -105,76 +107,121 @@ export default function ChConfirmationClient({
               {dto.dueDate ? ` · due ${dto.dueDate}` : ''}
             </p>
             <p className="mt-4 text-sm text-text-light leading-relaxed max-w-prose">
-              Once a year we confirm to Companies House that your company details are up to date. Please
-              check each section below and let us know if anything’s changed — it only takes a minute.
+              Each year we confirm to Companies House that your company details are up to date. Here’s what’s on
+              file — please check it over and confirm it’s correct. It only takes a minute.
             </p>
           </div>
 
-          {/* sections */}
-          <div className="px-6 sm:px-9 pb-8 divide-y divide-gray-100">
-            <Section title="Company name" icon={Tag} lane="red" answer={ans.companyName} sectionKey="companyName" setOk={setOk} setNote={setNote}>
-              <p className="text-[15px] font-semibold text-text">{dto.companyName}</p>
-            </Section>
-
-            <Section title="Registered office address" icon={Building2} lane="red" answer={ans.registeredOffice} sectionKey="registeredOffice" setOk={setOk} setNote={setNote}>
-              <p className="text-[15px] text-text">{dto.registeredOffice || 'Not on record'}</p>
-            </Section>
-
-            <Section title="Directors" icon={Users} lane="red" answer={ans.officers} sectionKey="officers" setOk={setOk} setNote={setNote}>
-              {dto.officers && dto.officers.length ? (
-                <ul className="space-y-1.5">
-                  {dto.officers.map((o, i) => (
-                    <li key={i} className="text-[15px] text-text">
-                      <span className="font-semibold">{o.name}</span>
-                      {o.role ? <span className="text-text-light"> · {o.role}</span> : null}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[15px] text-text-light">No directors on record</p>
-              )}
-            </Section>
-
-            <Section title="People with significant control" icon={ShieldCheck} lane="red" answer={ans.pscs} sectionKey="pscs" setOk={setOk} setNote={setNote}>
-              {dto.pscs && dto.pscs.length ? (
-                <ul className="space-y-1.5">
-                  {dto.pscs.map((p, i) => (
-                    <li key={i} className="text-[15px] font-semibold text-text">{p.name}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[15px] text-text-light">None on record</p>
-              )}
-            </Section>
-
-            <Section title="Nature of business (SIC codes)" icon={Tag} lane="green" answer={ans.sic} sectionKey="sic" setOk={setOk} setNote={setNote}>
-              {dto.sicCodes && dto.sicCodes.length ? (
-                <div className="flex flex-wrap gap-2">
-                  {dto.sicCodes.map((c, i) => (
-                    <span key={i} className="inline-flex items-center rounded-full bg-primary-50 text-primary px-2.5 py-0.5 text-sm font-medium tabular-nums">{c}</span>
-                  ))}
+          {/* read-only summary */}
+          <div className="px-6 sm:px-9 pt-6 pb-2">
+            <div className="flex items-center gap-2.5 mb-1">
+              <span className="block h-[3px] w-6 rounded-full bg-primary" />
+              <h2 className="text-[12px] font-bold uppercase tracking-[0.16em] text-primary">Details on file</h2>
+            </div>
+            <dl className="divide-y divide-gray-100">
+              {SECTIONS.map((s) => (
+                <div key={s.key} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-5 py-4">
+                  <dt className="sm:w-48 shrink-0 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-text-light">
+                    <s.icon size={14} className="text-primary" />
+                    {s.label}
+                  </dt>
+                  <dd className="flex-1 min-w-0">{renderValue(s.key, dto)}</dd>
                 </div>
-              ) : (
-                <p className="text-[15px] text-text-light">No SIC codes on record</p>
-              )}
-            </Section>
+              ))}
+            </dl>
+          </div>
 
-            <Section title="Registered email address" icon={Mail} lane="green" answer={ans.email} sectionKey="email" setOk={setOk} setNote={setNote}>
-              <p className="text-[15px] text-text">{dto.registeredEmail || 'Not on record'}</p>
-              {!ans.email.ok ? (
-                <input
-                  type="email"
-                  className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  placeholder="Your correct registered email address"
-                  value={ans.email.value || ''}
-                  onChange={(e) => setValue('email', e.target.value)}
+          {/* decision */}
+          <div className="px-6 sm:px-9 pt-4 pb-8">
+            {!flagging ? (
+              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-5 sm:p-6">
+                <p className="text-[15px] font-semibold text-text">Is everything above correct?</p>
+                <p className="mt-1 text-[13px] text-text-light leading-relaxed">
+                  Confirm and we’ll file your confirmation statement with Companies House. Nothing is filed until you confirm.
+                </p>
+                {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
+                <button
+                  onClick={() => post('confirm')}
+                  disabled={submitting !== null}
+                  className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+                >
+                  {submitting === 'confirm' ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+                  {submitting === 'confirm' ? 'Confirming…' : 'Confirm these details are correct'}
+                </button>
+                <button
+                  onClick={() => setFlagging(true)}
+                  disabled={submitting !== null}
+                  className="w-full mt-2.5 inline-flex items-center justify-center gap-1.5 text-sm font-medium text-text-light hover:text-text transition-colors disabled:opacity-60"
+                >
+                  <PenLine size={14} /> Something’s changed
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-gray-200 border-l-[3px] border-l-amber-400 bg-white p-5 sm:p-6">
+                <p className="text-[15px] font-semibold text-text">What’s changed?</p>
+                <p className="mt-1 text-[13px] text-text-light leading-relaxed">
+                  Tick anything that’s no longer right. We’ll get it sorted with you before we file — you don’t need
+                  the exact new details here.
+                </p>
+                <div className="mt-4 grid sm:grid-cols-2 gap-2">
+                  {SECTIONS.map((s) => {
+                    const on = !!checked[s.key];
+                    return (
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() => setChecked((c) => ({ ...c, [s.key]: !c[s.key] }))}
+                        className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm text-left transition-colors ${
+                          on ? 'border-amber-300 bg-amber-50 text-amber-800' : 'border-gray-200 bg-white text-text hover:border-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+                            on ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-300'
+                          }`}
+                        >
+                          {on ? <CheckCircle2 size={12} /> : null}
+                        </span>
+                        <span className="min-w-0">{s.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <textarea
+                  className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  rows={3}
+                  placeholder="Anything else we should know? (optional)"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
                 />
-              ) : null}
-            </Section>
+                {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
+                <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    onClick={() => post('changes')}
+                    disabled={submitting !== null || checkedKeys.length === 0}
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-500 text-white font-semibold shadow-sm hover:bg-amber-600 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2"
+                  >
+                    {submitting === 'changes' ? <Loader2 size={18} className="animate-spin" /> : <PenLine size={18} />}
+                    {submitting === 'changes' ? 'Sending…' : 'Send my changes'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFlagging(false);
+                      setChecked({});
+                      setError('');
+                    }}
+                    disabled={submitting !== null}
+                    className="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right: pinned confirm rail */}
+        {/* Right: pinned info rail */}
         <aside className="mt-6 lg:mt-0 lg:sticky lg:top-8 space-y-4">
           <div className={`${CARD} overflow-hidden`}>
             <div className="bg-gradient-to-b from-primary-50 to-primary-50/40 px-5 sm:px-6 py-4 border-b border-primary/10">
@@ -183,33 +230,11 @@ export default function ChConfirmationClient({
               {dto.dueDate ? <p className="text-[13px] text-text-light mt-0.5">Due {dto.dueDate}</p> : null}
             </div>
             <div className="px-5 sm:px-6 py-5">
-              {anyChanges ? (
-                <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2.5 text-[13px] leading-relaxed text-amber-800">
-                  <span className="tabular-nums font-semibold">{changedCount}</span>
-                  <span>section{changedCount === 1 ? '' : 's'} flagged — we’ll be in touch to sort {changedCount === 1 ? 'it' : 'them'} out before filing.</span>
-                </div>
-              ) : (
-                <p className="text-[13px] text-text-light leading-relaxed">
-                  If everything above is correct, confirm below and we’ll file your confirmation statement with Companies House.
-                </p>
-              )}
-
-              <p className="mt-4 text-[12px] text-text-light leading-relaxed">
-                By confirming, you agree the details you’ve marked correct are accurate and the company is lawfully carrying on business.
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-light mb-2">What happens next</p>
+              <p className="text-[13px] text-text-light leading-relaxed">
+                Once you confirm, we file your confirmation statement with Companies House and email you when it’s
+                done. If you flag a change, we’ll sort it out with you first.
               </p>
-
-              {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
-
-              <button
-                onClick={submit}
-                disabled={submitting}
-                className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
-              >
-                {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-                {submitting ? 'Submitting…' : anyChanges ? 'Submit my changes' : 'Confirm my details are correct'}
-              </button>
-
-              <p className="mt-3 text-center text-[12px] text-text-light">Nothing is filed until you confirm.</p>
             </div>
           </div>
 
@@ -224,66 +249,50 @@ export default function ChConfirmationClient({
   );
 }
 
-function Section({
-  title,
-  icon: Icon,
-  lane,
-  answer,
-  sectionKey,
-  setOk,
-  setNote,
-  children,
-}: {
-  title: string;
-  icon: ComponentType<{ size?: number }>;
-  lane: Lane;
-  answer: Answer;
-  sectionKey: string;
-  setOk: (key: string, ok: boolean) => void;
-  setNote: (key: string, note: string) => void;
-  children: ReactNode;
-}) {
-  const changeLabel = lane === 'red' ? 'Something’s changed' : 'Needs updating';
-  return (
-    <div className="py-7 first:pt-6 last:pb-0">
-      <div className="flex items-center gap-2.5 mb-3">
-        <span className="block h-[3px] w-6 rounded-full bg-primary" />
-        <h2 className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.16em] text-primary">
-          <Icon size={13} /> {title}
-        </h2>
-      </div>
-      <div className="mb-4">{children}</div>
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setOk(sectionKey, true)}
-          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium border transition-colors ${
-            answer.ok ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-white border-gray-200 text-text-light hover:border-gray-300'
-          }`}
-        >
-          {answer.ok ? <CheckCircle2 size={15} /> : null} This is correct
-        </button>
-        <button
-          type="button"
-          onClick={() => setOk(sectionKey, false)}
-          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium border transition-colors ${
-            !answer.ok ? 'bg-amber-50 border-amber-300 text-amber-700' : 'bg-white border-gray-200 text-text-light hover:border-gray-300'
-          }`}
-        >
-          {changeLabel}
-        </button>
-      </div>
-      {!answer.ok ? (
-        <textarea
-          className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          rows={2}
-          placeholder="Tell us what’s changed (optional)"
-          value={answer.note}
-          onChange={(e) => setNote(sectionKey, e.target.value)}
-        />
-      ) : null}
-    </div>
-  );
+function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
+  switch (key) {
+    case 'companyName':
+      return <p className="text-[15px] font-semibold text-text">{dto.companyName}</p>;
+    case 'registeredOffice':
+      return <p className="text-[15px] text-text leading-relaxed">{dto.registeredOffice || 'Not on record'}</p>;
+    case 'officers':
+      return dto.officers && dto.officers.length ? (
+        <ul className="space-y-1">
+          {dto.officers.map((o, i) => (
+            <li key={i} className="text-[15px] text-text">
+              <span className="font-semibold">{o.name}</span>
+              {o.role ? <span className="text-text-light"> · {o.role}</span> : null}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[15px] text-text-light">No directors on record</p>
+      );
+    case 'pscs':
+      return dto.pscs && dto.pscs.length ? (
+        <ul className="space-y-1">
+          {dto.pscs.map((p, i) => (
+            <li key={i} className="text-[15px] font-semibold text-text">{p.name}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[15px] text-text-light">None on record</p>
+      );
+    case 'sic':
+      return dto.sicCodes && dto.sicCodes.length ? (
+        <div className="flex flex-wrap gap-1.5">
+          {dto.sicCodes.map((c, i) => (
+            <span key={i} className="inline-flex items-center rounded-full bg-primary-50 text-primary px-2.5 py-0.5 text-sm font-medium tabular-nums">{c}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[15px] text-text-light">No SIC codes on record</p>
+      );
+    case 'email':
+      return <p className="text-[15px] text-text break-words">{dto.registeredEmail || 'Not on record'}</p>;
+    default:
+      return null;
+  }
 }
 
 function HelpFooter({ email, phone }: { email: string; phone: string }) {
