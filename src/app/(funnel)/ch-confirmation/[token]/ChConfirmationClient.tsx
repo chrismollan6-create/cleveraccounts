@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ComponentType, type ReactNode } from 'react';
+import { useState, useEffect, type ComponentType, type ReactNode } from 'react';
 import {
   CheckCircle2,
   Building2,
@@ -13,6 +13,8 @@ import {
   PenLine,
   CalendarClock,
   Clock,
+  CreditCard,
+  ExternalLink,
 } from 'lucide-react';
 import type { ChConfirmationDto } from './page';
 import { sicDescription } from '@/lib/sic-codes';
@@ -51,6 +53,71 @@ export default function ChConfirmationClient({
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<null | 'confirmed' | 'changes'>(null);
   const [error, setError] = useState('');
+
+  // Filing-fee payment state
+  const feeRequired = dto.feeRequired !== false && dto.feeStatus !== 'Paid' && dto.feeStatus !== 'Waived';
+  const feeAmount = dto.feeAmount ?? 50;
+  const [paid, setPaid] = useState(!feeRequired);
+  const [payEmail, setPayEmail] = useState('');
+  const [paying, setPaying] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [payError, setPayError] = useState('');
+
+  // On return from Stripe Checkout, verify the session and mark the fee paid.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const outcome = params.get('payment');
+    const cleanUrl = () => window.history.replaceState({}, '', window.location.pathname);
+    if (outcome === 'success') {
+      const sid = params.get('session_id') || '';
+      setVerifying(true);
+      fetch(`/api/ch-confirmation/pay-status?t=${encodeURIComponent(token)}&session=${encodeURIComponent(sid)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d?.paid) setPaid(true);
+          else setPayError('We couldn’t confirm your payment yet. If you’ve paid, give it a moment and refresh.');
+        })
+        .catch(() => setPayError('We couldn’t confirm your payment. Please refresh, or get in touch.'))
+        .finally(() => {
+          setVerifying(false);
+          cleanUrl();
+        });
+    } else if (outcome === 'cancelled') {
+      setPayError('Payment cancelled — you can try again below.');
+      cleanUrl();
+    }
+  }, [token]);
+
+  async function startPayment() {
+    if (!/.+@.+\..+/.test(payEmail)) {
+      setPayError('Please enter a valid email address for your receipt.');
+      return;
+    }
+    setPaying(true);
+    setPayError('');
+    try {
+      const origin = window.location.origin;
+      const path = window.location.pathname;
+      const successUrl = `${origin}${path}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${origin}${path}?payment=cancelled`;
+      const res = await fetch('/api/ch-confirmation/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, email: payEmail, successUrl, cancelUrl }),
+      });
+      const data = await res.json();
+      if (data?.alreadySettled) {
+        setPaid(true);
+        setPaying(false);
+        return;
+      }
+      if (!res.ok || !data.url) throw new Error(data.error || 'Could not start the payment. Please try again.');
+      window.location.href = data.url; // → Stripe hosted checkout (no setPaying(false); we're leaving)
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Could not start the payment.');
+      setPaying(false);
+    }
+  }
 
   const flaggedKeys = SECTIONS.filter((s) => flagged[s.key]).map((s) => s.key);
   const anyFlagged = flaggedKeys.length > 0;
@@ -253,6 +320,58 @@ export default function ChConfirmationClient({
                   {dto.dueDate ? <> — please do this before <strong className="font-semibold text-text">{dto.dueDate}</strong></> : null}.
                 </p>
 
+                {feeRequired ? (
+                  paid ? (
+                    <div className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 text-[13px] font-medium text-emerald-800">
+                      <CheckCircle2 size={16} /> Filing fee paid — thank you.
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-xl border border-primary/20 bg-primary-50/40 p-4 sm:p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-[14px] font-semibold text-text flex items-center gap-1.5">
+                            <CreditCard size={15} className="text-primary" /> Companies House filing fee
+                          </p>
+                          <p className="mt-1 text-[13px] text-text-light leading-relaxed">
+                            This is the cost of the Companies House confirmation statement. We file it and pay this
+                            to Companies House on your behalf.
+                          </p>
+                          {dto.chFeesUrl ? (
+                            <a
+                              href={dto.chFeesUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-1.5 inline-flex items-center gap-1 text-[12px] font-medium text-primary hover:underline"
+                            >
+                              View Companies House fees <ExternalLink size={11} />
+                            </a>
+                          ) : null}
+                        </div>
+                        <div className="text-2xl font-bold text-text tabular-nums shrink-0">£{feeAmount}</div>
+                      </div>
+                      <input
+                        type="email"
+                        className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        placeholder="Email for your receipt"
+                        value={payEmail}
+                        onChange={(e) => setPayEmail(e.target.value)}
+                      />
+                      {payError ? <p className="mt-2 text-[13px] text-rose-600">{payError}</p> : null}
+                      <button
+                        onClick={startPayment}
+                        disabled={paying || verifying}
+                        className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+                      >
+                        {paying || verifying ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                        {verifying ? 'Checking payment…' : paying ? 'Redirecting to payment…' : `Pay £${feeAmount} & continue`}
+                      </button>
+                      <p className="mt-2 flex items-center justify-center gap-1.5 text-[12px] text-text-light">
+                        <Lock size={11} /> Secure payment by Stripe — you’ll come straight back here to approve.
+                      </p>
+                    </div>
+                  )
+                ) : null}
+
                 <label className="mt-4 flex items-start gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
@@ -281,12 +400,15 @@ export default function ChConfirmationClient({
 
                 <button
                   onClick={post}
-                  disabled={submitting || !lawful}
+                  disabled={submitting || !lawful || (feeRequired && !paid)}
                   className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
                   {submitting ? 'Confirming…' : 'Approve & confirm these details'}
                 </button>
+                {feeRequired && !paid ? (
+                  <p className="mt-2 text-center text-[12px] text-text-light">Please pay the filing fee above before approving.</p>
+                ) : null}
               </div>
             )}
           </div>

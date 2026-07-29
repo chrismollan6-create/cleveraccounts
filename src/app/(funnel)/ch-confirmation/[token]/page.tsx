@@ -28,6 +28,11 @@ export interface ChConfirmationDto {
   brandName?: string;
   brandEmail?: string;
   brandPhone?: string;
+  feeStatus?: 'Unpaid' | 'Paid' | 'Waived';
+  feeRequired?: boolean;
+  feeAmount?: number;
+  feeCurrency?: string;
+  chFeesUrl?: string;
 }
 
 export const dynamic = 'force-dynamic';
