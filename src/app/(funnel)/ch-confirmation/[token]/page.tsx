@@ -14,6 +14,30 @@ export interface Psc {
   nature?: string;
   kind?: string;
 }
+export interface ShareClass {
+  shareClass?: string;
+  numShares?: string;
+  aggregateNominal?: string;
+}
+export interface Capital {
+  totalShares?: string;
+  shareCurrency?: string;
+  totalNominal?: string;
+  classes?: ShareClass[];
+}
+export interface Shareholding {
+  shareClass?: string;
+  numberHeld?: string;
+  shareholders?: string[];
+}
+export interface IdvPerson {
+  key?: string;
+  name?: string;
+  role?: string;
+  type?: 'officer' | 'psc';
+  id?: string;
+  verified?: boolean;
+}
 export interface ChConfirmationDto {
   companyName?: string;
   companyNumber?: string;
@@ -23,6 +47,10 @@ export interface ChConfirmationDto {
   sicCodes?: string[];
   officers?: Officer[];
   pscs?: Psc[];
+  capital?: Capital;
+  shareholdings?: Shareholding[];
+  idvPeople?: IdvPerson[];
+  idvAllVerified?: boolean;
   status?: 'Not Sent' | 'Sent' | 'Confirmed' | 'Changes Requested';
   alreadyResponded?: boolean;
   brandName?: string;

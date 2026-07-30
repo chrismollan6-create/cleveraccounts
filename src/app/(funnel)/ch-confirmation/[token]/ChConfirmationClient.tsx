@@ -15,8 +15,10 @@ import {
   AlertTriangle,
   CreditCard,
   ExternalLink,
+  Landmark,
+  KeyRound,
 } from 'lucide-react';
-import type { ChConfirmationDto } from './page';
+import type { ChConfirmationDto, IdvPerson } from './page';
 import { sicDescription } from '@/lib/sic-codes';
 
 /** Same premium elevation as the VAT approval + accounts signing pages, so the three read as one system. */
@@ -37,6 +39,7 @@ const SECTIONS: SectionDef[] = [
   // Registered email deliberately omitted: we don't sync it, it's optional on the CS01, and it only
   // ever showed "Not on record" — noise. The company's CH-registered email is unaffected.
 ];
+const CAPITAL_SECTION: SectionDef = { key: 'capital', label: 'Statement of capital', icon: Landmark };
 
 type ChangeVal = Record<string, string | string[]>;
 
@@ -59,6 +62,8 @@ function changeComplete(key: string, c: ChangeVal): boolean {
       return !!(s(c.changeType) && s(c.name));
     case 'sic':
       return Array.isArray(c.codes) && c.codes.length > 0;
+    case 'capital':
+      return !!s(c.note);
     case 'email':
       return /.+@.+\..+/.test(s(c.email));
     default:
@@ -89,6 +94,8 @@ function changeSummary(key: string, c: ChangeVal): string {
       return `New email: ${g('email')}`;
     case 'sic':
       return `SIC: ${(Array.isArray(c.codes) ? c.codes : []).join(', ')}`;
+    case 'capital':
+      return `Capital: ${g('note')}`;
     default:
       return '';
   }
@@ -100,6 +107,7 @@ const COMPLETE_HINT: Record<string, string> = {
   officers: 'Pick a director to remove or rename, or add one — and fill in the details.',
   pscs: 'Choose what’s changed and enter the person’s name.',
   sic: 'Add at least one SIC code.',
+  capital: 'Tell us what’s changed about your shares or share capital.',
   email: 'Enter a valid email address.',
 };
 
@@ -120,6 +128,41 @@ export default function ChConfirmationClient({
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<null | 'confirmed' | 'changes'>(null);
   const [error, setError] = useState('');
+
+  // Identity verification (ECCTA): every director + individual PSC needs a Companies House personal
+  // code before we can file. The client enters any that are missing here.
+  const [idvPeople, setIdvPeople] = useState<IdvPerson[]>(dto.idvPeople || []);
+  const [idvCode, setIdvCode] = useState<Record<string, string>>({});
+  const [idvSaving, setIdvSaving] = useState<Record<string, boolean>>({});
+  const [idvErr, setIdvErr] = useState<Record<string, string>>({});
+  const idvAllVerified = idvPeople.every((p) => p.verified);
+  const idvOutstanding = idvPeople.filter((p) => !p.verified).length;
+
+  async function saveIdvCode(person: IdvPerson) {
+    const pid = person.id || '';
+    const code = (idvCode[pid] || '').trim();
+    if (!code) {
+      setIdvErr((e) => ({ ...e, [pid]: 'Enter the code.' }));
+      return;
+    }
+    setIdvSaving((s) => ({ ...s, [pid]: true }));
+    setIdvErr((e) => ({ ...e, [pid]: '' }));
+    try {
+      const res = await fetch('/api/ch-confirmation/idv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, type: person.type, id: pid, code }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || 'Could not save the code.');
+      if (Array.isArray(data.idvPeople)) setIdvPeople(data.idvPeople as IdvPerson[]);
+      else setIdvPeople((ps) => ps.map((p) => (p.id === pid ? { ...p, verified: true } : p)));
+    } catch (e) {
+      setIdvErr((er) => ({ ...er, [pid]: e instanceof Error ? e.message : 'Could not save the code.' }));
+    } finally {
+      setIdvSaving((s) => ({ ...s, [pid]: false }));
+    }
+  }
 
   // Filing-fee payment state
   const feeRequired = dto.feeRequired !== false && dto.feeStatus !== 'Paid' && dto.feeStatus !== 'Waived';
@@ -186,7 +229,9 @@ export default function ChConfirmationClient({
     }
   }
 
-  const flaggedKeys = SECTIONS.filter((s) => flagged[s.key]).map((s) => s.key);
+  // Show the statement of capital only when Companies House returned one.
+  const activeSections = dto.capital ? [...SECTIONS, CAPITAL_SECTION] : SECTIONS;
+  const flaggedKeys = activeSections.filter((s) => flagged[s.key]).map((s) => s.key);
   const anyFlagged = flaggedKeys.length > 0;
   const allFlaggedComplete = flaggedKeys.every((k) => changeComplete(k, changes[k] || {}));
 
@@ -216,7 +261,7 @@ export default function ChConfirmationClient({
     setError('');
     try {
       const sections: Record<string, { ok: boolean; note: string; change?: ChangeVal }> = {};
-      for (const s of SECTIONS) {
+      for (const s of activeSections) {
         const isChanged = !!flagged[s.key];
         const c = changes[s.key] || {};
         sections[s.key] = {
@@ -345,6 +390,16 @@ export default function ChConfirmationClient({
           </div>
         );
       }
+      case 'capital':
+        return (
+          <textarea
+            className={FIELD_CLS}
+            rows={2}
+            placeholder="Tell us what’s changed about your shares or share capital"
+            value={val('note')}
+            onChange={(e) => setChange(key, { note: e.target.value })}
+          />
+        );
       case 'email':
         return (
           <input
@@ -434,7 +489,7 @@ export default function ChConfirmationClient({
               <h2 className="text-[12px] font-bold uppercase tracking-[0.16em] text-primary">Details on file</h2>
             </div>
             <div>
-              {SECTIONS.map((s) => {
+              {activeSections.map((s) => {
                 const on = !!flagged[s.key];
                 const incomplete = on && !changeComplete(s.key, changes[s.key] || {});
                 return (
@@ -482,6 +537,89 @@ export default function ChConfirmationClient({
               })}
             </div>
           </div>
+
+          {/* identity verification (ECCTA) */}
+          {idvPeople.length > 0 ? (
+            <div className="px-6 sm:px-9 pt-4 pb-2">
+              <div className="rounded-xl border border-primary/20 bg-primary-50/30 p-5 sm:p-6">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <KeyRound size={16} className="text-primary shrink-0" />
+                  <h2 className="text-[15px] font-bold text-text">Identity verification</h2>
+                  {idvAllVerified ? (
+                    <span className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-700">
+                      <CheckCircle2 size={13} /> All verified
+                    </span>
+                  ) : (
+                    <span className="ml-auto inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">
+                      {idvOutstanding} to verify
+                    </span>
+                  )}
+                </div>
+                <p className="text-[13px] text-text-light leading-relaxed">
+                  Companies House now requires every director and person with significant control to verify their
+                  identity. Enter each person’s Companies House <strong>personal code</strong> below — we can’t file
+                  the confirmation statement until everyone’s is recorded. Don’t have a code yet?{' '}
+                  <a
+                    href="https://www.gov.uk/guidance/verifying-your-identity-for-companies-house"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    Verify at GOV.UK
+                  </a>
+                  .
+                </p>
+                <div className="mt-4 space-y-2">
+                  {idvPeople.map((p) => {
+                    const pid = p.id || '';
+                    return (
+                      <div key={pid} className="rounded-lg border border-gray-200 bg-white px-3.5 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-[14px] font-semibold text-text truncate">{p.name}</p>
+                            <p className="text-[12px] text-text-light">{p.role}</p>
+                          </div>
+                          {p.verified ? (
+                            <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-emerald-700 shrink-0">
+                              <CheckCircle2 size={15} /> Verified
+                            </span>
+                          ) : null}
+                        </div>
+                        {!p.verified ? (
+                          <div className="mt-2.5">
+                            <div className="flex gap-2">
+                              <input
+                                className="w-full rounded-lg border border-primary/25 bg-white px-3 py-2 text-sm text-text tracking-wide focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                placeholder="Companies House personal code"
+                                value={idvCode[pid] || ''}
+                                maxLength={13}
+                                onChange={(e) => setIdvCode((c) => ({ ...c, [pid]: e.target.value.toUpperCase() }))}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    saveIdvCode(p);
+                                  }
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => saveIdvCode(p)}
+                                disabled={!!idvSaving[pid]}
+                                className="shrink-0 rounded-lg bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+                              >
+                                {idvSaving[pid] ? <Loader2 size={16} className="animate-spin" /> : 'Save'}
+                              </button>
+                            </div>
+                            {idvErr[pid] ? <p className="mt-1 text-[12px] text-rose-600">{idvErr[pid]}</p> : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {/* decision */}
           <div className="px-6 sm:px-9 pt-4 pb-8">
@@ -592,11 +730,21 @@ export default function ChConfirmationClient({
                   </p>
                 ) : null}
 
+                {!idvAllVerified ? (
+                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-[13px] leading-relaxed text-amber-800">
+                    <KeyRound size={15} className="shrink-0 mt-0.5" />
+                    <span>
+                      Add every director and person with significant control’s Companies House personal code above
+                      before approving — we can’t file until each identity is verified.
+                    </span>
+                  </p>
+                ) : null}
+
                 {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
 
                 <button
                   onClick={post}
-                  disabled={submitting || !lawful || (feeRequired && !paid)}
+                  disabled={submitting || !lawful || (feeRequired && !paid) || !idvAllVerified}
                   className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
@@ -697,6 +845,38 @@ function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
       ) : (
         <p className="text-[15px] text-text-light">No SIC codes on record</p>
       );
+    case 'capital': {
+      const cap = dto.capital;
+      if (!cap) return <p className="text-[15px] text-text-light">Not on record</p>;
+      return (
+        <div className="space-y-1.5">
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-[15px] text-text">
+            {cap.totalShares ? (
+              <span>
+                <span className="font-semibold tabular-nums">{cap.totalShares}</span> shares
+              </span>
+            ) : null}
+            {cap.totalNominal ? (
+              <span className="text-text-light">
+                Nominal value {cap.shareCurrency ? `${cap.shareCurrency} ` : ''}
+                {cap.totalNominal}
+              </span>
+            ) : null}
+          </div>
+          {cap.classes && cap.classes.length ? (
+            <ul className="space-y-0.5">
+              {cap.classes.map((sc, i) => (
+                <li key={i} className="text-[14px] text-text-light">
+                  <span className="font-medium text-text">{sc.shareClass || 'Ordinary'}</span>
+                  {sc.numShares ? ` · ${sc.numShares} shares` : ''}
+                  {sc.aggregateNominal ? ` · nominal ${sc.aggregateNominal}` : ''}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      );
+    }
     case 'email':
       return <p className="text-[15px] text-text break-words">{dto.registeredEmail || 'Not on record'}</p>;
     default:
