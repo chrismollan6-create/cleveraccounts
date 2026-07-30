@@ -48,7 +48,13 @@ function changeComplete(key: string, c: ChangeVal): boolean {
       return !!s(c.newName);
     case 'registeredOffice':
       return !!(s(c.line1) && s(c.town) && s(c.postcode));
-    case 'officers':
+    case 'officers': {
+      const act = s(c.action);
+      if (act === 'remove') return !!s(c.director);
+      if (act === 'changeName') return !!(s(c.director) && s(c.forename) && s(c.surname));
+      if (act === 'add') return !!(s(c.forename) && s(c.surname) && /.+@.+\..+/.test(s(c.email)) && s(c.mobile));
+      return false;
+    }
     case 'pscs':
       return !!(s(c.changeType) && s(c.name));
     case 'sic':
@@ -70,7 +76,13 @@ function changeSummary(key: string, c: ChangeVal): string {
       return ['New office:', g('line1'), g('line2'), g('town'), g('county'), g('postcode')]
         .filter(Boolean)
         .join(' ');
-    case 'officers':
+    case 'officers': {
+      const act = g('action');
+      if (act === 'remove') return `Remove director: ${g('director')}`;
+      if (act === 'changeName') return `Rename director ${g('director')} → ${g('forename')} ${g('surname')}`;
+      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}`;
+      return 'Director change';
+    }
     case 'pscs':
       return `${g('changeType')} — ${g('name')}${g('details') ? ': ' + g('details') : ''}`;
     case 'email':
@@ -85,7 +97,7 @@ function changeSummary(key: string, c: ChangeVal): string {
 const COMPLETE_HINT: Record<string, string> = {
   companyName: 'Enter the new company name.',
   registeredOffice: 'Enter the new address — line 1, town and postcode.',
-  officers: 'Choose what’s changed and enter the director’s name.',
+  officers: 'Pick a director to remove or rename, or add one — and fill in the details.',
   pscs: 'Choose what’s changed and enter the person’s name.',
   sic: 'Add at least one SIC code.',
   email: 'Enter a valid email address.',
@@ -237,16 +249,23 @@ export default function ChConfirmationClient({
     switch (key) {
       case 'companyName':
         return (
-          <input
-            className={FIELD_CLS}
-            placeholder="New company name"
-            value={val('newName')}
-            onChange={(e) => setChange(key, { newName: e.target.value })}
-          />
+          <div>
+            <input
+              className={FIELD_CLS}
+              placeholder="The exact new company name you’d like"
+              value={val('newName')}
+              onChange={(e) => setChange(key, { newName: e.target.value })}
+            />
+            <p className="mt-1.5 text-[12px] text-text-light leading-relaxed">
+              A name change needs a members’ resolution and a name-availability check, so we’ll be in touch to
+              arrange it — please type the exact name you want.
+            </p>
+          </div>
         );
       case 'registeredOffice':
         return (
           <div className="grid gap-2">
+            <AddressLookup fieldCls={FIELD_CLS} onSelect={(a) => setChange(key, a)} />
             <input className={FIELD_CLS} placeholder="Address line 1" value={val('line1')} onChange={(e) => setChange(key, { line1: e.target.value })} />
             <input className={FIELD_CLS} placeholder="Address line 2 (optional)" value={val('line2')} onChange={(e) => setChange(key, { line2: e.target.value })} />
             <div className="grid grid-cols-2 gap-2">
@@ -261,26 +280,68 @@ export default function ChConfirmationClient({
             />
           </div>
         );
-      case 'officers':
+      case 'officers': {
+        const act = val('action');
+        return (
+          <div className="space-y-2">
+            {(dto.officers || []).map((o, i) => {
+              const isThis = (a: string) => act === a && val('director') === (o.name || '');
+              return (
+                <div key={i} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                  <span className="text-[13px] text-text truncate min-w-0">
+                    <span className="font-semibold">{o.name}</span>
+                    {o.role ? <span className="text-text-light"> · {o.role}</span> : null}
+                  </span>
+                  <div className="flex gap-3 shrink-0">
+                    <button type="button" onClick={() => setChange(key, { action: 'remove', director: o.name || '' })} className={`text-[12px] font-semibold ${isThis('remove') ? 'text-rose-700 underline' : 'text-text-light hover:text-rose-700'}`}>Remove</button>
+                    <button type="button" onClick={() => setChange(key, { action: 'changeName', director: o.name || '' })} className={`text-[12px] font-semibold ${isThis('changeName') ? 'text-primary underline' : 'text-text-light hover:text-primary'}`}>Change name</button>
+                  </div>
+                </div>
+              );
+            })}
+            <button type="button" onClick={() => setChange(key, { action: 'add', director: '' })} className={`text-[13px] font-semibold ${act === 'add' ? 'text-primary underline' : 'text-primary hover:underline'}`}>+ Add a director</button>
+
+            {act === 'remove' ? (
+              <p className="rounded-lg bg-rose-50 border border-rose-200 px-3 py-2.5 text-[13px] leading-relaxed text-rose-800">
+                Removing <strong>{val('director')}</strong> — we’ll be in touch to arrange this. A director can only be
+                removed with the proper authorisation, so we’ll confirm it with you before anything is filed.
+              </p>
+            ) : null}
+            {act === 'changeName' ? (
+              <div className="grid grid-cols-2 gap-2">
+                <input className={FIELD_CLS} placeholder="New forename(s)" value={val('forename')} onChange={(e) => setChange(key, { forename: e.target.value })} />
+                <input className={FIELD_CLS} placeholder="New surname" value={val('surname')} onChange={(e) => setChange(key, { surname: e.target.value })} />
+              </div>
+            ) : null}
+            {act === 'add' ? (
+              <div className="grid gap-2 rounded-lg bg-primary-50/40 border border-primary/15 p-3">
+                <p className="text-[12px] text-text-light leading-relaxed">
+                  We’ll verify and set up the new director (identity + checks) before appointing them, so we just need
+                  a few details to get started.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <input className={FIELD_CLS} placeholder="First name" value={val('forename')} onChange={(e) => setChange(key, { forename: e.target.value })} />
+                  <input className={FIELD_CLS} placeholder="Surname" value={val('surname')} onChange={(e) => setChange(key, { surname: e.target.value })} />
+                </div>
+                <input type="email" className={FIELD_CLS} placeholder="Email address" value={val('email')} onChange={(e) => setChange(key, { email: e.target.value })} />
+                <input type="tel" className={FIELD_CLS} placeholder="Mobile number" value={val('mobile')} onChange={(e) => setChange(key, { mobile: e.target.value })} />
+              </div>
+            ) : null}
+          </div>
+        );
+      }
       case 'pscs': {
-        const noun = key === 'officers' ? 'director' : 'person with significant control';
-        const Noun = noun.charAt(0).toUpperCase() + noun.slice(1);
         return (
           <div className="grid gap-2">
             <select className={FIELD_CLS} value={val('changeType')} onChange={(e) => setChange(key, { changeType: e.target.value })}>
               <option value="">What’s changed?…</option>
-              <option value="add">Add a {noun}</option>
-              <option value="remove">Remove a {noun}</option>
-              <option value="update">Update a {noun}’s details</option>
+              <option value="add">Add a person with significant control</option>
+              <option value="remove">Remove a person with significant control</option>
+              <option value="update">Update their details</option>
             </select>
-            <input className={FIELD_CLS} placeholder={`${Noun}’s full name`} value={val('name')} onChange={(e) => setChange(key, { name: e.target.value })} />
-            <textarea
-              className={FIELD_CLS}
-              rows={2}
-              placeholder="Any details we should know — dates, address, etc. (optional)"
-              value={val('details')}
-              onChange={(e) => setChange(key, { details: e.target.value })}
-            />
+            <input className={FIELD_CLS} placeholder="Person’s full name" value={val('name')} onChange={(e) => setChange(key, { name: e.target.value })} />
+            <textarea className={FIELD_CLS} rows={2} placeholder="Any details we should know (optional)" value={val('details')} onChange={(e) => setChange(key, { details: e.target.value })} />
+            <p className="text-[12px] text-text-light">We’ll be in touch to arrange this change.</p>
           </div>
         );
       }
@@ -641,6 +702,107 @@ function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
     default:
       return null;
   }
+}
+
+interface PostcoderAddress {
+  addressline1?: string;
+  addressline2?: string;
+  addressline3?: string;
+  posttown?: string;
+  county?: string;
+  postcode?: string;
+}
+
+/** Postcode → address search (PostCoder, via /api/address) that fills the office fields. */
+function AddressLookup({
+  onSelect,
+  fieldCls,
+}: {
+  onSelect: (a: { line1: string; line2: string; town: string; county: string; postcode: string }) => void;
+  fieldCls: string;
+}) {
+  const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<PostcoderAddress[]>([]);
+  const [error, setError] = useState('');
+
+  async function search() {
+    const pc = query.trim();
+    if (pc.length < 3) {
+      setError('Enter a valid postcode.');
+      return;
+    }
+    setSearching(true);
+    setError('');
+    setResults([]);
+    try {
+      const res = await fetch(`/api/address?postcode=${encodeURIComponent(pc)}`);
+      const data = await res.json();
+      if (!res.ok || data?.error || !Array.isArray(data) || data.length === 0) {
+        setError('No addresses found — you can enter it manually below.');
+        return;
+      }
+      setResults(data);
+    } catch {
+      setError('Lookup unavailable — please enter it manually below.');
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function pick(a: PostcoderAddress) {
+    onSelect({
+      line1: [a.addressline1, a.addressline2].filter(Boolean).join(', ') || a.addressline1 || '',
+      line2: a.addressline3 || '',
+      town: a.posttown || '',
+      county: a.county || '',
+      postcode: a.postcode || '',
+    });
+    setResults([]);
+    setQuery(a.postcode || '');
+  }
+
+  return (
+    <div>
+      <div className="flex gap-2">
+        <input
+          className={fieldCls}
+          placeholder="Enter postcode to find the address"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              search();
+            }
+          }}
+        />
+        <button
+          type="button"
+          onClick={search}
+          disabled={searching}
+          className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 text-sm font-semibold text-amber-700 hover:bg-amber-50 disabled:opacity-60"
+        >
+          {searching ? '…' : 'Find'}
+        </button>
+      </div>
+      {error ? <p className="mt-1 text-[12px] text-amber-700">{error}</p> : null}
+      {results.length > 0 ? (
+        <div className="mt-2 border border-gray-200 rounded-lg bg-white max-h-48 overflow-y-auto divide-y divide-gray-100">
+          {results.map((a, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => pick(a)}
+              className="w-full text-left px-3 py-2 text-[13px] text-text hover:bg-gray-50"
+            >
+              {[a.addressline1, a.addressline2, a.posttown, a.postcode].filter(Boolean).join(', ')}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function SicEditor({
