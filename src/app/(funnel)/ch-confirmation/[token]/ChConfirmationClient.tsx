@@ -331,8 +331,8 @@ export default function ChConfirmationClient({
 
   // ---------- Review ----------
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-7 lg:items-start">
+    <main className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-8 lg:items-start">
         {/* Left: read-only summary + one decision */}
         <div className={CARD}>
           {/* tinted context band */}
@@ -379,12 +379,11 @@ export default function ChConfirmationClient({
                 return (
                   <div
                     key={s.key}
-                    className={`py-4 border-b border-gray-100 last:border-b-0 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-5 transition-colors ${
-                      on ? 'bg-amber-50/50 rounded-lg px-3 -mx-3 border-b-transparent' : ''
+                    className={`py-5 border-b border-gray-100 last:border-b-0 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-8 transition-colors ${
+                      on ? 'bg-amber-50/40 rounded-lg px-3 -mx-3 border-b-transparent' : ''
                     }`}
                   >
-                    <div className="sm:w-52 shrink-0 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-text-light">
-                      <s.icon size={14} className="text-primary" />
+                    <div className="sm:w-56 shrink-0 text-[13px] font-medium text-text-light">
                       {s.label}
                     </div>
                     <div className="flex-1 min-w-0">
