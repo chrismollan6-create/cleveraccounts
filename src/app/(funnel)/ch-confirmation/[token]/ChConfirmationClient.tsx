@@ -6,7 +6,6 @@ import {
   Building2,
   Users,
   ShieldCheck,
-  Mail,
   Tag,
   FileText,
   Lock,
@@ -35,7 +34,8 @@ const SECTIONS: SectionDef[] = [
   { key: 'officers', label: 'Directors', icon: Users },
   { key: 'pscs', label: 'People with significant control', icon: ShieldCheck },
   { key: 'sic', label: 'Nature of business', icon: Tag },
-  { key: 'email', label: 'Registered email', icon: Mail },
+  // Registered email deliberately omitted: we don't sync it, it's optional on the CS01, and it only
+  // ever showed "Not on record" — noise. The company's CH-registered email is unaffected.
 ];
 
 type ChangeVal = Record<string, string | string[]>;
