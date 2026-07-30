@@ -13,7 +13,7 @@ import {
   Loader2,
   PenLine,
   CalendarClock,
-  Clock,
+  AlertTriangle,
   CreditCard,
   ExternalLink,
 } from 'lucide-react';
@@ -348,25 +348,21 @@ export default function ChConfirmationClient({
               {dto.dueDate ? ` · due ${dto.dueDate}` : ''}
             </p>
             <p className="mt-4 text-sm text-text-light leading-relaxed max-w-prose">
-              Each year we confirm to Companies House that your company details are up to date. Here’s what’s on
-              file — please check it over. If everything’s right, confirm below; if not, hit <strong className="font-semibold text-text">Update</strong> next to
-              anything that’s changed.
+              Here’s what Companies House holds for your company. Please check it over, then confirm below — or hit{' '}
+              <strong className="font-semibold text-text">Update</strong> next to anything that’s changed.
             </p>
-            <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-[13px] leading-relaxed text-amber-800">
-              <Clock size={16} className="shrink-0 mt-0.5" />
-              <span>
-                <strong className="font-semibold">Please approve this as soon as you can.</strong> We can’t file your
-                confirmation statement with Companies House until you’ve approved it
-                {dto.dueDate ? (
-                  <>
-                    {' '}
-                    — and it must be filed by <strong className="font-semibold">{dto.dueDate}</strong> to keep the
-                    company compliant.
-                  </>
-                ) : (
-                  <>.</>
-                )}
-              </span>
+            <div className="mt-4 flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3.5">
+              <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-600" />
+              <div>
+                <p className="text-[14px] font-bold text-amber-900">
+                  {dto.dueDate ? <>You need to approve this by {dto.dueDate}</> : <>Please approve this as soon as you can</>}
+                </p>
+                <p className="mt-1 text-[13px] text-amber-800 leading-relaxed">
+                  Keeping the confirmation statement filed on time is the company directors’ legal responsibility,
+                  and we can’t file it until you’ve approved it here. Filed late, the company can be struck off the
+                  register and its directors prosecuted and fined — so please don’t leave it.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -415,9 +411,9 @@ export default function ChConfirmationClient({
                         <button
                           type="button"
                           onClick={() => setFlag(s.key, true)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-[13px] font-semibold text-primary hover:bg-primary-50 hover:border-primary/30 transition-colors whitespace-nowrap"
+                          className="text-[13px] font-medium text-primary hover:underline whitespace-nowrap"
                         >
-                          <PenLine size={13} /> Update
+                          Update
                         </button>
                       )}
                     </div>
@@ -457,8 +453,7 @@ export default function ChConfirmationClient({
               <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-5 sm:p-6">
                 <p className="text-[15px] font-semibold text-text">Confirm &amp; file</p>
                 <p className="mt-1 text-[13px] text-text-light leading-relaxed">
-                  We won’t file anything with Companies House until you approve it below
-                  {dto.dueDate ? <> — please do this before <strong className="font-semibold text-text">{dto.dueDate}</strong></> : null}.
+                  We won’t file anything with Companies House until you approve it below.
                 </p>
 
                 {feeRequired ? (
@@ -571,9 +566,6 @@ export default function ChConfirmationClient({
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-700">Approve by</p>
                   <p className="text-lg font-bold text-text leading-tight">{dto.dueDate}</p>
-                  <p className="text-[12px] text-text-light mt-0.5 leading-relaxed">
-                    We can’t file until you approve — please do this as soon as you can, and before this date.
-                  </p>
                 </div>
               </div>
             ) : null}
