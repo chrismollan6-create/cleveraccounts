@@ -557,8 +557,8 @@ export default function ChConfirmationClient({
                 </div>
                 <p className="text-[13px] text-text-light leading-relaxed">
                   Companies House now requires every director and person with significant control to verify their
-                  identity. Enter each person’s Companies House <strong>personal code</strong> below — we can’t file
-                  the confirmation statement until everyone’s is recorded. Don’t have a code yet?{' '}
+                  identity. Enter each person’s Companies House <strong>personal code</strong> below. Don’t have a code
+                  yet?{' '}
                   <a
                     href="https://www.gov.uk/guidance/verifying-your-identity-for-companies-house"
                     target="_blank"
@@ -569,12 +569,18 @@ export default function ChConfirmationClient({
                   </a>
                   .
                 </p>
+                {!idvAllVerified ? (
+                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-300 px-3.5 py-2.5 text-[13.5px] font-bold text-amber-900 leading-snug">
+                    <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+                    We can’t file your confirmation statement until every person’s code is recorded.
+                  </p>
+                ) : null}
                 <div className="mt-4 space-y-2">
                   {idvPeople.map((p) => {
                     const pid = p.id || '';
                     return (
-                      <div key={pid} className="rounded-lg border border-gray-200 bg-white px-3.5 py-3">
-                        <div className="flex items-center justify-between gap-3">
+                      <div key={pid} className="rounded-lg border border-gray-200 bg-white px-3.5 py-2.5">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
                           <div className="min-w-0">
                             <p className="text-[14px] font-semibold text-text truncate">{p.name}</p>
                             <p className="text-[12px] text-text-light">{p.role}</p>
@@ -583,14 +589,11 @@ export default function ChConfirmationClient({
                             <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-emerald-700 shrink-0">
                               <CheckCircle2 size={15} /> Verified
                             </span>
-                          ) : null}
-                        </div>
-                        {!p.verified ? (
-                          <div className="mt-2.5">
-                            <div className="flex gap-2">
+                          ) : (
+                            <div className="flex items-center gap-2 shrink-0">
                               <input
-                                className="w-full rounded-lg border border-primary/25 bg-white px-3 py-2 text-sm text-text tracking-wide focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                                placeholder="Companies House personal code"
+                                className="w-40 sm:w-52 rounded-lg border border-primary/25 bg-white px-3 py-2 text-sm text-text tracking-wide focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                placeholder="Personal code"
                                 value={idvCode[pid] || ''}
                                 maxLength={13}
                                 onChange={(e) => setIdvCode((c) => ({ ...c, [pid]: e.target.value.toUpperCase() }))}
@@ -605,14 +608,14 @@ export default function ChConfirmationClient({
                                 type="button"
                                 onClick={() => saveIdvCode(p)}
                                 disabled={!!idvSaving[pid]}
-                                className="shrink-0 rounded-lg bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+                                className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
                               >
                                 {idvSaving[pid] ? <Loader2 size={16} className="animate-spin" /> : 'Save'}
                               </button>
                             </div>
-                            {idvErr[pid] ? <p className="mt-1 text-[12px] text-rose-600">{idvErr[pid]}</p> : null}
-                          </div>
-                        ) : null}
+                          )}
+                        </div>
+                        {idvErr[pid] ? <p className="mt-1.5 text-[12px] text-rose-600">{idvErr[pid]}</p> : null}
                       </div>
                     );
                   })}
