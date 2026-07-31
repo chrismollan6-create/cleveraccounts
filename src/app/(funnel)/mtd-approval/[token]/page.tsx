@@ -88,10 +88,17 @@ function StateCard({
 
 export default async function MtdApprovalPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }) {
   const { token } = await params;
+  // Staff preview (?preview=1): opened from the internal MTD manager so a reviewer
+  // can see exactly what the client sees. The approve/query actions are disabled
+  // client-side, and we skip the "already responded / expired" short-circuits below
+  // so staff can always view the summary regardless of the client's response state.
+  const preview = (await searchParams)?.preview === '1';
   const brand = await getBrand();
 
   if (!token || token.length < 10) notFound();
@@ -124,7 +131,7 @@ export default async function MtdApprovalPage({
 
   const dto = data as MtdApprovalDto;
 
-  if (dto.isExpired) {
+  if (dto.isExpired && !preview) {
     return (
       <StateCard
         variant="warning"
@@ -136,7 +143,7 @@ export default async function MtdApprovalPage({
     );
   }
 
-  if (dto.alreadyResponded) {
+  if (dto.alreadyResponded && !preview) {
     if (dto.approvalStatus === 'Approved') {
       return (
         <StateCard
@@ -163,5 +170,5 @@ export default async function MtdApprovalPage({
     );
   }
 
-  return <MtdApprovalClient token={token} dto={dto} brandEmail={brand.email} brandPhone={brand.phone} />;
+  return <MtdApprovalClient token={token} dto={dto} brandEmail={brand.email} brandPhone={brand.phone} preview={preview} />;
 }
