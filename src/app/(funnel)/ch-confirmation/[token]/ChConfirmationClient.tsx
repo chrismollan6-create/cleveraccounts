@@ -234,6 +234,11 @@ export default function ChConfirmationClient({
   const flaggedKeys = activeSections.filter((s) => flagged[s.key]).map((s) => s.key);
   const anyFlagged = flaggedKeys.length > 0;
   const allFlaggedComplete = flaggedKeys.every((k) => changeComplete(k, changes[k] || {}));
+  const labelFor = (k: string) => activeSections.find((s) => s.key === k)?.label || k;
+  // Registered office (AD01) and director changes are filed with Companies House as their own forms —
+  // they change the public register directly, so the client must confirm they're correct.
+  const IMMEDIATE_KEYS = ['registeredOffice', 'officers'];
+  const hasImmediateChange = flaggedKeys.some((k) => IMMEDIATE_KEYS.includes(k));
 
   const setChange = (key: string, patch: ChangeVal) =>
     setChanges((c) => ({ ...c, [key]: { ...(c[key] || {}), ...patch } }));
@@ -632,9 +637,42 @@ export default function ChConfirmationClient({
                   You’ve flagged {flaggedKeys.length} change{flaggedKeys.length > 1 ? 's' : ''}
                 </p>
                 <p className="mt-1 text-[13px] text-text-light leading-relaxed">
-                  Send these to us and we’ll sort them out with you before filing. Everything else will be confirmed
-                  as correct. We won’t file anything with Companies House until it’s resolved.
+                  Send these to us and we’ll action them. Everything else will be confirmed as correct, and we
+                  won’t file your confirmation statement with Companies House until each change is resolved.
                 </p>
+
+                {/* what's being sent */}
+                <ul className="mt-3 space-y-1.5">
+                  {flaggedKeys.map((k) => {
+                    const done = changeComplete(k, changes[k] || {});
+                    return (
+                      <li key={k} className="flex items-start gap-2 text-[13px] text-text">
+                        <PenLine size={13} className="mt-0.5 shrink-0 text-amber-600" />
+                        <span>
+                          <strong>{labelFor(k)}</strong>
+                          {done ? (
+                            <> — {changeSummary(k, changes[k] || {})}</>
+                          ) : (
+                            <span className="text-amber-700"> — details needed</span>
+                          )}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                {hasImmediateChange ? (
+                  <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-300 bg-amber-100/70 px-3.5 py-3 text-[13px] leading-relaxed text-amber-900">
+                    <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Please double-check these are correct and intended.</strong> A change to your
+                      registered office or directors is filed with Companies House and updates the public register —
+                      it can’t simply be undone, and we can’t accept responsibility for information that turns out to
+                      be inaccurate or incorrect.
+                    </span>
+                  </div>
+                ) : null}
+
                 {!allFlaggedComplete ? (
                   <p className="mt-3 text-[13px] font-medium text-amber-700">
                     Please fill in the details on each flagged item so we can action it.
@@ -744,6 +782,16 @@ export default function ChConfirmationClient({
                 ) : null}
 
                 {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
+
+                {/* what approving will do */}
+                <div className="mt-4 rounded-lg border border-gray-200 bg-white/70 px-3.5 py-3 text-[13px] leading-relaxed text-text-light">
+                  <p className="font-semibold text-text">When you approve, here’s what happens:</p>
+                  <ul className="mt-1.5 space-y-1 list-disc pl-4">
+                    <li>We file <strong>{dto.companyName}</strong>’s confirmation statement with Companies House, confirming the details shown above are correct.</li>
+                    {feeRequired ? <li>The £{feeAmount} Companies House fee is charged, which we pay to Companies House for you.</li> : null}
+                    <li>We email you to confirm once it’s filed.</li>
+                  </ul>
+                </div>
 
                 <button
                   onClick={post}
