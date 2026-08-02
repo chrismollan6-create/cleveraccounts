@@ -126,7 +126,7 @@ export default function ChConfirmationClient({
   const [changes, setChanges] = useState<Record<string, ChangeVal>>({});
   const [lawful, setLawful] = useState(true); // opt-out: the company confirms it will keep trading lawfully
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<null | 'confirmed' | 'changes'>(null);
+  const [done, setDone] = useState<null | 'confirmed' | 'changes' | 'approved-pending'>(null);
   const [error, setError] = useState('');
 
   // Identity verification (ECCTA): every director + individual PSC needs a Companies House personal
@@ -254,9 +254,11 @@ export default function ChConfirmationClient({
   };
 
   async function post() {
-    // Guards mirror the button disabled state, so nothing slips through.
+    // Approve-once: the client approves + pays even when flagging changes. Guards mirror the button.
+    if (!lawful) return;
+    if (feeRequired && !paid) return;
+    if (!idvAllVerified) return;
     if (anyFlagged && !allFlaggedComplete) return;
-    if (!anyFlagged && !lawful) return;
 
     setSubmitting(true);
     setError('');
@@ -274,11 +276,11 @@ export default function ChConfirmationClient({
       const res = await fetch('/api/ch-confirmation/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, payload: { sections, lawfulPurpose: lawful } }),
+        body: JSON.stringify({ token, payload: { sections, lawfulPurpose: lawful, approve: true } }),
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Something went wrong.');
-      setDone(anyFlagged ? 'changes' : 'confirmed');
+      setDone(anyFlagged ? 'approved-pending' : 'confirmed');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     } finally {
@@ -433,11 +435,13 @@ export default function ChConfirmationClient({
             <CheckCircle2 size={30} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">
-            {done === 'confirmed' ? 'Thanks — that’s confirmed' : 'Thanks — we’ve got your response'}
+            {done === 'changes' ? 'Thanks — we’ve got your response' : 'Thanks — that’s approved'}
           </h1>
           <p className="text-text-light leading-relaxed">
             {done === 'confirmed'
               ? 'We’ve got everything we need and will file your confirmation statement with Companies House. We’ll let you know once it’s done.'
+              : done === 'approved-pending'
+              ? 'Thank you — you’ve approved and paid. We’ll file the change(s) you asked for with Companies House first, and once they’re on the register we’ll file your confirmation statement automatically. We’ll email you when it’s done.'
               : 'You’ve told us something’s changed. One of the team will be in touch to get it sorted, then we’ll file your confirmation statement for you.'}
           </p>
           <HelpFooter email={brandEmail} phone={brandPhone} />
@@ -668,24 +672,19 @@ export default function ChConfirmationClient({
 
                 {!allFlaggedComplete ? (
                   <p className="mt-3 text-[13px] font-medium text-amber-700">
-                    Please fill in the details on each flagged item so we can action it.
+                    Please fill in the details on each flagged item before you approve below.
                   </p>
                 ) : null}
-                {error ? <p className="text-rose-600 text-sm mt-3">{error}</p> : null}
-                <button
-                  onClick={post}
-                  disabled={submitting || !allFlaggedComplete}
-                  className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-amber-500 text-white font-semibold shadow-sm hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2"
-                >
-                  {submitting ? <Loader2 size={18} className="animate-spin" /> : <PenLine size={18} />}
-                  {submitting ? 'Sending…' : 'Send my changes'}
-                </button>
               </div>
-            ) : (
-              <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-5 sm:p-6">
-                <p className="text-[15px] font-semibold text-text">Confirm &amp; file</p>
+            ) : null}
+
+            {/* Approve + pay — always shown; with a change flagged, the client approves the intended end-state. */}
+            <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-5 sm:p-6 mt-4">
+                <p className="text-[15px] font-semibold text-text">{anyFlagged ? 'Approve, pay &amp; submit' : 'Confirm &amp; file'}</p>
                 <p className="mt-1 text-[13px] text-text-light leading-relaxed">
-                  We won’t file anything with Companies House until you approve it below.
+                  {anyFlagged
+                    ? 'Approve and pay now — we’ll file the change(s) you flagged with Companies House, then file your confirmation statement automatically once they’re on the register. No need to come back.'
+                    : 'We won’t file anything with Companies House until you approve it below.'}
                 </p>
 
                 {feeRequired ? (
@@ -780,7 +779,11 @@ export default function ChConfirmationClient({
                 <div className="mt-4 rounded-lg border border-gray-200 bg-white/70 px-3.5 py-3 text-[13px] leading-relaxed text-text-light">
                   <p className="font-semibold text-text">When you approve, here’s what happens:</p>
                   <ul className="mt-1.5 space-y-1 list-disc pl-4">
-                    <li>We file <strong>{dto.companyName}</strong>’s confirmation statement with Companies House, confirming the details shown above are correct.</li>
+                    {anyFlagged ? <li>We file the change(s) you flagged with Companies House first.</li> : null}
+                    <li>
+                      We file <strong>{dto.companyName}</strong>’s confirmation statement with Companies House
+                      {anyFlagged ? ' once those changes are on the register' : ''}, confirming the details are correct.
+                    </li>
                     {feeRequired ? <li>The £{feeAmount} Companies House fee is charged, which we pay to Companies House for you.</li> : null}
                     <li>We email you to confirm once it’s filed.</li>
                   </ul>
@@ -788,17 +791,16 @@ export default function ChConfirmationClient({
 
                 <button
                   onClick={post}
-                  disabled={submitting || !lawful || (feeRequired && !paid) || !idvAllVerified}
+                  disabled={submitting || !lawful || (feeRequired && !paid) || !idvAllVerified || (anyFlagged && !allFlaggedComplete)}
                   className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-                  {submitting ? 'Confirming…' : 'Approve & confirm these details'}
+                  {submitting ? 'Submitting…' : anyFlagged ? 'Approve, pay & submit' : 'Approve & confirm these details'}
                 </button>
                 {feeRequired && !paid ? (
                   <p className="mt-2 text-center text-[12px] text-text-light">Please pay the filing fee above before approving.</p>
                 ) : null}
-              </div>
-            )}
+            </div>
           </div>
         </div>
 
