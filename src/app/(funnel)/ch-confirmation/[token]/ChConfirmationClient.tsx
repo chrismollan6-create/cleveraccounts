@@ -55,7 +55,8 @@ function changeComplete(key: string, c: ChangeVal): boolean {
       const act = s(c.action);
       if (act === 'remove') return !!s(c.director);
       if (act === 'changeName') return !!(s(c.director) && s(c.forename) && s(c.surname));
-      if (act === 'add') return !!(s(c.forename) && s(c.surname) && /.+@.+\..+/.test(s(c.email)) && s(c.mobile) && s(c.appointmentDate));
+      if (act === 'add') return !!(s(c.forename) && s(c.surname) && /.+@.+\..+/.test(s(c.email)) && s(c.mobile)
+        && s(c.appointmentDate) && s(c.appointmentDate) <= new Date().toISOString().slice(0, 10)); // not future — CH rejects it
       return false;
     }
     case 'pscs':
@@ -382,9 +383,9 @@ export default function ChConfirmationClient({
                 <input type="tel" className={FIELD_CLS} placeholder="Mobile number" value={val('mobile')} onChange={(e) => setChange(key, { mobile: e.target.value })} />
                 <div>
                   <label className="text-[12px] font-semibold text-text">Appointment date</label>
-                  <input type="date" className={FIELD_CLS} value={val('appointmentDate')} onChange={(e) => setChange(key, { appointmentDate: e.target.value })} />
+                  <input type="date" className={FIELD_CLS} max={new Date().toISOString().slice(0, 10)} value={val('appointmentDate')} onChange={(e) => setChange(key, { appointmentDate: e.target.value })} />
                   <p className="mt-1 text-[11px] text-text-light leading-relaxed">
-                    The date they became — or will become — a director.
+                    The date they became a director — today or earlier. Companies House won’t accept a future date.
                   </p>
                 </div>
                 <div>
