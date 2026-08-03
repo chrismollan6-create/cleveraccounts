@@ -14,33 +14,35 @@ import {
   HardHat,
   Sparkles,
   Info,
+  Mail,
+  PlayCircle,
 } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 import { brandPossessive } from "@/lib/constants";
 
 // ── MTD rollout — mirrors the public /making-tax-digital framing ──────────────
 const timeline = [
-  { dot: "bg-green-500", label: "MTD for VAT", status: "Live — mandatory now", statusCol: "text-green-400" },
-  { dot: "bg-orange-500", label: "MTD for Income Tax — £50k+", status: "April 2026", statusCol: "text-orange-400" },
-  { dot: "bg-blue-500", label: "MTD for Income Tax — £30k+", status: "April 2027", statusCol: "text-blue-400" },
-  { dot: "bg-purple-500", label: "MTD for Income Tax — £20k+", status: "April 2028", statusCol: "text-purple-400" },
+  { label: "MTD for VAT", status: "Live now" },
+  { label: "MTD for Income Tax — £50k+", status: "April 2026" },
+  { label: "MTD for Income Tax — £30k+", status: "April 2027", highlight: true },
+  { label: "MTD for Income Tax — £20k+", status: "April 2028" },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-white/10 rounded-xl overflow-hidden">
+    <div className="border border-border rounded-xl overflow-hidden bg-white shadow-sm">
       <button
-        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors"
+        className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-surface transition-colors"
         onClick={() => setOpen(!open)}
       >
-        <span className="font-semibold text-white">{q}</span>
+        <span className="font-semibold text-dark">{q}</span>
         {open
-          ? <ChevronUp size={20} className="text-primary-light shrink-0" />
-          : <ChevronDown size={20} className="text-white/50 shrink-0" />}
+          ? <ChevronUp size={20} className="text-primary shrink-0" />
+          : <ChevronDown size={20} className="text-text-light shrink-0" />}
       </button>
       {open && (
-        <div className="px-6 pb-5 text-white/70 leading-relaxed border-t border-white/10 pt-4">{a}</div>
+        <div className="px-6 pb-5 text-text-light leading-relaxed border-t border-border pt-4">{a}</div>
       )}
     </div>
   );
@@ -50,6 +52,10 @@ export default function ClientMtdView() {
   const brand = useBrand();
   const isWorkwell = brand.id === "workwell";
   const tel = `tel:${brand.freephone.replace(/\s/g, "")}`;
+
+  // Brand-specific explainer video (landscape master lives in /public/videos).
+  const videoSrc = isWorkwell ? "/videos/mtd-cis.mp4" : null;
+  const videoPoster = isWorkwell ? "/videos/mtd-cis-poster.jpg" : undefined;
 
   // What we handle for every client — reassurance, not sales.
   const weHandle = [
@@ -75,6 +81,26 @@ export default function ClientMtdView() {
     },
   ];
 
+  // What happens next — the plain-English client steps.
+  const steps = [
+    {
+      title: "Right now — nothing to do",
+      desc: "Keep recording your income and expenses exactly as you do today. That's genuinely all we need from you for now.",
+    },
+    {
+      title: "We check where you stand",
+      desc: "We'll look at your figures and tell you if and when Making Tax Digital applies to you. You don't need to work the thresholds out yourself.",
+    },
+    {
+      title: "We get you set up",
+      desc: `Ahead of your start date, we'll register you for MTD and make sure your FreeAgent is ready. ${brandPossessive(brand)} team will confirm once it's all in place.`,
+    },
+    {
+      title: "We file for you, every quarter",
+      desc: "From your start date, we prepare and submit each quarterly update and your final declaration. You carry on as normal — we handle HMRC.",
+    },
+  ];
+
   // Client-facing FAQs — MSC-safe, no pricing promises.
   const faqs = [
     {
@@ -90,6 +116,10 @@ export default function ClientMtdView() {
       a: `Not for you. A quarterly update is a short summary of your income and expenses for that three-month period — and ${brandPossessive(brand)} team prepares and submits it. You carry on recording as you do now.`,
     },
     {
+      q: "Will it cost me more?",
+      a: `Managing your Making Tax Digital submissions is part of the accountancy service we already provide. If anything about what your package covers ever changes, we'll always tell you well in advance — no surprises.`,
+    },
+    {
       q: "What if my income changes and I drop below the threshold?",
       a: `The rules around leaving MTD once you're in can be fiddly and depend on your figures over time. It's exactly the kind of thing we monitor for you — so if anything changes about your income, just let us know and we'll handle the rest.`,
     },
@@ -103,84 +133,75 @@ export default function ClientMtdView() {
 
   return (
     <>
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-dark py-20 md:py-28">
+      {/* ── HERO (video-led) ─────────────────────────────────── */}
+      <section id="video" className="relative overflow-hidden bg-dark pt-14 pb-16 md:pt-16 md:pb-20">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/20 blur-3xl animate-blob" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
+          <div className="absolute -top-24 -right-16 w-[440px] h-[440px] rounded-full bg-primary/20 blur-3xl animate-blob" />
+          <div className="absolute -bottom-24 -left-16 w-[380px] h-[380px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-6">
-                <Sparkles size={15} />
-                For {brand.name} clients
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-                {isWorkwell ? (
-                  <>Making Tax Digital is coming —<br /><span className="text-gradient">and we've already got it covered.</span></>
-                ) : (
-                  <>You're with us — so Making Tax Digital<br /><span className="text-gradient">is already handled.</span></>
-                )}
-              </h1>
-              <p className="text-lg text-white/80 leading-relaxed mb-6">
-                {isWorkwell
-                  ? "From April 2027, most CIS subcontractors and self-employed people move to quarterly digital reporting. If you're worried about what that means for you — don't be. It's what we do."
-                  : "HMRC is moving self-employed people and landlords to quarterly digital reporting. Because you're already set up with us on FreeAgent, the hard part is done."}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href={tel} className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
-                  <Phone size={20} /> Talk to your accountant
-                </a>
-                <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
-                  Ask us a question <ArrowRight size={18} />
-                </Link>
-              </div>
-            </div>
-
-            {/* Reassurance panel */}
-            <div className="bg-white/[0.07] backdrop-blur-xl border border-white/15 rounded-3xl p-7 shadow-2xl">
-              <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-5">Where you stand</p>
-              <div className="space-y-4">
-                {[
-                  "Digital records — kept in FreeAgent already",
-                  "MTD-compatible software — included, set up",
-                  "Quarterly submissions — handled by your accountant",
-                  "Deadlines — tracked and managed for you",
-                ].map((t) => (
-                  <div key={t} className="flex items-start gap-3">
-                    <CheckCircle2 size={20} className="text-green-400 shrink-0 mt-0.5" />
-                    <span className="text-white/85 text-sm leading-relaxed">{t}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 pt-5 border-t border-white/10">
-                <div className="flex items-start gap-3">
-                  <ShieldCheck size={18} className="text-secondary shrink-0 mt-0.5" />
-                  <p className="text-white/60 text-xs leading-relaxed">
-                    The only new step is the quarterly submission itself — and {brandPossessive(brand)} team does that for you.
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className="relative max-w-3xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/15 border border-primary/30 text-primary-light rounded-full px-4 py-2 text-sm font-semibold mb-5">
+            <Mail size={15} />
+            An update for our clients
           </div>
-        </div>
+          <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-4 text-balance">
+            Making Tax Digital is coming — <span className="text-gradient">and you're already covered.</span>
+          </h1>
+          <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto mb-8">
+            {isWorkwell
+              ? "From April 2027, the self-employed move to quarterly digital tax reporting. Here's the 60-second version — and what it means for you."
+              : "HMRC is moving the self-employed and landlords to quarterly digital tax reporting. Here's the 60-second version — and what it means for you."}
+          </p>
 
-        <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none">
-          <svg viewBox="0 0 1440 40" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-10">
-            <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="white" />
-          </svg>
+          {videoSrc ? (
+            <video
+              className="w-full rounded-2xl shadow-2xl border border-white/10 bg-black"
+              controls
+              preload="metadata"
+              poster={videoPoster}
+              playsInline
+            >
+              <source src={videoSrc} type="video/mp4" />
+              Your browser doesn't support embedded video.
+            </video>
+          ) : (
+            <div className="w-full aspect-video rounded-2xl border border-white/10 bg-white/[0.04] flex flex-col items-center justify-center gap-3 text-white/50">
+              <PlayCircle size={44} className="text-primary-light/60" />
+              <span className="font-semibold">Your explainer video is on its way</span>
+            </div>
+          )}
+
+          <p className="text-white/45 text-sm mt-5">Prefer to read? Everything's explained below.</p>
         </div>
       </section>
 
-      {/* ── WHAT'S CHANGING ──────────────────────────────────── */}
+      {/* ── WHERE YOU STAND (reassurance strip) ──────────────── */}
+      <section className="bg-surface py-9 md:py-11 border-b border-border">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+            {[
+              "Digital records — in FreeAgent already",
+              "MTD software — included and set up",
+              "Quarterly filing — handled by us",
+              "Deadlines — tracked for you",
+            ].map((t) => (
+              <div key={t} className="flex items-start gap-2.5">
+                <CheckCircle2 size={20} className="text-green-500 shrink-0 mt-0.5" />
+                <span className="text-dark text-sm font-medium leading-snug">{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHAT IT IS ───────────────────────────────────────── */}
       <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-14 items-start">
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">The basics</p>
               <h2 className="text-3xl md:text-4xl font-black text-dark mb-5 leading-tight">
-                What's actually changing?
+                So, what is Making Tax Digital?
               </h2>
               <p className="text-text-light leading-relaxed mb-5">
                 Making Tax Digital (MTD) means keeping your records digitally and sending HMRC a short online summary of your income and expenses <strong className="text-dark">every quarter</strong>, using compatible software — instead of one big tax return once a year.
@@ -198,13 +219,16 @@ export default function ClientMtdView() {
 
             {/* Rollout status */}
             <div className="bg-dark rounded-3xl p-7 shadow-xl">
-              <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-5">The rollout</p>
-              <div className="space-y-4">
-                {timeline.map(({ dot, label, status, statusCol }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full ${dot} shrink-0`} />
-                    <span className="text-white/80 text-sm flex-1">{label}</span>
-                    <span className={`text-xs font-semibold ${statusCol}`}>{status}</span>
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-5">When it happens</p>
+              <div className="space-y-1.5">
+                {timeline.map(({ label, status, highlight }) => (
+                  <div
+                    key={label}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 ${highlight ? "bg-secondary/15 border border-secondary/30" : ""}`}
+                  >
+                    <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${highlight ? "bg-secondary" : "bg-primary-light"}`} />
+                    <span className={`text-sm flex-1 ${highlight ? "text-white font-semibold" : "text-white/70"}`}>{label}</span>
+                    <span className={`text-xs font-bold ${highlight ? "text-secondary" : "text-white/50"}`}>{status}</span>
                   </div>
                 ))}
               </div>
@@ -286,44 +310,68 @@ export default function ClientMtdView() {
         </div>
       </section>
 
-      {/* ── NOTHING TO DO / ONE ASK ──────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary-dark py-16 md:py-20">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-2xl" />
+      {/* ── WHAT HAPPENS NEXT (steps) ────────────────────────── */}
+      <section className="bg-surface py-16 md:py-24">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Your next steps</p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">What happens now</h2>
+            <p className="text-text-light max-w-xl mx-auto">
+              You don't have to lead this — we do. Here's how it plays out from here.
+            </p>
+          </div>
+          <ol className="space-y-5">
+            {steps.map((s, i) => (
+              <li key={s.title} className="flex gap-5 bg-white border border-border rounded-2xl p-6 shadow-sm">
+                <div className="w-11 h-11 rounded-full bg-primary text-white font-black text-lg flex items-center justify-center shrink-0">
+                  {i + 1}
+                </div>
+                <div>
+                  <h3 className="font-bold text-dark mb-1">{s.title}</h3>
+                  <p className="text-sm text-text-light leading-relaxed">{s.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
+      </section>
+
+      {/* ── CONTACT BAND ─────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-dark py-16 md:py-24">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 left-1/4 w-80 h-80 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute -bottom-24 right-1/4 w-80 h-80 rounded-full bg-secondary/10 blur-3xl" />
+        </div>
+        <div className="relative max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-            Nothing to do today
+            Got a question? We're right here.
           </h2>
-          <p className="text-white/85 text-lg mb-8 max-w-2xl mx-auto">
-            Keep recording as normal, and we'll be in touch before Making Tax Digital affects you. If your income changes in the meantime, just let us know — that's the one thing that helps us keep you ahead of it.
+          <p className="text-white/75 text-lg mb-8 max-w-2xl mx-auto">
+            If anything about Making Tax Digital is on your mind — or your income has changed — just get in touch. That's the one thing that helps us keep you ahead of it.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href={tel} className="inline-flex items-center justify-center gap-2 bg-white text-primary font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-xl">
+            <a href={tel} className="inline-flex items-center justify-center gap-2 bg-secondary text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-secondary/90 transition-all shadow-lg">
               <Phone size={20} /> {brand.freephone}
             </a>
-            <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/20 transition-all border border-white/30">
+            <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-white/15 transition-all border border-white/20">
               Ask us a question <ArrowRight size={18} />
             </Link>
           </div>
+          <p className="text-white/50 text-sm mt-8">— The {brand.name} team</p>
         </div>
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-dark py-20 md:py-28">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-primary/10 blur-3xl" />
-        </div>
-        <div className="relative max-w-3xl mx-auto px-4">
+      <section className="bg-surface py-20 md:py-24">
+        <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary-light mb-3">Your questions</p>
-            <h2 className="text-3xl font-black text-white mb-4">Things clients ask us</h2>
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Your questions</p>
+            <h2 className="text-3xl md:text-4xl font-black text-dark mb-4">Things clients ask us</h2>
           </div>
           <div className="space-y-3">
             {faqs.map((item) => <FAQItem key={item.q} q={item.q} a={item.a} />)}
           </div>
-          <p className="text-center text-white/50 text-sm mt-10 max-w-xl mx-auto">
+          <p className="text-center text-text-light text-sm mt-10 max-w-xl mx-auto">
             This page is a general guide for {brand.name} clients, not personal tax advice. For your own situation, speak to your accountant.
           </p>
         </div>
