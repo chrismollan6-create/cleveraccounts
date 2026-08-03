@@ -363,9 +363,16 @@ export default function ChConfirmationClient({
             ) : null}
             {act === 'add' ? (
               <div className="grid gap-2 rounded-lg bg-primary-50/40 border border-primary/15 p-3">
+                <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-2.5 py-2 text-[12px] leading-relaxed text-amber-900">
+                  <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+                  <span>
+                    Adding a director is a <strong>chargeable service — £50 + VAT</strong>. Companies House now requires
+                    us to verify a new director’s identity and obtain their personal code before we can register them,
+                    which we handle for you. We’ll send a secure payment request; nothing is filed until it’s settled.
+                  </span>
+                </div>
                 <p className="text-[12px] text-text-light leading-relaxed">
-                  We’ll verify and set up the new director (identity + checks) before appointing them, so we just need
-                  a few details to get started.
+                  Enter their details below to get started — we’ll take it from there.
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   <input className={FIELD_CLS} placeholder="First name" value={val('forename')} onChange={(e) => setChange(key, { forename: e.target.value })} />
