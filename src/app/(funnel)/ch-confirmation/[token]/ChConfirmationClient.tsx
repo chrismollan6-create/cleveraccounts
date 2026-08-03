@@ -55,7 +55,7 @@ function changeComplete(key: string, c: ChangeVal): boolean {
       const act = s(c.action);
       if (act === 'remove') return !!s(c.director);
       if (act === 'changeName') return !!(s(c.director) && s(c.forename) && s(c.surname));
-      if (act === 'add') return !!(s(c.forename) && s(c.surname) && /.+@.+\..+/.test(s(c.email)) && s(c.mobile));
+      if (act === 'add') return !!(s(c.forename) && s(c.surname) && /.+@.+\..+/.test(s(c.email)) && s(c.mobile) && s(c.appointmentDate));
       return false;
     }
     case 'pscs':
@@ -85,7 +85,7 @@ function changeSummary(key: string, c: ChangeVal): string {
       const act = g('action');
       if (act === 'remove') return `Remove director: ${g('director')}`;
       if (act === 'changeName') return `Rename director ${g('director')} → ${g('forename')} ${g('surname')}`;
-      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}${g('personalCode') ? ' · code provided' : ''} · £49+VAT ID check`;
+      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}${g('appointmentDate') ? ` · from ${g('appointmentDate')}` : ''}${g('personalCode') ? ' · code provided' : ''} · £49+VAT ID check`;
       return 'Director change';
     }
     case 'pscs':
@@ -380,6 +380,13 @@ export default function ChConfirmationClient({
                 </div>
                 <input type="email" className={FIELD_CLS} placeholder="Email address" value={val('email')} onChange={(e) => setChange(key, { email: e.target.value })} />
                 <input type="tel" className={FIELD_CLS} placeholder="Mobile number" value={val('mobile')} onChange={(e) => setChange(key, { mobile: e.target.value })} />
+                <div>
+                  <label className="text-[12px] font-semibold text-text">Appointment date</label>
+                  <input type="date" className={FIELD_CLS} value={val('appointmentDate')} onChange={(e) => setChange(key, { appointmentDate: e.target.value })} />
+                  <p className="mt-1 text-[11px] text-text-light leading-relaxed">
+                    The date they became — or will become — a director.
+                  </p>
+                </div>
                 <div>
                   <input className={FIELD_CLS} placeholder="Companies House personal code (if they already have one)" value={val('personalCode')} onChange={(e) => setChange(key, { personalCode: e.target.value })} />
                   <p className="mt-1 text-[11px] text-text-light leading-relaxed">
