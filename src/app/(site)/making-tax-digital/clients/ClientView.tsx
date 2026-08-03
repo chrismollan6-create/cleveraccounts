@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 import { brandPossessive } from "@/lib/constants";
+import ReferralCta from "@/components/ReferralCta";
 
 // ── MTD rollout — mirrors the public /making-tax-digital framing ──────────────
 const timeline = [
@@ -335,6 +336,8 @@ export default function ClientMtdView() {
           </ol>
         </div>
       </section>
+
+      <ReferralCta tone={isWorkwell ? "cis" : "calm"} />
 
       {/* ── CONTACT BAND ─────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-dark py-16 md:py-24">

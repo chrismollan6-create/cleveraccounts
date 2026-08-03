@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { AlertTriangle, Phone, ArrowRight, CheckCircle2, ShieldCheck, Mail } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
+import ReferralCta from "@/components/ReferralCta";
 
 // Sparing "danger" red — a semantic alert (NOT orange, which reads as Clever
 // branding). Everything else is Workwell brand (teal / green / cream).
@@ -138,6 +139,8 @@ export default function CisView() {
           </div>
         </div>
       </section>
+
+      <ReferralCta tone="cis" />
 
       {/* ── CTA — deep Workwell green close ──────────────────── */}
       <section
