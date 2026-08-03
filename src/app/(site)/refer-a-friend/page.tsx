@@ -16,6 +16,9 @@ import {
   Send,
   Loader2,
   RotateCcw,
+  MessageCircle,
+  MessageSquare,
+  Share2,
 } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 
@@ -78,6 +81,12 @@ function ReferralPageContent() {
   const shareLink = data
     ? `https://www.${brand.domain}/sign-up?ref=${data.referralCode}`
     : "";
+  // Pre-filled share message — for WhatsApp / SMS / native share (how trades actually refer).
+  const shareMessage = shareLink
+    ? `I use ${brand.name} for my accounts and they're spot on. If you need an accountant, sign up with my link: ${shareLink}`
+    : "";
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
+  const smsHref = `sms:?&body=${encodeURIComponent(shareMessage)}`;
 
   const loadReferralData = useCallback(async () => {
     if (!ref) return;
@@ -189,6 +198,18 @@ function ReferralPageContent() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     });
+  }
+
+  async function handleNativeShare() {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: `${brand.name} referral`, text: shareMessage });
+      } catch {
+        /* user cancelled — no-op */
+      }
+    } else {
+      handleCopy();
+    }
   }
 
   const filteredReferrals =
@@ -327,6 +348,30 @@ function ReferralPageContent() {
                       {copied ? "Copied!" : "Copy"}
                     </button>
                   </div>
+                  {/* One-tap share — how trades actually refer (WhatsApp on site) */}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-4 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all"
+                    >
+                      <MessageCircle size={16} /> WhatsApp
+                    </a>
+                    <a
+                      href={smsHref}
+                      className="inline-flex items-center gap-2 bg-white border border-border text-dark font-bold px-4 py-2.5 rounded-xl text-sm hover:border-primary hover:text-primary transition-all"
+                    >
+                      <MessageSquare size={16} /> Text
+                    </a>
+                    <button
+                      onClick={handleNativeShare}
+                      className="inline-flex items-center gap-2 bg-white border border-border text-dark font-bold px-4 py-2.5 rounded-xl text-sm hover:border-primary hover:text-primary transition-all"
+                    >
+                      <Share2 size={16} /> Share&hellip;
+                    </button>
+                  </div>
+                  <p className="text-xs text-text-light mt-2.5">Working on site? Fire it straight to a mate on WhatsApp.</p>
                 </div>
 
                 {/* Voucher tiers — stacked */}
