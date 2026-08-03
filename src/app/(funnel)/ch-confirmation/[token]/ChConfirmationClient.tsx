@@ -85,7 +85,7 @@ function changeSummary(key: string, c: ChangeVal): string {
       const act = g('action');
       if (act === 'remove') return `Remove director: ${g('director')}`;
       if (act === 'changeName') return `Rename director ${g('director')} → ${g('forename')} ${g('surname')}`;
-      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}`;
+      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}${g('personalCode') ? ' · code provided' : ''} · £50+VAT ID check`;
       return 'Director change';
     }
     case 'pscs':
@@ -366,9 +366,9 @@ export default function ChConfirmationClient({
                 <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-2.5 py-2 text-[12px] leading-relaxed text-amber-900">
                   <AlertTriangle size={14} className="shrink-0 mt-0.5" />
                   <span>
-                    Adding a director is a <strong>chargeable service — £50 + VAT</strong>. Companies House now requires
-                    us to verify a new director’s identity and obtain their personal code before we can register them,
-                    which we handle for you. We’ll send a secure payment request; nothing is filed until it’s settled.
+                    Adding a director is a <strong>chargeable service — £50 + VAT</strong>. We run our own identity check
+                    (a compliance requirement) and register them with Companies House. We’ll send a secure payment
+                    request; nothing is filed until it’s settled.
                   </span>
                 </div>
                 <p className="text-[12px] text-text-light leading-relaxed">
@@ -380,6 +380,12 @@ export default function ChConfirmationClient({
                 </div>
                 <input type="email" className={FIELD_CLS} placeholder="Email address" value={val('email')} onChange={(e) => setChange(key, { email: e.target.value })} />
                 <input type="tel" className={FIELD_CLS} placeholder="Mobile number" value={val('mobile')} onChange={(e) => setChange(key, { mobile: e.target.value })} />
+                <div>
+                  <input className={FIELD_CLS} placeholder="Companies House personal code (if they already have one)" value={val('personalCode')} onChange={(e) => setChange(key, { personalCode: e.target.value })} />
+                  <p className="mt-1 text-[11px] text-text-light leading-relaxed">
+                    Optional — the 11-character code they’ll have if they’ve already verified their identity with Companies House (e.g. as a director of another company). It helps us register them faster; we still run our own identity check.
+                  </p>
+                </div>
               </div>
             ) : null}
           </div>
