@@ -139,28 +139,31 @@ export default function CisView() {
         </div>
       </section>
 
-      {/* ── CTA — Workwell green close ───────────────────────── */}
-      <section className="relative overflow-hidden bg-secondary py-16 md:py-20 text-center">
+      {/* ── CTA — deep Workwell green close ──────────────────── */}
+      <section
+        className="relative overflow-hidden py-16 md:py-20 text-center"
+        style={{ background: "linear-gradient(135deg, #4f7a35 0%, #37592a 100%)" }}
+      >
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-20 -left-10 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-24 -right-10 w-80 h-80 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-24 -right-10 w-80 h-80 rounded-full bg-black/10 blur-3xl" />
         </div>
         <div className="relative max-w-2xl mx-auto px-4">
-          <h2 className="text-3xl md:text-5xl font-black text-dark mb-4 leading-tight">
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">
             Don&rsquo;t leave it in the drawer.
           </h2>
-          <p className="text-dark/80 text-lg mb-9 max-w-xl mx-auto font-medium">
+          <p className="text-white/85 text-lg mb-9 max-w-xl mx-auto font-medium">
             The subbies who sort it early won&rsquo;t feel a thing. Talk to us and we&rsquo;ll get you set up — long before it bites.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href={tel} className="inline-flex items-center justify-center gap-2 bg-dark text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-dark/90 transition-all shadow-xl">
+            <a href={tel} className="inline-flex items-center justify-center gap-2 bg-white text-dark font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/90 transition-all shadow-xl">
               <Phone size={20} /> {brand.freephone}
             </a>
-            <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white/25 text-dark font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/40 transition-all border border-dark/20">
+            <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white/15 text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/25 transition-all border border-white/40">
               Ask us a question <ArrowRight size={18} />
             </Link>
           </div>
-          <p className="text-dark/60 text-sm mt-8">
+          <p className="text-white/65 text-sm mt-8">
             General guide for {brand.name} clients, not personal tax advice.
           </p>
         </div>
