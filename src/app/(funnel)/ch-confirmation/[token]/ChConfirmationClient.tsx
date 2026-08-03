@@ -85,7 +85,7 @@ function changeSummary(key: string, c: ChangeVal): string {
       const act = g('action');
       if (act === 'remove') return `Remove director: ${g('director')}`;
       if (act === 'changeName') return `Rename director ${g('director')} → ${g('forename')} ${g('surname')}`;
-      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}${g('personalCode') ? ' · code provided' : ''} · £50+VAT ID check`;
+      if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}${g('personalCode') ? ' · code provided' : ''} · £49+VAT ID check`;
       return 'Director change';
     }
     case 'pscs':
@@ -366,7 +366,7 @@ export default function ChConfirmationClient({
                 <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-2.5 py-2 text-[12px] leading-relaxed text-amber-900">
                   <AlertTriangle size={14} className="shrink-0 mt-0.5" />
                   <span>
-                    Adding a director is a <strong>chargeable service — £50 + VAT</strong>. We run our own identity check
+                    Adding a director is a <strong>chargeable service — £49 + VAT</strong>. We run our own identity check
                     (a compliance requirement) and register them with Companies House. We’ll send a secure payment
                     request; nothing is filed until it’s settled.
                   </span>
