@@ -167,7 +167,9 @@ export default function ChConfirmationClient({
 
   // Companies House authentication (webfiling) code — the code that lets us file at all. When we don't
   // hold it, the client provides it here (mirrors the IDV personal-code capture above).
-  const [hasWebfiling, setHasWebfiling] = useState(dto.hasWebfilingCode !== false);
+  // Reveals the full review only once we hold the code; saving the code reloads the page (which
+  // re-fetches with the rebuilt snapshot), so this never needs to be set here.
+  const [hasWebfiling] = useState(dto.hasWebfilingCode !== false);
   const [wfCode, setWfCode] = useState('');
   const [wfSaving, setWfSaving] = useState(false);
   const [wfError, setWfError] = useState('');
@@ -188,10 +190,12 @@ export default function ChConfirmationClient({
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Could not save the code.');
-      setHasWebfiling(true);
+      // Reload so the page re-fetches with the rebuilt snapshot (statement of capital is pulled now
+      // that we can authenticate) and reveals the full review.
+      window.location.reload();
+      return;
     } catch (e) {
       setWfError(e instanceof Error ? e.message : 'Could not save the code.');
-    } finally {
       setWfSaving(false);
     }
   }
@@ -503,6 +507,74 @@ export default function ChConfirmationClient({
     );
   }
 
+  // ---------- No authentication code yet: lead with just this, hide the review/IDV/fee ----------
+  if (!hasWebfiling && !done) {
+    return (
+      <main className="min-h-[70vh] flex items-center justify-center px-4 py-12">
+        <div className="max-w-lg w-full">
+          <div className="rounded-2xl bg-white shadow-md border border-gray-100 p-7 sm:p-9">
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck size={18} className="text-primary shrink-0" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">
+                Confirmation statement
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-[28px] font-bold text-text leading-tight mb-2.5">
+              We need one thing to file{' '}
+              {dto.companyName ? dto.companyName : 'your company'}’s confirmation statement
+            </h1>
+            <p className="text-text-light leading-relaxed mb-6">
+              We don’t have your company’s <strong>Companies House authentication code</strong> — the
+              6‑character code Companies House sent you when the company was set up. Enter it below to
+              continue and review your confirmation statement.
+            </p>
+            <label className="block text-[13px] font-semibold text-text mb-2" htmlFor="wf">
+              Authentication code
+            </label>
+            <div className="flex items-center gap-2 flex-wrap">
+              <input
+                id="wf"
+                className="w-44 sm:w-56 rounded-lg border border-primary/25 bg-white px-3.5 py-3 text-base text-text uppercase tracking-[0.3em] font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                placeholder="AB12CD"
+                value={wfCode}
+                maxLength={6}
+                autoFocus
+                onChange={(e) => setWfCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveWebfilingCode();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={saveWebfilingCode}
+                disabled={wfSaving}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+              >
+                {wfSaving ? <Loader2 size={16} className="animate-spin" /> : null}
+                {wfSaving ? 'Saving…' : 'Save & continue'}
+              </button>
+            </div>
+            <p className="mt-2 text-[12px] text-text-light">6 letters and numbers.</p>
+            {wfError ? <p className="mt-2 text-[13px] text-rose-600">{wfError}</p> : null}
+            <p className="mt-5 pt-4 border-t border-gray-100 text-[13px] text-text-light leading-relaxed">
+              Can’t find it? Companies House posted it to your registered office — it’s on their
+              letters. You can ask them to re‑send it, or reply to our email and we’ll help.
+            </p>
+          </div>
+          <p className="mt-4 text-center text-[12px] text-text-light">
+            Questions?{' '}
+            <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>
+              {brandEmail}
+            </a>
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   // ---------- Review ----------
   return (
     <main className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
@@ -595,61 +667,6 @@ export default function ChConfirmationClient({
               })}
             </div>
           </div>
-
-          {/* Companies House authentication (webfiling) code */}
-          {!hasWebfiling ? (
-            <div className="px-6 sm:px-9 pt-4 pb-2">
-              <div className="rounded-xl border border-primary/20 bg-primary-50/30 p-5 sm:p-6">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <ShieldCheck size={16} className="text-primary shrink-0" />
-                  <h2 className="text-[15px] font-bold text-text">Company authentication code</h2>
-                  <span className="ml-auto inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">
-                    Needed to file
-                  </span>
-                </div>
-                <p className="text-[13px] text-text-light leading-relaxed">
-                  To file your confirmation statement we need your company’s Companies House{' '}
-                  <strong>authentication code</strong> — the 6‑character code Companies House sent you when the
-                  company was set up. We don’t have it on file, and we can’t file without it.
-                </p>
-                <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-300 px-3.5 py-2.5 text-[13.5px] font-bold text-amber-900 leading-snug">
-                  <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-600" />
-                  We can’t file your confirmation statement until this code is recorded.
-                </p>
-                <div className="mt-4 rounded-lg border border-gray-200 bg-white px-3.5 py-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <input
-                      className="w-40 sm:w-52 rounded-lg border border-primary/25 bg-white px-3 py-2 text-sm text-text uppercase tracking-[0.25em] font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      placeholder="AB12CD"
-                      value={wfCode}
-                      maxLength={6}
-                      onChange={(e) => setWfCode(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          saveWebfilingCode();
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={saveWebfilingCode}
-                      disabled={wfSaving}
-                      className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
-                    >
-                      {wfSaving ? <Loader2 size={16} className="animate-spin" /> : 'Save'}
-                    </button>
-                    <span className="text-[12px] text-text-light">6 letters and numbers</span>
-                  </div>
-                  {wfError ? <p className="mt-1.5 text-[12px] text-rose-600">{wfError}</p> : null}
-                </div>
-                <p className="mt-3 text-[12px] text-text-light leading-relaxed">
-                  Can’t find it? Companies House posted it to your registered office — it’s on their letters. You
-                  can ask them to re‑send it, or just reply to our email and we’ll help.
-                </p>
-              </div>
-            </div>
-          ) : null}
 
           {/* identity verification (ECCTA) */}
           {idvPeople.length > 0 ? (
@@ -867,16 +884,6 @@ export default function ChConfirmationClient({
                       lawfully. Please{' '}
                       <a className="font-semibold underline" href={`mailto:${brandEmail}`}>get in touch</a> and we’ll
                       help.
-                    </span>
-                  </p>
-                ) : null}
-
-                {!hasWebfiling ? (
-                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-[13px] leading-relaxed text-amber-800">
-                    <ShieldCheck size={15} className="shrink-0 mt-0.5" />
-                    <span>
-                      Add your company’s Companies House authentication code above before approving — we can’t
-                      file without it.
                     </span>
                   </p>
                 ) : null}
