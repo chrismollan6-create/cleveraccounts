@@ -51,6 +51,7 @@ export interface ChConfirmationDto {
   shareholdings?: Shareholding[];
   idvPeople?: IdvPerson[];
   idvAllVerified?: boolean;
+  hasWebfilingCode?: boolean;
   status?: 'Not Sent' | 'Sent' | 'Confirmed' | 'Changes Requested';
   alreadyResponded?: boolean;
   brandName?: string;
