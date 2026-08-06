@@ -53,8 +53,8 @@ function changeComplete(key: string, c: ChangeVal): boolean {
       return !!(s(c.line1) && s(c.town) && s(c.postcode));
     case 'officers': {
       const act = s(c.action);
-      if (act === 'remove') return !!s(c.director);
-      if (act === 'changeName') return !!(s(c.director) && s(c.forename) && s(c.surname));
+      if (act === 'remove') return !!(s(c.director) && s(c.effectiveDate));
+      if (act === 'changeName') return !!(s(c.director) && s(c.forename) && s(c.surname) && s(c.effectiveDate));
       if (act === 'add') return !!(s(c.forename) && s(c.surname) && /.+@.+\..+/.test(s(c.email)) && s(c.mobile)
         && s(c.appointmentDate) && s(c.appointmentDate) <= new Date().toISOString().slice(0, 10)); // not future — CH rejects it
       return false;
@@ -84,8 +84,8 @@ function changeSummary(key: string, c: ChangeVal): string {
         .join(' ');
     case 'officers': {
       const act = g('action');
-      if (act === 'remove') return `Remove director: ${g('director')}`;
-      if (act === 'changeName') return `Rename director ${g('director')} → ${g('forename')} ${g('surname')}`;
+      if (act === 'remove') return `Remove director: ${g('director')}${g('effectiveDate') ? ` · from ${g('effectiveDate')}` : ''}`;
+      if (act === 'changeName') return `Rename director ${g('director')} → ${g('forename')} ${g('surname')}${g('effectiveDate') ? ` · from ${g('effectiveDate')}` : ''}`;
       if (act === 'add') return `Add director: ${g('forename')} ${g('surname')} · ${g('email')} · ${g('mobile')}${g('appointmentDate') ? ` · from ${g('appointmentDate')}` : ''}${g('personalCode') ? ' · code provided' : ''} · £49+VAT ID check`;
       return 'Director change';
     }
@@ -378,8 +378,8 @@ export default function ChConfirmationClient({
                     {o.role ? <span className="text-text-light"> · {o.role}</span> : null}
                   </span>
                   <div className="flex gap-3 shrink-0">
-                    <button type="button" onClick={() => setChange(key, { action: 'remove', director: o.name || '' })} className={`text-[12px] font-semibold ${isThis('remove') ? 'text-rose-700 underline' : 'text-text-light hover:text-rose-700'}`}>Remove</button>
-                    <button type="button" onClick={() => setChange(key, { action: 'changeName', director: o.name || '' })} className={`text-[12px] font-semibold ${isThis('changeName') ? 'text-primary underline' : 'text-text-light hover:text-primary'}`}>Change name</button>
+                    <button type="button" onClick={() => setChange(key, { action: 'remove', director: o.name || '', effectiveDate: new Date().toISOString().slice(0, 10) })} className={`text-[12px] font-semibold ${isThis('remove') ? 'text-rose-700 underline' : 'text-text-light hover:text-rose-700'}`}>Remove</button>
+                    <button type="button" onClick={() => setChange(key, { action: 'changeName', director: o.name || '', effectiveDate: new Date().toISOString().slice(0, 10) })} className={`text-[12px] font-semibold ${isThis('changeName') ? 'text-primary underline' : 'text-text-light hover:text-primary'}`}>Change name</button>
                   </div>
                 </div>
               );
@@ -387,15 +387,33 @@ export default function ChConfirmationClient({
             <button type="button" onClick={() => setChange(key, { action: 'add', director: '' })} className={`text-[13px] font-semibold ${act === 'add' ? 'text-primary underline' : 'text-primary hover:underline'}`}>+ Add a director</button>
 
             {act === 'remove' ? (
-              <p className="rounded-lg bg-rose-50 border border-rose-200 px-3 py-2.5 text-[13px] leading-relaxed text-rose-800">
-                Removing <strong>{val('director')}</strong> — we’ll be in touch to arrange this. A director can only be
-                removed with the proper authorisation, so we’ll confirm it with you before anything is filed.
-              </p>
+              <div className="space-y-2">
+                <p className="rounded-lg bg-rose-50 border border-rose-200 px-3 py-2.5 text-[13px] leading-relaxed text-rose-800">
+                  Removing <strong>{val('director')}</strong> — we’ll be in touch to arrange this. A director can only be
+                  removed with the proper authorisation, so we’ll confirm it with you before anything is filed.
+                </p>
+                <div>
+                  <label className="text-[12px] font-semibold text-text">Date they resigned</label>
+                  <input type="date" className={FIELD_CLS} max={new Date().toISOString().slice(0, 10)} value={val('effectiveDate')} onChange={(e) => setChange(key, { effectiveDate: e.target.value })} />
+                  <p className="mt-1 text-[11px] text-text-light leading-relaxed">
+                    When they stopped being a director — today or earlier. If it was before your confirmation date, we’ll update Companies House first.
+                  </p>
+                </div>
+              </div>
             ) : null}
             {act === 'changeName' ? (
-              <div className="grid grid-cols-2 gap-2">
-                <input className={FIELD_CLS} placeholder="New forename(s)" value={val('forename')} onChange={(e) => setChange(key, { forename: e.target.value })} />
-                <input className={FIELD_CLS} placeholder="New surname" value={val('surname')} onChange={(e) => setChange(key, { surname: e.target.value })} />
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <input className={FIELD_CLS} placeholder="New forename(s)" value={val('forename')} onChange={(e) => setChange(key, { forename: e.target.value })} />
+                  <input className={FIELD_CLS} placeholder="New surname" value={val('surname')} onChange={(e) => setChange(key, { surname: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-[12px] font-semibold text-text">Date of change</label>
+                  <input type="date" className={FIELD_CLS} max={new Date().toISOString().slice(0, 10)} value={val('effectiveDate')} onChange={(e) => setChange(key, { effectiveDate: e.target.value })} />
+                  <p className="mt-1 text-[11px] text-text-light leading-relaxed">
+                    When it took effect — today or earlier. If it was before your confirmation date, we’ll update Companies House first.
+                  </p>
+                </div>
               </div>
             ) : null}
             {act === 'add' ? (
