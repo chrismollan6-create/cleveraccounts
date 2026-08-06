@@ -135,16 +135,24 @@ export default function DirectorConsentClient({
       <div className="max-w-xl w-full bg-white rounded-2xl shadow-md border border-gray-100 p-8 sm:p-10">
         <h1 className="text-2xl sm:text-3xl font-bold text-text mb-2">Confirm your resignation as a director</h1>
         <p className="text-text-light leading-relaxed mb-6">
-          You’re being recorded as resigning as a director of <strong>{dto.companyName}</strong>,
-          effective <strong>{formatDate(dto.resignationDate)}</strong>. Before this is filed with
-          Companies House we need you to confirm you understand and consent, and to sign below.
+          You’ve been listed as resigning as a director of <strong>{dto.companyName}</strong>, with
+          effect from <strong>{formatDate(dto.resignationDate)}</strong>. Before we file this with
+          Companies House, please confirm you understand and consent to the resignation, and sign below.
         </p>
 
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-6 text-sm text-text-light">
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-4 text-sm text-text-light">
           <div className="flex justify-between py-1"><span>Director</span><span className="font-semibold text-text">{dto.directorName}</span></div>
           <div className="flex justify-between py-1"><span>Company</span><span className="font-semibold text-text">{dto.companyName}</span></div>
+          {dto.companyNumber && (
+            <div className="flex justify-between py-1"><span>Company number</span><span className="font-semibold text-text">{dto.companyNumber}</span></div>
+          )}
           <div className="flex justify-between py-1"><span>Resignation date</span><span className="font-semibold text-text">{formatDate(dto.resignationDate)}</span></div>
         </div>
+
+        <p className="text-xs text-text-light leading-relaxed mb-6">
+          Your resignation takes effect on the date above. Once filed, it becomes part of the company’s
+          public record at Companies House. By signing you’re confirming this is correct and that you agree to it.
+        </p>
 
         <label className="block text-sm font-semibold text-text mb-1">Your full name</label>
         <input

@@ -5,6 +5,7 @@ import DirectorConsentClient from './DirectorConsentClient';
 
 export interface DirectorConsentDto {
   companyName?: string;
+  companyNumber?: string;
   directorName?: string;
   resignationDate?: string;
   status?: 'Requested' | 'Confirmed' | 'Declined' | 'Overridden';
