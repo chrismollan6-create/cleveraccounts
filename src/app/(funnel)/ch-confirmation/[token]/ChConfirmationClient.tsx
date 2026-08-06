@@ -389,8 +389,9 @@ export default function ChConfirmationClient({
             {act === 'remove' ? (
               <div className="space-y-2">
                 <p className="rounded-lg bg-rose-50 border border-rose-200 px-3 py-2.5 text-[13px] leading-relaxed text-rose-800">
-                  Removing <strong>{val('director')}</strong> — we’ll be in touch to arrange this. A director can only be
-                  removed with the proper authorisation, so we’ll confirm it with you before anything is filed.
+                  Removing <strong>{val('director')}</strong> needs their explicit consent. We’ll email and text{' '}
+                  <strong>{val('director')}</strong> a secure link to confirm they understand they’re resigning and to sign —
+                  nothing is filed at Companies House until they’ve agreed.
                 </p>
                 <div>
                   <label className="text-[12px] font-semibold text-text">Date they resigned</label>
