@@ -28,6 +28,12 @@ export function isInsuranceCert(v: unknown): v is InsuranceCertData {
   );
 }
 
+/** "07th May 2026" — plain string (for the success page). */
+export function formatCertDate(iso: string): string {
+  const p = certDateParts(iso);
+  return p.dd ? `${p.dd}${p.suffix} ${p.rest}` : '';
+}
+
 /** Parts of a certificate date — "07" + "th" (superscript) + "May 2026". */
 export function certDateParts(iso: string): { dd: string; suffix: string; rest: string } {
   const d = new Date(`${iso}T00:00:00Z`);
@@ -48,12 +54,24 @@ export function certDateParts(iso: string): { dd: string; suffix: string; rest: 
   return { dd, suffix, rest: `${month} ${d.getUTCFullYear()}` };
 }
 
-export function buildSampleCert(): InsuranceCertData {
+/**
+ * Fixed block-policy values (same for every client; change once at annual renewal).
+ * Also used by the success page's cover summary.
+ */
+export const BLOCK_POLICY_NUMBER = 'SC1930C200AR/I/11271627';
+export const BLOCK_PERIOD_END = '2027-05-06';
+
+/** Build the certificate payload from the only per-client inputs. */
+export function buildCertFromClient(company: string, startDate: string): InsuranceCertData {
   return {
     kind: 'insurance-cert',
-    company: 'SOF Portal Test Ltd',
-    startDate: '2026-08-07',
-    policyNumber: 'SC1930C200AR/I/11271627',
-    periodEnd: '2027-05-06',
+    company,
+    startDate,
+    policyNumber: BLOCK_POLICY_NUMBER,
+    periodEnd: BLOCK_PERIOD_END,
   };
+}
+
+export function buildSampleCert(): InsuranceCertData {
+  return buildCertFromClient('SOF Portal Test Ltd', '2026-08-07');
 }

@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { renderUrlToPdf } from '@/lib/onboarding-guide-pdf';
-import { isInsuranceCert } from '@/content/insurance-certificate';
+import { isInsuranceCert, buildCertFromClient } from '@/content/insurance-certificate';
+import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 
 /**
  * /api/insurance-certificate/pdf — renders the insurance Verification Certificate
@@ -61,8 +62,27 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const sof = url.searchParams.get('sof');
   try {
-    return await pdfResponse(new URL(request.url).origin, '');
+    // Client download: fetch this client's cert data from Salesforce by SOF token.
+    if (sof) {
+      const sfToken = await getSalesforceToken();
+      const res = await fetch(sfApex(`/InsuranceSOF?t=${encodeURIComponent(sof)}`), {
+        headers: { Authorization: `Bearer ${sfToken}` },
+        cache: 'no-store',
+      });
+      const data = (await res.json().catch(() => null)) as
+        | { companyName?: string; startDate?: string; suitability?: string }
+        | null;
+      if (!res.ok || !data?.companyName || !data?.startDate) {
+        return new Response('Certificate not available', { status: 404 });
+      }
+      const cert = buildCertFromClient(data.companyName, data.startDate);
+      return await pdfResponse(url.origin, `d=${encodeData(cert)}`);
+    }
+    // Sample mode for design review.
+    return await pdfResponse(url.origin, '');
   } catch (err) {
     return failed(err);
   }

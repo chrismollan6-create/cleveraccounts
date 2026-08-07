@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CheckCircle2, ShieldCheck, Check, Lock, Clock, FileCheck2, Mail, Phone } from 'lucide-react';
+import { ShieldCheck, Check, Lock, Clock, FileCheck2, Phone, Mail } from 'lucide-react';
+import InsuranceSuccess from '@/components/insurance/InsuranceSuccess';
 import type { InsuranceSofDto } from './page';
 
 type YN = '' | 'yes' | 'no';
@@ -168,48 +169,15 @@ export default function InsuranceSofClient({
 
   /* ---------- success ---------- */
   if (done) {
-    const ok = done === 'Suitable';
     return (
-      <main className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-lg w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-10 text-center">
-          <div
-            className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
-              ok ? 'text-emerald-600 bg-emerald-50' : 'text-amber-600 bg-amber-50'
-            }`}
-          >
-            <CheckCircle2 size={32} />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we’ve got your answers</h1>
-          <p className="text-text-light leading-relaxed">
-            {ok ? (
-              <>
-                We’ll review your Statement of Facts for <strong>{dto.companyName}</strong> and, once accepted,
-                issue your policy documents.
-              </>
-            ) : (
-              <>
-                Based on your answers we’re unable to offer this insurance cover for{' '}
-                <strong>{dto.companyName}</strong>. We’ll be in touch to discuss your options and recommend an
-                alternative if one is available.
-              </>
-            )}
-          </p>
-          {ok && (
-            <div className="mt-5 rounded-xl bg-amber-50 text-amber-900 text-sm px-4 py-3 text-left">
-              Please note you are <strong>not covered</strong> until you receive the policy schedules from us.
-            </div>
-          )}
-          <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-sm text-text-light">
-            <a className="inline-flex items-center gap-1.5 hover:text-primary" href={`tel:${brandPhone.replace(/\s/g, '')}`}>
-              <Phone size={14} /> {brandPhone}
-            </a>
-            <span className="text-gray-300 hidden sm:inline">·</span>
-            <a className="inline-flex items-center gap-1.5 hover:text-primary" href={`mailto:${brandEmail}`}>
-              <Mail size={14} /> {brandEmail}
-            </a>
-          </div>
-        </div>
-      </main>
+      <InsuranceSuccess
+        suitable={done === 'Suitable'}
+        companyName={dto.companyName ?? 'your company'}
+        startDate={startDate}
+        token={token}
+        brandEmail={brandEmail}
+        brandPhone={brandPhone}
+      />
     );
   }
 
