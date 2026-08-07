@@ -188,7 +188,7 @@ export default function InsuranceSofClient({
               </>
             ) : (
               <>
-                Based on your answers we’re unable to offer the premium block policy for{' '}
+                Based on your answers we’re unable to offer this insurance cover for{' '}
                 <strong>{dto.companyName}</strong>. We’ll be in touch to discuss your options and recommend an
                 alternative if one is available.
               </>
@@ -234,8 +234,9 @@ export default function InsuranceSofClient({
               </h1>
             </div>
             <p className="text-text-light leading-relaxed">
-              Complete this short declaration for <strong className="text-text">{dto.companyName}</strong> to join our
-              block professional-indemnity policy.
+              Complete this short declaration to arrange insurance cover for{' '}
+              <strong className="text-text">{dto.companyName}</strong> — designed exclusively for contractors and
+              consultants.
             </p>
 
             <div className="mt-6">
@@ -357,8 +358,8 @@ export default function InsuranceSofClient({
 
             {allAnswered && !suitable && (
               <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 leading-relaxed">
-                Based on one or more of your answers, we’re unable to offer you our premium block policy. Please
-                submit anyway — we’ll be in touch to discuss your options and recommend an alternative if available.
+                Based on one or more of your answers, we’re unable to offer you this insurance cover. Please submit
+                anyway — we’ll be in touch to discuss your options and recommend an alternative if available.
               </div>
             )}
 

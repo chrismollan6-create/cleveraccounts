@@ -18,7 +18,7 @@ export async function generateMetadata() {
   const brand = await getBrand();
   return {
     title: `Insurance Statement of Facts | ${brand.name}`,
-    description: `Complete your insurance Statement of Facts to join our block professional-indemnity policy.`,
+    description: `Complete your Statement of Facts to arrange insurance cover for your limited company.`,
     robots: { index: false, follow: false },
   };
 }
