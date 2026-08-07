@@ -24,29 +24,29 @@ export default function InsuranceCertificate({ data }: { data: InsuranceCertData
   return (
     <div className="cert">
       <style>{`
-        .cert { font-family: Arial, Helvetica, sans-serif; color: #2b2b2b; font-size: 10.5pt;
-                line-height: 1.35; padding: 9mm 15mm; box-sizing: border-box; }
+        .cert { font-family: Arial, Helvetica, sans-serif; color: #333; font-size: 9pt;
+                line-height: 1.32; padding: 10mm 16mm; box-sizing: border-box; }
         .cert-head { display: flex; justify-content: space-between; align-items: flex-start; }
-        .cert-caunce { width: 150px; height: auto; display: block; }
-        .cert-head-r { text-align: right; padding-top: 30px; }
-        .cert-title { font-size: 16pt; font-weight: 800; color: #111; letter-spacing: .2px; }
-        .cert-holder { font-size: 13pt; font-weight: 800; color: #111; margin-top: 2px; }
-        .cert-rule { border: 0; border-top: 2.5px solid #111; margin: 8px 0 16px; }
-        .cert h2 { font-size: 12pt; font-weight: 800; color: #111; margin: 0 0 10px; }
+        .cert-caunce { width: 128px; height: auto; display: block; }
+        .cert-head-r { text-align: right; padding-top: 26px; }
+        .cert-title { font-size: 14pt; font-weight: 800; color: #111; letter-spacing: .2px; }
+        .cert-holder { font-size: 11.5pt; font-weight: 800; color: #111; margin-top: 2px; }
+        .cert-rule { border: 0; border-top: 2px solid #111; margin: 8px 0 16px; }
+        .cert h2 { font-size: 10.5pt; font-weight: 800; color: #111; margin: 0 0 10px; }
         .cert p { margin: 0 0 10px; }
-        .cover { width: 100%; border-collapse: collapse; margin: 2px 0 12px; }
+        .cover { width: 100%; border-collapse: collapse; margin: 2px 0 14px; }
         .cover td { vertical-align: top; padding: 0.5px 0; }
-        .c-label { width: 320px; font-weight: 700; color: #111; }
-        .c-colon { width: 30px; }
-        .c-mid { width: 200px; }
+        .c-label { width: 200px; font-weight: 700; color: #111; }
+        .c-colon { width: 76px; }
+        .c-mid { width: 120px; }
         .c-val { font-weight: 700; color: #111; }
         .c-note { font-style: italic; color: #555; }
-        .c-gap td { height: 8px; }
+        .c-gap td { height: 9px; }
         .cert sup { font-size: 0.62em; vertical-align: super; }
-        .sig { font-weight: 800; font-size: 30pt; color: #111; line-height: 1; margin: 6px 0 2px;
+        .sig { font-weight: 800; font-size: 24pt; color: #111; line-height: 1; margin: 8px 0 2px;
                letter-spacing: .3px; }
         .sig-name { margin: 0; line-height: 1.3; }
-        .cert-foot { margin-top: 12px; text-align: right; }
+        .cert-foot { margin-top: 16px; text-align: right; }
         .cert-markel { width: 150px; display: inline-block; }
       `}</style>
 
