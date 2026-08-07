@@ -1,13 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Check, Lock, Clock, FileCheck2, Mail, Phone } from 'lucide-react';
 import type { InsuranceSofDto } from './page';
 
 type YN = '' | 'yes' | 'no';
 type Source = '' | 'Recruitment Agency' | 'End Client' | 'No';
 
 const today = () => new Date().toISOString().slice(0, 10);
+
+/* ---------- small building blocks ---------- */
 
 function Choice({
   value,
@@ -19,7 +21,7 @@ function Choice({
   options: { value: string; label: string }[];
 }) {
   return (
-    <div className="flex flex-wrap gap-2 mt-2">
+    <div className="flex flex-wrap gap-2 mt-3">
       {options.map((o) => {
         const active = value === o.value;
         return (
@@ -27,12 +29,14 @@ function Choice({
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium border transition ${
+            aria-pressed={active}
+            className={`inline-flex items-center gap-1.5 min-w-[4.5rem] justify-center px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
               active
-                ? 'bg-primary text-white border-primary'
-                : 'bg-gray-50 text-text border-gray-200 hover:border-gray-300'
+                ? 'bg-primary text-white border-primary shadow-sm'
+                : 'bg-white text-text border-gray-200 hover:border-primary/40 hover:bg-primary/[0.04]'
             }`}
           >
+            {active && <Check size={15} strokeWidth={3} />}
             {o.label}
           </button>
         );
@@ -41,23 +45,46 @@ function Choice({
   );
 }
 
-function Question({
+function QuestionRow({
+  n,
   label,
   hint,
+  answered,
   children,
 }: {
+  n: number;
   label: string;
   hint?: string;
+  answered: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="py-4 border-b border-gray-100 last:border-0">
-      <div className="text-sm font-medium text-text">{label}</div>
-      {hint && <div className="text-xs text-text-light mt-0.5">{hint}</div>}
-      {children}
+    <div className="py-5 border-b border-gray-100 last:border-0">
+      <div className="flex gap-3">
+        <span
+          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+            answered ? 'bg-primary text-white' : 'bg-gray-100 text-text-light'
+          }`}
+        >
+          {answered ? <Check size={13} strokeWidth={3} /> : n}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-[0.95rem] font-medium text-text leading-snug">{label}</div>
+          {hint && <div className="text-xs text-text-light mt-0.5">{hint}</div>}
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
+
+function RailCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm p-5 ${className}`}>{children}</div>
+  );
+}
+
+/* ---------- main ---------- */
 
 export default function InsuranceSofClient({
   token,
@@ -83,8 +110,11 @@ export default function InsuranceSofClient({
   const [done, setDone] = useState<'' | 'Suitable' | 'Unsuitable'>('');
   const [error, setError] = useState('');
 
-  const allAnswered =
-    !!startDate && !!singlePerson && !!outsideUS && !!professionalPI && !!highRisk && !!adverse && !!source;
+  const answers = [!!startDate, !!singlePerson, !!outsideUS, !!professionalPI, !!highRisk, !!adverse, !!source];
+  const answeredCount = answers.filter(Boolean).length;
+  const total = answers.length;
+  const allAnswered = answeredCount === total;
+  const pct = Math.round((answeredCount / total) * 100);
 
   // Client-side branch preview only — the server is the source of truth on submit.
   const suitable = useMemo(
@@ -136,20 +166,25 @@ export default function InsuranceSofClient({
     }
   }
 
+  /* ---------- success ---------- */
   if (done) {
+    const ok = done === 'Suitable';
     return (
-      <main className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-        <div className="max-w-lg w-full bg-white rounded-2xl shadow-md border border-gray-100 p-8 sm:p-10">
-          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 text-emerald-600 bg-emerald-50">
-            <CheckCircle2 size={28} />
+      <main className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-lg w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-10 text-center">
+          <div
+            className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
+              ok ? 'text-emerald-600 bg-emerald-50' : 'text-amber-600 bg-amber-50'
+            }`}
+          >
+            <CheckCircle2 size={32} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — we’ve got your answers</h1>
           <p className="text-text-light leading-relaxed">
-            {done === 'Suitable' ? (
+            {ok ? (
               <>
                 We’ll review your Statement of Facts for <strong>{dto.companyName}</strong> and, once accepted,
-                issue your policy documents.{' '}
-                <strong>Please note you are not covered until you receive the policy schedules from us.</strong>
+                issue your policy documents.
               </>
             ) : (
               <>
@@ -159,11 +194,20 @@ export default function InsuranceSofClient({
               </>
             )}
           </p>
-          <p className="text-xs text-text-light mt-6">
-            Questions? Contact us on{' '}
-            <a className="text-primary hover:underline" href={`tel:${brandPhone.replace(/\s/g, '')}`}>{brandPhone}</a>{' '}
-            or <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>{brandEmail}</a>.
-          </p>
+          {ok && (
+            <div className="mt-5 rounded-xl bg-amber-50 text-amber-900 text-sm px-4 py-3 text-left">
+              Please note you are <strong>not covered</strong> until you receive the policy schedules from us.
+            </div>
+          )}
+          <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-sm text-text-light">
+            <a className="inline-flex items-center gap-1.5 hover:text-primary" href={`tel:${brandPhone.replace(/\s/g, '')}`}>
+              <Phone size={14} /> {brandPhone}
+            </a>
+            <span className="text-gray-300 hidden sm:inline">·</span>
+            <a className="inline-flex items-center gap-1.5 hover:text-primary" href={`mailto:${brandEmail}`}>
+              <Mail size={14} /> {brandEmail}
+            </a>
+          </div>
         </div>
       </main>
     );
@@ -174,125 +218,225 @@ export default function InsuranceSofClient({
     { value: 'no', label: 'No' },
   ];
 
+  /* ---------- form ---------- */
   return (
-    <main className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-xl w-full bg-white rounded-2xl shadow-md border border-gray-100 p-8 sm:p-10">
-        <div className="flex items-center gap-3 mb-2">
-          <ShieldCheck className="text-primary" size={26} />
-          <h1 className="text-2xl sm:text-3xl font-bold text-text">Insurance Statement of Facts</h1>
-        </div>
-        <p className="text-text-light leading-relaxed mb-5">
-          Complete this short declaration for <strong>{dto.companyName}</strong> to join our block
-          professional-indemnity policy.
-        </p>
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white px-4 py-8 sm:py-10">
+      <div className="mx-auto max-w-5xl grid lg:grid-cols-[minmax(0,1fr)_336px] gap-6 lg:gap-8 items-start">
+        {/* LEFT — the form */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-6 sm:p-8 border-b border-gray-100">
+            <div className="flex items-center gap-3 mb-1.5">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <ShieldCheck size={22} />
+              </span>
+              <h1 className="text-2xl sm:text-[1.7rem] font-bold text-text leading-tight">
+                Insurance Statement of Facts
+              </h1>
+            </div>
+            <p className="text-text-light leading-relaxed">
+              Complete this short declaration for <strong className="text-text">{dto.companyName}</strong> to join our
+              block professional-indemnity policy.
+            </p>
 
-        <div className="rounded-xl border-2 border-primary/60 bg-white p-4 mb-4 text-sm">
-          <div className="font-semibold text-text mb-1">Insurance overview</div>
-          <ul className="space-y-1 text-text-light">
-            <li><strong>Professional Indemnity</strong> — £5,000,000 any one claim and in the aggregate</li>
-            <li><strong>Employers’ Liability</strong> — £10,000,000 any one occurrence</li>
-            <li><strong>Public Liability</strong> — £10,000,000 any one claim</li>
-          </ul>
-        </div>
+            <div className="mt-6">
+              <div className="flex justify-between text-xs font-medium text-text-light mb-1.5">
+                <span>Your answers</span>
+                <span>
+                  {answeredCount} of {total}
+                </span>
+              </div>
+              <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          </div>
 
-        <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 mb-2 text-sm text-text-light">
-          Please answer all questions accurately and truthfully. Failure to provide accurate answers may
-          result in your insurance becoming invalid in the event of a claim.
-        </div>
-
-        <Question label="When do you want the insurance to start?" hint="Start date must be today or later">
-          <input
-            type="date"
-            min={today()}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="mt-2 border border-gray-300 rounded-lg px-3 py-2 text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
-          />
-        </Question>
-
-        <Question label="Are you a single-person limited company?" hint="Only fee-earning additional directors">
-          <Choice value={singlePerson} onChange={(v) => setSinglePerson(v as YN)} options={yn} />
-        </Question>
-
-        <Question label="Do you work outside the USA or Canada?">
-          <Choice value={outsideUS} onChange={(v) => setOutsideUS(v as YN)} options={yn} />
-        </Question>
-
-        <Question label="Do you need specific professional indemnity insurance as part of your membership to a professional body e.g. ARB, ICAEW, RICS, SRA or similar?">
-          <Choice value={professionalPI} onChange={(v) => setProfessionalPI(v as YN)} options={yn} />
-        </Question>
-
-        <Question label="Do you carry out any Offshore work, Safety Critical Rail work, Asbestos Related work or work which requires Medical Malpractice Insurance?">
-          <Choice value={highRisk} onChange={(v) => setHighRisk(v as YN)} options={yn} />
-        </Question>
-
-        <Question label="Have you ever been declined insurance, accepted on special terms or ever convicted of any non-motoring criminal offence?">
-          <Choice value={adverse} onChange={(v) => setAdverse(v as YN)} options={yn} />
-        </Question>
-
-        <Question label="You obtain work through a recruitment agency or direct to the end client (not the general public) and never on a direct basis with customers e.g. you work as a contractor.">
-          <Choice
-            value={source}
-            onChange={(v) => setSource(v as Source)}
-            options={[
-              { value: 'Recruitment Agency', label: 'Recruitment Agency' },
-              { value: 'End Client', label: 'End Client' },
-              { value: 'No', label: 'No' },
-            ]}
-          />
-        </Question>
-
-        {allAnswered && suitable && (
-          <div className="mt-5">
-            <div className="rounded-lg bg-blue-50 text-blue-900 p-3 text-sm mb-3">
-              This insurance may be suitable for your requirements. Please read the terms below and, if you
-              agree, confirm and submit. Once submitted we’ll review the request to ensure suitability and, if
-              accepted, issue policy documents.{' '}
-              <strong>Please note that until you receive the policy schedules from us you are NOT covered by insurance.</strong>
+          <div className="p-6 sm:p-8">
+            <div className="flex gap-2.5 rounded-xl bg-amber-50/70 border border-amber-100 px-4 py-3 mb-2 text-sm text-amber-900">
+              <ShieldCheck size={18} className="shrink-0 mt-0.5 text-amber-500" />
+              <span>
+                Please answer all questions accurately and truthfully. Inaccurate answers may invalidate your cover
+                in the event of a claim.
+              </span>
             </div>
 
-            <label className="block text-sm font-semibold text-text mb-1">Your full name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Jane Smith"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
+            <QuestionRow n={1} label="When do you want the insurance to start?" hint="Must be today or later" answered={!!startDate}>
+              <input
+                type="date"
+                min={today()}
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="mt-3 w-full sm:w-auto border border-gray-200 rounded-lg px-3.5 py-2.5 text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+              />
+            </QuestionRow>
 
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-1 h-4 w-4" />
-              <span className="text-sm text-text-light leading-relaxed">
-                I confirm the above statements of truth are correct.
-              </span>
-            </label>
+            <QuestionRow n={2} label="Are you a single-person limited company?" hint="Only fee-earning additional directors" answered={!!singlePerson}>
+              <Choice value={singlePerson} onChange={(v) => setSinglePerson(v as YN)} options={yn} />
+            </QuestionRow>
+
+            <QuestionRow n={3} label="Do you work outside the USA or Canada?" answered={!!outsideUS}>
+              <Choice value={outsideUS} onChange={(v) => setOutsideUS(v as YN)} options={yn} />
+            </QuestionRow>
+
+            <QuestionRow
+              n={4}
+              label="Do you need specific professional indemnity insurance as part of your membership to a professional body e.g. ARB, ICAEW, RICS, SRA or similar?"
+              answered={!!professionalPI}
+            >
+              <Choice value={professionalPI} onChange={(v) => setProfessionalPI(v as YN)} options={yn} />
+            </QuestionRow>
+
+            <QuestionRow
+              n={5}
+              label="Do you carry out any Offshore work, Safety Critical Rail work, Asbestos Related work or work which requires Medical Malpractice Insurance?"
+              answered={!!highRisk}
+            >
+              <Choice value={highRisk} onChange={(v) => setHighRisk(v as YN)} options={yn} />
+            </QuestionRow>
+
+            <QuestionRow
+              n={6}
+              label="Have you ever been declined insurance, accepted on special terms, or convicted of any non-motoring criminal offence?"
+              answered={!!adverse}
+            >
+              <Choice value={adverse} onChange={(v) => setAdverse(v as YN)} options={yn} />
+            </QuestionRow>
+
+            <QuestionRow
+              n={7}
+              label="You obtain work through a recruitment agency or direct to the end client (not the general public) — e.g. you work as a contractor."
+              answered={!!source}
+            >
+              <Choice
+                value={source}
+                onChange={(v) => setSource(v as Source)}
+                options={[
+                  { value: 'Recruitment Agency', label: 'Recruitment Agency' },
+                  { value: 'End Client', label: 'End Client' },
+                  { value: 'No', label: 'No' },
+                ]}
+              />
+            </QuestionRow>
+
+            {/* branch */}
+            {allAnswered && suitable && (
+              <div className="mt-6 rounded-xl border border-primary/20 bg-primary/[0.04] p-5">
+                <div className="text-sm text-text leading-relaxed mb-4">
+                  Good news — this policy may be suitable for you. Please confirm the statements are correct and
+                  submit. We’ll review and, if accepted, issue your policy documents.
+                  <span className="block mt-2 text-amber-800 font-medium">
+                    Until you receive the policy schedules from us, you are not yet covered.
+                  </span>
+                </div>
+
+                <label className="block text-sm font-semibold text-text mb-1.5">Your full name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Jane Smith"
+                  className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 mb-4 text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+
+                <label className="flex items-start gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={confirmed}
+                    onChange={(e) => setConfirmed(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-[color:var(--color-primary)]"
+                  />
+                  <span className="text-sm text-text-light leading-relaxed">
+                    I confirm the above statements of truth are correct.
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {allAnswered && !suitable && (
+              <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 leading-relaxed">
+                Based on one or more of your answers, we’re unable to offer you our premium block policy. Please
+                submit anyway — we’ll be in touch to discuss your options and recommend an alternative if available.
+              </div>
+            )}
+
+            {error && <p className="text-sm text-rose-600 mt-4">{error}</p>}
+
+            <button
+              type="button"
+              onClick={submit}
+              disabled={!canSubmit}
+              className="w-full mt-6 bg-primary text-white font-semibold py-3.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-95 active:scale-[0.99] transition"
+            >
+              {submitting ? 'Submitting…' : allAnswered ? 'Submit declaration' : `Answer all ${total} questions to continue`}
+            </button>
           </div>
-        )}
+        </div>
 
-        {allAnswered && !suitable && (
-          <div className="mt-5 rounded-lg bg-amber-50 text-amber-900 p-3 text-sm">
-            Unfortunately, due to one or more of your answers, we’re unable to offer you insurance through our
-            premium package. Please submit and we’ll be in touch to discuss your options and recommend an
-            alternative solution if available.
-          </div>
-        )}
+        {/* RIGHT — rail */}
+        <aside className="lg:sticky lg:top-8 space-y-4">
+          <RailCard className="overflow-hidden !p-0">
+            <div className="bg-gradient-to-br from-primary to-primary/80 px-5 py-4 text-white">
+              <div className="flex items-center gap-2 font-semibold">
+                <ShieldCheck size={18} /> Your cover
+              </div>
+            </div>
+            <ul className="p-5 space-y-3 text-sm">
+              {[
+                ['Professional Indemnity', '£5,000,000 any one claim & aggregate'],
+                ['Employers’ Liability', '£10,000,000 any one occurrence'],
+                ['Public Liability', '£10,000,000 any one claim'],
+              ].map(([t, d]) => (
+                <li key={t} className="flex gap-2.5">
+                  <Check size={16} className="shrink-0 mt-0.5 text-emerald-500" strokeWidth={3} />
+                  <div>
+                    <div className="font-semibold text-text">{t}</div>
+                    <div className="text-text-light text-[0.8rem]">{d}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </RailCard>
 
-        {error && <p className="text-sm text-rose-600 mt-4">{error}</p>}
+          <RailCard>
+            <div className="text-sm font-semibold text-text mb-4">What happens next</div>
+            <ol className="space-y-4">
+              {[
+                { icon: FileCheck2, t: 'You complete this form', d: 'Takes about a minute.' },
+                { icon: Clock, t: 'We review your answers', d: 'To confirm the policy is suitable.' },
+                { icon: ShieldCheck, t: 'We issue your policy schedules', d: 'You’re covered once you receive them.' },
+              ].map((s, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <s.icon size={16} />
+                  </span>
+                  <div>
+                    <div className="text-sm font-medium text-text">{s.t}</div>
+                    <div className="text-xs text-text-light">{s.d}</div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </RailCard>
 
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!canSubmit}
-          className="w-full mt-6 bg-primary text-white font-semibold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95 transition"
-        >
-          {submitting ? 'Submitting…' : 'Submit'}
-        </button>
-
-        <p className="text-xs text-text-light mt-5 text-center">
-          Questions? Contact us on{' '}
-          <a className="text-primary hover:underline" href={`tel:${brandPhone.replace(/\s/g, '')}`}>{brandPhone}</a>{' '}
-          or <a className="text-primary hover:underline" href={`mailto:${brandEmail}`}>{brandEmail}</a>.
-        </p>
+          <RailCard>
+            <div className="flex items-center gap-2 text-xs text-text-light mb-3">
+              <Lock size={13} /> Secure &amp; encrypted
+            </div>
+            <div className="text-sm font-semibold text-text mb-1">Need a hand?</div>
+            <p className="text-xs text-text-light mb-3">We’re happy to help you through it.</p>
+            <div className="space-y-1.5 text-sm">
+              <a className="flex items-center gap-2 text-primary hover:underline" href={`tel:${brandPhone.replace(/\s/g, '')}`}>
+                <Phone size={14} /> {brandPhone}
+              </a>
+              <a className="flex items-center gap-2 text-primary hover:underline" href={`mailto:${brandEmail}`}>
+                <Mail size={14} /> {brandEmail}
+              </a>
+            </div>
+          </RailCard>
+        </aside>
       </div>
     </main>
   );
