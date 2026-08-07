@@ -1,39 +1,53 @@
-import { type InsuranceCertData, formatCertDate } from '@/content/insurance-certificate';
+import { type InsuranceCertData, certDateParts } from '@/content/insurance-certificate';
+
+function CertDate({ iso }: { iso: string }) {
+  const p = certDateParts(iso);
+  return (
+    <>
+      {p.dd}
+      <sup>{p.suffix}</sup> {p.rest}
+    </>
+  );
+}
 
 /**
  * The Caunce O'Hara / Markel block-policy "Verification Certificate", laid out
  * to match the broker's original. Rendered to PDF by headless Chrome.
  */
 export default function InsuranceCertificate({ data }: { data: InsuranceCertData }) {
-  const period = `${formatCertDate(data.startDate)} to ${formatCertDate(data.periodEnd)} inclusive`;
+  const period = (
+    <>
+      <CertDate iso={data.startDate} /> to <CertDate iso={data.periodEnd} /> inclusive
+    </>
+  );
 
   return (
     <div className="cert">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
         .cert { font-family: Arial, Helvetica, sans-serif; color: #2b2b2b; font-size: 10.5pt;
-                line-height: 1.38; padding: 9mm 15mm; box-sizing: border-box; }
+                line-height: 1.35; padding: 9mm 15mm; box-sizing: border-box; }
         .cert-head { display: flex; justify-content: space-between; align-items: flex-start; }
-        .cert-caunce { width: 84px; height: 84px; display: block; }
-        .cert-head-r { text-align: right; padding-top: 6px; }
+        .cert-caunce { width: 150px; height: auto; display: block; }
+        .cert-head-r { text-align: right; padding-top: 30px; }
         .cert-title { font-size: 16pt; font-weight: 800; color: #111; letter-spacing: .2px; }
-        .cert-holder { font-size: 13pt; font-weight: 700; color: #111; margin-top: 2px; }
-        .cert-rule { border: 0; border-top: 2.5px solid #111; margin: 6px 0 14px; }
-        .cert h2 { font-size: 12pt; font-weight: 800; color: #111; margin: 0 0 8px; }
-        .cert p { margin: 0 0 8px; }
-        .cover { width: 100%; border-collapse: collapse; margin: 2px 0 10px; }
+        .cert-holder { font-size: 13pt; font-weight: 800; color: #111; margin-top: 2px; }
+        .cert-rule { border: 0; border-top: 2.5px solid #111; margin: 8px 0 16px; }
+        .cert h2 { font-size: 12pt; font-weight: 800; color: #111; margin: 0 0 10px; }
+        .cert p { margin: 0 0 10px; }
+        .cover { width: 100%; border-collapse: collapse; margin: 2px 0 12px; }
         .cover td { vertical-align: top; padding: 0.5px 0; }
-        .c-label { width: 190px; font-weight: 700; color: #111; }
-        .c-colon { width: 14px; }
-        .c-mid { width: 132px; }
+        .c-label { width: 320px; font-weight: 700; color: #111; }
+        .c-colon { width: 30px; }
+        .c-mid { width: 200px; }
         .c-val { font-weight: 700; color: #111; }
         .c-note { font-style: italic; color: #555; }
-        .c-gap td { height: 7px; }
-        .sig { font-family: 'Great Vibes', 'Segoe Script', cursive; font-size: 26pt;
-               color: #1a2a4a; line-height: 1; margin: 4px 0 2px; }
+        .c-gap td { height: 8px; }
+        .cert sup { font-size: 0.62em; vertical-align: super; }
+        .sig { font-weight: 800; font-size: 30pt; color: #111; line-height: 1; margin: 6px 0 2px;
+               letter-spacing: .3px; }
         .sig-name { margin: 0; line-height: 1.3; }
-        .cert-foot { margin-top: 14px; }
-        .cert-markel { width: 150px; display: block; }
+        .cert-foot { margin-top: 12px; text-align: right; }
+        .cert-markel { width: 150px; display: inline-block; }
       `}</style>
 
       <div className="cert-head">

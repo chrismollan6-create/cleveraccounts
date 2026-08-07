@@ -28,10 +28,10 @@ export function isInsuranceCert(v: unknown): v is InsuranceCertData {
   );
 }
 
-/** "07th August 2026" — zero-padded day + ordinal suffix, as on the certificate. */
-export function formatCertDate(iso: string): string {
+/** Parts of a certificate date — "07" + "th" (superscript) + "May 2026". */
+export function certDateParts(iso: string): { dd: string; suffix: string; rest: string } {
   const d = new Date(`${iso}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return '';
+  if (Number.isNaN(d.getTime())) return { dd: '', suffix: '', rest: '' };
   const day = d.getUTCDate();
   const suffix =
     day >= 11 && day <= 13
@@ -45,7 +45,7 @@ export function formatCertDate(iso: string): string {
             : 'th';
   const dd = String(day).padStart(2, '0');
   const month = d.toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
-  return `${dd}${suffix} ${month} ${d.getUTCFullYear()}`;
+  return { dd, suffix, rest: `${month} ${d.getUTCFullYear()}` };
 }
 
 export function buildSampleCert(): InsuranceCertData {
