@@ -38,7 +38,7 @@ export default function CisView() {
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-white leading-[0.95] tracking-tight mb-6">
             Making Tax Digital?<br />
-            <span className="text-primary">You won&rsquo;t lift a finger.</span>
+            <span className="text-secondary">You won&rsquo;t lift a finger.</span>
           </h1>
           <p className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto mb-9 leading-relaxed">
             You&rsquo;ve probably heard MTD is coming and it sounds like a headache. It really isn&rsquo;t — not with us.
