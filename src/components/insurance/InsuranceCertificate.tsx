@@ -47,7 +47,7 @@ export default function InsuranceCertificate({ data }: { data: InsuranceCertData
                letter-spacing: .3px; }
         .sig-name { margin: 0; line-height: 1.3; }
         .cert-foot { margin-top: 16px; text-align: right; }
-        .cert-markel { width: 150px; display: inline-block; }
+        .cert-markel { width: 82px; height: auto; display: inline-block; }
       `}</style>
 
       <div className="cert-head">
