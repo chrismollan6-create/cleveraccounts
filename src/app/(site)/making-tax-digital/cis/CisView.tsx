@@ -1,13 +1,8 @@
 "use client";
 import Link from "next/link";
-import { AlertTriangle, Phone, ArrowRight, CheckCircle2, ShieldCheck, Mail } from "lucide-react";
+import { Phone, ArrowRight, CheckCircle2, ShieldCheck, Mail, Sparkles } from "lucide-react";
 import { useBrand } from "@/lib/useBrand";
 import ReferralCta from "@/components/ReferralCta";
-
-// Sparing "danger" red — a semantic alert (NOT orange, which reads as Clever
-// branding). Everything else is Workwell brand (teal / green / cream).
-const WARN = "#e5484d";
-const WARN_SOFT = "#f6a5a5";
 
 export default function CisView() {
   const brand = useBrand();
@@ -15,42 +10,39 @@ export default function CisView() {
   const videoSrc = "/videos/mtd-cis.mp4";
   const videoPoster = "/videos/mtd-cis-poster.jpg";
 
-  const chain = [
-    { n: "Step 1", t: "No MTD set-up" },
-    { n: "Step 2", t: "Can't file the normal way" },
-    { n: "The result", t: "Refund frozen", last: true },
+  // Calm, factual "what's actually changing" — no catastrophe framing.
+  const facts = [
+    { n: "What it is", t: "HMRC going digital. A few quick quarterly check-ins instead of one big yearly return." },
+    { n: "What changes for you", t: "Honestly? Almost nothing. Same work, same pay, same CIS refund." },
+    { n: "Who & when", t: "CIS subbies over £30k turnover, from April 2027. That&rsquo;s turnover, not profit." },
   ];
 
   const fixes = [
-    "We register you with HMRC — it's not automatic, and that's our job.",
-    "Your software's already set up — nothing to buy or learn.",
-    "We file every quarterly update and your final return.",
-    "Your CIS refund keeps coming, exactly as now.",
+    "We register you with HMRC — it&rsquo;s not automatic, and it&rsquo;s our job, not yours.",
+    "Your software&rsquo;s already set up — nothing to buy, nothing to learn.",
+    "We file every quarterly update and your final return, on time, every time.",
+    "Your CIS refund keeps coming, exactly as it does now.",
   ];
 
   return (
     <>
-      {/* ── HERO — instant impact + video ────────────────────── */}
+      {/* ── HERO — reassurance first ──────────────────────────── */}
       <section className="relative overflow-hidden bg-dark pt-12 pb-14 md:pt-14 md:pb-16">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-32 -right-24 w-[520px] h-[520px] rounded-full bg-primary/25 blur-3xl" />
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[520px] h-[360px] rounded-full blur-3xl" style={{ backgroundColor: `${WARN}1f` }} />
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[520px] h-[360px] rounded-full bg-secondary/20 blur-3xl" />
         </div>
         <div className="relative max-w-3xl mx-auto px-4 text-center">
-          <div
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-wide mb-6"
-            style={{ backgroundColor: `${WARN}22`, border: `1px solid ${WARN}59`, color: WARN_SOFT }}
-          >
-            <AlertTriangle size={15} /> CIS subcontractors — read this
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold uppercase tracking-wide mb-6 bg-white/10 border border-white/20 text-white/90">
+            <Sparkles size={15} /> CIS subcontractors — the honest version
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tight mb-6">
-            No return.<br />
-            <span style={{ color: WARN }}>No refund.</span>
+          <h1 className="text-5xl md:text-7xl font-black text-white leading-[0.95] tracking-tight mb-6">
+            Making Tax Digital?<br />
+            <span className="text-primary">You won&rsquo;t lift a finger.</span>
           </h1>
           <p className="text-white/75 text-lg md:text-xl max-w-2xl mx-auto mb-9 leading-relaxed">
-            From April 2027, Making Tax Digital hits every CIS subbie turning over{" "}
-            <strong className="text-white">£30k+</strong>. Miss it, and the refund you&rsquo;re owed gets{" "}
-            <strong style={{ color: WARN_SOFT }}>stuck</strong>. Here&rsquo;s the 60-second version 👇
+            You&rsquo;ve probably heard MTD is coming and it sounds like a headache. It really isn&rsquo;t — not with us.
+            We handle the lot; you carry on exactly as you are. Here&rsquo;s the 60-second version 👇
           </p>
 
           <video
@@ -72,43 +64,28 @@ export default function CisView() {
         </div>
       </section>
 
-      {/* ── THE SCARE (light) ────────────────────────────────── */}
+      {/* ── WHAT'S ACTUALLY CHANGING (calm, factual) ─────────── */}
       <section className="bg-surface py-14 md:py-20">
         <div className="max-w-4xl mx-auto px-4">
-          <p className="text-center text-sm font-bold uppercase tracking-widest mb-3" style={{ color: WARN }}>
-            Ignore it, and here&rsquo;s the chain
+          <p className="text-center text-sm font-bold uppercase tracking-widest mb-3 text-secondary-dark">
+            No jargon, no scaremongering
           </p>
           <h2 className="text-center text-3xl md:text-5xl font-black text-dark mb-10 leading-tight">
-            Your refund gets frozen.
+            What&rsquo;s actually changing?
           </h2>
           <div className="grid sm:grid-cols-3 gap-3 mb-9">
-            {chain.map((c) => (
-              <div
-                key={c.t}
-                className={`rounded-xl p-5 ${c.last ? "" : "bg-white border border-border shadow-sm"}`}
-                style={c.last ? { backgroundColor: `${WARN}14`, border: `1px solid ${WARN}80` } : undefined}
-              >
-                <div
-                  className={`text-xs font-bold uppercase tracking-wider mb-2 ${c.last ? "" : "text-text-light"}`}
-                  style={c.last ? { color: WARN } : undefined}
-                >
+            {facts.map((c) => (
+              <div key={c.n} className="rounded-xl p-5 bg-white border border-border shadow-sm">
+                <div className="text-xs font-bold uppercase tracking-wider mb-2 text-secondary-dark">
                   {c.n}
                 </div>
-                <div className={`text-lg font-bold ${c.last ? "" : "text-dark"}`} style={c.last ? { color: WARN } : undefined}>
-                  {c.t}
-                </div>
+                <div className="text-[15px] font-semibold text-dark leading-snug" dangerouslySetInnerHTML={{ __html: c.t }} />
               </div>
             ))}
           </div>
           <p className="text-center text-text text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            HMRC takes <strong className="text-dark">20%</strong> of your pay at source. Most subbies are owed money back —{" "}
-            <strong style={{ color: WARN }}>often thousands</strong>. Miss MTD and it stays stuck until you&rsquo;re set up.
-          </p>
-          <p className="text-center text-text text-base md:text-lg max-w-2xl mx-auto leading-relaxed mt-5">
-            <strong style={{ color: WARN }}>And there are penalties now</strong> — miss the new quarterly deadlines and HMRC racks up points, then fines.
-          </p>
-          <p className="text-center text-text-light text-sm mt-4">
-            And that&rsquo;s <strong className="text-dark">£30k turnover — not profit</strong>. Nearly every subbie is over it.
+            That&rsquo;s the whole story. The only people who hit trouble are the ones who ignore it completely —
+            and staying with us means <strong className="text-dark">you never have to think about it.</strong>
           </p>
         </div>
       </section>
@@ -117,19 +94,20 @@ export default function CisView() {
       <section className="bg-white py-14 md:py-20">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 text-secondary-dark text-sm font-bold uppercase tracking-widest mb-3">
-            <ShieldCheck size={16} /> The easy way out
+            <ShieldCheck size={16} /> What you actually have to do
           </div>
           <h2 className="text-3xl md:text-5xl font-black text-dark mb-4 leading-tight">
             Stay with Workwell. We&rsquo;ll sort the lot.
           </h2>
           <p className="text-text-light text-lg max-w-xl mx-auto mb-9">
-            You don&rsquo;t need to register with HMRC, learn new software, or diarise a single deadline. That&rsquo;s all us — you carry on exactly as you are.
+            No registering with HMRC, no new software to learn, not a single deadline to diarise. That&rsquo;s all us —
+            you carry on exactly as you are.
           </p>
           <div className="grid sm:grid-cols-2 gap-4 text-left">
             {fixes.map((t) => (
               <div key={t} className="flex items-start gap-3 bg-surface border border-border rounded-xl p-5">
                 <CheckCircle2 size={20} className="text-secondary shrink-0 mt-0.5" />
-                <span className="text-dark text-[15px] font-semibold leading-snug">{t}</span>
+                <span className="text-dark text-[15px] font-semibold leading-snug" dangerouslySetInnerHTML={{ __html: t }} />
               </div>
             ))}
           </div>
@@ -153,10 +131,11 @@ export default function CisView() {
         </div>
         <div className="relative max-w-2xl mx-auto px-4">
           <h2 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">
-            Don&rsquo;t leave it in the drawer.
+            One quick chat and it&rsquo;s handled.
           </h2>
           <p className="text-white/85 text-lg mb-9 max-w-xl mx-auto font-medium">
-            The subbies who sort it early won&rsquo;t feel a thing. Talk to us and we&rsquo;ll get you set up — long before it bites.
+            No pressure, no jargon — just tell us you&rsquo;re a CIS subbie and we&rsquo;ll make sure you&rsquo;re set up
+            long before April 2027. You genuinely won&rsquo;t feel a thing.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href={tel} className="inline-flex items-center justify-center gap-2 bg-white text-dark font-bold px-8 py-4 rounded-xl text-lg hover:bg-white/90 transition-all shadow-xl">
