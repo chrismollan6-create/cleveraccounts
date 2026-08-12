@@ -5,7 +5,7 @@ import { getSalesforceToken } from '@/lib/salesforce';
  * DDCMS (Access PaySuite) callback receiver.
  *
  * Registered with them as the return endpoint for all entities:
- *   https://www.cleveraccounts.co.uk/api/ddcms/webhook
+ *   https://cleveraccounts.com/api/ddcms/webhook
  *
  * Design rules (see docs/ddcms-integration-plan.md §4, §4a):
  *
