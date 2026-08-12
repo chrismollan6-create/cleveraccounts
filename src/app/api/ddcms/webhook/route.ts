@@ -47,16 +47,24 @@ function redact(value: unknown): unknown {
 
 /**
  * Shared-secret check. Access PaySuite can send a custom header on every
- * callback (arranged by support case). Until that is in place the check is
- * inert, so registration can be tested before the secret exists — but once
- * DDCMS_WEBHOOK_SECRET is set, a missing or wrong header is rejected.
+ * callback, arranged by support case — so there is a window where they have
+ * registered the URL but the header is not yet configured at their end.
+ *
+ * During that window we must NOT reject: a 401 would discard real BACS
+ * notifications, and their retry policy is unknown. So unverified requests are
+ * accepted and flagged (Error__c), rather than lost.
+ *
+ * Set DDCMS_WEBHOOK_ENFORCE=1 once they confirm the header is live, and
+ * unverified requests start being rejected outright.
  */
-function authorised(req: NextRequest): boolean {
+function checkSecret(req: NextRequest): 'ok' | 'unverified' {
   const expected = process.env.DDCMS_WEBHOOK_SECRET;
-  if (!expected) return true;
+  if (!expected) return 'unverified';
   const headerName = process.env.DDCMS_WEBHOOK_HEADER || 'x-ddcms-secret';
-  return req.headers.get(headerName) === expected;
+  return req.headers.get(headerName) === expected ? 'ok' : 'unverified';
 }
+
+const enforcing = () => process.env.DDCMS_WEBHOOK_ENFORCE === '1';
 
 type Payload = Record<string, unknown>;
 
@@ -93,9 +101,13 @@ export async function POST(request: NextRequest) {
   // log the raw text — it may carry bank details.
   const raw = await request.text();
 
-  if (!authorised(request)) {
+  const verdict = checkSecret(request);
+  if (verdict === 'unverified' && enforcing()) {
     console.warn('/api/ddcms/webhook: rejected — bad or missing shared secret');
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+  }
+  if (verdict === 'unverified') {
+    console.warn('/api/ddcms/webhook: accepting UNVERIFIED request (enforcement off)');
   }
 
   let body: Payload;
@@ -112,6 +124,11 @@ export async function POST(request: NextRequest) {
     ...summarise(body),
     Payload__c: JSON.stringify(safe).slice(0, 32000),
     Processed__c: false,
+    // Flagged rather than dropped, so an unverified event is visible in
+    // Salesforce and can be reviewed instead of silently trusted or lost.
+    ...(verdict === 'unverified'
+      ? { Error__c: 'UNVERIFIED: missing or invalid shared-secret header' }
+      : {}),
   };
 
   try {
@@ -158,6 +175,8 @@ export async function GET() {
     endpoint: 'ddcms-webhook',
     status: 'ready',
     secured: Boolean(process.env.DDCMS_WEBHOOK_SECRET),
+    // false = unverified callbacks are accepted and flagged, not rejected.
+    enforcing: process.env.DDCMS_WEBHOOK_ENFORCE === '1',
     // `defined` separates "variable absent" from "variable present but empty" —
     // the latter is the known Windows `vercel env add` failure, and looks
     // identical to the former from outside.
