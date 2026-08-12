@@ -145,11 +145,21 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/** Lets us (and them) confirm the endpoint is live without sending a payload. */
+/**
+ * Lets us (and them) confirm the endpoint is live without sending a payload.
+ *
+ * `commit` and `env` are here so that "secured: false" can be diagnosed without
+ * guessing: they identify WHICH deployment is answering, which distinguishes a
+ * stale build from a variable set on the wrong project or environment. No secret
+ * value is exposed — only whether one is present and non-empty.
+ */
 export async function GET() {
   return NextResponse.json({
     endpoint: 'ddcms-webhook',
     status: 'ready',
     secured: Boolean(process.env.DDCMS_WEBHOOK_SECRET),
+    header: process.env.DDCMS_WEBHOOK_HEADER || 'x-ddcms-secret',
+    env: process.env.VERCEL_ENV ?? 'unknown',
+    commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'unknown',
   });
 }
