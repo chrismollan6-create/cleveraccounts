@@ -158,8 +158,14 @@ export async function GET() {
     endpoint: 'ddcms-webhook',
     status: 'ready',
     secured: Boolean(process.env.DDCMS_WEBHOOK_SECRET),
+    // `defined` separates "variable absent" from "variable present but empty" —
+    // the latter is the known Windows `vercel env add` failure, and looks
+    // identical to the former from outside.
+    defined: process.env.DDCMS_WEBHOOK_SECRET !== undefined,
     header: process.env.DDCMS_WEBHOOK_HEADER || 'x-ddcms-secret',
     env: process.env.VERCEL_ENV ?? 'unknown',
     commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'unknown',
+    // Names the Vercel project actually serving this domain.
+    host: process.env.VERCEL_URL ?? 'unknown',
   });
 }
