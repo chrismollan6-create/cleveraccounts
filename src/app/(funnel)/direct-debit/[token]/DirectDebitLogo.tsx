@@ -5,20 +5,25 @@ import { useState } from 'react';
 /**
  * The Bacs Direct Debit logo.
  *
- * The mark is controlled by Bacs and comes with usage rules (minimum size,
- * clear space, no recolouring), so it is NOT reproduced here from memory — an
- * approximation would be both wrong and a trademark problem. Drop the official
- * artwork, which Access PaySuite supply to service users, at:
+ * To use the official mark, save the artwork Access PaySuite supply as either:
  *
+ *     public/images/direct-debit-logo.png   (preferred — tried first)
  *     public/images/direct-debit-logo.svg
  *
- * and it appears automatically. Until then a neutral wordmark stands in, which
- * is honest about being ours rather than pretending to be the scheme mark.
+ * and it appears everywhere with no code change. An SVG or a transparent PNG at
+ * 2x the display size (roughly 360px wide) both work.
+ *
+ * The mark is a controlled trademark with usage rules — minimum size, clear
+ * space around it, and no recolouring or redrawing — which is why the fallback
+ * below is a plain wordmark rather than an imitation of it.
  */
-export default function DirectDebitLogo({ className = '' }: { className?: string }) {
-  const [missing, setMissing] = useState(false);
 
-  if (missing) {
+const CANDIDATES = ['/images/direct-debit-logo.png', '/images/direct-debit-logo.svg'];
+
+export default function DirectDebitLogo({ className = '' }: { className?: string }) {
+  const [attempt, setAttempt] = useState(0);
+
+  if (attempt >= CANDIDATES.length) {
     return (
       <span
         className={`inline-flex items-center gap-1.5 rounded border border-slate-300 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600 ${className}`}
@@ -29,14 +34,15 @@ export default function DirectDebitLogo({ className = '' }: { className?: string
   }
 
   return (
-    // Plain <img> rather than next/image: the file may legitimately not exist
-    // yet, and next/image cannot fail softly.
+    // Plain <img>: a candidate may legitimately not exist, and next/image
+    // cannot fail softly enough to try the next one.
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/images/direct-debit-logo.svg"
+      key={CANDIDATES[attempt]}
+      src={CANDIDATES[attempt]}
       alt="Direct Debit"
       className={`h-8 w-auto ${className}`}
-      onError={() => setMissing(true)}
+      onError={() => setAttempt((n) => n + 1)}
     />
   );
 }
