@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CheckCircle2, Lock, Loader2, Mail, ShieldCheck, CalendarClock, Building2 } from 'lucide-react';
 import type { DDRequestDto } from './page';
+import DirectDebitLogo from './DirectDebitLogo';
 
 /**
  * The Direct Debit sign-up form.
@@ -56,19 +57,22 @@ export default function DirectDebitClient({
   brandPhone: string;
 }) {
   const [accountHolder, setAccountHolder] = useState(dto.recipientName ?? '');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(dto.email ?? '');
   const [sortCode, setSortCode] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [confirmAuthority, setConfirmAuthority] = useState(false);
 
+  // Prefilled from the client record. The payer confirms it rather than
+  // retyping — but can change it, because the address their bank holds for the
+  // account is not always the one we bill.
   const [postcodeQuery, setPostcodeQuery] = useState('');
   const [addressOptions, setAddressOptions] = useState<PostcoderAddress[] | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
-  const [addressLine1, setAddressLine1] = useState('');
-  const [addressLine2, setAddressLine2] = useState('');
-  const [town, setTown] = useState('');
-  const [postCode, setPostCode] = useState('');
-  const [manualAddress, setManualAddress] = useState(false);
+  const [addressLine1, setAddressLine1] = useState(dto.addressLine1 ?? '');
+  const [addressLine2, setAddressLine2] = useState(dto.addressLine2 ?? '');
+  const [town, setTown] = useState(dto.town ?? '');
+  const [postCode, setPostCode] = useState(dto.postCode ?? '');
+  const [changingAddress, setChangingAddress] = useState(false);
 
   const [bankCheck, setBankCheck] = useState<BankCheck | null>(null);
   const [checking, setChecking] = useState(false);
@@ -98,15 +102,13 @@ export default function DirectDebitClient({
       const res = await fetch(`/api/address?postcode=${encodeURIComponent(pc)}`);
       const data = await res.json();
       if (!Array.isArray(data) || data.length === 0) {
-        setError('No addresses found for that postcode. You can enter it manually below.');
-        setManualAddress(true);
+        setError('No addresses found for that postcode. You can type it in below.');
         setAddressOptions(null);
         return;
       }
       setAddressOptions(data as PostcoderAddress[]);
     } catch {
-      setError('Address lookup is unavailable. Please enter your address manually.');
-      setManualAddress(true);
+      setError('Address lookup is unavailable. Please type your address in below.');
     } finally {
       setLookingUp(false);
     }
@@ -218,12 +220,13 @@ export default function DirectDebitClient({
     'mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none transition focus:border-slate-900 focus:ring-1 focus:ring-slate-900';
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        {/* ---------------------------------------------------------- form */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <h1 className="text-2xl font-semibold text-slate-900">Set up your Direct Debit</h1>
-          <p className="mt-3 text-slate-600">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+            Set up your Direct Debit
+          </h1>
+          <p className="mt-2 max-w-2xl text-slate-600">
             {dto.clientName ? (
               <>
                 For <span className="font-medium text-slate-900">{dto.clientName}</span>, so your{' '}
@@ -233,9 +236,22 @@ export default function DirectDebitClient({
               <>So your {brandName} invoices are collected automatically. It takes about a minute.</>
             )}
           </p>
+        </div>
+        <DirectDebitLogo />
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8">
+        {/* ---------------------------------------------------------- form */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          {dto.reference && (
+            <p className="mb-8 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              Your reference <span className="font-mono font-medium text-slate-900">{dto.reference}</span>
+              {' '}— quote this if you contact us about your Direct Debit.
+            </p>
+          )}
 
           {/* --- 1. Account holder ------------------------------------- */}
-          <section className="mt-8">
+          <section>
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               1. Account holder
             </h2>
@@ -276,132 +292,142 @@ export default function DirectDebitClient({
           </section>
 
           {/* --- 2. Address -------------------------------------------- */}
-          <section className="mt-8">
+          <section className="mt-9">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               2. Your address
             </h2>
-            <p className="mt-2 text-xs text-slate-500">
-              This must be the address your bank holds for this account.
+            <p className="mt-2 text-sm text-slate-500">
+              This should be the address your bank holds for this account.
             </p>
 
-            {!manualAddress && (
-              <div className="mt-4">
-                <label htmlFor="postcodeQuery" className="block text-sm font-medium text-slate-900">
-                  Postcode
-                </label>
-                <div className="mt-1.5 flex gap-2">
-                  <input
-                    id="postcodeQuery"
-                    type="text"
-                    autoComplete="postal-code"
-                    value={postcodeQuery}
-                    onChange={(e) => setPostcodeQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        lookupPostcode();
-                      }
-                    }}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2.5 uppercase text-slate-900 outline-none transition focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
-                    placeholder="LN11 9BX"
-                  />
-                  <button
-                    type="button"
-                    onClick={lookupPostcode}
-                    disabled={lookingUp || postcodeQuery.trim().length < 3}
-                    className="shrink-0 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {lookingUp ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : 'Find address'}
-                  </button>
-                </div>
+            {/* Prefilled from the client record — confirm, don't retype. */}
+            {!changingAddress && addressReady && (
+              <div className="mt-4 flex items-start justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <address className="text-sm not-italic leading-6 text-slate-700">
+                  {[addressLine1, addressLine2, town, postCode].filter(Boolean).map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </address>
+                <button
+                  type="button"
+                  onClick={() => setChangingAddress(true)}
+                  className="shrink-0 text-sm font-medium text-slate-700 underline"
+                >
+                  Change
+                </button>
               </div>
             )}
 
-            {addressOptions && (
-              <ul className="mt-3 max-h-56 divide-y divide-slate-100 overflow-y-auto rounded-lg border border-slate-200">
-                {addressOptions.map((addr, i) => (
-                  <li key={i}>
+            {(changingAddress || !addressReady) && (
+              <>
+                <div className="mt-4">
+                  <label htmlFor="postcodeQuery" className="block text-sm font-medium text-slate-900">
+                    Search by postcode
+                  </label>
+                  <div className="mt-1.5 flex gap-2">
+                    <input
+                      id="postcodeQuery"
+                      type="text"
+                      autoComplete="postal-code"
+                      value={postcodeQuery}
+                      onChange={(e) => setPostcodeQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          lookupPostcode();
+                        }
+                      }}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2.5 uppercase text-slate-900 outline-none transition focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+                      placeholder="LN11 9BX"
+                    />
                     <button
                       type="button"
-                      onClick={() => chooseAddress(addr)}
-                      className="w-full px-3 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+                      onClick={lookupPostcode}
+                      disabled={lookingUp || postcodeQuery.trim().length < 3}
+                      className="shrink-0 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {addr.summaryline ??
-                        [addr.addressline1, addr.posttown, addr.postcode].filter(Boolean).join(', ')}
+                      {lookingUp ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : 'Find address'}
                     </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                  </div>
+                </div>
 
-            {(addressReady || manualAddress) && (
-              <div className="mt-4 space-y-4">
-                <div>
-                  <label htmlFor="line1" className="block text-sm font-medium text-slate-900">
-                    Address line 1
-                  </label>
-                  <input
-                    id="line1"
-                    type="text"
-                    value={addressLine1}
-                    onChange={(e) => setAddressLine1(e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="line2" className="block text-sm font-medium text-slate-900">
-                    Address line 2 <span className="font-normal text-slate-400">(optional)</span>
-                  </label>
-                  <input
-                    id="line2"
-                    type="text"
-                    value={addressLine2}
-                    onChange={(e) => setAddressLine2(e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
+                {addressOptions && (
+                  <ul className="mt-3 max-h-56 divide-y divide-slate-100 overflow-y-auto rounded-lg border border-slate-200">
+                    {addressOptions.map((addr, i) => (
+                      <li key={i}>
+                        <button
+                          type="button"
+                          onClick={() => chooseAddress(addr)}
+                          className="w-full px-3 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+                        >
+                          {addr.summaryline ??
+                            [addr.addressline1, addr.posttown, addr.postcode].filter(Boolean).join(', ')}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <div className="mt-4 space-y-4">
                   <div>
-                    <label htmlFor="town" className="block text-sm font-medium text-slate-900">
-                      Town
+                    <label htmlFor="line1" className="block text-sm font-medium text-slate-900">
+                      Address line 1
                     </label>
                     <input
-                      id="town"
+                      id="line1"
                       type="text"
-                      value={town}
-                      onChange={(e) => setTown(e.target.value)}
+                      value={addressLine1}
+                      onChange={(e) => setAddressLine1(e.target.value)}
                       className={inputClass}
                     />
                   </div>
                   <div>
-                    <label htmlFor="postCode" className="block text-sm font-medium text-slate-900">
-                      Postcode
+                    <label htmlFor="line2" className="block text-sm font-medium text-slate-900">
+                      Address line 2 <span className="font-normal text-slate-400">(optional)</span>
                     </label>
                     <input
-                      id="postCode"
+                      id="line2"
                       type="text"
-                      value={postCode}
-                      onChange={(e) => setPostCode(e.target.value.toUpperCase())}
-                      className={`${inputClass} uppercase`}
+                      value={addressLine2}
+                      onChange={(e) => setAddressLine2(e.target.value)}
+                      className={inputClass}
                     />
                   </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="town" className="block text-sm font-medium text-slate-900">
+                        Town
+                      </label>
+                      <input
+                        id="town"
+                        type="text"
+                        value={town}
+                        onChange={(e) => setTown(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="postCode" className="block text-sm font-medium text-slate-900">
+                        Postcode
+                      </label>
+                      <input
+                        id="postCode"
+                        type="text"
+                        value={postCode}
+                        onChange={(e) => setPostCode(e.target.value.toUpperCase())}
+                        className={`${inputClass} uppercase`}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {!manualAddress && !addressReady && (
-              <button
-                type="button"
-                onClick={() => setManualAddress(true)}
-                className="mt-3 text-sm font-medium text-slate-600 underline"
-              >
-                Enter address manually
-              </button>
+              </>
             )}
           </section>
 
           {/* --- 3. Bank details --------------------------------------- */}
-          <section className="mt-8">
+          <section className="mt-9">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               3. Bank details
             </h2>
@@ -464,7 +490,7 @@ export default function DirectDebitClient({
           </section>
 
           {/* --- 4. Authority ------------------------------------------ */}
-          <section className="mt-8">
+          <section className="mt-9">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               4. Confirm
             </h2>

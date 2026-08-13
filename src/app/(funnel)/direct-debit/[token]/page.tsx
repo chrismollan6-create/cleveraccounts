@@ -19,6 +19,12 @@ export interface DDRequestDto {
   reference?: string;
   expired?: boolean;
   completed?: boolean;
+  /** Prefilled from the client record — the payer confirms rather than retypes. */
+  email?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  town?: string;
+  postCode?: string;
 }
 
 export const dynamic = 'force-dynamic';
