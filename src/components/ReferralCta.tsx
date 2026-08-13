@@ -24,7 +24,7 @@ export default function ReferralCta({ tone = "calm" }: { tone?: "calm" | "cis" }
               {cis ? "Know a mate who's overpaying? Refer them." : "Know someone who'd benefit? Refer them."}
             </h2>
             <p className="text-text-light leading-relaxed">
-              Refer a mate to {brand.name} and earn <strong className="text-dark">£75</strong> when they join — grab your link and share it in a tap.
+              Refer a mate to {brand.name} and earn <strong className="text-dark">£50</strong> when they join — grab your link and share it in a tap.
             </p>
           </div>
           <Link
