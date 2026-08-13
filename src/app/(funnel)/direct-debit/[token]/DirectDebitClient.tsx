@@ -593,34 +593,46 @@ export default function DirectDebitClient({
 
       {/*
         The Direct Debit Guarantee. Required by the Scheme Rules — the wording is
-        fixed and must not be paraphrased or shortened.
+        fixed and must not be paraphrased or shortened. Rendered as a single
+        readable column: a two-column grid left ragged, uneven-length clauses
+        that made a legal notice look like an afterthought.
       */}
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
-        <h2 className="text-sm font-semibold text-slate-900">The Direct Debit Guarantee</h2>
-        <ul className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-          <li>
-            This Guarantee is offered by all banks and building societies that accept instructions to
-            pay Direct Debits.
-          </li>
-          <li>
-            If there are any changes to the amount, date or frequency of your Direct Debit,{' '}
-            {brandName} will notify you in advance of your account being debited, or as otherwise
-            agreed. If you request {brandName} to collect a payment, confirmation of the amount and
-            date will be given to you at the time of the request.
-          </li>
-          <li>
-            If an error is made in the payment of your Direct Debit, by {brandName} or your bank or
-            building society, you are entitled to a full and immediate refund of the amount paid from
-            your bank or building society.
-          </li>
-          <li>
-            If you receive a refund you are not entitled to, you must pay it back when {brandName}{' '}
-            asks you to.
-          </li>
-          <li className="sm:col-span-2">
-            You can cancel a Direct Debit at any time by simply contacting your bank or building
-            society. Written confirmation may be required. Please also notify us.
-          </li>
+      <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4">
+          <h2 className="text-base font-semibold text-slate-900">The Direct Debit Guarantee</h2>
+          <DirectDebitLogo className="h-7" />
+        </div>
+        <ul className="space-y-3 px-6 py-5">
+          {[
+            <>
+              This Guarantee is offered by all banks and building societies that accept instructions
+              to pay Direct Debits.
+            </>,
+            <>
+              If there are any changes to the amount, date or frequency of your Direct Debit,{' '}
+              {brandName} will notify you in advance of your account being debited, or as otherwise
+              agreed. If you request {brandName} to collect a payment, confirmation of the amount and
+              date will be given to you at the time of the request.
+            </>,
+            <>
+              If an error is made in the payment of your Direct Debit, by {brandName} or your bank or
+              building society, you are entitled to a full and immediate refund of the amount paid
+              from your bank or building society.
+            </>,
+            <>
+              If you receive a refund you are not entitled to, you must pay it back when {brandName}{' '}
+              asks you to.
+            </>,
+            <>
+              You can cancel a Direct Debit at any time by simply contacting your bank or building
+              society. Written confirmation may be required. Please also notify us.
+            </>,
+          ].map((clause, i) => (
+            <li key={i} className="flex gap-3 text-sm leading-6 text-slate-600">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" aria-hidden />
+              <span className="max-w-3xl">{clause}</span>
+            </li>
+          ))}
         </ul>
       </section>
     </main>
