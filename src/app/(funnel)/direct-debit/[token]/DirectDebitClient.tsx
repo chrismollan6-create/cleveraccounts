@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { CheckCircle2, Lock, Loader2, Mail, ShieldCheck, CalendarClock, Building2 } from 'lucide-react';
 import type { DDRequestDto } from './page';
-import DirectDebitLogo from './DirectDebitLogo';
 
 /**
  * The Direct Debit sign-up form.
@@ -237,7 +236,6 @@ export default function DirectDebitClient({
             )}
           </p>
         </div>
-        <DirectDebitLogo />
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8">
@@ -600,7 +598,6 @@ export default function DirectDebitClient({
       <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50 px-6 py-4">
           <h2 className="text-base font-semibold text-slate-900">The Direct Debit Guarantee</h2>
-          <DirectDebitLogo className="h-7" />
         </div>
         <ul className="space-y-3 px-6 py-5">
           {[
