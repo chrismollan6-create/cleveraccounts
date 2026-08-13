@@ -181,18 +181,39 @@ export default function DirectDebitClient({
   }
 
   if (done) {
+    const collectionDate = done.firstCollectionDate
+      ? new Date(done.firstCollectionDate).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+      : null;
+
     return (
       <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
           <div className="flex items-start gap-4">
             <CheckCircle2 className="mt-0.5 h-7 w-7 shrink-0 text-emerald-600" aria-hidden />
-            <div>
+            <div className="min-w-0">
               <h1 className="text-2xl font-semibold text-slate-900">Your Direct Debit is set up</h1>
               <p className="mt-3 text-slate-600">
-                Thank you. We&apos;ve sent the instruction to your bank — there&apos;s nothing more for
-                you to do.
+                Thank you{accountHolder ? `, ${accountHolder.split(' ')[0]}` : ''}. We&apos;ve sent the
+                instruction to your bank — there&apos;s nothing more for you to do.
               </p>
+
               <dl className="mt-6 divide-y divide-slate-200 rounded-xl border border-slate-200 text-sm">
+                <div className="flex justify-between gap-4 px-4 py-3">
+                  <dt className="text-slate-500">Bank account</dt>
+                  <dd className="font-mono text-slate-900">
+                    {sortCode} · ••••{accountDigits.slice(-4)}
+                  </dd>
+                </div>
+                {bankCheck?.bankName && (
+                  <div className="flex justify-between gap-4 px-4 py-3">
+                    <dt className="text-slate-500">Bank</dt>
+                    <dd className="font-medium text-slate-900">{bankCheck.bankName}</dd>
+                  </div>
+                )}
                 <div className="flex justify-between gap-4 px-4 py-3">
                   <dt className="text-slate-500">On your statement</dt>
                   <dd className="font-medium text-slate-900">{brandName}</dd>
@@ -203,15 +224,45 @@ export default function DirectDebitClient({
                     <dd className="font-mono text-slate-900">{done.reference}</dd>
                   </div>
                 )}
-                <div className="flex justify-between gap-4 px-4 py-3">
-                  <dt className="text-slate-500">Before we collect</dt>
-                  <dd className="text-right font-medium text-slate-900">
-                    We&apos;ll always tell you the amount and date in advance
-                  </dd>
-                </div>
+                {collectionDate && (
+                  <div className="flex justify-between gap-4 px-4 py-3">
+                    <dt className="text-slate-500">Earliest first collection</dt>
+                    <dd className="font-medium text-slate-900">{collectionDate}</dd>
+                  </div>
+                )}
               </dl>
+
+              <div className="mt-6 rounded-xl bg-slate-50 p-5">
+                <h2 className="text-sm font-semibold text-slate-900">What happens next</h2>
+                <ol className="mt-3 space-y-3 text-sm text-slate-600">
+                  <li className="flex gap-3">
+                    <span className="font-semibold text-slate-400">1</span>
+                    <span>
+                      We&apos;ll email confirmation of this instruction to{' '}
+                      <span className="font-medium text-slate-900">{email || 'you'}</span>.
+                    </span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="font-semibold text-slate-400">2</span>
+                    <span>
+                      Your bank sets up the instruction. This normally takes a few working days.
+                    </span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="font-semibold text-slate-400">3</span>
+                    <span>
+                      <span className="font-medium text-slate-900">
+                        Before we collect anything, we tell you the amount and the date.
+                      </span>{' '}
+                      You&apos;ll never be surprised by a payment.
+                    </span>
+                  </li>
+                </ol>
+              </div>
+
               <p className="mt-6 text-sm text-slate-500">
-                A confirmation will follow by email. Questions? {brandEmail} · {brandPhone}
+                You can cancel at any time by contacting your bank — please tell us too, so we can
+                update your account. Questions? {brandEmail} · {brandPhone}
               </p>
             </div>
           </div>
