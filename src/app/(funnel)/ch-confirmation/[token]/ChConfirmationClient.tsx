@@ -227,6 +227,23 @@ export default function ChConfirmationClient({
   const [verifying, setVerifying] = useState(false);
   const [payError, setPayError] = useState('');
 
+  // ---- "we'll do your ID checks for you" ------------------------------------------------------
+  const idvChoiceKey = `ch-idv-service:${token}`;
+  const idvServiceAvailable = dto.idvServiceAvailable === true;
+  const idvServiceCount = dto.idvServiceCount ?? 0;
+  const idvUnitGross = dto.idvServiceUnitGross ?? 58.8;
+  const idvServiceTotal = dto.idvServiceTotal ?? idvUnitGross * idvServiceCount;
+  const [wantIdvService, setWantIdvService] = useState(false);
+  const [idvServiceStarted, setIdvServiceStarted] = useState(dto.idvServiceRequested === true);
+  // Email/phone we'd run the checks against, prefilled from the contact record and editable.
+  const [idvContacts, setIdvContacts] = useState<Record<string, { email: string; phone: string }>>({});
+  const idvContactUpdates = () =>
+    Object.entries(idvContacts)
+      .filter(([, v]) => v.email || v.phone)
+      .map(([contactId, v]) => ({ contactId, email: v.email, phone: v.phone }));
+  const money = (n: number) =>
+    n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   // On return from Stripe Checkout, verify the session and mark the fee paid.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -237,9 +254,27 @@ export default function ChConfirmationClient({
       setVerifying(true);
       fetch(`/api/ch-confirmation/pay-status?t=${encodeURIComponent(token)}&session=${encodeURIComponent(sid)}`)
         .then((r) => r.json())
-        .then((d) => {
-          if (d?.paid) setPaid(true);
-          else setPayError('We couldn’t confirm your payment yet. If you’ve paid, give it a moment and refresh.');
+        .then(async (d) => {
+          if (d?.paid) {
+            setPaid(true);
+            // The ID-check choice doesn't survive the trip to Stripe, so it's parked in
+            // sessionStorage before we leave. Start the checks only now, once we know they paid.
+            if (sessionStorage.getItem(idvChoiceKey) === '1') {
+              try {
+                const r = await fetch('/api/ch-confirmation/idv-service', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ token, people: idvContactUpdates() }),
+                });
+                if (r.ok) setIdvServiceStarted(true);
+              } catch {
+                // Paid but the handoff failed — staff can start it from the board; don't alarm them.
+              }
+              sessionStorage.removeItem(idvChoiceKey);
+            }
+          } else {
+            setPayError('We couldn’t confirm your payment yet. If you’ve paid, give it a moment and refresh.');
+          }
         })
         .catch(() => setPayError('We couldn’t confirm your payment. Please refresh, or get in touch.'))
         .finally(() => {
@@ -264,10 +299,19 @@ export default function ChConfirmationClient({
       const path = window.location.pathname;
       const successUrl = `${origin}${path}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${origin}${path}?payment=cancelled`;
+      // Park the choice — we come back from Stripe on a fresh page load.
+      if (wantIdvService) sessionStorage.setItem(idvChoiceKey, '1');
+      else sessionStorage.removeItem(idvChoiceKey);
       const res = await fetch('/api/ch-confirmation/pay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, email: payEmail, successUrl, cancelUrl }),
+        body: JSON.stringify({
+          token,
+          email: payEmail,
+          successUrl,
+          cancelUrl,
+          withIdvService: wantIdvService,
+        }),
       });
       const data = await res.json();
       if (data?.alreadySettled) {
@@ -763,6 +807,78 @@ export default function ChConfirmationClient({
                     We can’t file your confirmation statement until every person’s code is recorded.
                   </p>
                 ) : null}
+
+                {idvServiceStarted ? (
+                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 text-[13.5px] text-emerald-900 leading-snug">
+                    <ShieldCheck size={16} className="shrink-0 mt-0.5 text-emerald-600" />
+                    <span>
+                      We’re carrying out the identity checks for you. We’ll email each person with what they
+                      need to do — you don’t need to enter codes below.
+                    </span>
+                  </p>
+                ) : idvServiceAvailable ? (
+                  <div className="mt-3 rounded-xl border border-primary/30 bg-primary/[0.04] px-3.5 py-3">
+                    <label className="flex items-start gap-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={wantIdvService}
+                        onChange={(e) => setWantIdvService(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 accent-[var(--color-primary,#1A7A9B)] shrink-0"
+                      />
+                      <span className="text-[13.5px] text-text leading-relaxed">
+                        <strong className="font-semibold">Rather not do this yourself? We can verify for you.</strong>{' '}
+                        We’ll handle the Companies House identity check for{' '}
+                        {idvServiceCount === 1 ? 'the 1 person' : `all ${idvServiceCount} people`} above — it usually
+                        takes a few hours. <strong className="font-semibold">£{money(idvUnitGross)} per person</strong>{' '}
+                        (£49 + VAT), so <strong className="font-semibold">£{money(idvServiceTotal)}</strong> in total,
+                        added to your payment below.
+                      </span>
+                    </label>
+
+                    {wantIdvService ? (
+                      <div className="mt-3 space-y-2.5 border-t border-primary/20 pt-3">
+                        <p className="text-[12.5px] text-text-light leading-relaxed">
+                          We’ll contact each person to complete their check. Please check we’ve got the right details.
+                        </p>
+                        {idvPeople.map((p) => {
+                          const pid = p.id || '';
+                          const row = idvContacts[pid] || { email: '', phone: '' };
+                          return (
+                            <div key={`svc-${pid}`} className="rounded-lg border border-gray-200 bg-white px-3 py-2.5">
+                              <p className="text-[13px] font-semibold text-text">{p.name}</p>
+                              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                <input
+                                  type="email"
+                                  inputMode="email"
+                                  placeholder="Email address"
+                                  value={row.email}
+                                  onChange={(e) =>
+                                    setIdvContacts((s) => ({ ...s, [pid]: { ...row, email: e.target.value } }))
+                                  }
+                                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                />
+                                <input
+                                  type="tel"
+                                  inputMode="tel"
+                                  placeholder="Mobile number"
+                                  value={row.phone}
+                                  onChange={(e) =>
+                                    setIdvContacts((s) => ({ ...s, [pid]: { ...row, phone: e.target.value } }))
+                                  }
+                                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <p className="text-[12.5px] text-text-light leading-relaxed">
+                          Leave a field blank to keep what we already hold. You can approve your statement straight
+                          away — we’ll file it as soon as everyone’s verified.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
                 <div className="mt-4 space-y-2">
                   {idvPeople.map((p) => {
                     const pid = p.id || '';
@@ -898,8 +1014,25 @@ export default function ChConfirmationClient({
                             </a>
                           ) : null}
                         </div>
-                        <div className="text-2xl font-bold text-text tabular-nums shrink-0">£{feeAmount}</div>
+                        <div className="text-2xl font-bold text-text tabular-nums shrink-0">
+                          £{wantIdvService ? money(Number(feeAmount) + idvServiceTotal) : feeAmount}
+                        </div>
                       </div>
+                      {wantIdvService ? (
+                        <dl className="mt-2 space-y-1 border-t border-gray-200 pt-2 text-[12.5px] text-text-light">
+                          <div className="flex justify-between gap-3">
+                            <dt>Companies House filing fee</dt>
+                            <dd className="tabular-nums">£{money(Number(feeAmount))}</dd>
+                          </div>
+                          <div className="flex justify-between gap-3">
+                            <dt>
+                              Identity checks — {idvServiceCount}{' '}
+                              {idvServiceCount === 1 ? 'person' : 'people'} at £{money(idvUnitGross)} (£49 + VAT)
+                            </dt>
+                            <dd className="tabular-nums">£{money(idvServiceTotal)}</dd>
+                          </div>
+                        </dl>
+                      ) : null}
                       <input
                         type="email"
                         className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"

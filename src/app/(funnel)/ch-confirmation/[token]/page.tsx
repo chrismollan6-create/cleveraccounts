@@ -44,6 +44,13 @@ export interface ChConfirmationDto {
   dueDate?: string;
   /** Whether the deadline has already passed — decided server-side, since dueDate is display-only. */
   overdue?: boolean;
+  /** "We'll run the Companies House ID checks for you" — £49 + VAT per director/PSC. */
+  idvServiceAvailable?: boolean;
+  idvServiceRequested?: boolean;
+  idvServiceCount?: number;
+  idvServiceUnitNet?: number;
+  idvServiceUnitGross?: number;
+  idvServiceTotal?: number;
   registeredOffice?: string;
   registeredEmail?: string | null;
   sicCodes?: string[];
