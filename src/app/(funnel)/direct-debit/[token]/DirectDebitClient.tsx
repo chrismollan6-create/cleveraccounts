@@ -88,13 +88,18 @@ export default function DirectDebitClient({
   const accountDigits = accountNumber.replace(/\D/g, '');
   const addressReady = addressLine1.trim().length > 1 && postCode.trim().length > 4;
 
+  // `skipped` means the bank-checking service is not enabled on our account —
+  // not that the details are wrong. Treating it as a failure would disable the
+  // button for every client until that service is switched on.
+  const bankRejected = bankCheck?.valid === false && !bankCheck?.skipped;
+
   const ready =
     accountHolder.trim().length > 1 &&
     sortDigits.length === 6 &&
     accountDigits.length === 8 &&
     addressReady &&
     confirmAuthority &&
-    bankCheck?.valid !== false &&
+    !bankRejected &&
     !submitting;
 
   async function lookupPostcode() {
@@ -531,14 +536,17 @@ export default function DirectDebitClient({
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Checking your bank details…
               </p>
             )}
-            {!checking && bankCheck?.valid && bankCheck.bankName && (
+            {!checking && bankCheck?.valid && !bankCheck.skipped && bankCheck.bankName && (
               <p className="mt-3 flex items-center gap-2 text-sm text-emerald-700">
                 <Building2 className="h-4 w-4" aria-hidden />
                 {bankCheck.bankName}
                 {bankCheck.branch ? ` — ${bankCheck.branch}` : ''}
               </p>
             )}
-            {!checking && bankCheck?.valid === false && bankCheck.errorMessage && (
+            {/* Only surface a genuine rejection. A skipped check carries an
+                internal message ("not enabled on this account") that means
+                nothing to a payer and would read as their mistake. */}
+            {!checking && bankRejected && bankCheck?.errorMessage && (
               <p className="mt-3 text-sm text-red-700">{bankCheck.errorMessage}</p>
             )}
           </section>
