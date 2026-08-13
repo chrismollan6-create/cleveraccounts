@@ -42,6 +42,8 @@ export interface ChConfirmationDto {
   companyName?: string;
   companyNumber?: string;
   dueDate?: string;
+  /** Whether the deadline has already passed — decided server-side, since dueDate is display-only. */
+  overdue?: boolean;
   registeredOffice?: string;
   registeredEmail?: string | null;
   sicCodes?: string[];
