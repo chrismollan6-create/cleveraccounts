@@ -125,7 +125,12 @@ export default function ChConfirmationClient({
 }) {
   const [flagged, setFlagged] = useState<Record<string, boolean>>({});
   const [changes, setChanges] = useState<Record<string, ChangeVal>>({});
-  const [lawful, setLawful] = useState(true); // opt-out: the company confirms it will keep trading lawfully
+  // Opt-IN. Every other control on this page is a data check; this one is the directors' statutory
+  // confirmation of lawful purpose, made on the statement itself. Pre-ticking it meant a statement
+  // could be filed without the declaration ever actively being made.
+  const [lawful, setLawful] = useState(false);
+  // ...so don't scold them for an unticked box they haven't reached yet.
+  const [lawfulTouched, setLawfulTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<null | 'confirmed' | 'changes' | 'approved-pending'>(null);
   const [error, setError] = useState('');
@@ -203,6 +208,19 @@ export default function ChConfirmationClient({
   // Filing-fee payment state
   const feeRequired = dto.feeRequired !== false && dto.feeStatus !== 'Paid' && dto.feeStatus !== 'Waived';
   const feeAmount = dto.feeAmount ?? 50;
+  // Has the deadline already gone? Prefer the server's own verdict; fall back to reading the
+  // formatted date ("10 Aug 2026"), which is all the API sends today. Compared at local midnight so
+  // the due date itself never counts as late.
+  const isOverdue = (() => {
+    if (typeof dto.overdue === 'boolean') return dto.overdue;
+    if (!dto.dueDate) return false;
+    const due = new Date(dto.dueDate);
+    if (Number.isNaN(due.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+    return due < today;
+  })();
   const [paid, setPaid] = useState(!feeRequired);
   const [payEmail, setPayEmail] = useState('');
   const [paying, setPaying] = useState(false);
@@ -616,16 +634,37 @@ export default function ChConfirmationClient({
               Here’s what Companies House holds for your company. Please check it over, then confirm below — or hit{' '}
               <strong className="font-semibold text-text">Update</strong> next to anything that’s changed.
             </p>
-            <div className="mt-4 flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3.5">
-              <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-600" />
+            <div
+              className={`mt-4 flex items-start gap-3 rounded-xl px-4 py-3.5 border ${
+                isOverdue ? 'bg-red-50 border-red-300' : 'bg-amber-50 border-amber-300'
+              }`}
+            >
+              <AlertTriangle size={18} className={`shrink-0 mt-0.5 ${isOverdue ? 'text-red-600' : 'text-amber-600'}`} />
               <div>
-                <p className="text-[14px] font-bold text-amber-900">
-                  {dto.dueDate ? <>You need to approve this by {dto.dueDate}</> : <>Please approve this as soon as you can</>}
+                <p className={`text-[14px] font-bold ${isOverdue ? 'text-red-900' : 'text-amber-900'}`}>
+                  {isOverdue ? (
+                    <>This was due on {dto.dueDate} and is now overdue</>
+                  ) : dto.dueDate ? (
+                    <>You need to approve this by {dto.dueDate}</>
+                  ) : (
+                    <>Please approve this as soon as you can</>
+                  )}
                 </p>
-                <p className="mt-1 text-[13px] text-amber-800 leading-relaxed">
-                  Keeping the confirmation statement filed on time is the company directors’ legal responsibility,
-                  and we can’t file it until you’ve approved it here. Filed late, the company can be struck off the
-                  register and its directors prosecuted and fined — so please don’t leave it.
+                <p className={`mt-1 text-[13px] leading-relaxed ${isOverdue ? 'text-red-800' : 'text-amber-800'}`}>
+                  {isOverdue ? (
+                    <>
+                      Keeping the confirmation statement filed on time is the company directors’ legal
+                      responsibility, and we can’t file it until you’ve approved it here. While it’s outstanding the
+                      company is at risk of being struck off the register and its directors prosecuted and fined —
+                      please approve it as soon as you can.
+                    </>
+                  ) : (
+                    <>
+                      Keeping the confirmation statement filed on time is the company directors’ legal
+                      responsibility, and we can’t file it until you’ve approved it here. Filed late, the company can
+                      be struck off the register and its directors prosecuted and fined — so please don’t leave it.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
@@ -824,7 +863,8 @@ export default function ChConfirmationClient({
 
             {/* Approve + pay — always shown; with a change flagged, the client approves the intended end-state. */}
             <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-5 sm:p-6 mt-4">
-                <p className="text-[15px] font-semibold text-text">{anyFlagged ? 'Approve, pay &amp; submit' : 'Confirm &amp; file'}</p>
+                {/* Plain '&' — inside a JS string literal JSX does not decode entities, so '&amp;' reached the client verbatim. */}
+                <p className="text-[15px] font-semibold text-text">{anyFlagged ? 'Approve, pay & submit' : 'Confirm & file'}</p>
                 <p className="mt-1 text-[13px] text-text-light leading-relaxed">
                   {anyFlagged
                     ? 'Approve and pay now — we’ll file the change(s) you flagged with Companies House, then file your confirmation statement automatically once they’re on the register. No need to come back.'
@@ -887,7 +927,10 @@ export default function ChConfirmationClient({
                   <input
                     type="checkbox"
                     checked={lawful}
-                    onChange={(e) => setLawful(e.target.checked)}
+                    onChange={(e) => {
+                      setLawful(e.target.checked);
+                      setLawfulTouched(true);
+                    }}
                     className="mt-0.5 w-4 h-4 accent-[var(--color-primary,#1A7A9B)] shrink-0"
                   />
                   <span className="text-[13px] text-text leading-relaxed">
@@ -896,7 +939,7 @@ export default function ChConfirmationClient({
                   </span>
                 </label>
 
-                {!lawful ? (
+                {lawfulTouched && !lawful ? (
                   <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-[13px] leading-relaxed text-amber-800">
                     <span>
                       We can only file a confirmation statement once the company can confirm it will keep trading
@@ -957,12 +1000,26 @@ export default function ChConfirmationClient({
             </div>
 
             {dto.dueDate ? (
-              <div className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-start gap-3 bg-amber-50/40">
-                <span className="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+              <div
+                className={`px-5 sm:px-6 py-4 border-b border-gray-100 flex items-start gap-3 ${
+                  isOverdue ? 'bg-red-50/50' : 'bg-amber-50/40'
+                }`}
+              >
+                <span
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                    isOverdue ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+                  }`}
+                >
                   <CalendarClock size={18} />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-700">Approve by</p>
+                  <p
+                    className={`text-[10px] font-bold uppercase tracking-[0.16em] ${
+                      isOverdue ? 'text-red-700' : 'text-amber-700'
+                    }`}
+                  >
+                    {isOverdue ? 'Overdue since' : 'Approve by'}
+                  </p>
                   <p className="text-lg font-bold text-text leading-tight">{dto.dueDate}</p>
                 </div>
               </div>
