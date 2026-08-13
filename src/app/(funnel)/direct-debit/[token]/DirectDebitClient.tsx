@@ -55,7 +55,12 @@ export default function DirectDebitClient({
   brandEmail: string;
   brandPhone: string;
 }) {
-  const [accountHolder, setAccountHolder] = useState(dto.recipientName ?? '');
+  // Deliberately NOT prefilled. This is the name the bank holds for the
+  // account, which is often not the contact we emailed — sole traders bank
+  // personally, spouses hold joint accounts, companies bank under a trading
+  // name. A prefilled guess would be accepted without thinking and rejected by
+  // BACS days later; an empty box gets typed correctly.
+  const [accountHolder, setAccountHolder] = useState('');
   const [email, setEmail] = useState(dto.email ?? '');
   const [sortCode, setSortCode] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
