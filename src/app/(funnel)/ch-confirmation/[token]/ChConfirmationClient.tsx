@@ -233,14 +233,21 @@ export default function ChConfirmationClient({
   const idvServiceCount = dto.idvServiceCount ?? 0;
   const idvUnitGross = dto.idvServiceUnitGross ?? 58.8;
   const idvServiceTotal = dto.idvServiceTotal ?? idvUnitGross * idvServiceCount;
-  const [wantIdvService, setWantIdvService] = useState(false);
+  // Chosen per person, never inferred — a director may already be part-way through their own check,
+  // so we don't assume everyone listed wants us to do it, and we bill only for those ticked.
+  const [idvChosen, setIdvChosen] = useState<Record<string, boolean>>({});
   const [idvServiceStarted, setIdvServiceStarted] = useState(dto.idvServiceRequested === true);
-  // Email/phone we'd run the checks against, prefilled from the contact record and editable.
   const [idvContacts, setIdvContacts] = useState<Record<string, { email: string; phone: string }>>({});
-  const idvContactUpdates = () =>
-    Object.entries(idvContacts)
-      .filter(([, v]) => v.email || v.phone)
-      .map(([contactId, v]) => ({ contactId, email: v.email, phone: v.phone }));
+  const chosenIds = Object.keys(idvChosen).filter((k) => idvChosen[k]);
+  const idvChosenCount = chosenIds.length;
+  const wantIdvService = idvChosenCount > 0;
+  const idvChosenTotal = idvUnitGross * idvChosenCount;
+  const idvSelectedPeople = () =>
+    chosenIds.map((entityId) => ({
+      entityId,
+      email: idvContacts[entityId]?.email || '',
+      phone: idvContacts[entityId]?.phone || '',
+    }));
   const money = (n: number) =>
     n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -264,7 +271,7 @@ export default function ChConfirmationClient({
                 const r = await fetch('/api/ch-confirmation/idv-service', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ token, people: idvContactUpdates() }),
+                  body: JSON.stringify({ token, people: idvSelectedPeople() }),
                 });
                 if (r.ok) setIdvServiceStarted(true);
               } catch {
@@ -288,10 +295,8 @@ export default function ChConfirmationClient({
   }, [token]);
 
   async function startPayment() {
-    if (!/.+@.+\..+/.test(payEmail)) {
-      setPayError('Please enter a valid email address for your receipt.');
-      return;
-    }
+    // No email asked for here — Stripe Checkout collects it on its own page and sends the receipt,
+    // so asking twice only added a field to get wrong.
     setPaying(true);
     setPayError('');
     try {
@@ -310,7 +315,7 @@ export default function ChConfirmationClient({
           email: payEmail,
           successUrl,
           cancelUrl,
-          withIdvService: wantIdvService,
+          idvPeopleCount: idvChosenCount,
         }),
       });
       const data = await res.json();
@@ -818,35 +823,42 @@ export default function ChConfirmationClient({
                   </p>
                 ) : idvServiceAvailable ? (
                   <div className="mt-3 rounded-xl border border-primary/30 bg-primary/[0.04] px-3.5 py-3">
-                    <label className="flex items-start gap-2.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={wantIdvService}
-                        onChange={(e) => setWantIdvService(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 accent-[var(--color-primary,#1A7A9B)] shrink-0"
-                      />
-                      <span className="text-[13.5px] text-text leading-relaxed">
-                        <strong className="font-semibold">Rather not do this yourself? We can verify for you.</strong>{' '}
-                        We’ll handle the Companies House identity check for{' '}
-                        {idvServiceCount === 1 ? 'the 1 person' : `all ${idvServiceCount} people`} above — it usually
-                        takes a few hours. <strong className="font-semibold">£{money(idvUnitGross)} per person</strong>{' '}
-                        (£49 + VAT), so <strong className="font-semibold">£{money(idvServiceTotal)}</strong> in total,
-                        added to your payment below.
-                      </span>
-                    </label>
+                    <p className="text-[13.5px] text-text leading-relaxed">
+                      <strong className="font-semibold">Rather not do this yourself? We can verify for you.</strong>{' '}
+                      Tick anyone you’d like us to handle the Companies House identity check for — it usually takes a
+                      few hours. <strong className="font-semibold">£{money(idvUnitGross)} per person</strong> (£49 +
+                      VAT), added to your payment below.
+                    </p>
 
-                    {wantIdvService ? (
-                      <div className="mt-3 space-y-2.5 border-t border-primary/20 pt-3">
-                        <p className="text-[12.5px] text-text-light leading-relaxed">
-                          We’ll contact each person to complete their check. Please check we’ve got the right details.
-                        </p>
-                        {idvPeople.map((p) => {
-                          const pid = p.id || '';
-                          const row = idvContacts[pid] || { email: '', phone: '' };
-                          return (
-                            <div key={`svc-${pid}`} className="rounded-lg border border-gray-200 bg-white px-3 py-2.5">
-                              <p className="text-[13px] font-semibold text-text">{p.name}</p>
-                              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <div className="mt-3 space-y-2">
+                      {idvPeople.map((p) => {
+                        const pid = p.id || '';
+                        const chosen = !!idvChosen[pid];
+                        const row = idvContacts[pid] || { email: '', phone: '' };
+                        return (
+                          <div
+                            key={`svc-${pid}`}
+                            className={`rounded-lg border px-3 py-2.5 ${
+                              chosen ? 'border-primary/40 bg-white' : 'border-gray-200 bg-white/60'
+                            }`}
+                          >
+                            <label className="flex items-center gap-2.5 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={chosen}
+                                onChange={(e) =>
+                                  setIdvChosen((s) => ({ ...s, [pid]: e.target.checked }))
+                                }
+                                className="w-4 h-4 accent-[var(--color-primary,#1A7A9B)] shrink-0"
+                              />
+                              <span className="min-w-0 flex-1 text-[13px] font-semibold text-text">{p.name}</span>
+                              <span className="text-[13px] tabular-nums text-text-light shrink-0">
+                                £{money(idvUnitGross)}
+                              </span>
+                            </label>
+
+                            {chosen ? (
+                              <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
                                 <input
                                   type="email"
                                   inputMode="email"
@@ -868,14 +880,18 @@ export default function ChConfirmationClient({
                                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30"
                                 />
                               </div>
-                            </div>
-                          );
-                        })}
-                        <p className="text-[12.5px] text-text-light leading-relaxed">
-                          Leave a field blank to keep what we already hold. You can approve your statement straight
-                          away — we’ll file it as soon as everyone’s verified.
-                        </p>
-                      </div>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {wantIdvService ? (
+                      <p className="mt-2.5 text-[12.5px] text-text-light leading-relaxed">
+                        We’ll contact {idvChosenCount === 1 ? 'them' : 'each of them'} to complete the check — leave a
+                        field blank to keep the details we already hold. You can approve your statement straight away;
+                        we’ll file it as soon as everyone’s verified.
+                      </p>
                     ) : null}
                   </div>
                 ) : null}
@@ -1015,7 +1031,7 @@ export default function ChConfirmationClient({
                           ) : null}
                         </div>
                         <div className="text-2xl font-bold text-text tabular-nums shrink-0">
-                          £{wantIdvService ? money(Number(feeAmount) + idvServiceTotal) : feeAmount}
+                          £{wantIdvService ? money(Number(feeAmount) + idvChosenTotal) : feeAmount}
                         </div>
                       </div>
                       {wantIdvService ? (
@@ -1026,20 +1042,13 @@ export default function ChConfirmationClient({
                           </div>
                           <div className="flex justify-between gap-3">
                             <dt>
-                              Identity checks — {idvServiceCount}{' '}
-                              {idvServiceCount === 1 ? 'person' : 'people'} at £{money(idvUnitGross)} (£49 + VAT)
+                              Identity checks — {idvChosenCount}{' '}
+                              {idvChosenCount === 1 ? 'person' : 'people'} at £{money(idvUnitGross)} (£49 + VAT)
                             </dt>
-                            <dd className="tabular-nums">£{money(idvServiceTotal)}</dd>
+                            <dd className="tabular-nums">£{money(idvChosenTotal)}</dd>
                           </div>
                         </dl>
                       ) : null}
-                      <input
-                        type="email"
-                        className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                        placeholder="Email for your receipt"
-                        value={payEmail}
-                        onChange={(e) => setPayEmail(e.target.value)}
-                      />
                       {payError ? <p className="mt-2 text-[13px] text-rose-600">{payError}</p> : null}
                       <button
                         onClick={startPayment}
@@ -1047,7 +1056,11 @@ export default function ChConfirmationClient({
                         className="w-full mt-3 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                       >
                         {paying || verifying ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
-                        {verifying ? 'Checking payment…' : paying ? 'Redirecting to payment…' : `Pay £${feeAmount} & continue`}
+                        {verifying
+                          ? 'Checking payment…'
+                          : paying
+                            ? 'Redirecting to payment…'
+                            : `Pay £${wantIdvService ? money(Number(feeAmount) + idvChosenTotal) : feeAmount} & continue`}
                       </button>
                       <p className="mt-2 flex items-center justify-center gap-1.5 text-[12px] text-text-light">
                         <Lock size={11} /> Secure payment by Stripe — you’ll come straight back here to approve.
