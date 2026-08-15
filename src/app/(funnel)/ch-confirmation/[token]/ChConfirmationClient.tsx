@@ -242,6 +242,11 @@ export default function ChConfirmationClient({
   const idvChosenCount = chosenIds.length;
   const wantIdvService = idvChosenCount > 0;
   const idvChosenTotal = idvUnitGross * idvChosenCount;
+  const [idvError, setIdvError] = useState('');
+  // Handing the checks to us satisfies the same gate as holding every code: we can't file yet either
+  // way, but the client has done everything asked of them, so approval isn't held up. Mirrors the
+  // Apex gate, which lets an obligation through once IDV_Service_Requested_At__c is stamped.
+  const idvSatisfied = idvAllVerified || idvServiceStarted;
   const idvSelectedPeople = () =>
     chosenIds.map((entityId) => ({
       entityId,
@@ -266,18 +271,41 @@ export default function ChConfirmationClient({
             setPaid(true);
             // The ID-check choice doesn't survive the trip to Stripe, so it's parked in
             // sessionStorage before we leave. Start the checks only now, once we know they paid.
-            if (sessionStorage.getItem(idvChoiceKey) === '1') {
+            const parked = sessionStorage.getItem(idvChoiceKey);
+            if (parked) {
+              // The parked value is the people themselves, not a flag: this is a fresh page load, so
+              // the ticks and the contact details typed beside them are long gone from React state.
+              let people: Array<{ entityId: string; email: string; phone: string }> = [];
               try {
-                const r = await fetch('/api/ch-confirmation/idv-service', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ token, people: idvSelectedPeople() }),
-                });
-                if (r.ok) setIdvServiceStarted(true);
+                const v = JSON.parse(parked);
+                if (Array.isArray(v)) people = v;
               } catch {
-                // Paid but the handoff failed — staff can start it from the board; don't alarm them.
+                people = [];
               }
-              sessionStorage.removeItem(idvChoiceKey);
+              if (people.length) {
+                try {
+                  const r = await fetch('/api/ch-confirmation/idv-service', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, people }),
+                  });
+                  if (r.ok) {
+                    setIdvServiceStarted(true);
+                    sessionStorage.removeItem(idvChoiceKey);
+                  } else {
+                    // They have paid for these checks. Staying quiet here is how it goes unnoticed.
+                    setIdvError(
+                      'Your payment went through, but we couldn’t start the identity checks automatically. ' +
+                        'Please get in touch and we’ll set them up — there’s nothing more to pay.'
+                    );
+                  }
+                } catch {
+                  setIdvError(
+                    'Your payment went through, but we couldn’t start the identity checks automatically. ' +
+                      'Please get in touch and we’ll set them up — there’s nothing more to pay.'
+                  );
+                }
+              }
             }
           } else {
             setPayError('We couldn’t confirm your payment yet. If you’ve paid, give it a moment and refresh.');
@@ -304,8 +332,9 @@ export default function ChConfirmationClient({
       const path = window.location.pathname;
       const successUrl = `${origin}${path}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
       const cancelUrl = `${origin}${path}?payment=cancelled`;
-      // Park the choice — we come back from Stripe on a fresh page load.
-      if (wantIdvService) sessionStorage.setItem(idvChoiceKey, '1');
+      // Park the whole selection — we come back from Stripe on a fresh page load, so a bare flag
+      // would leave us knowing they bought checks but not for whom.
+      if (wantIdvService) sessionStorage.setItem(idvChoiceKey, JSON.stringify(idvSelectedPeople()));
       else sessionStorage.removeItem(idvChoiceKey);
       const res = await fetch('/api/ch-confirmation/pay', {
         method: 'POST',
@@ -361,7 +390,7 @@ export default function ChConfirmationClient({
     if (!lawful) return;
     if (feeRequired && !paid) return;
     if (!hasWebfiling) return;
-    if (!idvAllVerified) return;
+    if (!idvSatisfied) return;
     if (anyFlagged && !allFlaggedComplete) return;
 
     setSubmitting(true);
@@ -806,10 +835,17 @@ export default function ChConfirmationClient({
                   </a>
                   .
                 </p>
-                {!idvAllVerified ? (
+                {!idvSatisfied ? (
                   <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-300 px-3.5 py-2.5 text-[13.5px] font-bold text-amber-900 leading-snug">
                     <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-600" />
                     We can’t file your confirmation statement until every person’s code is recorded.
+                  </p>
+                ) : null}
+
+                {idvError ? (
+                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-rose-50 border border-rose-200 px-3.5 py-2.5 text-[13.5px] text-rose-800 leading-snug">
+                    <AlertTriangle size={16} className="shrink-0 mt-0.5 text-rose-500" />
+                    {idvError}
                   </p>
                 ) : null}
 
@@ -1096,7 +1132,7 @@ export default function ChConfirmationClient({
                   </p>
                 ) : null}
 
-                {!idvAllVerified ? (
+                {!idvSatisfied ? (
                   <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5 text-[13px] leading-relaxed text-amber-800">
                     <KeyRound size={15} className="shrink-0 mt-0.5" />
                     <span>
@@ -1124,7 +1160,7 @@ export default function ChConfirmationClient({
 
                 <button
                   onClick={post}
-                  disabled={submitting || !lawful || (feeRequired && !paid) || !hasWebfiling || !idvAllVerified || (anyFlagged && !allFlaggedComplete)}
+                  disabled={submitting || !lawful || (feeRequired && !paid) || !hasWebfiling || !idvSatisfied || (anyFlagged && !allFlaggedComplete)}
                   className="w-full mt-4 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold shadow-sm hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
