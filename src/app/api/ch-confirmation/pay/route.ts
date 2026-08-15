@@ -14,13 +14,17 @@ export async function POST(request: NextRequest) {
     const email = typeof body?.email === 'string' ? body.email : '';
     const successUrl = typeof body?.successUrl === 'string' ? body.successUrl : '';
     const cancelUrl = typeof body?.cancelUrl === 'string' ? body.cancelUrl : '';
+    // How many people the client asked us to ID-verify, billed with the filing fee. Must be
+    // forwarded: without it Apex prices the fee alone, so the client is charged less than the
+    // page quoted. Apex clamps it to the people who actually still need a check.
+    const idvPeopleCount = Number.isFinite(body?.idvPeopleCount) ? Number(body.idvPeopleCount) : 0;
     if (!token) return NextResponse.json({ error: 'Token required' }, { status: 400 });
 
     const sfToken = await getSalesforceToken();
     const sfRes = await fetch(sfApex('/CHConfirmation/pay'), {
       method: 'POST',
       headers: { Authorization: `Bearer ${sfToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, email, successUrl, cancelUrl }),
+      body: JSON.stringify({ token, email, successUrl, cancelUrl, idvPeopleCount }),
       cache: 'no-store',
     });
     const data = await sfRes.json();
