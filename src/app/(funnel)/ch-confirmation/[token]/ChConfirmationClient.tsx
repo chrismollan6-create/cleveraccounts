@@ -271,28 +271,32 @@ export default function ChConfirmationClient({
             setPaid(true);
             // The ID-check choice doesn't survive the trip to Stripe, so it's parked in
             // sessionStorage before we leave. Start the checks only now, once we know they paid.
+            // Always ask, even with nothing parked here. The selection is also stored against the
+            // obligation at checkout, so Salesforce can start the checks from its own copy when
+            // this browser has lost its session storage — and answers "nothing to do" when the
+            // client only ever bought the filing fee.
             const parked = sessionStorage.getItem(idvChoiceKey);
-            if (parked) {
-              // The parked value is the people themselves, not a flag: this is a fresh page load, so
-              // the ticks and the contact details typed beside them are long gone from React state.
+            {
               let people: Array<{ entityId: string; email: string; phone: string }> = [];
               try {
-                const v = JSON.parse(parked);
+                const v = parked ? JSON.parse(parked) : null;
                 if (Array.isArray(v)) people = v;
               } catch {
                 people = [];
               }
-              if (people.length) {
+              {
                 try {
                   const r = await fetch('/api/ch-confirmation/idv-service', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token, people }),
                   });
+                  const d = await r.json().catch(() => ({}));
                   if (r.ok) {
-                    setIdvServiceStarted(true);
+                    // requested:false means nobody was ever ticked — not a failure.
+                    if (d?.requested !== false || d?.alreadyRequested) setIdvServiceStarted(true);
                     sessionStorage.removeItem(idvChoiceKey);
-                  } else {
+                  } else if (parked) {
                     // They have paid for these checks. Staying quiet here is how it goes unnoticed.
                     setIdvError(
                       'Your payment went through, but we couldn’t start the identity checks automatically. ' +
@@ -300,10 +304,11 @@ export default function ChConfirmationClient({
                     );
                   }
                 } catch {
-                  setIdvError(
-                    'Your payment went through, but we couldn’t start the identity checks automatically. ' +
-                      'Please get in touch and we’ll set them up — there’s nothing more to pay.'
-                  );
+                  if (parked)
+                    setIdvError(
+                      'Your payment went through, but we couldn’t start the identity checks automatically. ' +
+                        'Please get in touch and we’ll set them up — there’s nothing more to pay.'
+                    );
                 }
               }
             }
@@ -345,6 +350,7 @@ export default function ChConfirmationClient({
           successUrl,
           cancelUrl,
           idvPeopleCount: idvChosenCount,
+          idvPeople: idvSelectedPeople(),
         }),
       });
       const data = await res.json();

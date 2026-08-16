@@ -24,7 +24,15 @@ export async function POST(request: NextRequest) {
     const sfRes = await fetch(sfApex('/CHConfirmation/pay'), {
       method: 'POST',
       headers: { Authorization: `Bearer ${sfToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, email, successUrl, cancelUrl, idvPeopleCount }),
+      body: JSON.stringify({
+        token,
+        email,
+        successUrl,
+        cancelUrl,
+        idvPeopleCount,
+        // Parked server-side too, so who was bought for survives the trip to Stripe.
+        idvPeople: Array.isArray(body?.idvPeople) ? body.idvPeople : [],
+      }),
       cache: 'no-store',
     });
     const data = await sfRes.json();
