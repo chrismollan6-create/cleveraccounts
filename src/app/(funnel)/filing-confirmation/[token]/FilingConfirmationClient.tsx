@@ -140,8 +140,8 @@ export default function FilingConfirmationClient({
               Also update this address for your directors?
             </div>
             <p className="text-xs text-text-light leading-relaxed mb-3">
-              A registered office is often the director’s home. If it is, their service address (and
-              sometimes their home address on record) should usually change too. Tick any that apply —
+              If this new address also applies to any of your directors, their service address (and
+              sometimes their home address on record) may need to change too. Tick any that apply and
               we’ll file those alongside this change, with nothing more for you to approve.
             </p>
             <ul className="space-y-3">
