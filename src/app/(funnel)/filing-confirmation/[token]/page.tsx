@@ -3,11 +3,22 @@ import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
 import FilingConfirmationClient from './FilingConfirmationClient';
 
-export interface CascadeOfficer {
+/**
+ * Someone the new registered office could be applied to. A director, or a person on the PSC
+ * register, or both at once — Companies House keeps those as two separate registers, so a person
+ * who is on both needs two forms and gets one row here.
+ */
+export interface CascadePerson {
   key: string;
   name?: string;
   role?: string;
+  /** False for someone who is only a PSC — there's no home address to offer, only the public one. */
+  isDirector?: boolean;
+  isPsc?: boolean;
+  /** The PSC record to file against, present whenever this person is on the PSC register. */
+  pscKey?: string;
   serviceMatchesOldOffice?: boolean;
+  currentAddress?: string;
 }
 
 export interface FilingConfirmationDto {
@@ -18,9 +29,9 @@ export interface FilingConfirmationDto {
   summary?: string;
   status?: 'Requested' | 'Confirmed' | 'Declined' | 'Overridden';
   brand?: string;
-  // AD01 only — offer to apply the new office to directors' addresses.
+  // AD01 only — offer to apply the new office to the directors' and PSCs' addresses.
   newAddress?: string;
-  officers?: CascadeOfficer[];
+  people?: CascadePerson[];
   isOwnOffice?: boolean;
   error?: string;
 }

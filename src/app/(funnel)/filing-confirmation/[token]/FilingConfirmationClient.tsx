@@ -37,19 +37,19 @@ export default function FilingConfirmationClient({
 
   const brand = dto.brand ?? 'your accountant';
   const isAd01 = dto.formType?.toUpperCase() === 'AD01';
-  const officers = isAd01 ? dto.officers ?? [] : [];
+  const people = isAd01 ? dto.people ?? [] : [];
   // Ask "is this your trading address?" only when the new office isn't our own practice address.
   const showTradingQuestion = isAd01 && dto.isOwnOffice === false;
 
   const [cascade, setCascade] = useState<Record<string, CascadeChoice>>(() => {
     const init: Record<string, CascadeChoice> = {};
-    for (const o of officers) {
-      // Service address ticked by default on every director. A director's service address is
-      // normally the registered office, so when that moves theirs almost always moves with it —
-      // and the ones left behind are the ones nobody notices. Previously this was only pre-ticked
-      // where the service address already matched the old office, which missed anyone whose
-      // record had drifted. Residential is never assumed: it's their private home address.
-      init[o.key] = { service: true, residential: false };
+    for (const p of people) {
+      // Service address ticked by default on everyone. A service address is normally the registered
+      // office, so when that moves theirs almost always moves with it — and the ones left behind are
+      // the ones nobody notices. Previously this was only pre-ticked where the service address
+      // already matched the old office, which missed anyone whose record had drifted. Residential is
+      // never assumed: it's their private home address.
+      init[p.key] = { service: true, residential: false };
     }
     return init;
   });
@@ -69,11 +69,20 @@ export default function FilingConfirmationClient({
     setSubmitting(decision);
     setError('');
     try {
+      // One list, two kinds of entry. Directors carry their service/home ticks and are dropped when
+      // neither is set. PSC entries are sent even when UNTICKED — that's how the filing side knows
+      // the client was shown the PSC register and said no, rather than never having been asked.
       const officerCascade =
         decision === 'confirm'
-          ? officers
-              .map((o) => ({ key: o.key, ...(cascade[o.key] ?? { service: false, residential: false }) }))
-              .filter((o) => o.service || o.residential)
+          ? [
+              ...people
+                .filter((p) => p.isDirector)
+                .map((p) => ({ key: p.key, ...(cascade[p.key] ?? { service: false, residential: false }) }))
+                .filter((p) => p.service || p.residential),
+              ...people
+                .filter((p) => p.pscKey)
+                .map((p) => ({ key: p.pscKey as string, psc: true, service: !!cascade[p.key]?.service })),
+            ]
           : undefined;
       const res = await fetch('/api/filing-confirmation/respond', {
         method: 'POST',
@@ -266,48 +275,65 @@ export default function FilingConfirmationClient({
             </div>
           )}
 
-          {officers.length > 0 && (
+          {people.length > 0 && (
             <div className="rounded-xl border border-gray-200 border-l-4 border-l-primary bg-primary-50/40 p-4 mb-6">
               <div className="flex items-center gap-2 mb-1">
                 <Users size={16} className="text-primary flex-none" />
-                <span className="text-sm font-semibold text-text">Also update this address for your directors?</span>
+                <span className="text-sm font-semibold text-text">Who else should this address change for?</span>
               </div>
               <p className="text-xs text-text-light leading-relaxed mb-3 pl-6">
-                If this new address also applies to any of your directors, their address on record may need
-                to change too. Tick any that apply and we’ll file those alongside this change, with nothing
-                more for you to approve.
+                Companies House holds an address for each of your directors and for anyone with significant
+                control of the company, and none of them move automatically when the office does. We’ve
+                ticked everyone below — untick anyone whose address shouldn’t change. We’ll file these
+                alongside this change, with nothing more for you to approve.
               </p>
               <ul className="space-y-3 pl-6">
-                {officers.map((o) => (
-                  <li key={o.key} className="border-t border-gray-200/70 pt-3 first:border-t-0 first:pt-0">
-                    <div className="text-sm font-medium text-text">{o.name}</div>
+                {people.map((p) => (
+                  <li key={p.key} className="border-t border-gray-200/70 pt-3 first:border-t-0 first:pt-0">
+                    <div className="text-sm font-medium text-text">{p.name}</div>
+                    <div className="text-xs text-text-light mt-0.5">
+                      {p.isDirector
+                        ? p.isPsc
+                          ? `${p.role ?? 'Director'} · also has significant control`
+                          : p.role ?? 'Director'
+                        : 'Person with significant control'}
+                      {p.currentAddress && !p.serviceMatchesOldOffice && (
+                        <span className="block mt-0.5">Currently shown as {p.currentAddress}</span>
+                      )}
+                    </div>
                     <div className="flex flex-col sm:flex-row sm:gap-6 mt-1.5">
                       <label className="flex items-center gap-2 cursor-pointer text-sm text-text-light">
                         <input
                           type="checkbox"
-                          checked={!!cascade[o.key]?.service}
-                          onChange={() => toggle(o.key, 'service')}
+                          checked={!!cascade[p.key]?.service}
+                          onChange={() => toggle(p.key, 'service')}
                           className="h-4 w-4"
                         />
                         Service address
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-sm text-text-light">
-                        <input
-                          type="checkbox"
-                          checked={!!cascade[o.key]?.residential}
-                          onChange={() => toggle(o.key, 'residential')}
-                          className="h-4 w-4"
-                        />
-                        Home address
-                      </label>
+                      {/* Home address is a director-only option. A PSC's residential address is
+                          private and never moves off the back of an office change. */}
+                      {p.isDirector && (
+                        <label className="flex items-center gap-2 cursor-pointer text-sm text-text-light">
+                          <input
+                            type="checkbox"
+                            checked={!!cascade[p.key]?.residential}
+                            onChange={() => toggle(p.key, 'residential')}
+                            className="h-4 w-4"
+                          />
+                          Home address
+                        </label>
+                      )}
                     </div>
                   </li>
                 ))}
               </ul>
               <p className="text-[0.7rem] text-text-light leading-relaxed mt-3 pt-3 border-t border-gray-100">
-                The <strong>service address</strong> is the director’s public contact address, shown on the
-                Companies House register. The <strong>home address</strong> is their private residential
-                address — it’s kept confidential and never shown publicly.
+                The <strong>service address</strong> is the public contact address shown on the Companies
+                House register. The <strong>home address</strong> is a director’s private residential
+                address — it’s kept confidential and never shown publicly. A{' '}
+                <strong>person with significant control</strong> is someone who owns or controls a large
+                enough share of the company to be named on its public PSC register — usually a shareholder.
               </p>
             </div>
           )}

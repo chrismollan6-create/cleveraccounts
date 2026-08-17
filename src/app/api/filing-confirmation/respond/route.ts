@@ -5,7 +5,9 @@ import { getSalesforceToken, sfApex } from '@/lib/salesforce';
  * POST /api/filing-confirmation/respond
  * Records the client's confirmation (or decline) of a Companies House change we're about to file.
  * Body: { token: string, name: string, decision: 'confirm' | 'decline',
- *         officerCascade?: Array<{ key, service, residential }> }
+ *         officerCascade?: Array<{ key, service, residential } | { key, psc: true, service }> }
+ * The cascade carries both directors (Contact Ids) and people on the PSC register (PSC Ids);
+ * Apex re-validates every key against the company's own live register before anything is filed.
  * Proxies to the Apex FilingConfirmation REST service.
  */
 export async function POST(request: NextRequest) {
