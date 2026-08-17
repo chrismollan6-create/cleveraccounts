@@ -44,7 +44,12 @@ export default function FilingConfirmationClient({
   const [cascade, setCascade] = useState<Record<string, CascadeChoice>>(() => {
     const init: Record<string, CascadeChoice> = {};
     for (const o of officers) {
-      init[o.key] = { service: !!o.serviceMatchesOldOffice, residential: false };
+      // Service address ticked by default on every director. A director's service address is
+      // normally the registered office, so when that moves theirs almost always moves with it —
+      // and the ones left behind are the ones nobody notices. Previously this was only pre-ticked
+      // where the service address already matched the old office, which missed anyone whose
+      // record had drifted. Residential is never assumed: it's their private home address.
+      init[o.key] = { service: true, residential: false };
     }
     return init;
   });
