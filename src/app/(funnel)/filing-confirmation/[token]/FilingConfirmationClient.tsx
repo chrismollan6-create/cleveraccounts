@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import type { FilingConfirmationDto } from './page';
 
+type CascadeChoice = { service: boolean; residential: boolean };
+
 export default function FilingConfirmationClient({
   token,
   dto,
@@ -21,6 +23,21 @@ export default function FilingConfirmationClient({
   const [done, setDone] = useState<'' | 'confirm' | 'decline'>('');
   const [error, setError] = useState('');
 
+  const officers = dto.formType?.toUpperCase() === 'AD01' ? dto.officers ?? [] : [];
+  const [cascade, setCascade] = useState<Record<string, CascadeChoice>>(() => {
+    const init: Record<string, CascadeChoice> = {};
+    for (const o of officers) {
+      init[o.key] = { service: !!o.serviceMatchesOldOffice, residential: false };
+    }
+    return init;
+  });
+  function toggle(key: string, field: keyof CascadeChoice) {
+    setCascade((prev) => ({
+      ...prev,
+      [key]: { ...(prev[key] ?? { service: false, residential: false }), [field]: !prev[key]?.[field] },
+    }));
+  }
+
   const canConfirm = agreed && name.trim().length > 1 && !submitting;
 
   async function respond(decision: 'confirm' | 'decline') {
@@ -29,10 +46,16 @@ export default function FilingConfirmationClient({
     setSubmitting(decision);
     setError('');
     try {
+      const officerCascade =
+        decision === 'confirm'
+          ? officers
+              .map((o) => ({ key: o.key, ...(cascade[o.key] ?? { service: false, residential: false }) }))
+              .filter((o) => o.service || o.residential)
+          : undefined;
       const res = await fetch('/api/filing-confirmation/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, name: name.trim(), decision }),
+        body: JSON.stringify({ token, name: name.trim(), decision, officerCascade }),
       });
       const data = await res.json();
       if (!res.ok || data?.error) {
@@ -110,6 +133,46 @@ export default function FilingConfirmationClient({
             </div>
           )}
         </div>
+
+        {officers.length > 0 && (
+          <div className="rounded-xl border border-gray-200 p-4 mb-6">
+            <div className="text-sm font-semibold text-text mb-1">
+              Also update this address for your directors?
+            </div>
+            <p className="text-xs text-text-light leading-relaxed mb-3">
+              A registered office is often the director’s home. If it is, their service address (and
+              sometimes their home address on record) should usually change too. Tick any that apply —
+              we’ll file those alongside this change, with nothing more for you to approve.
+            </p>
+            <ul className="space-y-3">
+              {officers.map((o) => (
+                <li key={o.key} className="border-t border-gray-100 pt-3 first:border-t-0 first:pt-0">
+                  <div className="text-sm font-medium text-text">{o.name}</div>
+                  <div className="flex flex-col sm:flex-row sm:gap-6 mt-1.5">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-text-light">
+                      <input
+                        type="checkbox"
+                        checked={!!cascade[o.key]?.service}
+                        onChange={() => toggle(o.key, 'service')}
+                        className="h-4 w-4"
+                      />
+                      Update service address
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-text-light">
+                      <input
+                        type="checkbox"
+                        checked={!!cascade[o.key]?.residential}
+                        onChange={() => toggle(o.key, 'residential')}
+                        className="h-4 w-4"
+                      />
+                      Update home address
+                    </label>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <p className="text-xs text-text-light leading-relaxed mb-6">
           Once filed, this change becomes part of the company’s public record at Companies House. By

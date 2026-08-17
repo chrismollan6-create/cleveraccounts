@@ -3,6 +3,13 @@ import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
 import FilingConfirmationClient from './FilingConfirmationClient';
 
+export interface CascadeOfficer {
+  key: string;
+  name?: string;
+  role?: string;
+  serviceMatchesOldOffice?: boolean;
+}
+
 export interface FilingConfirmationDto {
   companyName?: string;
   companyNumber?: string;
@@ -11,6 +18,9 @@ export interface FilingConfirmationDto {
   summary?: string;
   status?: 'Requested' | 'Confirmed' | 'Declined' | 'Overridden';
   brand?: string;
+  // AD01 only — offer to apply the new office to directors' addresses.
+  newAddress?: string;
+  officers?: CascadeOfficer[];
   error?: string;
 }
 
