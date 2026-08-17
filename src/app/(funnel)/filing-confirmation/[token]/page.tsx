@@ -21,6 +21,7 @@ export interface FilingConfirmationDto {
   // AD01 only — offer to apply the new office to directors' addresses.
   newAddress?: string;
   officers?: CascadeOfficer[];
+  isOwnOffice?: boolean;
   error?: string;
 }
 

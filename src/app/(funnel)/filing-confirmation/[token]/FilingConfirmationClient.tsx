@@ -22,10 +22,13 @@ export default function FilingConfirmationClient({
   const [submitting, setSubmitting] = useState<'' | 'confirm' | 'decline'>('');
   const [done, setDone] = useState<'' | 'confirm' | 'decline'>('');
   const [error, setError] = useState('');
+  const [tradingChange, setTradingChange] = useState<boolean | null>(null);
 
   const brand = dto.brand ?? 'your accountant';
   const isAd01 = dto.formType?.toUpperCase() === 'AD01';
   const officers = isAd01 ? dto.officers ?? [] : [];
+  // Ask "is this your trading address?" only when the new office isn't our own practice address.
+  const showTradingQuestion = isAd01 && dto.isOwnOffice === false;
 
   const [cascade, setCascade] = useState<Record<string, CascadeChoice>>(() => {
     const init: Record<string, CascadeChoice> = {};
@@ -41,7 +44,8 @@ export default function FilingConfirmationClient({
     }));
   }
 
-  const canConfirm = agreed && name.trim().length > 1 && !submitting;
+  const canConfirm =
+    agreed && name.trim().length > 1 && !submitting && (!showTradingQuestion || tradingChange !== null);
 
   async function respond(decision: 'confirm' | 'decline') {
     if (decision === 'confirm' && !canConfirm) return;
@@ -58,7 +62,13 @@ export default function FilingConfirmationClient({
       const res = await fetch('/api/filing-confirmation/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, name: name.trim(), decision, officerCascade }),
+        body: JSON.stringify({
+          token,
+          name: name.trim(),
+          decision,
+          officerCascade,
+          tradingAddressChange: showTradingQuestion && decision === 'confirm' ? tradingChange === true : false,
+        }),
       });
       const data = await res.json();
       if (!res.ok || data?.error) {
@@ -156,6 +166,43 @@ export default function FilingConfirmationClient({
               </div>
             )}
           </div>
+
+          {showTradingQuestion && (
+            <div className="rounded-xl border border-gray-200 p-4 mb-6">
+              <div className="text-sm font-semibold text-text mb-1">
+                Is this also a change to your trading address?
+              </div>
+              <p className="text-xs text-text-light leading-relaxed mb-3">
+                Your registered office and the address you actually trade from can be different. If your
+                business now operates from this new address, we may also need to update HMRC, VAT and PAYE
+                and your billing address — let us know so we can take care of it.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTradingChange(true)}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition ${
+                    tradingChange === true
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-300 text-text-light hover:bg-gray-50'
+                  }`}
+                >
+                  Yes — we trade from here
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTradingChange(false)}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition ${
+                    tradingChange === false
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-300 text-text-light hover:bg-gray-50'
+                  }`}
+                >
+                  No — registered office only
+                </button>
+              </div>
+            </div>
+          )}
 
           {officers.length > 0 && (
             <div className="rounded-xl border border-gray-200 p-4 mb-6">

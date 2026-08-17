@@ -14,12 +14,14 @@ export async function POST(request: NextRequest) {
     let name = '';
     let decision = 'confirm';
     let officerCascade: unknown = undefined;
+    let tradingAddressChange = false;
     try {
       const body = await request.json();
       if (body && typeof body.token === 'string') token = body.token;
       if (body && typeof body.name === 'string') name = body.name;
       if (body && typeof body.decision === 'string') decision = body.decision;
       if (body && Array.isArray(body.officerCascade)) officerCascade = body.officerCascade;
+      if (body && typeof body.tradingAddressChange === 'boolean') tradingAddressChange = body.tradingAddressChange;
     } catch {
       // invalid body
     }
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${sfToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ token, name, decision, officerCascade }),
+      body: JSON.stringify({ token, name, decision, officerCascade, tradingAddressChange }),
       cache: 'no-store',
     });
 
