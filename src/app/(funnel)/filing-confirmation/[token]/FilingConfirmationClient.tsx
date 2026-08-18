@@ -296,7 +296,7 @@ export default function FilingConfirmationClient({
                         ? p.isPsc
                           ? `${p.role ?? 'Director'} · also has significant control`
                           : p.role ?? 'Director'
-                        : 'Person with significant control'}
+                        : (p.role ?? 'Person with significant control')}
                       {p.currentAddress && !p.serviceMatchesOldOffice && (
                         <span className="block mt-0.5">Currently shown as {p.currentAddress}</span>
                       )}
