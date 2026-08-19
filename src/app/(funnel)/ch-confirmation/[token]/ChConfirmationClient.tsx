@@ -18,7 +18,7 @@ import {
   Landmark,
   KeyRound,
 } from 'lucide-react';
-import type { ChConfirmationDto, IdvPerson } from './page';
+import type { ChConfirmationDto, IdvPerson, OfficeCascadePerson } from './page';
 import { sicDescription, searchSicCodes } from '@/lib/sic-codes';
 
 /** Same premium elevation as the VAT approval + accounts signing pages, so the three read as one system. */
@@ -464,6 +464,11 @@ export default function ChConfirmationClient({
               placeholder="Postcode"
               value={val('postcode')}
               onChange={(e) => setChange(key, { postcode: e.target.value.toUpperCase() })}
+            />
+            <OfficeCascade
+              people={dto.officeCascadePeople || []}
+              selected={Array.isArray(c.cascade) ? (c.cascade as string[]) : null}
+              onChange={(next) => setChange(key, { cascade: next })}
             />
           </div>
         );
@@ -1317,6 +1322,82 @@ function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
     default:
       return null;
   }
+}
+
+/**
+ * Who moves with the company.
+ *
+ * A registered office is very often also the director's home, and the same address usually sits on
+ * the director register and the PSC register as well. Companies House keeps those as separate
+ * registers and none of them update each other, so moving the company alone leaves the rest showing
+ * an address it no longer occupies.
+ *
+ * Asked here rather than inferred — and the note matters as much as the list: without it a client
+ * changing the office also hits "Update" on each director, which flags an officer change and holds
+ * the whole confirmation statement waiting on a form we were about to file anyway.
+ */
+function OfficeCascade({
+  people,
+  selected,
+  onChange,
+}: {
+  people: OfficeCascadePerson[];
+  selected: string[] | null;
+  onChange: (next: string[]) => void;
+}) {
+  if (!people.length) return null;
+
+  // Untouched means "the sensible default": everyone whose address is the office that's moving.
+  const current = selected ?? people.filter((p) => p.matchesOldOffice).map((p) => p.key);
+  const toggle = (k: string) =>
+    onChange(current.includes(k) ? current.filter((x) => x !== k) : [...current, k]);
+
+  return (
+    <div className="mt-1 rounded-xl border border-amber-200 bg-white/70 p-3">
+      <p className="text-[13px] font-semibold text-text">Who else uses this address?</p>
+      <p className="mt-0.5 text-[12px] text-text-light leading-relaxed">
+        Companies House holds an address for each director and person with significant control
+        separately from the company&rsquo;s. Tick anyone who should move to the new address and
+        we&rsquo;ll update them at the same time.
+      </p>
+      <ul className="mt-2.5 space-y-1.5">
+        {people.map((p) => {
+          const on = current.includes(p.key);
+          return (
+            <li key={p.key}>
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={on}
+                  onChange={() => toggle(p.key)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
+                />
+                <span className="min-w-0">
+                  <span className="text-[13px] font-semibold text-text">{p.name}</span>
+                  {p.role ? <span className="text-[12px] text-text-light"> · {p.role}</span> : null}
+                  {p.currentAddress ? (
+                    <span className="block text-[12px] text-text-light truncate">
+                      Currently {p.currentAddress}
+                    </span>
+                  ) : null}
+                  {!p.matchesOldOffice ? (
+                    <span className="block text-[12px] text-amber-700">
+                      Their address isn&rsquo;t the current registered office — worth a second look.
+                    </span>
+                  ) : null}
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-2.5 text-[12px] text-text-light leading-relaxed border-t border-amber-100 pt-2">
+        <strong className="text-text">You don&rsquo;t need to update them separately.</strong> Leave
+        the director and PSC sections below as they are — we file the address changes for everyone
+        ticked here automatically, at no extra cost.
+      </p>
+    </div>
+  );
 }
 
 interface PostcoderAddress {

@@ -38,6 +38,20 @@ export interface IdvPerson {
   id?: string;
   verified?: boolean;
 }
+/** A person the registered office could move with — a director, a PSC, or someone who is both. */
+export interface OfficeCascadePerson {
+  /** Opaque id we hand straight back: a contact id for a director, a PSC id for a PSC-only person. */
+  key: string;
+  name?: string;
+  role?: string;
+  isDirector?: boolean;
+  /** On the PSC register too — moving them needs a PSC04 as well as a CH01. */
+  onPscRegister?: boolean;
+  currentAddress?: string | null;
+  /** Their address IS the office that's changing, so it's ticked by default. */
+  matchesOldOffice?: boolean;
+}
+
 export interface ChConfirmationDto {
   companyName?: string;
   companyNumber?: string;
@@ -60,6 +74,9 @@ export interface ChConfirmationDto {
   shareholdings?: Shareholding[];
   idvPeople?: IdvPerson[];
   idvAllVerified?: boolean;
+  /** Everyone a registered-office change could carry to — directors' service addresses and the PSC
+   *  register. Built server-side from the same list the New-filing confirmation page uses. */
+  officeCascadePeople?: OfficeCascadePerson[];
   hasWebfilingCode?: boolean;
   status?: 'Not Sent' | 'Sent' | 'Confirmed' | 'Changes Requested';
   alreadyResponded?: boolean;
