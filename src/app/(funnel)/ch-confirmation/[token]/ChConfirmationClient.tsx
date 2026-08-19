@@ -41,7 +41,9 @@ const SECTIONS: SectionDef[] = [
 ];
 const CAPITAL_SECTION: SectionDef = { key: 'capital', label: 'Statement of capital', icon: Landmark };
 
-type ChangeVal = Record<string, string | string[]>;
+/** A captured change. Values are mostly plain strings; the registered-office cascade carries a list
+ *  of per-person picks (service / home), which is why this isn't just strings. */
+type ChangeVal = Record<string, string | string[] | CascadePick[]>;
 
 /** True when the client has entered enough structured detail for a flagged section to be actioned. */
 function changeComplete(key: string, c: ChangeVal): boolean {
@@ -467,7 +469,7 @@ export default function ChConfirmationClient({
             />
             <OfficeCascade
               people={dto.officeCascadePeople || []}
-              selected={Array.isArray(c.cascade) ? (c.cascade as string[]) : null}
+              selected={Array.isArray(c.cascade) ? (c.cascade as unknown as CascadePick[]) : null}
               onChange={(next) => setChange(key, { cascade: next })}
             />
           </div>
@@ -1336,21 +1338,31 @@ function renderValue(key: string, dto: ChConfirmationDto): ReactNode {
  * changing the office also hits "Update" on each director, which flags an officer change and holds
  * the whole confirmation statement waiting on a form we were about to file anyway.
  */
+type CascadePick = { key: string; service: boolean; residential: boolean };
+
 function OfficeCascade({
   people,
   selected,
   onChange,
 }: {
   people: OfficeCascadePerson[];
-  selected: string[] | null;
-  onChange: (next: string[]) => void;
+  selected: CascadePick[] | null;
+  onChange: (next: CascadePick[]) => void;
 }) {
   if (!people.length) return null;
 
-  // Untouched means "the sensible default": everyone whose address is the office that's moving.
-  const current = selected ?? people.filter((p) => p.matchesOldOffice).map((p) => p.key);
-  const toggle = (k: string) =>
-    onChange(current.includes(k) ? current.filter((x) => x !== k) : [...current, k]);
+  // Untouched means the sensible default: move the SERVICE address of anyone whose address is the
+  // office that's moving. Never the home address — that only moves if the person has actually moved
+  // house, which is a different fact and has to be asked for.
+  const current: CascadePick[] =
+    selected ??
+    people.map((p) => ({ key: p.key, service: !!p.matchesOldOffice, residential: false }));
+  const pick = (k: string) =>
+    current.find((c) => c.key === k) ?? { key: k, service: false, residential: false };
+  const toggle = (k: string, field: 'service' | 'residential') => {
+    const next = current.some((c) => c.key === k) ? [...current] : [...current, pick(k)];
+    onChange(next.map((c) => (c.key === k ? { ...c, [field]: !c[field] } : c)));
+  };
 
   return (
     <div className="mt-1 rounded-xl border border-amber-200 bg-white/70 p-3">
@@ -1360,37 +1372,59 @@ function OfficeCascade({
         separately from the company&rsquo;s. Tick anyone who should move to the new address and
         we&rsquo;ll update them at the same time.
       </p>
-      <ul className="mt-2.5 space-y-1.5">
+      <ul className="mt-2.5 space-y-2.5">
         {people.map((p) => {
-          const on = current.includes(p.key);
+          const sel = pick(p.key);
           return (
             <li key={p.key}>
-              <label className="flex items-start gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={on}
-                  onChange={() => toggle(p.key)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
-                />
-                <span className="min-w-0">
-                  <span className="text-[13px] font-semibold text-text">{p.name}</span>
-                  {p.role ? <span className="text-[12px] text-text-light"> · {p.role}</span> : null}
-                  {p.currentAddress ? (
-                    <span className="block text-[12px] text-text-light truncate">
-                      Currently {p.currentAddress}
-                    </span>
-                  ) : null}
-                  {!p.matchesOldOffice ? (
-                    <span className="block text-[12px] text-amber-700">
-                      Their address isn&rsquo;t the current registered office — worth a second look.
-                    </span>
-                  ) : null}
-                </span>
-              </label>
+              <div className="text-[13px] font-semibold text-text">
+                {p.name}
+                {p.role ? <span className="font-normal text-text-light"> · {p.role}</span> : null}
+                {p.onPscRegister && p.isDirector ? (
+                  <span className="font-normal text-text-light"> · also has significant control</span>
+                ) : null}
+              </div>
+              {p.currentAddress ? (
+                <div className="text-[12px] text-text-light">Currently {p.currentAddress}</div>
+              ) : null}
+              {!p.matchesOldOffice ? (
+                <div className="text-[12px] text-amber-700">
+                  Their address isn&rsquo;t the current registered office — worth a second look.
+                </div>
+              ) : null}
+              <div className="mt-1 flex flex-col sm:flex-row sm:gap-6">
+                <label className="flex items-center gap-2 cursor-pointer text-[13px] text-text-light">
+                  <input
+                    type="checkbox"
+                    checked={sel.service}
+                    onChange={() => toggle(p.key, 'service')}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
+                  />
+                  Service address
+                </label>
+                {/* Home address is a director-only option: a PSC's residential address is private and
+                    never moves off the back of an office change. */}
+                {p.isDirector ? (
+                  <label className="flex items-center gap-2 cursor-pointer text-[13px] text-text-light">
+                    <input
+                      type="checkbox"
+                      checked={sel.residential}
+                      onChange={() => toggle(p.key, 'residential')}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
+                    />
+                    Home address
+                  </label>
+                ) : null}
+              </div>
             </li>
           );
         })}
       </ul>
+      <p className="mt-2 text-[12px] text-text-light leading-relaxed">
+        The <strong className="text-text">service address</strong> is the one shown publicly, and is
+        usually the registered office. Only tick <strong className="text-text">home address</strong>
+        {' '}if they have actually moved house — it isn&rsquo;t published.
+      </p>
       <p className="mt-2.5 text-[12px] text-text-light leading-relaxed border-t border-amber-100 pt-2">
         <strong className="text-text">You don&rsquo;t need to update them separately.</strong> Leave
         the director and PSC sections below as they are — we file the address changes for everyone
