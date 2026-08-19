@@ -19,7 +19,7 @@ import {
   KeyRound,
 } from 'lucide-react';
 import type { ChConfirmationDto, IdvPerson } from './page';
-import { sicDescription } from '@/lib/sic-codes';
+import { sicDescription, searchSicCodes } from '@/lib/sic-codes';
 
 /** Same premium elevation as the VAT approval + accounts signing pages, so the three read as one system. */
 const CARD =
@@ -1430,14 +1430,40 @@ function SicEditor({
   fieldCls: string;
 }) {
   const [val, setVal] = useState('');
-  const add = () => {
-    const code = val.trim();
-    if (!/^\d{4,5}$/.test(code) || codes.includes(code) || codes.length >= 4) {
-      setVal('');
+  const [err, setErr] = useState<string | null>(null);
+
+  // Search by what the business does, not just by number — a client knows they write software, not
+  // that it is 62012. The list is curated, so a code that isn't in it can still be typed by hand.
+  const suggestions = searchSicCodes(val).filter((s) => !codes.includes(s.code));
+
+  const addCode = (code: string) => {
+    if (codes.includes(code)) {
+      setErr('That code is already on the list.');
+      return;
+    }
+    if (codes.length >= 4) {
+      setErr('A confirmation statement carries at most 4 SIC codes.');
       return;
     }
     onChange([...codes, code]);
     setVal('');
+    setErr(null);
+  };
+
+  const add = () => {
+    const code = val.trim();
+    // Exactly 5 digits. Companies House SIC 2007 codes are 5 digits and the filing is rejected
+    // otherwise — this used to accept 4, which passed here and then failed on approval, AFTER the
+    // client had paid.
+    if (!/^\d{5}$/.test(code)) {
+      setErr(
+        /^\d+$/.test(code)
+          ? 'A SIC code is exactly 5 digits.'
+          : 'Search for what the company does, or type a 5-digit SIC code.',
+      );
+      return;
+    }
+    addCode(code);
   };
   return (
     <div>
@@ -1462,28 +1488,54 @@ function SicEditor({
         )}
       </div>
       {codes.length < 4 ? (
-        <div className="flex gap-2">
-          <input
-            className={fieldCls}
-            placeholder="Add SIC code (4–5 digits)"
-            value={val}
-            maxLength={5}
-            inputMode="numeric"
-            onChange={(e) => setVal(e.target.value.replace(/[^0-9]/g, ''))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                add();
-              }
-            }}
-          />
-          <button
-            type="button"
-            onClick={add}
-            className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 text-sm font-semibold text-amber-700 hover:bg-amber-50"
-          >
-            Add
-          </button>
+        <div>
+          <div className="flex gap-2">
+            <input
+              className={fieldCls}
+              placeholder="Search what the company does, or enter a 5-digit code"
+              value={val}
+              onChange={(e) => {
+                setVal(e.target.value);
+                setErr(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (suggestions.length === 1) addCode(suggestions[0].code);
+                  else add();
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={add}
+              className="shrink-0 rounded-lg border border-amber-300 bg-white px-3 text-sm font-semibold text-amber-700 hover:bg-amber-50"
+            >
+              Add
+            </button>
+          </div>
+
+          {suggestions.length ? (
+            <ul className="mt-1.5 max-h-52 overflow-y-auto rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
+              {suggestions.map((s) => (
+                <li key={s.code}>
+                  <button
+                    type="button"
+                    onClick={() => addCode(s.code)}
+                    className="flex w-full items-baseline gap-2 px-3 py-2 text-left text-[13px] hover:bg-primary-50"
+                  >
+                    <span className="font-semibold tabular-nums text-primary">{s.code}</span>
+                    <span className="text-text-light">{s.description}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          {err ? <p className="mt-1.5 text-[12px] text-red-600">{err}</p> : null}
+          <p className="mt-1.5 text-[12px] text-text-light">
+            Not sure? Search by activity — or if you already know the code, type it in. Up to 4 codes.
+          </p>
         </div>
       ) : (
         <p className="text-[12px] text-text-light">Up to 4 codes on a confirmation statement.</p>

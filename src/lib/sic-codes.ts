@@ -176,3 +176,27 @@ export function sicLabel(code: string): string {
 export function sicDescription(code: string): string | null {
   return SIC_DESCRIPTIONS[(code || '').trim()] ?? null;
 }
+
+export type SicMatch = { code: string; description: string };
+
+/**
+ * Search the known codes by number or by what the business actually does.
+ *
+ * A client knows they write software; they do not know that is 62012. Without a search the only way
+ * to add a code is to type the number blind, which means guessing or going off to look it up on
+ * gov.uk — so most people give up and phone instead.
+ *
+ * This list is curated, not the full 730-code set, so it can suggest but must never be the sole
+ * gate: a code that isn't here can still be entered by hand.
+ */
+export function searchSicCodes(query: string, limit = 8): SicMatch[] {
+  const q = (query || '').trim().toLowerCase();
+  if (q.length < 2) return [];
+  const byCode: SicMatch[] = [];
+  const byWord: SicMatch[] = [];
+  for (const [code, description] of Object.entries(SIC_DESCRIPTIONS)) {
+    if (code.startsWith(q)) byCode.push({ code, description });
+    else if (description.toLowerCase().includes(q)) byWord.push({ code, description });
+  }
+  return [...byCode, ...byWord].slice(0, limit);
+}
