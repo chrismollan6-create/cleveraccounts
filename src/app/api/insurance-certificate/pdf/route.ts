@@ -73,12 +73,27 @@ export async function GET(request: NextRequest) {
         cache: 'no-store',
       });
       const data = (await res.json().catch(() => null)) as
-        | { companyName?: string; startDate?: string; suitability?: string }
+        | {
+            companyName?: string;
+            startDate?: string;
+            suitability?: string;
+            coverStart?: string;
+            coverEnd?: string;
+            policyNumber?: string;
+          }
         | null;
-      if (!res.ok || !data?.companyName || !data?.startDate) {
+      if (!res.ok || !data?.companyName || !(data.coverStart || data.startDate)) {
         return new Response('Certificate not available', { status: 404 });
       }
-      const cert = buildCertFromClient(data.companyName, data.startDate);
+      // coverStart is the period start Salesforce works out from the policy
+      // year; startDate is the client's own declared start, kept as a fallback
+      // for a response from before that field existed.
+      const cert = buildCertFromClient(
+        data.companyName,
+        data.coverStart || (data.startDate as string),
+        data.coverEnd,
+        data.policyNumber,
+      );
       return await pdfResponse(url.origin, `d=${encodeData(cert)}`);
     }
     // Sample mode for design review.

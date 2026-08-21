@@ -61,14 +61,24 @@ export function certDateParts(iso: string): { dd: string; suffix: string; rest: 
 export const BLOCK_POLICY_NUMBER = 'SC1930C200AR/I/11271627';
 export const BLOCK_PERIOD_END = '2027-05-06';
 
-/** Build the certificate payload from the only per-client inputs. */
-export function buildCertFromClient(company: string, startDate: string): InsuranceCertData {
+/**
+ * Build the certificate payload. Salesforce owns the policy year — a client
+ * already on the policy is covered for the year in force, not since the day
+ * they joined — so pass its dates through when they are given. The constants
+ * are only the fallback for sample renders and older callers.
+ */
+export function buildCertFromClient(
+  company: string,
+  startDate: string,
+  periodEnd?: string,
+  policyNumber?: string,
+): InsuranceCertData {
   return {
     kind: 'insurance-cert',
     company,
     startDate,
-    policyNumber: BLOCK_POLICY_NUMBER,
-    periodEnd: BLOCK_PERIOD_END,
+    policyNumber: policyNumber || BLOCK_POLICY_NUMBER,
+    periodEnd: periodEnd || BLOCK_PERIOD_END,
   };
 }
 
