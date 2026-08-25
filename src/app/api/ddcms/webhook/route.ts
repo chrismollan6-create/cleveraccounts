@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSalesforceToken } from '@/lib/salesforce';
 
@@ -61,7 +62,17 @@ function checkSecret(req: NextRequest): 'ok' | 'unverified' {
   const expected = process.env.DDCMS_WEBHOOK_SECRET;
   if (!expected) return 'unverified';
   const headerName = process.env.DDCMS_WEBHOOK_HEADER || 'x-ddcms-secret';
-  return req.headers.get(headerName) === expected ? 'ok' : 'unverified';
+  const supplied = req.headers.get(headerName);
+  if (!supplied) return 'unverified';
+  // Compare in constant time. A plain === leaks, through response timing, how
+  // many leading characters a guess got right; this is an authentication
+  // boundary on a public endpoint, so it is not the place to rely on network
+  // jitter to hide that. SHA-256 first so the buffers are always the same
+  // length — timingSafeEqual throws on a length mismatch, and the length of
+  // the supplied value would otherwise leak on its own.
+  const a = createHash('sha256').update(supplied).digest();
+  const b = createHash('sha256').update(expected).digest();
+  return timingSafeEqual(a, b) ? 'ok' : 'unverified';
 }
 
 const enforcing = () => process.env.DDCMS_WEBHOOK_ENFORCE === '1';
