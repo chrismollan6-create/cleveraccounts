@@ -1,0 +1,78 @@
+# Catches the failure that took cleveraccounts.com out of Google.
+#
+# Vercel stamps `X-Robots-Tag: noindex` on any deployment reached through a
+# non-production alias. In Sep 2026 a production deployment served that header
+# on the apex for days: nothing in the code emitted it, every page's HTML still
+# said `index, follow`, and a browser render can't see response headers — so it
+# was invisible until Search Console reported 1 indexed page out of 215.
+#
+# The header is the only reliable place to look, so look at it on a schedule.
+name: Indexability
+
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly, off the hour to dodge the busy minute
+  workflow_dispatch: # so you can run it by hand after a deploy
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert both marketing domains are indexable
+        run: |
+          set -uo pipefail
+          FAILED=0
+
+          # A spread of routes, not just the homepage: the Sep 2026 incident hit
+          # some paths and not others, so one URL is not a sufficient sample.
+          # Workwell only lists paths on its indexable allowlist — the rest of
+          # that domain is still Clever's copy and is noindex ON PURPOSE
+          # (src/lib/workwell-index.ts), so asserting them would cry wolf.
+          CLEVER_PATHS="/ /pricing /limited-company /sole-trader /learn /blog /contact"
+          WORKWELL_PATHS="/ /pricing /limited-company /sole-trader /blog /faq /reviews"
+
+          GOOGLEBOT="Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.175 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+
+          for HOST in cleveraccounts.com workwellaccountancy.com; do
+            case "$HOST" in
+              cleveraccounts.com) PATHS="$CLEVER_PATHS" ;;
+              *)                  PATHS="$WORKWELL_PATHS" ;;
+            esac
+
+            for P in $PATHS; do
+              URL="https://$HOST$P"
+              if ! HDRS=$(curl -sS -D - -o /tmp/body.html --max-time 30 -A "$GOOGLEBOT" "$URL"); then
+                echo "::error::$URL — request failed"; FAILED=1; continue
+              fi
+
+              CODE=$(printf '%s' "$HDRS" | grep -m1 -oE 'HTTP/[0-9.]+ [0-9]+' | awk '{print $2}')
+              XROBOTS=$(printf '%s' "$HDRS" | grep -i '^x-robots-tag:' | tr -d '\r' || true)
+              META=$(grep -o '<meta name="robots" content="[^"]*"' /tmp/body.html | head -1 | sed 's/.*content="//;s/"//' || true)
+              BAD=0
+
+              if [ "$CODE" != "200" ]; then
+                echo "::error::$URL — HTTP $CODE (expected 200)"; FAILED=1; continue
+              fi
+              # The header is the thing Google obeyed when it deindexed us.
+              if [ -n "$XROBOTS" ]; then
+                echo "::error::$URL — $XROBOTS  <-- Vercel is serving a robots header on a production domain"
+                FAILED=1; BAD=1
+              fi
+              case "$META" in
+                *noindex*) echo "::error::$URL — meta robots is '$META'"; FAILED=1; BAD=1 ;;
+              esac
+
+              [ "$BAD" -eq 0 ] && echo "ok   $URL  ($CODE, ${META:-no meta})"
+            done
+          done
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo
+            echo "One or more pages are not indexable. If it is an X-Robots-Tag on a"
+            echo "production domain, redeploy from Vercel — that re-establishes the"
+            echo "alias and clears it. Then re-run this job to confirm."
+            exit 1
+          fi
+          echo "All checked URLs are indexable."
