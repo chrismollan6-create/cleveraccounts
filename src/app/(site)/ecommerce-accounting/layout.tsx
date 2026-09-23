@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "Ecommerce Accounting — Online Seller Accountants | Clever Accounts",
+  title: "Ecommerce Accounting — Online Seller Accountants",
   description:
     "Specialist accounting for ecommerce businesses and online sellers. Amazon, eBay, Etsy, Shopify and WooCommerce experts. International VAT (OSS/IOSS), inventory accounting, platform fee reconciliation. FreeAgent included free.",
 };

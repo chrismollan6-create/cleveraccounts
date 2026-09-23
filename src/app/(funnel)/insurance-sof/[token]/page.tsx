@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Insurance Statement of Facts | ${brand.name}`,
+    title: `Insurance Statement of Facts`,
     description: `Complete your Statement of Facts to arrange insurance cover for your limited company.`,
     robots: { index: false, follow: false },
   };

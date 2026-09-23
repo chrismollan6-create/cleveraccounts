@@ -3,7 +3,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "Accounting Software & Integrations — FreeAgent Platinum Partner | Clever Accounts",
+  title: "Accounting Software & Integrations — FreeAgent Platinum Partner",
   description:
     "Clever Accounts is a FreeAgent Platinum Partner. Get FreeAgent free with every package — open banking, MTD-ready, invoicing, expenses, and payroll. We also support Xero, QuickBooks, and Sage.",
 };

@@ -4,9 +4,9 @@ import { BRANDS } from "@/lib/constants";
 import { brandIdFromHost } from "@/lib/brand-host";
 import { isWorkwellIndexable } from "@/lib/workwell-index";
 import {
-  getBlogSlugs,
-  getKnowledgeArticleSlugs,
-  getKnowledgeTopicSlugs,
+  getBlogSitemapEntries,
+  getKnowledgeArticleSitemapEntries,
+  getKnowledgeTopicSitemapEntries,
 } from "@/sanity/queries";
 
 const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
@@ -43,67 +43,64 @@ const STATIC_PAGES: { url: string; priority: number; changeFrequency: MetadataRo
   { url: "/faq",                               priority: 0.6, changeFrequency: "monthly" },
   { url: "/blog",                              priority: 0.7, changeFrequency: "weekly" },
   { url: "/learn",                             priority: 0.8, changeFrequency: "weekly" },
-  { url: "/sign-up",                           priority: 0.8, changeFrequency: "monthly" },
   { url: "/switching-accountants",             priority: 0.7, changeFrequency: "monthly" },
   { url: "/self-assessment",                   priority: 0.7, changeFrequency: "monthly" },
   { url: "/partners",                          priority: 0.5, changeFrequency: "monthly" },
 ];
 
 // Excluded from sitemap (noIndex, tag pages, category pages, landing pages):
+// - /sign-up (the page itself is noindex — advertising it contradicts that)
 // - /lp/* (PPC landing pages — no SEO value, often noIndex)
 // - /blog/tag/* and /blog/category/* (tag/category archive pages)
 // - /log-in, /portal/* (auth pages)
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date().toISOString();
-
   // Per-brand sitemap: emit the requesting host's brand domain. Middleware is
   // excluded from /sitemap.xml, so derive the brand from the host directly.
   const host = (await headers()).get("host") || "";
   const brandId = brandIdFromHost(host);
   const BASE = `https://${BRANDS[brandId].domain}`;
 
-  // Fetch live blog slugs from Sanity — automatically picks up new posts
-  let blogSlugs: string[] = [];
-  let learnTopicSlugs: string[] = [];
-  let learnArticles: Array<{ topicSlug: string; articleSlug: string }> = [];
+  // Fetch live content from Sanity — automatically picks up new posts.
+  // Blog rows are brand-filtered with the SAME filter the post page uses, so
+  // the sitemap can never advertise a slug that renders "Post Not Found".
+  let blog: Array<{ slug: string; lastmod: string }> = [];
+  let learnTopics: Array<{ slug: string; lastmod: string }> = [];
+  let learnArticles: Array<{ topicSlug: string; articleSlug: string; lastmod: string }> = [];
   try {
-    const [blog, topics, articles] = await Promise.all([
-      getBlogSlugs(),
-      getKnowledgeTopicSlugs(),
-      getKnowledgeArticleSlugs(),
+    [blog, learnTopics, learnArticles] = await Promise.all([
+      getBlogSitemapEntries(brandId),
+      getKnowledgeTopicSitemapEntries(),
+      getKnowledgeArticleSitemapEntries(),
     ]);
-    blogSlugs = (blog ?? []).filter(Boolean);
-    learnTopicSlugs = ((topics ?? []) as string[]).filter(Boolean);
-    learnArticles = ((articles ?? []) as Array<{ topicSlug: string; articleSlug: string }>).filter(
-      (a) => a?.topicSlug && a?.articleSlug,
-    );
   } catch {
     // If Sanity is unreachable at build time, sitemap still generates without dynamic entries
   }
 
+  // Static pages carry NO lastmod. We don't track when their copy last changed,
+  // and a made-up date (this file used to stamp `new Date()` on every URL, on
+  // every request) teaches Google to ignore lastmod across the whole sitemap.
   const entries: MetadataRoute.Sitemap = [
     ...STATIC_PAGES.map((p) => ({
       url: `${BASE}${p.url}`,
-      lastModified: now,
       changeFrequency: p.changeFrequency,
       priority: p.priority,
     })),
-    ...blogSlugs.map((slug) => ({
-      url: `${BASE}/blog/${slug}`,
-      lastModified: now,
+    ...blog.map((b) => ({
+      url: `${BASE}/blog/${b.slug}`,
+      lastModified: b.lastmod,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
-    ...learnTopicSlugs.map((slug) => ({
-      url: `${BASE}/learn/${slug}`,
-      lastModified: now,
+    ...learnTopics.map((t) => ({
+      url: `${BASE}/learn/${t.slug}`,
+      lastModified: t.lastmod,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
     ...learnArticles.map((a) => ({
       url: `${BASE}/learn/${a.topicSlug}/${a.articleSlug}`,
-      lastModified: now,
+      lastModified: a.lastmod,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),

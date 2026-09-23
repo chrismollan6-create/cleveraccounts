@@ -4,7 +4,7 @@ import { ArrowRight, ExternalLink, CheckCircle2, Star, Shield, PoundSterling, Tr
 import { getBrand } from "@/lib/brand";
 
 const cleverMetadata: Metadata = {
-  title: "Partner Services — Business Banking, Insurance & Financial Planning | Clever Accounts",
+  title: "Partner Services — Business Banking, Insurance & Financial Planning",
   description:
     "Our recommended partners for UK business banking, professional insurance, and financial planning. Exclusive offers for Clever Accounts clients — including £75 cashback with Tide.",
 };
@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id !== "workwell") return cleverMetadata;
   return {
-    title: `Partner Services — Business Banking, Insurance & Financial Planning | ${brand.name}`,
+    title: `Partner Services — Business Banking, Insurance & Financial Planning`,
     description:
       `Our recommended partners for UK business banking, professional insurance, and financial planning — chosen because they make life easier for ${brand.name} clients.`,
   };

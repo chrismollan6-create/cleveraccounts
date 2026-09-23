@@ -16,7 +16,7 @@ const keywords = [
 ];
 
 const cleverMetadata: Metadata = {
-  title: "Self Assessment Tax Returns | Done For You | Clever Accounts",
+  title: "Self Assessment Tax Returns | Done For You",
   description:
     "Clever Accounts prepares and files your self assessment tax return to HMRC — accurately, on time, and with every allowable expense claimed. Dedicated accountant from £42.50/month. No setup fees.",
   keywords,

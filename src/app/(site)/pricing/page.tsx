@@ -27,14 +27,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "workwell") {
     return {
-      title: `Accounting Pricing & Plans — From £42.50/month + VAT | ${brand.name}`,
+      title: `Accounting Pricing & Plans — From £42.50/month + VAT`,
       description:
         "Simple, transparent accounting pricing. Sole Trader from £42.50/month + VAT, Limited Company & Contractor from £104.50/month + VAT. No setup fees, no minimum contract, free accounting software included.",
       alternates: { canonical: `https://${brand.domain}/pricing` },
     };
   }
   return {
-    title: "Accounting Pricing & Plans — From £42.50/month | Clever Accounts",
+    title: "Accounting Pricing & Plans — From £42.50/month",
     description:
       "Simple, transparent accounting pricing. Sole Trader from £42.50/month, Limited Company & Contractor from £104.50/month. No setup fees, no minimum contract, free FreeAgent included.",
     alternates: { canonical: `https://${brand.domain}/pricing` },

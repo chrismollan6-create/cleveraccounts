@@ -11,7 +11,7 @@ import { getBrand } from "@/lib/brand";
 import type { BrandConfig } from "@/lib/constants";
 
 const cleverMetadata: Metadata = {
-  title: "Online Accounting Services UK — All Packages | Clever Accounts",
+  title: "Online Accounting Services UK — All Packages",
   description:
     "Online accounting services for sole traders, limited companies, contractors, landlords, CIS & more. Dedicated accountant, free FreeAgent software, from £42.50/month. No setup fees.",
 };
@@ -21,13 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
   if (brand.id === "clever") return cleverMetadata;
   if (brand.id === "workwell") {
     return {
-      title: `Online Accounting Services UK — Every Package | ${brand.name}`,
+      title: `Online Accounting Services UK — Every Package`,
       description:
         "Online accountancy for sole traders, limited companies, contractors, landlords, CIS and more. Your own accountant, FreeAgent software included, from £42.50 a month with nothing to pay upfront.",
     };
   }
   return {
-    title: `Online Accounting Services UK — All Packages | ${brand.name}`,
+    title: `Online Accounting Services UK — All Packages`,
     description:
       "Online accounting services for sole traders, limited companies, contractors, landlords, CIS & more. Dedicated accountant, free FreeAgent software, from £42.50/month. No setup fees.",
   };

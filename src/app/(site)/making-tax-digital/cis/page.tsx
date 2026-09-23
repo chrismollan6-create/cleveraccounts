@@ -6,7 +6,7 @@ import CisView from "./CisView";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `CIS & Making Tax Digital — protect your refund | ${brand.name}`,
+    title: `CIS & Making Tax Digital — protect your refund`,
     description: `Making Tax Digital hits CIS subcontractors from April 2027. Here's what it means for your tax refund — and how we keep it flowing.`,
     robots: { index: false, follow: false },
   };

@@ -17,7 +17,7 @@ const keywords = [
 const ogTitle = "Best Accountant for IT Contractors UK (2026 Guide)";
 
 const cleverMetadata: Metadata = {
-  title: `${ogTitle} | Clever Accounts`,
+  title: `${ogTitle}`,
   description:
     "Compare the 8 leading contractor accountants for UK IT contractors. Honest pricing, IR35 review policies, software included, and named accountant comparison. Updated April 2026.",
   keywords,

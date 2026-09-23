@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "VAT Returns — Handled Every Quarter | Clever Accounts",
+  title: "VAT Returns — Handled Every Quarter",
   description:
     "Stress-free VAT compliance for UK businesses. Clever Accounts prepares and submits your quarterly VAT returns, handles MTD for VAT via FreeAgent, and advises on the right VAT scheme for your business. From £42.50/month.",
 };

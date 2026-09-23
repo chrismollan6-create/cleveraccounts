@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getBrand } from "@/lib/brand";
 
 const cleverMetadata: Metadata = {
-  title: "Terms of Service | Clever Accounts",
+  title: "Terms of Service",
   description: "Clever Accounts terms of service — governing your use of cleveraccounts.com and related services.",
 };
 
@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") return cleverMetadata;
   return {
-    title: `Terms of Service | ${brand.name}`,
+    title: `Terms of Service`,
     description: `${brand.legalName} terms of service — governing your use of ${brand.domain} and related services.`,
   };
 }

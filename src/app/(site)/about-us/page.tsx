@@ -18,13 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") {
     return {
-      title: "About Clever Accounts — 20 Years of Online Accounting | Clever Accounts",
+      title: "About Clever Accounts — 20 Years of Online Accounting",
       description:
         "Clever Accounts has been helping UK sole traders, limited companies, and contractors for over 20 years. 10,000+ businesses served, 5-star rated, Leeds based.",
     };
   }
   return {
-    title: `About ${brand.name} | Expert Online Accountants`,
+    title: `About ${brand.name} — Expert Online Accountants`,
     description: `${brand.name} provides expert online accounting for UK sole traders, limited companies and contractors — a dedicated accountant, free software and one fixed monthly fee.`,
   };
 }

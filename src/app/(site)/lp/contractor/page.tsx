@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   const flex = brand.id === "clever";
   return {
-    title: `Contractor Accountant + IR35 Support — From £104.50/mo | ${brand.name}`,
+    title: `Contractor Accountant + IR35 Support — From £104.50/mo`,
     description: flex
       ? "Specialist contractor accounting with end-to-end IR35 support, contract reviews, and our unique Clever FLEX umbrella solution. Switch between PSC and umbrella seamlessly. From £104.50/month."
       : "Specialist contractor accounting with end-to-end IR35 support, contract reviews, and a flexible umbrella solution. Switch between PSC and umbrella seamlessly. From £104.50/month.",

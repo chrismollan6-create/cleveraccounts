@@ -7,7 +7,7 @@ import ClientView from "./ClientView";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Making Tax Digital — you're covered | ${brand.name}`,
+    title: `Making Tax Digital — you're covered`,
     description: `What Making Tax Digital means for ${brand.name} clients, and how we handle it for you.`,
     robots: { index: false, follow: false },
   };

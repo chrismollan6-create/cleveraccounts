@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "Payroll Services — RTI, P60s & Auto-Enrolment | Clever Accounts",
+  title: "Payroll Services — RTI, P60s & Auto-Enrolment",
   description:
     "Monthly payroll processing for UK limited companies and small businesses. RTI submissions, payslips, P60s, P11Ds and pension auto-enrolment — all handled by your dedicated accountant. Included in our Limited Company package.",
 };

@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "How to Switch Accountants UK (2026 Guide) | Clever Accounts",
+  title: "How to Switch Accountants UK (2026 Guide)",
   description:
     "Thinking of switching accountants? Our step-by-step guide covers when to switch, how the professional clearance process works, what to look for in a new firm, and common concerns answered. Updated April 2026.",
   keywords: [

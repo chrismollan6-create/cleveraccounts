@@ -5,7 +5,7 @@ import FAQPageClient from "./FAQPageClient";
 import { getBrand } from "@/lib/brand";
 
 const cleverMetadata: Metadata = {
-  title: "FAQs — Clever Accounts | Online Accounting Questions Answered",
+  title: "FAQs — Online Accounting Questions Answered",
   description:
     "Answers to common questions about Clever Accounts — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.",
 };
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") return cleverMetadata;
   return {
-    title: `FAQs — ${brand.name} | Online Accounting Questions Answered`,
+    title: "FAQs — Online Accounting Questions Answered",
     description: `Answers to common questions about ${brand.name} — pricing, services, switching accountants, software, sole trader / limited company / contractor specifics, VAT, payroll and more.`,
   };
 }

@@ -5,7 +5,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Salary & Payroll Information 2026/27 | ${brand.name}`,
+    title: `Salary & Payroll Information 2026/27`,
     description: `Your 2026/27 tax-year guide to taking a salary through your company — tax-efficient salary options, the payroll timeline, RTI, pension auto-enrolment and Employment Allowance. ${brand.name} runs your payroll and files RTI with HMRC every month.`,
     alternates: { canonical: "/payroll-and-salary-information" },
   };

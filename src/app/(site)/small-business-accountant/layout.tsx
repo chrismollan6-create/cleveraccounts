@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "Best Accountant for Small Limited Companies UK (2026 Guide) | Clever Accounts",
+  title: "Best Accountant for Small Limited Companies UK (2026 Guide)",
   description:
     "Compare the leading online accountants for small UK limited companies. Honest pricing, what's included, software compared, and a decision framework — updated April 2026.",
   keywords: [

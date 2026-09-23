@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "Switch Accountant — Seamless Transfer, Benefits From Day One | Clever Accounts",
+  title: "Switch Accountant — Seamless Transfer, Benefits From Day One",
   description: "Switching accountants is easier than you think. We contact your old accountant, transfer your records, and you benefit immediately. No setup fee, no hassle.",
 };
 

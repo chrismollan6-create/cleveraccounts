@@ -28,19 +28,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") {
     return {
-      title: "How It Works — 3 Simple Steps | Clever Accounts",
+      title: "How It Works — 3 Simple Steps",
       description:
         "Getting started with Clever Accounts takes minutes. Sign up, get matched with a dedicated accountant, then focus on your business. Everything else is handled for you.",
     };
   }
   if (brand.id === "workwell") {
     return {
-      title: `How It Works — Three Easy Steps | ${brand.name}`,
+      title: `How It Works — Three Easy Steps`,
       description: `Joining ${brand.name} only takes a few minutes. Register, get paired with your own accountant, and then get on with your business while we look after the rest.`,
     };
   }
   return {
-    title: `How It Works — 3 Simple Steps | ${brand.name}`,
+    title: `How It Works — 3 Simple Steps`,
     description: `Getting started with ${brand.name} takes minutes. Sign up, get matched with a dedicated accountant, then focus on your business. Everything else is handled for you.`,
   };
 }

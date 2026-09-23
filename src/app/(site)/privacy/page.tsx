@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import WorkwellPrivacy from "./WorkwellPrivacy";
 
 const cleverMetadata: Metadata = {
-  title: "Privacy Policy | Clever Accounts",
+  title: "Privacy Policy",
   description: "Clever Accounts privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.",
 };
 
@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
   if (brand.id === "clever") return cleverMetadata;
   if (brand.id === "workwell") {
     return {
-      title: `Privacy, Data & Cookie Policy | ${brand.name}`,
+      title: `Privacy, Data & Cookie Policy`,
       description: `${brand.name} privacy, data and cookie policy — how we collect, use, and protect your personal information in accordance with UK GDPR.`,
     };
   }
   return {
-    title: `Privacy Policy | ${brand.name}`,
+    title: `Privacy Policy`,
     description: `${brand.name} privacy policy — how we collect, use, and protect your personal data in accordance with UK GDPR.`,
   };
 }

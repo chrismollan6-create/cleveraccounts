@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Confirm your resignation as a director | ${brand.name}`,
+    title: `Confirm your resignation as a director`,
     description: `Confirm and sign your resignation as a director with ${brand.name}.`,
     robots: { index: false, follow: false },
   };

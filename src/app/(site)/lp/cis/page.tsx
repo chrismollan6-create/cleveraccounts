@@ -6,7 +6,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `CIS Accountant for Construction Workers — From £49.95/mo | ${brand.name}`,
+    title: `CIS Accountant for Construction Workers — From £49.95/mo`,
     description:
       "Specialist CIS accounting for subbies and self-employed construction workers. CIS deduction reclaims, monthly returns, self assessment and unlimited advice. No setup fees. No contract.",
     robots: { index: true, follow: true },

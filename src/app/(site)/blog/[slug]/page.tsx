@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { BlogPostingJsonLd, BreadcrumbJsonLd } from "@/components/seo/StructuredData";
@@ -186,7 +187,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const post = brand.id === "clever" ? HARDCODED[slug] : undefined;
-  if (!post) return { title: "Blog Post" };
+  // No post under this brand: the page below answers 404. Say so in the
+  // metadata too, so a crawler that got here never treats the miss as a real,
+  // indexable page (this used to emit a generic "Blog Post" title on 37 URLs).
+  if (!post) return { title: "Post not found", robots: { index: false, follow: false } };
   return { title: post.title, description: post.content[0] };
 }
 
@@ -277,14 +281,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   // Fallback to hardcoded. These are Clever-branded — don't serve them on
   // other brands (they'd otherwise leak Clever copy onto e.g. Workwell).
   const post = brand.id === "clever" ? HARDCODED[slug] : undefined;
-  if (!post) {
-    return (
-      <section className="bg-white py-24 text-center">
-        <h1 className="text-3xl font-bold text-dark mb-4">Post Not Found</h1>
-        <Link href="/blog" className="text-primary font-medium">Back to Blog</Link>
-      </section>
-    );
-  }
+  // A slug with no post under this brand is genuinely missing — answer 404.
+  // Rendering a "Post Not Found" body at HTTP 200 made every such URL a soft
+  // 404: Google crawled 37 of them off our own sitemap, all with the same
+  // title and boilerplate, and read the site as full of empty pages.
+  if (!post) notFound();
 
   const publishedIso = new Date(post.date).toISOString();
 

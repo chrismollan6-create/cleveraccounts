@@ -41,7 +41,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Confirm a Companies House change | ${brand.name}`,
+    title: `Confirm a Companies House change`,
     description: `Review and confirm a change to your company before we file it with Companies House.`,
     robots: { index: false, follow: false },
   };

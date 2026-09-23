@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Engagement Letter | ${brand.name}`,
+    title: `Engagement Letter`,
     description: `Review and sign your engagement letter with ${brand.name}.`,
     robots: { index: false, follow: false },
   };

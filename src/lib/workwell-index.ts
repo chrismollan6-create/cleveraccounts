@@ -48,10 +48,25 @@ export const WORKWELL_INDEXABLE_PATHS: readonly string[] = [
   "/take-home-calculator",
 ];
 
+/**
+ * Path PREFIXES whose whole subtree is unique Workwell content.
+ *
+ * `/blog` qualifies: the blog is brand-filtered, so workwellaccountancy.com
+ * only ever serves the 37 posts imported from Workwell's own WordPress site —
+ * Clever's posts don't render there. Listing every slug in the allowlist above
+ * would mean editing this file for each new post, so the subtree is allowed
+ * instead. (One post is tagged "shared" and so appears on both domains; a
+ * single overlapping URL isn't a duplicate-content problem.)
+ */
+const WORKWELL_INDEXABLE_PREFIXES: readonly string[] = ["/blog"];
+
 const SET = new Set(WORKWELL_INDEXABLE_PATHS);
 
 /** True if this path has unique Workwell content and may be indexed on Workwell. */
 export function isWorkwellIndexable(pathname: string): boolean {
   const p = (pathname || "/").split("?")[0].replace(/\/+$/, "") || "/";
-  return SET.has(p);
+  if (SET.has(p)) return true;
+  return WORKWELL_INDEXABLE_PREFIXES.some(
+    (prefix) => p === prefix || p.startsWith(`${prefix}/`),
+  );
 }

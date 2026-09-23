@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "workwell") return workwellServiceMetadata("contractor-accountancy");
   return {
-    title: "Contractor Accountant & IR35 Support — From £104.50/mo | Clever Accounts",
+    title: "Contractor Accountant & IR35 Support — From £104.50/mo",
     description: data.metaDescription,
   };
 }

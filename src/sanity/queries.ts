@@ -54,6 +54,32 @@ export async function getBlogSlugs() {
   return client.fetch(`*[_type == "blogPost"].slug.current`);
 }
 
+/**
+ * Sitemap rows for blog posts, scoped to one brand.
+ *
+ * Deliberately NOT getBlogSlugs(): that query is un-branded, so Clever's
+ * sitemap advertised the 37 Workwell-only posts. Those slugs resolve to nothing
+ * under Clever's brand filter, so the post page answered 200 with a "Post Not
+ * Found" body - 37 soft-404s Google was being invited to crawl. A sitemap must
+ * use the SAME brand filter the page itself uses.
+ *
+ * lastmod is the post's real last-edit date. Stamping every URL with
+ * new Date() (what this sitemap used to do) makes lastmod worthless to Google,
+ * which then ignores it as a recrawl signal.
+ */
+export async function getBlogSitemapEntries(
+  brandId: BrandId,
+): Promise<Array<{ slug: string; lastmod: string }>> {
+  const rows = await client.fetch(
+    `*[_type == "blogPost" && defined(slug.current) && ${BRAND_FILTER}] {
+      "slug": slug.current,
+      "lastmod": coalesce(_updatedAt, publishedAt)
+    }`,
+    { brandId },
+  );
+  return (rows ?? []).filter((r: { slug?: string }) => Boolean(r?.slug));
+}
+
 // Testimonials
 export async function getTestimonials(featured?: boolean, brandId?: BrandId) {
   const featuredFilter = featured ? ` && featured == true` : "";
@@ -325,4 +351,33 @@ export async function getKnowledgeArticleSlugs() {
 
 export async function getKnowledgeTopicSlugs() {
   return client.fetch(`*[_type == "knowledgeTopic"].slug.current`);
+}
+
+/** Learn topics with their real last-edit date, for the sitemap. */
+export async function getKnowledgeTopicSitemapEntries(): Promise<
+  Array<{ slug: string; lastmod: string }>
+> {
+  const rows = await client.fetch(
+    `*[_type == "knowledgeTopic" && defined(slug.current)] {
+      "slug": slug.current, "lastmod": _updatedAt
+    }`,
+  );
+  return (rows ?? []).filter((r: { slug?: string }) => Boolean(r?.slug));
+}
+
+/** Learn articles with their real last-edit date, for the sitemap. */
+export async function getKnowledgeArticleSitemapEntries(): Promise<
+  Array<{ topicSlug: string; articleSlug: string; lastmod: string }>
+> {
+  const rows = await client.fetch(
+    `*[_type == "knowledgeArticle" && defined(slug.current) && defined(topic->slug.current)] {
+      "articleSlug": slug.current,
+      "topicSlug": topic->slug.current,
+      "lastmod": _updatedAt
+    }`,
+  );
+  return (rows ?? []).filter(
+    (r: { topicSlug?: string; articleSlug?: string }) =>
+      Boolean(r?.topicSlug && r?.articleSlug),
+  );
 }

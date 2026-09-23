@@ -69,7 +69,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Approve your VAT return | ${brand.name}`,
+    title: `Approve your VAT return`,
     description: `Review and approve your VAT return with ${brand.name}.`,
     robots: { index: false, follow: false },
   };

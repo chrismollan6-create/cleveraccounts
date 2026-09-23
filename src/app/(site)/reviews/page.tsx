@@ -10,7 +10,7 @@ import { getBrand } from "@/lib/brand";
 export const revalidate = 60;
 
 const cleverMetadata: Metadata = {
-  title: "Customer Reviews & Testimonials — 5 Stars | Clever Accounts",
+  title: "Customer Reviews & Testimonials — 5 Stars",
   description:
     "Read reviews from 10,000+ businesses who trust Clever Accounts for their accounting. Rated 5 stars — see why sole traders, contractors and limited companies love us.",
 };
@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") return cleverMetadata;
   return {
-    title: `Customer Reviews & Testimonials | ${brand.name}`,
+    title: `Customer Reviews & Testimonials`,
     description: `Read reviews from businesses who trust ${brand.name} for their accounting. See why sole traders, contractors and limited companies love us.`,
   };
 }

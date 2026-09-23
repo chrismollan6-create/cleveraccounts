@@ -29,7 +29,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Approve your quarterly figures | ${brand.name}`,
+    title: `Approve your quarterly figures`,
     description: `Review and approve your MTD quarterly summary with ${brand.name}.`,
     robots: { index: false, follow: false },
   };

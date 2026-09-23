@@ -7,7 +7,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Limited Company Accountant — From £104.50/mo | ${brand.name}`,
+    title: `Limited Company Accountant — From £104.50/mo`,
     description:
       "Complete limited company accounting from £104.50/month. Year-end accounts, CT600, VAT, payroll, Companies House filings and a dedicated accountant who knows your business. No setup fees.",
     robots: { index: true, follow: true },

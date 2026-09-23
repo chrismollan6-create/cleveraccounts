@@ -19,7 +19,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Learning Centre — UK accounting & tax guides | ${brand.name}`,
+    title: `Learning Centre — UK accounting & tax guides`,
     description:
       "Clear, no-jargon guides on VAT, Self-Assessment, PAYE, Corporation Tax, expenses, dividends and more — written and reviewed by qualified UK accountants.",
   };

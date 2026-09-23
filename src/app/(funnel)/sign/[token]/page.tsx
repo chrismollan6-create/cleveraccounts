@@ -32,7 +32,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Sign your document | ${brand.name}`,
+    title: `Sign your document`,
     description: `Review and sign your document with ${brand.name}.`,
     robots: { index: false, follow: false },
   };

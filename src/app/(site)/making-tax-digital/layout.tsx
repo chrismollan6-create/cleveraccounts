@@ -4,7 +4,7 @@ import { getBrand } from "@/lib/brand";
 import { workwellServiceMetadata } from "@/components/service/ServiceRoute";
 
 const cleverMetadata: Metadata = {
-  title: "Making Tax Digital (MTD) — Are You Ready? | Clever Accounts",
+  title: "Making Tax Digital (MTD) — Are You Ready?",
   description:
     "Making Tax Digital is coming for sole traders, landlords, and CIS subcontractors. Find out what MTD means, who's affected, the key deadlines, and how Clever Accounts gets you ready — with free FreeAgent software included.",
 };

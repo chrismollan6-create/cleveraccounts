@@ -23,7 +23,7 @@ import {
 import { getBrand } from "@/lib/brand";
 
 const cleverMetadata: Metadata = {
-  title: "Compare Clever Accounts vs Local Accountants vs DIY Software | Clever Accounts",
+  title: "Compare Clever Accounts vs Local Accountants vs DIY Software",
   description:
     "How Clever Accounts compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance. See why 10,000+ UK businesses chose us.",
 };
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") return cleverMetadata;
   return {
-    title: `Compare ${brand.name} vs Local Accountants vs DIY Software | ${brand.name}`,
+    title: `Compare ${brand.name} vs Local Accountants vs DIY Software`,
     description: `How ${brand.name} compares to a traditional local accountant and DIY accounting software — across service, software, pricing, and compliance.`,
   };
 }

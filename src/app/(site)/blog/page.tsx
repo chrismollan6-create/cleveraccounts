@@ -8,7 +8,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Accounting & Tax Blog — Expert Insights | ${brand.name}`,
+    title: `Accounting & Tax Blog — Expert Insights`,
     description:
       `Latest accounting news, tax tips and business advice from ${brand.name}. Expert insights for sole traders, limited companies, contractors, and landlords.`,
   };

@@ -7,7 +7,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Sole Trader Accountant — From £42.50/mo | ${brand.name}`,
+    title: `Sole Trader Accountant — From £42.50/mo`,
     description:
       "Expert sole trader accounting from just £42.50/month. Your own dedicated accountant handles self assessment, tax planning, and HMRC — so you can focus on your business. No setup fees. No contract.",
     robots: { index: true, follow: true },

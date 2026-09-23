@@ -6,7 +6,7 @@ import { getBrand } from "@/lib/brand";
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   return {
-    title: `Landlord Accountant — From £42.50/mo | ${brand.name}`,
+    title: `Landlord Accountant — From £42.50/mo`,
     description:
       "Expert landlord accounting from just £42.50/month. Rental income tax, property expenses, self assessment, and Section 24 advice from a dedicated accountant. No setup fees. No contract.",
     robots: { index: true, follow: true },

@@ -32,7 +32,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const brand = await getBrand();
   return {
-    title: `Set up your Direct Debit | ${brand.name}`,
+    title: `Set up your Direct Debit`,
     robots: { index: false, follow: false },
   };
 }

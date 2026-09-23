@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
   return {
-    title: `Online vs Local Accountant | ${brand.name}`,
+    title: `Online vs Local Accountant`,
     description: `Why switch from your local accountant to ${brand.name}? Better service, lower costs, free software, unlimited support. Compare and switch today.`,
   };
 }

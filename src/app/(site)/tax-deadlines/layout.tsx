@@ -3,7 +3,7 @@ import { FAQPageJsonLd } from "@/components/seo/StructuredData";
 import { getBrand } from "@/lib/brand";
 
 const cleverMetadata: Metadata = {
-  title: "UK Tax Deadlines 2025/26 — Key Dates for Your Diary | Clever Accounts",
+  title: "UK Tax Deadlines 2025/26 — Key Dates for Your Diary",
   description:
     "Complete guide to UK tax deadlines for 2025/26: Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD. Never miss an HMRC deadline again — Clever Accounts handles it all.",
 };
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const brand = await getBrand();
   if (brand.id === "clever") return cleverMetadata;
   return {
-    title: `UK Tax Deadlines 2025/26 — Key Dates for Your Diary | ${brand.name}`,
+    title: `UK Tax Deadlines 2025/26 — Key Dates for Your Diary`,
     description:
       `Complete guide to UK tax deadlines for 2025/26: Self Assessment, Corporation Tax, VAT, PAYE, Companies House, and MTD. Never miss an HMRC deadline again — ${brand.name} handles it all.`,
   };
