@@ -239,6 +239,19 @@ export default function VatApprovalClient({
                 (so what needs them is high on the page and impossible to miss), THEN the detailed
                 return. Nothing is hidden behind a tab — an approval page must show both the return
                 and what needs checking; only each issue's long transaction list is on a toggle. */}
+            {/* The preparer's own line, before the figures — it is usually the reason the figures
+                look the way they do ("sales are down because the Ryder contract ended"). It was
+                email-only until now, which meant it was gone by the time anyone came back to the
+                page to actually approve. */}
+            {dto.reviewerNote && (
+              <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-text-light mb-2">
+                  A note from your accountant
+                </p>
+                <p className="text-[15px] leading-relaxed text-text">{dto.reviewerNote}</p>
+              </div>
+            )}
+
             <VatSummaryView dto={dto} part="hero" />
 
             {attention > 0 && (

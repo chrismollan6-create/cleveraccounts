@@ -53,6 +53,8 @@ function baseDto(): VatApprovalDto {
     flagged: 1,
     approvalStatus: 'Pending',
     alreadyResponded: false,
+    reviewerNote:
+      'Sales are down on last quarter because the Ryder contract ended in July — the figures are right.',
     boxes: BOXES,
     months: MONTHS,
     hasNoSalesMonth: false,

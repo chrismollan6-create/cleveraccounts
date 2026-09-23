@@ -25,6 +25,9 @@ export interface VatApprovalDto {
   months?: VatMonth[];                // month-by-month figures for the quarter
   hasNoSalesMonth?: boolean;          // any month with nothing invoiced at all
   confirmIncomeNote?: string | null;  // sales well down on their norm — ask them to confirm
+  /** A line the preparer wrote for this client. Apex has always sent it; the page never read it,
+   *  so it only ever appeared in the approval email — gone by the time they came back to decide. */
+  reviewerNote?: string | null;
   reverseCharge?: ReverseCharge | null; // DEPRECATED — superseded by `groups`; kept one release
   groups?: FindingGroup[];             // checks that found something, each with its transactions
 }
