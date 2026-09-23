@@ -123,9 +123,16 @@ export async function PricingJsonLd() {
   const brand = await getBrand();
   const base = `https://${brand.domain}`;
   const seller = { "@type": "Organization", name: brand.name };
-  const brandRef = { "@type": "Brand", name: brand.name };
+  const provider = { "@type": "AccountingService", name: brand.name, url: base };
 
-  const product = (
+  // These are Service, not Product. Marking an accountancy package as a Product
+  // with an Offer tells Google it is retail stock, so it gets validated as a
+  // merchant listing and fails on required 'image' plus recommended
+  // 'shippingDetails' and 'hasMerchantReturnPolicy' — none of which exist for a
+  // monthly service. That made all four items ineligible for rich results
+  // (Search Console, 23 Sep 2026). Service carries the same price data and is
+  // what these actually are.
+  const servicePlan = (
     position: number,
     name: string,
     description: string,
@@ -135,11 +142,13 @@ export async function PricingJsonLd() {
     "@type": "ListItem",
     position,
     item: {
-      "@type": "Product",
+      "@type": "Service",
       name,
+      serviceType: name,
       description,
       url: `${base}${path}`,
-      brand: brandRef,
+      provider,
+      areaServed: "GB",
       offers: {
         "@type": "Offer",
         price,
@@ -165,10 +174,10 @@ export async function PricingJsonLd() {
     description: "Online accounting packages for sole traders, limited companies, and contractors across the UK.",
     url: `${base}/#pricing`,
     itemListElement: [
-      product(1, "Sole Trader Accounting", "Dedicated sole trader accountant, self assessment tax return, unlimited advice, free accounting software, expense tracking, MTD compliant.", "/sole-trader", "42.50"),
-      product(2, "Limited Company Accounting", "Year-end accounts, corporation tax, VAT returns, payroll, Companies House filings, tax planning, free accounting software.", "/limited-company", "104.50"),
-      product(3, "Contractor Accounting", "End-to-end IR35 support, contract reviews, umbrella solution, full limited company accounting, bespoke contracting advice.", "/contractor-accountancy", "104.50"),
-      product(4, "Landlord Accounting", "Comprehensive accounting for property investors and landlords including self assessment, rental income, and tax efficiency advice.", "/landlord-accounting", "42.50"),
+      servicePlan(1, "Sole Trader Accounting", "Dedicated sole trader accountant, self assessment tax return, unlimited advice, free accounting software, expense tracking, MTD compliant.", "/sole-trader", "42.50"),
+      servicePlan(2, "Limited Company Accounting", "Year-end accounts, corporation tax, VAT returns, payroll, Companies House filings, tax planning, free accounting software.", "/limited-company", "104.50"),
+      servicePlan(3, "Contractor Accounting", "End-to-end IR35 support, contract reviews, umbrella solution, full limited company accounting, bespoke contracting advice.", "/contractor-accountancy", "104.50"),
+      servicePlan(4, "Landlord Accounting", "Comprehensive accounting for property investors and landlords including self assessment, rental income, and tax efficiency advice.", "/landlord-accounting", "42.50"),
     ],
   };
 
