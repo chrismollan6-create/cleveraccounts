@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
+import StateCard from '@/components/vat/StateCard';
 import type { VatBox, VatCheck, HousekeepingNote, VatMonth } from './summaryTypes';
 import VatApprovalClient from './VatApprovalClient';
 
@@ -93,44 +93,6 @@ async function fetchApproval(
   }
 }
 
-function StateCard({
-  title,
-  body,
-  variant,
-  email,
-  phone,
-}: {
-  title: string;
-  body: string;
-  variant: 'success' | 'warning' | 'error';
-  email: string;
-  phone: string;
-}) {
-  const Icon = variant === 'success' ? CheckCircle2 : variant === 'warning' ? AlertTriangle : AlertCircle;
-  const colors =
-    variant === 'success'
-      ? 'text-emerald-600 bg-emerald-50'
-      : variant === 'warning'
-        ? 'text-amber-600 bg-amber-50'
-        : 'text-rose-600 bg-rose-50';
-  return (
-    <main className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-md border border-gray-100 p-8 sm:p-10">
-        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 ${colors}`}>
-          <Icon size={28} />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">{title}</h1>
-        <p className="text-text-light leading-relaxed mb-6">{body}</p>
-        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-text-light">
-          <span>Need help?</span>
-          <a className="text-primary hover:underline" href={`mailto:${email}`}>{email}</a>
-          <span className="text-gray-300 hidden sm:inline">·</span>
-          <a className="text-primary hover:underline" href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</a>
-        </div>
-      </div>
-    </main>
-  );
-}
 
 export default async function VatApprovalPage({
   params,

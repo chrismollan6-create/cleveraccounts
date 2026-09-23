@@ -55,11 +55,16 @@ export default function VatBooksReadyClient({
   dto,
   brandEmail,
   brandPhone,
+  demo = false,
 }: {
   token: string;
   dto: BooksReadyDto;
   brandEmail: string;
   brandPhone: string;
+  /** Walkthrough mode (/vat-books-ready/preview): the button reaches its real success state without
+   *  calling Salesforce, so the page can be demonstrated repeatedly with nothing to undo. Set only
+   *  by the preview route — there is no token or URL that can turn it on for a real client. */
+  demo?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -70,6 +75,13 @@ export default function VatBooksReadyClient({
   async function confirm() {
     setBusy(true);
     setError(null);
+    if (demo) {
+      // Show the same busy → success transition a client sees, without writing anything.
+      await new Promise((r) => setTimeout(r, 550));
+      setDone(true);
+      setBusy(false);
+      return;
+    }
     try {
       const res = await fetch(`/api/vat-books-ready/confirm?t=${encodeURIComponent(token)}`, {
         method: 'POST',
@@ -95,8 +107,10 @@ export default function VatBooksReadyClient({
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — that&rsquo;s all we needed</h1>
           <p className="text-text-light leading-relaxed mb-4">
-            We&rsquo;ll prepare your VAT return for the quarter ending {fmt(dto.periodEnd)} and check it
-            over. You&rsquo;ll get it back to approve before anything goes to HMRC.
+            {/* {' '} is load-bearing: JSX drops the newline between an expression and the next line,
+                so without it this renders "30 September 2026and check it over". */}
+            We&rsquo;ll prepare your VAT return for the quarter ending {fmt(dto.periodEnd)}{' '}
+            and check it over. You&rsquo;ll get it back to approve before anything goes to HMRC.
           </p>
           <p className="text-text-light leading-relaxed">
             If you realise something&rsquo;s still missing, just let us know — it&rsquo;s much easier to

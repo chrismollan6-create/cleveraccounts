@@ -52,6 +52,7 @@ export default function VatApprovalClient({
   brandEmail,
   brandPhone,
   initialOutcome = null,
+  demo = false,
 }: {
   token: string;
   dto: VatApprovalDto;
@@ -60,6 +61,10 @@ export default function VatApprovalClient({
   /** 'queried' when they come back to a return they've already raised a query on — they land on
    *  the queried state, where the "I've updated my books" button lives. */
   initialOutcome?: Outcome;
+  /** Walkthrough mode (/vat-approval/preview): every button reaches its real success state without
+   *  calling Salesforce, so the page can be demonstrated repeatedly with nothing to undo. Set only
+   *  by the preview route — there is no token or URL that can turn it on for a real client. */
+  demo?: boolean;
 }) {
   const [outcome, setOutcome] = useState<Outcome>(initialOutcome);
   const [busy, setBusy] = useState<Action | null>(null);
@@ -97,6 +102,13 @@ export default function VatApprovalClient({
   async function submit(kind: Action) {
     setBusy(kind);
     setError(null);
+    if (demo) {
+      // Show the same busy → success transition a client sees, without writing anything.
+      await new Promise((r) => setTimeout(r, 550));
+      setOutcome(kind === 'approve' ? 'approved' : kind === 'query' ? 'queried' : 'rechecking');
+      setBusy(null);
+      return;
+    }
     try {
       const res = await fetch(`/api/vat-approval/${kind}?t=${encodeURIComponent(token)}`, {
         method: 'POST',
@@ -128,7 +140,8 @@ export default function VatApprovalClient({
           <span className="font-semibold text-text">{heading}</span>
           {dto.netVatDue != null && (
             <>
-              {' '}— <span className="font-semibold text-text">{netLabel.toLowerCase()} {netText}</span>
+              {/* Lowercased to sit mid-sentence, but VAT is an acronym and stays up. */}
+              {' '}— <span className="font-semibold text-text">{netLabel.toLowerCase().replace('vat', 'VAT')} {netText}</span>
               {dto.periodEnd ? ` for the quarter ended ${fmtDate(dto.periodEnd)}` : ''}
             </>
           )}
