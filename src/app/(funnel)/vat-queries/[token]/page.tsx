@@ -20,6 +20,7 @@ export interface QuerySection {
   canConfirm?: boolean;            // false = must be fixed in FreeAgent; no "these are correct"
   informational?: boolean;         // true = worth telling them, not worth holding the filing for
   meaning?: string;                // plain English for what we have seen
+  vatLabel?: string;               // what the VAT figure MEANS here — not always "VAT"
   responseStatus?: string | null; // 'fixed' | 'correct' | 'question' | null| null; // 'fixed' | 'correct' | 'question' | null
   responseNote?: string | null;
   lines: QueryLine[];

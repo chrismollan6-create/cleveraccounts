@@ -211,7 +211,10 @@ export default function VatQueriesClient({
                                 {l.amountText}
                               </td>
                               <td className="py-1.5 whitespace-nowrap text-gray-400 tabular-nums">
-                                {l.vatText ? `VAT ${l.vatText}` : ''}
+                                {/* Not always "VAT". On "sales invoiced without VAT" the figure
+                                    is what WOULD be due if they should have charged it, so
+                                    labelling it VAT contradicted the heading above. */}
+                                {l.vatText ? `${s.vatLabel ?? 'VAT'} ${l.vatText}` : ''}
                               </td>
                             </tr>
                           ))}
