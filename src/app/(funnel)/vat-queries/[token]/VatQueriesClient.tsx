@@ -50,9 +50,16 @@ export default function VatQueriesClient({
   const setNote = (code: string, note: string) =>
     setResponses((r) => ({ ...r, [code]: { ...r[code], note } }));
 
-  const answered = sections.filter((s) => responses[s.code]?.status).length;
-  const allAnswered = answered === sections.length;
-  const pct = Math.round((answered / sections.length) * 100);
+  // Two lists, because they ask two different things. A mis-posted category is worth telling
+  // someone about but is not worth holding a VAT filing for, and burying the £3,000 question
+  // among forty category suggestions is how the important one gets skimmed past.
+  const needed = sections.filter((s) => !s.informational);
+  const forInfo = sections.filter((s) => s.informational);
+
+  // Progress counts only what we actually need an answer to.
+  const answered = needed.filter((s) => responses[s.code]?.status).length;
+  const allAnswered = answered === needed.length;
+  const pct = needed.length ? Math.round((answered / needed.length) * 100) : 100;
 
   async function submit() {
     setBusy(true);
@@ -112,7 +119,7 @@ export default function VatQueriesClient({
   }
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10 sm:py-14">
+    <main className="max-w-6xl mx-auto px-4 py-10 sm:py-14">
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-11 h-11 rounded-xl flex items-center justify-center text-primary bg-primary/10 shrink-0">
@@ -146,14 +153,17 @@ export default function VatQueriesClient({
         <div>
           <p className="text-text-light leading-relaxed mb-6">
             We&apos;ve reviewed your VAT return and there are a few points we&apos;d like you to look at.
-            Where something needs changing, please <span className="font-semibold">put it right in
-            FreeAgent first</span> and then tell us you&apos;ve done it. If a point is already
+            {/* {' '} after the span: JSX drops the newline between an element and the next line,
+                which is what produced "FreeAgent firstand then tell us". */}
+            Where something needs changing, please{' '}
+            <span className="font-semibold">put it right in FreeAgent first</span>{' '}
+            and then tell us you&apos;ve done it. If a point is already
             correct, say so. And if you&apos;re not sure what we mean, ask — we&apos;d far rather
             explain it than have you guess.
           </p>
 
           <div className="space-y-5">
-            {sections.map((s, i) => {
+            {needed.map((s, i) => {
               const r = responses[s.code];
               const isAnswered = !!r?.status;
               return (
@@ -173,7 +183,11 @@ export default function VatQueriesClient({
                     </span>
                     <div className="min-w-0">
                       <h2 className="text-lg font-semibold text-text">{s.title}</h2>
-                      {s.instruction && <p className="text-text-light leading-relaxed mt-1.5">{s.instruction}</p>}
+                      {/* What we've seen, in their words — then what we'd like them to do about
+                          it. The page used to show only the instruction, so a client who got a
+                          thin one had no idea what the point even was. */}
+                      {s.meaning && <p className="text-text-light leading-relaxed mt-1.5">{s.meaning}</p>}
+                      {s.instruction && <p className="text-text leading-relaxed mt-2">{s.instruction}</p>}
                     </div>
                   </div>
 
@@ -184,7 +198,15 @@ export default function VatQueriesClient({
                           {s.lines.map((l, j) => (
                             <tr key={j} className="border-t border-gray-100 first:border-t-0">
                               <td className="py-1.5 pr-4 whitespace-nowrap text-gray-400">{l.txnDate}</td>
-                              <td className="py-1.5 pr-4">{l.payee}</td>
+                              <td className="py-1.5 pr-4">
+                                {l.payee}
+                                {/* Which category it's actually in. Telling someone a payee
+                                    "looks like Mobile Phone — check the category" without saying
+                                    which category it sits in leaves out the one fact they need. */}
+                                {l.note && (
+                                  <span className="block text-xs text-gray-400">{l.note}</span>
+                                )}
+                              </td>
                               <td className="py-1.5 pr-4 whitespace-nowrap text-right tabular-nums font-medium text-text">
                                 {l.amountText}
                               </td>
@@ -212,7 +234,7 @@ export default function VatQueriesClient({
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'fixed')}
-                      className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                      className={`flex-1 whitespace-nowrap inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
                         r?.status === 'fixed'
                           ? 'border-primary bg-primary text-white'
                           : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
@@ -227,7 +249,7 @@ export default function VatQueriesClient({
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'correct')}
-                      className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                      className={`flex-1 whitespace-nowrap inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
                         r?.status === 'correct'
                           ? 'border-primary bg-primary text-white'
                           : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
@@ -243,7 +265,7 @@ export default function VatQueriesClient({
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'question')}
-                      className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                      className={`flex-1 whitespace-nowrap inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
                         r?.status === 'question'
                           ? 'border-amber-500 bg-amber-500 text-white'
                           : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
@@ -269,13 +291,62 @@ export default function VatQueriesClient({
             })}
           </div>
 
+          {/* FOR INFORMATION. Nothing here holds up the return, so nothing here asks for an
+              answer or counts towards the progress above — it is below the fold of the real
+              questions on purpose. */}
+          {forInfo.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-sm font-bold uppercase tracking-[0.08em] text-text-light mb-1">
+                Also worth knowing
+              </h2>
+              <p className="text-sm text-text-light mb-4">
+                These don&apos;t affect your VAT or hold up the return — we just spotted them while
+                we were in there. Nothing to do unless you&apos;d like them changed, in which case
+                reply and we&apos;ll sort it.
+              </p>
+              <div className="space-y-4">
+                {forInfo.map((s) => (
+                  <section key={s.code} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/60">
+                    <h3 className="font-semibold text-text">{s.title}</h3>
+                    {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
+                    {s.lines.length > 0 && (
+                      <div className="mt-3 overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <tbody className="text-text-light">
+                            {s.lines.map((l, j) => (
+                              <tr key={j} className="border-t border-gray-200/70 first:border-t-0">
+                                <td className="py-1.5 pr-4 whitespace-nowrap text-gray-400">{l.txnDate}</td>
+                                <td className="py-1.5 pr-4">
+                                  {l.payee}
+                                  {l.note && <span className="block text-xs text-gray-400">{l.note}</span>}
+                                </td>
+                                <td className="py-1.5 whitespace-nowrap text-right tabular-nums font-medium text-text">
+                                  {l.amountText}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {s.txnCount > s.lines.length && (
+                          <p className="mt-2 text-xs text-gray-400">
+                            and {s.txnCount - s.lines.length} more like these
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </section>
+                ))}
+              </div>
+            </section>
+          )}
+
           {error && (
             <p className="mt-6 text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">{error}</p>
           )}
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-sm text-text-light">
-              {answered} of {sections.length} answered
+              {answered} of {needed.length} answered
             </span>
             <div className="flex flex-col items-end">
               <button
@@ -302,7 +373,7 @@ export default function VatQueriesClient({
             </h3>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-bold text-text tabular-nums">{answered}</span>
-              <span className="text-sm text-text-light">of {sections.length} answered</span>
+              <span className="text-sm text-text-light">of {needed.length} answered</span>
             </div>
             <div className="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden">
               <div

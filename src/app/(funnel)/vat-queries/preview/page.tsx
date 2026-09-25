@@ -55,11 +55,14 @@ const SECTIONS: QuerySection[] = [
     instruction:
       'These look like they may be filed under the wrong category. It doesn’t usually change the VAT, so it won’t hold anything up — but if you’d like them moved, tell us and we’ll sort it.',
     excluded: false,
+    informational: true,
+    meaning:
+      'These look like they may be filed under a different category to where they usually belong. It doesn’t change your VAT, so it won’t hold anything up.',
     responseStatus: null,
     responseNote: null,
     lines: [
-      { txnDate: '2026-07-22', payee: 'SCREWFIX DIRECT', amountText: '£86.40', vatText: '£14.40' },
-      { txnDate: '2026-08-19', payee: 'THE THREE HORSESHOES', amountText: '£54.20', vatText: '£9.03' },
+      { txnDate: '2026-07-22', payee: 'SCREWFIX DIRECT', amountText: '£86.40', vatText: '£14.40', note: 'Filed under Rent — looks more like Equipment' },
+      { txnDate: '2026-08-19', payee: 'THE THREE HORSESHOES', amountText: '£54.20', vatText: '£9.03', note: 'Filed under Telephone — looks more like Entertaining' },
     ],
   },
 ];

@@ -8,6 +8,7 @@ export interface QueryLine {
   payee?: string;
   amountText?: string;
   vatText?: string;
+  note?: string;   // "Filed under Telephone — looks more like Equipment"
 }
 
 export interface QuerySection {
@@ -17,6 +18,8 @@ export interface QuerySection {
   instruction?: string;
   excluded: boolean;
   canConfirm?: boolean;            // false = must be fixed in FreeAgent; no "these are correct"
+  informational?: boolean;         // true = worth telling them, not worth holding the filing for
+  meaning?: string;                // plain English for what we have seen
   responseStatus?: string | null; // 'fixed' | 'correct' | 'question' | null| null; // 'fixed' | 'correct' | 'question' | null
   responseNote?: string | null;
   lines: QueryLine[];
