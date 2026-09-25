@@ -26,6 +26,7 @@ export default function VatQueriesClient({
   sections,
   brandEmail,
   brandPhone,
+  demo = false,
 }: {
   token: string;
   clientName?: string;
@@ -34,6 +35,9 @@ export default function VatQueriesClient({
   sections: QuerySection[];
   brandEmail: string;
   brandPhone: string;
+  /** Walkthrough mode (/vat-queries/preview): reaches the real thank-you screen without calling
+   *  Salesforce, so the page can be demonstrated repeatedly with nothing to undo. */
+  demo?: boolean;
 }) {
   const [responses, setResponses] = useState<Responses>({});
   const [busy, setBusy] = useState(false);
@@ -52,6 +56,13 @@ export default function VatQueriesClient({
   async function submit() {
     setBusy(true);
     setError(null);
+    if (demo) {
+      // Same busy → thank-you transition a client sees, without writing anything.
+      await new Promise((r) => setTimeout(r, 550));
+      setDone(true);
+      setBusy(false);
+      return;
+    }
     try {
       const checks: Record<string, { status?: Status; note: string }> = {};
       for (const s of sections) {
