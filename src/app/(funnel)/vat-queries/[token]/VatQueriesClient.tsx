@@ -139,7 +139,7 @@ export default function VatQueriesClient({
       <div className="mb-8 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 px-4 py-3.5">
         <Clock size={20} className="text-amber-600 mt-0.5 shrink-0" />
         <p className="text-sm text-amber-900 leading-relaxed">
-          <span className="font-semibold">We can&apos;t file your VAT return with HMRC until these are confirmed.</span>{' '}
+          <span className="font-semibold">We can&apos;t finalise your VAT return until these are confirmed.</span>{' '}
           {dueDate ? (
             <>Your return is due by <span className="font-semibold">{dueDate}</span>, so please take a moment to answer the points below.</>
           ) : (
