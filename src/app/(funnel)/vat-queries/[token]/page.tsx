@@ -16,7 +16,8 @@ export interface QuerySection {
   txnCount: number;
   instruction?: string;
   excluded: boolean;
-  responseStatus?: string | null; // 'fixed' | 'correct' | null
+  canConfirm?: boolean;            // false = must be fixed in FreeAgent; no "these are correct"
+  responseStatus?: string | null; // 'fixed' | 'correct' | 'question' | null| null; // 'fixed' | 'correct' | 'question' | null
   responseNote?: string | null;
   lines: QueryLine[];
 }

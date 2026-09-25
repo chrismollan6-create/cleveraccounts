@@ -19,6 +19,21 @@ export const metadata = {
 
 const SECTIONS: QuerySection[] = [
   {
+    code: 'TXN_UNEXPLAINED',
+    title: 'Unexplained bank transactions in the period',
+    txnCount: 22,
+    instruction:
+      'There are 22 bank items we can’t see an explanation for. Anything unexplained is missing from your VAT return, so these need categorising in FreeAgent before we can finish it.',
+    excluded: false,
+    canConfirm: false,
+    responseStatus: null,
+    responseNote: null,
+    lines: [
+      { txnDate: '2026-07-08', payee: 'CARD PAYMENT 4417', amountText: '£248.00' },
+      { txnDate: '2026-08-15', payee: 'TRANSFER OUT', amountText: '£1,100.00' },
+    ],
+  },
+  {
     code: 'TXN_VAT_ON_EXEMPT',
     title: 'VAT reclaimed on costs that don’t usually carry it',
     txnCount: 3,

@@ -9,13 +9,14 @@ import {
   Clock,
   ShieldCheck,
   LifeBuoy,
+  HelpCircle,
 } from 'lucide-react';
 import type { QuerySection } from './page';
 
 const CARD =
   'bg-white rounded-2xl border border-gray-100 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_-14px_rgba(16,24,40,0.14)]';
 
-type Status = 'fixed' | 'correct';
+type Status = 'fixed' | 'correct' | 'question';
 type Responses = Record<string, { status?: Status; note: string }>;
 
 export default function VatQueriesClient({
@@ -144,8 +145,11 @@ export default function VatQueriesClient({
         {/* Main column */}
         <div>
           <p className="text-text-light leading-relaxed mb-6">
-            We&apos;ve reviewed your VAT return and there are a few points we&apos;d like you to confirm or correct.
-            For each one, either fix it in FreeAgent or let us know it&apos;s correct, then send it back to us.
+            We&apos;ve reviewed your VAT return and there are a few points we&apos;d like you to look at.
+            Where something needs changing, please <span className="font-semibold">put it right in
+            FreeAgent first</span> and then tell us you&apos;ve done it. If a point is already
+            correct, say so. And if you&apos;re not sure what we mean, ask — we&apos;d far rather
+            explain it than have you guess.
           </p>
 
           <div className="space-y-5">
@@ -194,6 +198,16 @@ export default function VatQueriesClient({
                     </div>
                   )}
 
+                  {/* Where there is no "this is correct" answer, say what to do BEFORE the buttons
+                      rather than leaving them to work it out from a missing option. */}
+                  {s.canConfirm === false && (
+                    <p className="mt-4 sm:ml-9 rounded-xl border border-amber-100 bg-amber-50/70 px-3.5 py-2.5 text-sm text-amber-900">
+                      <span className="font-semibold">Please sort these out in FreeAgent first</span>
+                      , then come back and tell us you&apos;ve done it. We can&apos;t finish your
+                      return until they&apos;re dealt with.
+                    </p>
+                  )}
+
                   <div className="mt-5 sm:pl-9 flex flex-col sm:flex-row gap-2.5">
                     <button
                       type="button"
@@ -204,8 +218,12 @@ export default function VatQueriesClient({
                           : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      <Wrench size={16} /> I&apos;ve fixed this in FreeAgent
+                      <Wrench size={16} />{' '}
+                      {s.canConfirm === false
+                        ? "I've dealt with these in FreeAgent"
+                        : "I've fixed this in FreeAgent"}
                     </button>
+                    {s.canConfirm !== false && (
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'correct')}
@@ -217,12 +235,32 @@ export default function VatQueriesClient({
                     >
                       <CheckCircle2 size={16} /> These are correct
                     </button>
+                    )}
+                    {/* A client who doesn't understand must not have to guess. With only the two
+                        buttons above, a confused client had to claim one of them — and a false
+                        "these are correct" is worse than a question, because it closes the point
+                        and we file on it. Asking is a real answer. */}
+                    <button
+                      type="button"
+                      onClick={() => setStatus(s.code, 'question')}
+                      className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                        r?.status === 'question'
+                          ? 'border-amber-500 bg-amber-500 text-white'
+                          : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <HelpCircle size={16} /> I&apos;m not sure — ask us
+                    </button>
                   </div>
 
                   <textarea
                     value={r?.note ?? ''}
                     onChange={(e) => setNote(s.code, e.target.value)}
-                    placeholder="Anything you'd like to add (optional)…"
+                    placeholder={
+                      r?.status === 'question'
+                        ? 'What would you like us to explain?'
+                        : "Anything you'd like to add (optional)…"
+                    }
                     rows={2}
                     className="mt-3 sm:ml-9 w-[calc(100%-0px)] sm:w-[calc(100%-2.25rem)] rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-text placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
