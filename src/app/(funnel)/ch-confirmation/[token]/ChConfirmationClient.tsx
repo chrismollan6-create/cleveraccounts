@@ -240,7 +240,10 @@ export default function ChConfirmationClient({
   const [idvChosen, setIdvChosen] = useState<Record<string, boolean>>({});
   const [idvServiceStarted, setIdvServiceStarted] = useState(dto.idvServiceRequested === true);
   const [idvContacts, setIdvContacts] = useState<Record<string, { email: string; phone: string }>>({});
-  const chosenIds = Object.keys(idvChosen).filter((k) => idvChosen[k]);
+  // Only people still unverified can be bought a check. A tick left on someone who has since
+  // verified is dropped, so the total shown here is what Stripe charges and what Xero invoices.
+  const idvBuyable = idvPeople.filter((p) => !p.verified);
+  const chosenIds = idvBuyable.map((p) => p.id || '').filter((k) => k && idvChosen[k]);
   const idvChosenCount = chosenIds.length;
   const wantIdvService = idvChosenCount > 0;
   const idvChosenTotal = idvUnitGross * idvChosenCount;
@@ -880,7 +883,7 @@ export default function ChConfirmationClient({
                     </p>
 
                     <div className="mt-3 space-y-2">
-                      {idvPeople.map((p) => {
+                      {idvBuyable.map((p) => {
                         const pid = p.id || '';
                         const chosen = !!idvChosen[pid];
                         const row = idvContacts[pid] || { email: '', phone: '' };
