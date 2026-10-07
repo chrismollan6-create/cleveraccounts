@@ -118,6 +118,29 @@ export default function VatQueriesClient({
     );
   }
 
+  /** Rendered above the questions on a phone, in the sidebar on a laptop — one definition. */
+  const whatHappensNext = (
+    <div className={`p-5 ${CARD}`}>
+      <h3 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
+        <ShieldCheck size={16} className="text-primary" /> What happens next
+      </h3>
+      <ol className="space-y-3">
+        {[
+          'You confirm or fix each point below.',
+          'We re-check your return against your figures.',
+          'Once it\u2019s clear, we file it with HMRC.',
+        ].map((step, i) => (
+          <li key={i} className="flex gap-3 text-sm text-text-light leading-snug">
+            <span className="w-5 h-5 shrink-0 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+              {i + 1}
+            </span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-10 sm:py-14">
       {/* Header */}
@@ -135,18 +158,32 @@ export default function VatQueriesClient({
         </div>
       </div>
 
-      {/* Why this matters — visible on every screen */}
-      <div className="mb-8 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 px-4 py-3.5">
-        <Clock size={20} className="text-amber-600 mt-0.5 shrink-0" />
-        <p className="text-sm text-amber-900 leading-relaxed">
-          <span className="font-semibold">We can&apos;t finalise your VAT return until these are confirmed.</span>{' '}
-          {dueDate ? (
-            <>Your return is due by <span className="font-semibold">{dueDate}</span>, so please take a moment to answer the points below.</>
-          ) : (
-            <>Please take a moment to answer the points below so we can file it on time.</>
-          )}
+      {/* WHY THEY HAVE GOT THIS, BEFORE WHAT IT COSTS THEM.
+          This led with an amber "We can't finalise your VAT return until these are confirmed",
+          which to someone receiving one of these for the first time reads as "something is wrong
+          and it is my fault". Nothing on the page said the thing that actually settles that: we
+          check every transaction for every client, and this is what the checks picked up. The
+          deadline is still here, as supporting detail rather than the opening line. */}
+      <div className="mb-6 rounded-2xl border border-gray-100 bg-gray-50/80 px-4 py-3.5">
+        <p className="text-sm text-text leading-relaxed">
+          <span className="font-semibold">You haven&apos;t done anything wrong.</span>{' '}
+          We check every transaction on every VAT return we prepare, and a few things came up on
+          yours that only you can answer. It usually takes a couple of minutes.
         </p>
+        {dueDate && (
+          <p className="mt-2 flex items-start gap-2 text-sm text-text-light leading-relaxed">
+            <Clock size={16} className="text-text-light mt-0.5 shrink-0" />
+            <span>We file it once these are settled &mdash; your return is due by{' '}
+              <span className="font-medium text-text">{dueDate}</span>.</span>
+          </p>
+        )}
       </div>
+
+      {/* THE SIDEBAR STACKS BELOW THE CONTENT UNDER lg, SO ON A PHONE "What happens next"
+          rendered AFTER twenty-six rows of the client's own spending — the panel that calms a
+          first-timer, placed after the thing that worries them. Shown above the questions on
+          small screens, and left in the sidebar on large ones. */}
+      <div className="lg:hidden mb-6">{whatHappensNext}</div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
         {/* Main column */}
@@ -193,7 +230,39 @@ export default function VatQueriesClient({
                   </div>
 
                   {s.lines.length > 0 && (
-                    <div className="mt-4 sm:pl-9 overflow-x-auto">
+                    <div className="mt-4 sm:pl-9">
+                      {/* NO SIDEWAYS SCROLL ON A PHONE. Four columns will not fit 390px even with
+                          the payee cleaned up, and a table that scrolls horizontally inside a page
+                          that scrolls vertically is the pattern where a column is silently missed
+                          — here, the VAT column, which is the one the question is about. Stacked
+                          rows below sm, the table above it. */}
+                      <ul className="sm:hidden divide-y divide-gray-100">
+                        {s.lines.map((l, j) => (
+                          <li key={j} className="py-2">
+                            <div className="flex items-baseline justify-between gap-3">
+                              <span className="text-[13px] text-text font-medium min-w-0 break-words"
+                                    title={l.payeeRaw || l.payee}>
+                                {l.payee}
+                              </span>
+                              <span className="text-[13px] font-semibold text-text tabular-nums shrink-0">
+                                {l.amountText}
+                              </span>
+                            </div>
+                            <div className="mt-0.5 flex items-baseline justify-between gap-3 text-[11px] text-gray-400">
+                              <span className="min-w-0 break-words">
+                                {l.txnDate}{l.note ? ` · ${l.note}` : ''}
+                              </span>
+                              {l.vatText && (
+                                <span className="tabular-nums shrink-0">
+                                  {s.vatLabel || 'VAT'} {l.vatText}
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="hidden sm:block overflow-x-auto">
                       <table className="w-full text-[13px]">
                         <tbody className="text-text-light">
                           {s.lines.map((l, j) => (
@@ -204,9 +273,6 @@ export default function VatQueriesClient({
                                   identify a payment. */}
                               <td className="py-1 pr-4" title={l.payeeRaw || l.payee}>
                                 {l.payee}
-                                {/* Which category it's actually in. Telling someone a payee
-                                    "looks like Mobile Phone — check the category" without saying
-                                    which category it sits in leaves out the one fact they need. */}
                                 {l.note && (
                                   <span className="block text-[11px] text-gray-400">{l.note}</span>
                                 )}
@@ -215,15 +281,14 @@ export default function VatQueriesClient({
                                 {l.amountText}
                               </td>
                               <td className="py-1 whitespace-nowrap text-gray-400 tabular-nums">
-                                {/* Not always "VAT". On "sales invoiced without VAT" the figure
-                                    is what WOULD be due if they should have charged it, so
-                                    labelling it VAT contradicted the heading above. */}
-                                {l.vatText ? `${s.vatLabel ?? 'VAT'} ${l.vatText}` : ''}
+                                {l.vatText ? `${s.vatLabel || 'VAT'} ${l.vatText}` : ''}
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
+                      </div>
+
                       {/* NEVER TRUNCATE IN SILENCE. The list was capped at 15 with nothing saying
                           so, so a client confirming "these are correct" was confirming a list they
                           had only seen half of. The cap is far higher now and rarely reached, but
@@ -400,25 +465,7 @@ export default function VatQueriesClient({
             </div>
           </div>
 
-          <div className={`p-5 ${CARD}`}>
-            <h3 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
-              <ShieldCheck size={16} className="text-primary" /> What happens next
-            </h3>
-            <ol className="space-y-3">
-              {[
-                'You confirm or fix each point below.',
-                'We re-check your return against your figures.',
-                'Once it’s clear, we file it with HMRC.',
-              ].map((step, i) => (
-                <li key={i} className="flex gap-3 text-sm text-text-light leading-snug">
-                  <span className="w-5 h-5 shrink-0 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+          <div className="hidden lg:block">{whatHappensNext}</div>
 
           <div className={`p-5 ${CARD}`}>
             <h3 className="text-sm font-semibold text-text mb-2 flex items-center gap-2">
