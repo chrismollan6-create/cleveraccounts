@@ -152,9 +152,10 @@ export default function VatQueriesClient({
         {/* Main column */}
         <div>
           <p className="text-text-light leading-relaxed mb-6">
-            We&apos;ve reviewed your VAT return and there are a few points we&apos;d like you to look at.
-            {/* {' '} after the span: JSX drops the newline between an element and the next line,
-                which is what produced "FreeAgent firstand then tell us". */}
+            {/* Every {' '} here is load-bearing: JSX drops the newline between a line and an
+                element OR a comment, which is what produced "FreeAgent firstand then tell us"
+                and then, once this comment was added, "look at.Where something". */}
+            We&apos;ve reviewed your VAT return and there are a few points we&apos;d like you to look at.{' '}
             Where something needs changing, please{' '}
             <span className="font-semibold">put it right in FreeAgent first</span>{' '}
             and then tell us you&apos;ve done it. If a point is already
