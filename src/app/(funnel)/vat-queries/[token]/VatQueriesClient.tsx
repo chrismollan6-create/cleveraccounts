@@ -221,6 +221,16 @@ export default function VatQueriesClient({
                           ))}
                         </tbody>
                       </table>
+                      {/* NEVER TRUNCATE IN SILENCE. The list was capped at 15 with nothing saying
+                          so, so a client confirming "these are correct" was confirming a list they
+                          had only seen half of. The cap is far higher now and rarely reached, but
+                          when it is, it says so. */}
+                      {s.txnCount > s.lines.length && (
+                        <p className="mt-2 text-xs text-text-light">
+                          Showing {s.lines.length} of {s.txnCount}. Please get in touch and we&apos;ll
+                          send you the full list.
+                        </p>
+                      )}
                     </div>
                   )}
 
