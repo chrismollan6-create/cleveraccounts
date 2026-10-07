@@ -6,6 +6,8 @@ import VatQueriesClient from './VatQueriesClient';
 export interface QueryLine {
   txnDate?: string;
   payee?: string;
+  /** The bank's untouched narrative, for the hover title. */
+  payeeRaw?: string;
   amountText?: string;
   vatText?: string;
   note?: string;   // "Filed under Telephone — looks more like Equipment"

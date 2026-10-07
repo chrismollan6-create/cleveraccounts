@@ -102,7 +102,7 @@ export default function VatQueriesClient({
             <CheckCircle2 size={28} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-text mb-3">Thanks — that&apos;s everything we need</h1>
-          <p className="text-text-light leading-relaxed mb-6">
+          <p className="text-sm text-text-light leading-relaxed mb-5">
             We&apos;ve got your answers and we&apos;re taking another look at your VAT return. If what you updated in
             FreeAgent clears it, we&apos;ll move it forward to file; if we need anything else, we&apos;ll be in touch.
             There&apos;s nothing else you need to do right now.
@@ -151,7 +151,7 @@ export default function VatQueriesClient({
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
         {/* Main column */}
         <div>
-          <p className="text-text-light leading-relaxed mb-6">
+          <p className="text-sm text-text-light leading-relaxed mb-5">
             {/* Every {' '} here is load-bearing: JSX drops the newline between a line and an
                 element OR a comment, which is what produced "FreeAgent firstand then tell us"
                 and then, once this comment was added, "look at.Where something". */}
@@ -183,35 +183,38 @@ export default function VatQueriesClient({
                       {isAnswered ? <CheckCircle2 size={16} /> : i + 1}
                     </span>
                     <div className="min-w-0">
-                      <h2 className="text-lg font-semibold text-text">{s.title}</h2>
+                      <h2 className="text-base font-semibold text-text">{s.title}</h2>
                       {/* What we've seen, in their words — then what we'd like them to do about
                           it. The page used to show only the instruction, so a client who got a
                           thin one had no idea what the point even was. */}
-                      {s.meaning && <p className="text-text-light leading-relaxed mt-1.5">{s.meaning}</p>}
-                      {s.instruction && <p className="text-text leading-relaxed mt-2">{s.instruction}</p>}
+                      {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
+                      {s.instruction && <p className="text-sm text-text leading-relaxed mt-1.5">{s.instruction}</p>}
                     </div>
                   </div>
 
                   {s.lines.length > 0 && (
                     <div className="mt-4 sm:pl-9 overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-[13px]">
                         <tbody className="text-text-light">
                           {s.lines.map((l, j) => (
                             <tr key={j} className="border-t border-gray-100 first:border-t-0">
-                              <td className="py-1.5 pr-4 whitespace-nowrap text-gray-400">{l.txnDate}</td>
-                              <td className="py-1.5 pr-4">
+                              <td className="py-1 pr-3 whitespace-nowrap text-gray-400">{l.txnDate}</td>
+                              {/* title = the bank's untouched narrative, so cleanPayee in
+                                  VATClientQueryService can never cost someone the ability to
+                                  identify a payment. */}
+                              <td className="py-1 pr-4" title={l.payeeRaw || l.payee}>
                                 {l.payee}
                                 {/* Which category it's actually in. Telling someone a payee
                                     "looks like Mobile Phone — check the category" without saying
                                     which category it sits in leaves out the one fact they need. */}
                                 {l.note && (
-                                  <span className="block text-xs text-gray-400">{l.note}</span>
+                                  <span className="block text-[11px] text-gray-400">{l.note}</span>
                                 )}
                               </td>
-                              <td className="py-1.5 pr-4 whitespace-nowrap text-right tabular-nums font-medium text-text">
+                              <td className="py-1 pr-4 whitespace-nowrap text-right tabular-nums font-medium text-text">
                                 {l.amountText}
                               </td>
-                              <td className="py-1.5 whitespace-nowrap text-gray-400 tabular-nums">
+                              <td className="py-1 whitespace-nowrap text-gray-400 tabular-nums">
                                 {/* Not always "VAT". On "sales invoiced without VAT" the figure
                                     is what WOULD be due if they should have charged it, so
                                     labelling it VAT contradicted the heading above. */}
@@ -325,16 +328,16 @@ export default function VatQueriesClient({
                     {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
                     {s.lines.length > 0 && (
                       <div className="mt-3 overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-[13px]">
                           <tbody className="text-text-light">
                             {s.lines.map((l, j) => (
                               <tr key={j} className="border-t border-gray-200/70 first:border-t-0">
-                                <td className="py-1.5 pr-4 whitespace-nowrap text-gray-400">{l.txnDate}</td>
-                                <td className="py-1.5 pr-4">
+                                <td className="py-1 pr-3 whitespace-nowrap text-gray-400">{l.txnDate}</td>
+                                <td className="py-1 pr-4" title={l.payeeRaw || l.payee}>
                                   {l.payee}
-                                  {l.note && <span className="block text-xs text-gray-400">{l.note}</span>}
+                                  {l.note && <span className="block text-[11px] text-gray-400">{l.note}</span>}
                                 </td>
-                                <td className="py-1.5 whitespace-nowrap text-right tabular-nums font-medium text-text">
+                                <td className="py-1 whitespace-nowrap text-right tabular-nums font-medium text-text">
                                   {l.amountText}
                                 </td>
                               </tr>
