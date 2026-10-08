@@ -248,7 +248,12 @@ export default function VatSummaryView({
                         <>we&apos;ve moved it to <span className="font-medium text-text">{n.toCategory}</span> for you.</>
                       ) : (
                         <>this looks like it belongs in <span className="font-medium text-text">{n.toCategory}</span>.
-                        {' '}Could you move it when you get a moment — or just reply to let us know if it&apos;s deliberate.</>
+                        {/* NOT "reply and let us know". The line directly below says these do not
+                            hold up the approval, so asking to be told when one is fine contradicts
+                            it — and buys an inbound message about a £15.99 Toolstation purchase
+                            that someone has to read and action for no benefit. If it is right as
+                            it is, there is nothing we need. (Chris, 8 Oct 2026.) */}
+                        {' '}Move it when you get a moment if you agree — if it&apos;s where you want it, just ignore this.</>
                       )}
                     </p>
                   </div>
