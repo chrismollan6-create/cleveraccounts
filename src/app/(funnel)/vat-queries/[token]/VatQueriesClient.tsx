@@ -166,9 +166,10 @@ export default function VatQueriesClient({
           deadline is still here, as supporting detail rather than the opening line. */}
       <div className="mb-6 rounded-2xl border border-gray-100 bg-gray-50/80 px-4 py-3.5">
         <p className="text-sm text-text leading-relaxed">
-          <span className="font-semibold">You haven&apos;t done anything wrong.</span>{' '}
-          We check every transaction on every VAT return we prepare, and a few things came up on
-          yours that only you can answer. It usually takes a couple of minutes.
+          <span className="font-semibold">We can&apos;t file your return until these are answered.</span>{' '}
+          There {needed.length === 1 ? 'is one point' : `are ${needed.length} points`} below that
+          only you can settle. It&apos;s a routine check we run on every return and usually takes a
+          couple of minutes.
         </p>
         {dueDate && (
           <p className="mt-2 flex items-start gap-2 text-sm text-text-light leading-relaxed">
@@ -192,7 +193,6 @@ export default function VatQueriesClient({
             {/* Every {' '} here is load-bearing: JSX drops the newline between a line and an
                 element OR a comment, which is what produced "FreeAgent firstand then tell us"
                 and then, once this comment was added, "look at.Where something". */}
-            We&apos;ve reviewed your VAT return and there are a few points we&apos;d like you to look at.{' '}
             Where something needs changing, please{' '}
             <span className="font-semibold">put it right in FreeAgent first</span>{' '}
             and then tell us you&apos;ve done it. If a point is already
