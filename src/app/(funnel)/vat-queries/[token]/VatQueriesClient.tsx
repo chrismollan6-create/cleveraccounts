@@ -41,6 +41,8 @@ export default function VatQueriesClient({
   demo?: boolean;
 }) {
   const [responses, setResponses] = useState<Responses>({});
+  /** Answered sections collapse; this reopens one, because people change their minds. */
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +55,23 @@ export default function VatQueriesClient({
   // Two lists, because they ask two different things. A mis-posted category is worth telling
   // someone about but is not worth holding a VAT filing for, and burying the £3,000 question
   // among forty category suggestions is how the important one gets skimmed past.
+  /**
+   * THE MONEY THE SECTION IS ABOUT.
+   *
+   * Every card looked identical, so an £8,200 question and a £52 one carried exactly the same
+   * weight and a client had no way to tell where to spend their attention. The figure is already
+   * on the page, buried a row at a time; summing it to the top is what makes one card obviously
+   * matter more than the other. Parsed from the rendered text because that is what the client is
+   * reading — if the two ever disagreed, the total would be the lie. (Chris, 8 Oct 2026.)
+   */
+  const vatAtStake = (sec: QuerySection) =>
+    sec.lines.reduce((sum, l) => {
+      const n = parseFloat((l.vatText ?? '').replace(/[^0-9.-]/g, ''));
+      return sum + (Number.isFinite(n) ? Math.abs(n) : 0);
+    }, 0);
+  const gbp = (n: number) =>
+    `£${n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   const needed = sections.filter((s) => !s.informational);
   const forInfo = sections.filter((s) => s.informational);
 
@@ -204,6 +223,17 @@ export default function VatQueriesClient({
             {needed.map((s, i) => {
               const r = responses[s.code];
               const isAnswered = !!r?.status;
+              const stake = vatAtStake(s);
+              // ANSWERED SECTIONS GET OUT OF THE WAY. Every card stayed full height whatever the
+              // client did, so three answered points looked exactly like three outstanding ones
+              // and "0 of 2 answered" in the sidebar was the only sign of progress on the page.
+              // "Ask us" stays open: the note box underneath is where they say WHAT they want
+              // explained, and collapsing would hide the only field that answer needs.
+              const collapsed = isAnswered && r?.status !== 'question' && !expanded[s.code];
+              const answerLabel = r?.status === 'fixed'
+                ? "You've fixed this in FreeAgent"
+                : r?.status === 'correct' ? 'You said these are correct'
+                : "You've asked us about this";
               return (
                 <section
                   key={s.code}
@@ -219,15 +249,50 @@ export default function VatQueriesClient({
                     >
                       {isAnswered ? <CheckCircle2 size={16} /> : i + 1}
                     </span>
-                    <div className="min-w-0">
-                      <h2 className="text-base font-semibold text-text">{s.title}</h2>
+                    <div className="min-w-0 flex-1">
+                      {!collapsed && (
+                        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-text-light mb-1">
+                          {s.canConfirm === false ? 'Needs changing in FreeAgent' : 'Please confirm or correct'}
+                        </p>
+                      )}
+                      <div className="flex items-baseline justify-between gap-4">
+                        <h2 className="text-base font-semibold text-text">{s.title}</h2>
+                        {/* The figure the question is about, where the eye lands first. */}
+                        {stake > 0 && (
+                          <span className="shrink-0 text-right">
+                            <span className="block text-base font-semibold text-text tabular-nums leading-none">
+                              {gbp(stake)}
+                            </span>
+                            <span className="block text-[11px] uppercase tracking-wide text-text-light mt-1">
+                              {s.vatLabel || 'VAT'}
+                            </span>
+                          </span>
+                        )}
+                      </div>
                       {/* What we've seen, in their words — then what we'd like them to do about
                           it. The page used to show only the instruction, so a client who got a
                           thin one had no idea what the point even was. */}
-                      {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
-                      {s.instruction && <p className="text-sm text-text leading-relaxed mt-1.5">{s.instruction}</p>}
+                      {collapsed ? (
+                        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-emerald-700">
+                          <span className="font-medium">{answerLabel}</span>
+                          <button
+                            type="button"
+                            onClick={() => setExpanded((e) => ({ ...e, [s.code]: true }))}
+                            className="text-text-light underline underline-offset-2 hover:text-text"
+                          >
+                            change
+                          </button>
+                        </p>
+                      ) : (
+                        <>
+                          {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
+                          {s.instruction && <p className="text-sm text-text leading-relaxed mt-1.5">{s.instruction}</p>}
+                        </>
+                      )}
                     </div>
                   </div>
+                  {!collapsed && (
+                  <>
 
                   {s.lines.length > 0 && (
                     <div className="mt-4 sm:pl-9">
@@ -312,17 +377,17 @@ export default function VatQueriesClient({
                     </p>
                   )}
 
-                  <div className="mt-5 sm:pl-9 flex flex-col sm:flex-row gap-2.5">
+                  <div className="mt-5 sm:pl-9 flex flex-col sm:flex-row sm:flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'fixed')}
-                      className={`flex-1 whitespace-nowrap inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                      className={`whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-medium transition-colors ${
                         r?.status === 'fixed'
                           ? 'border-primary bg-primary text-white'
-                          : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
+                          : 'border-gray-200 bg-white text-text-light hover:border-gray-300 hover:text-text'
                       }`}
                     >
-                      <Wrench size={16} />{' '}
+                      <Wrench size={15} />{' '}
                       {s.canConfirm === false
                         ? "I've dealt with these in FreeAgent"
                         : "I've fixed this in FreeAgent"}
@@ -331,13 +396,13 @@ export default function VatQueriesClient({
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'correct')}
-                      className={`flex-1 whitespace-nowrap inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                      className={`whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-medium transition-colors ${
                         r?.status === 'correct'
                           ? 'border-primary bg-primary text-white'
-                          : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
+                          : 'border-gray-200 bg-white text-text-light hover:border-gray-300 hover:text-text'
                       }`}
                     >
-                      <CheckCircle2 size={16} /> These are correct
+                      <CheckCircle2 size={15} /> These are correct
                     </button>
                     )}
                     {/* A client who doesn't understand must not have to guess. With only the two
@@ -347,13 +412,13 @@ export default function VatQueriesClient({
                     <button
                       type="button"
                       onClick={() => setStatus(s.code, 'question')}
-                      className={`flex-1 whitespace-nowrap inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                      className={`whitespace-nowrap inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-medium transition-colors ${
                         r?.status === 'question'
                           ? 'border-amber-500 bg-amber-500 text-white'
-                          : 'border-gray-200 text-text hover:border-gray-300 hover:bg-gray-50'
+                          : 'border-gray-200 bg-white text-text-light hover:border-gray-300 hover:text-text'
                       }`}
                     >
-                      <HelpCircle size={16} /> I&apos;m not sure — ask us
+                      <HelpCircle size={15} /> I&apos;m not sure — ask us
                     </button>
                   </div>
 
@@ -368,6 +433,8 @@ export default function VatQueriesClient({
                     rows={2}
                     className="mt-3 sm:ml-9 w-[calc(100%-0px)] sm:w-[calc(100%-2.25rem)] rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-text placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
+                  </>
+                  )}
                 </section>
               );
             })}
