@@ -337,6 +337,32 @@ export default function VatApprovalClient({
                 {busy === 'approve' ? 'Submitting…' : 'Approve this VAT return'}
               </button>
 
+              {/* TWO INTENTS, NOT TWO ROUTES TO ONE PLACE. "I've updated my records" means
+                  "I did what you asked, look again" and needs a re-run. "Something needs
+                  checking" means "I disagree, I don't follow, or something else is wrong" and
+                  needs a person. Only the first one used to exist, and only after you had
+                  already pressed the second — so a client who simply wanted to correct a few
+                  transactions had to raise a query, write a note, fix their books, then find
+                  this link again. (Chris, 8 Oct 2026.) */}
+              {!showQuery && (
+                <button
+                  onClick={() => submit('recheck')}
+                  disabled={busy !== null}
+                  className="w-full mt-2.5 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-text font-medium hover:bg-gray-50 transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                >
+                  {busy === 'recheck'
+                    ? <Loader2 size={17} className="animate-spin" />
+                    : <RefreshCw size={17} className="text-primary" />}
+                  {busy === 'recheck' ? 'Sending…' : "I've updated my records"}
+                </button>
+              )}
+              {!showQuery && (
+                <p className="mt-2 text-[12.5px] leading-relaxed text-text-light text-center">
+                  Changing something? Update it in FreeAgent first, then tell us here &mdash;
+                  we&rsquo;ll re-check and send the return back to you.
+                </p>
+              )}
+
               {!showQuery ? (
                 <button
                   onClick={() => setShowQuery(true)}
