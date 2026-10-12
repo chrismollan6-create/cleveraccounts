@@ -55,6 +55,8 @@ export interface FindingGroup {
   action: string;                // what we'd like them to do
   totalVatText?: string | null;  // null when the group isn't about a VAT sum
   showVat: boolean;
+  vatLabel?: string | null;      // VAT column heading — 'VAT if standard-rated' on a sale with none
+  payeeLabel?: string | null;    // who column heading — 'Customer' on sales
   lines: FindingLine[];
   moreCount: number;
 }

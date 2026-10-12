@@ -458,6 +458,7 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
   TXN_CAR_LEASE: Car,
   TXN_UNEXPECTED_VAT: HardHat,
   TXN_ACCY_NO_VAT: ReceiptText,
+  TXN_MISSING_OUT_VAT: ReceiptText,
   TXN_MISPOST_AI: FolderTree,
 };
 
@@ -478,9 +479,9 @@ function FindingGroupSection({ group }: { group: FindingGroup }) {
           <thead>
             <tr className="text-left bg-gray-50/80 border-b border-gray-100">
               <Th>Date</Th>
-              <Th>{g.showVat ? 'Supplier' : 'Item'}</Th>
+              <Th>{g.payeeLabel ?? (g.showVat ? 'Supplier' : 'Item')}</Th>
               <Th right>Amount</Th>
-              {g.showVat && <Th right>VAT</Th>}
+              {g.showVat && <Th right>{g.vatLabel ?? 'VAT'}</Th>}
             </tr>
           </thead>
           <tbody>
