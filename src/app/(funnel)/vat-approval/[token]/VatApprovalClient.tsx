@@ -427,14 +427,16 @@ export default function VatApprovalClient({
 function reverseChargeAsGroup(rc: ReverseCharge): FindingGroup {
   return {
     code: 'TXN_RC_OVERCLAIM',
-    title: 'VAT reclaimed on overseas suppliers',
+    // Same words as the Salesforce GroupSpec — this only renders for an old payload.
+    title: 'Online services from companies based abroad',
     intro:
-      `These look like overseas suppliers, but ${rc.totalVatText} of UK VAT has been reclaimed on ` +
-      `them. Overseas suppliers don't normally charge UK VAT — so if there's no VAT on the invoice, ` +
-      `there's none to reclaim, and claiming it means underpaying HMRC.`,
+      `${rc.totalVatText} of VAT has been claimed back on these. Companies like Google, LinkedIn and ` +
+      `Adobe bill from outside the UK and don't charge UK VAT — FreeAgent adds VAT from the ` +
+      `category, not from the invoice, so it is usually there by mistake.`,
     action:
-      `If we're right, please correct them in FreeAgent and tell us — we'll re-check and send the ` +
-      `return back to you. If the invoices do show UK VAT, just continue and click Approve.`,
+      `Please set the VAT on these to £0 in FreeAgent and tell us — we'll re-check and deal with ` +
+      `how they go on the return. If an invoice shows UK VAT with a UK VAT number, tell us which ` +
+      `and we won't ask about that supplier again.`,
     totalVatText: rc.totalVatText,
     showVat: true,
     lines: rc.lines,
@@ -453,6 +455,7 @@ function reverseChargeAsGroup(rc: ReverseCharge): FindingGroup {
  */
 const GROUP_ICONS: Record<string, LucideIcon> = {
   TXN_RC_OVERCLAIM: Globe2,
+  TXN_FOREIGN_VAT: Globe2,
   TXN_VAT_ON_EXEMPT: ReceiptText,
   TXN_BLOCKED_VAT: Ban,
   TXN_CAR_LEASE: Car,
