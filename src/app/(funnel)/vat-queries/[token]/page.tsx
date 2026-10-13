@@ -25,6 +25,10 @@ export interface QuerySection {
   vatLabel?: string;               // what the VAT figure MEANS here — not always "VAT"
   responseStatus?: string | null; // 'fixed' | 'correct' | 'question' | null| null; // 'fixed' | 'correct' | 'question' | null
   responseNote?: string | null;
+  /** 'mustFix' = the VAT has to come off, nothing to confirm; 'check' = a question; 'info'. */
+  tier?: 'mustFix' | 'check' | 'info';
+  /** Total VAT across all the section's lines, not just the ones listed. */
+  vatTotal?: number;
   lines: QueryLine[];
 }
 

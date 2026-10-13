@@ -65,7 +65,8 @@ export default function VatQueriesClient({
    * reading — if the two ever disagreed, the total would be the lie. (Chris, 8 Oct 2026.)
    */
   const vatAtStake = (sec: QuerySection) =>
-    sec.lines.reduce((sum, l) => {
+    // The server's total covers every line, including any past the listing cap.
+    sec.vatTotal != null && sec.vatTotal > 0 ? sec.vatTotal : sec.lines.reduce((sum, l) => {
       const n = parseFloat((l.vatText ?? '').replace(/[^0-9.-]/g, ''));
       return sum + (Number.isFinite(n) ? Math.abs(n) : 0);
     }, 0);
@@ -74,6 +75,12 @@ export default function VatQueriesClient({
 
   const needed = sections.filter((s) => !s.informational);
   const forInfo = sections.filter((s) => s.informational);
+
+  // WHAT IS AT STAKE, SPLIT BY HOW SURE WE ARE. FA Pharma's £50,000 of VAT on investment
+  // withdrawals sat in the same list as £2 desserts; the opening lines now say how much has to
+  // come off and how much is a question, before any card. (Chris, 13 Oct 2026.)
+  const mustFixVat = needed.filter((s) => s.tier === 'mustFix').reduce((n, s) => n + vatAtStake(s), 0);
+  const checkVat = needed.filter((s) => s.tier !== 'mustFix').reduce((n, s) => n + vatAtStake(s), 0);
 
   // Progress counts only what we actually need an answer to.
   const answered = needed.filter((s) => responses[s.code]?.status).length;
@@ -190,6 +197,20 @@ export default function VatQueriesClient({
           only you can settle. It&apos;s a routine check we run on every return and usually takes a
           couple of minutes.
         </p>
+        {(mustFixVat > 0 || checkVat > 0) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {mustFixVat > 0 && (
+              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-rose-50 border border-rose-100 px-3 py-1.5 text-sm text-rose-900">
+                <span className="font-semibold tabular-nums">{gbp(mustFixVat)}</span> of VAT has to come off
+              </span>
+            )}
+            {checkVat > 0 && (
+              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-amber-50 border border-amber-100 px-3 py-1.5 text-sm text-amber-900">
+                <span className="font-semibold tabular-nums">{gbp(checkVat)}</span> of VAT to check
+              </span>
+            )}
+          </div>
+        )}
         {dueDate && (
           <p className="mt-2 flex items-start gap-2 text-sm text-text-light leading-relaxed">
             <Clock size={16} className="text-text-light mt-0.5 shrink-0" />
@@ -230,6 +251,9 @@ export default function VatQueriesClient({
               // "Ask us" stays open: the note box underneath is where they say WHAT they want
               // explained, and collapsing would hide the only field that answer needs.
               const collapsed = isAnswered && r?.status !== 'question' && !expanded[s.code];
+              // Severity you can see: a red edge for VAT that has to come off, amber for a question.
+              const mustFix = s.tier === 'mustFix';
+              const tierEdge = mustFix ? 'border-l-4 border-l-rose-400' : 'border-l-4 border-l-amber-300';
               const answerLabel = r?.status === 'fixed'
                 ? "You've fixed this in FreeAgent"
                 : r?.status === 'correct' ? 'You said these are correct'
@@ -237,9 +261,7 @@ export default function VatQueriesClient({
               return (
                 <section
                   key={s.code}
-                  className={`p-5 sm:p-6 transition-colors ${CARD} ${
-                    isAnswered ? 'ring-1 ring-emerald-200' : ''
-                  }`}
+                  className={`p-5 sm:p-6 transition-colors ${CARD} ${isAnswered ? 'ring-1 ring-emerald-200' : tierEdge}`}
                 >
                   <div className="flex items-start gap-3">
                     <span
@@ -251,8 +273,11 @@ export default function VatQueriesClient({
                     </span>
                     <div className="min-w-0 flex-1">
                       {!collapsed && (
-                        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-text-light mb-1">
-                          {s.canConfirm === false ? 'Needs changing in FreeAgent' : 'Please confirm or correct'}
+                        <p className={`text-[11px] font-bold uppercase tracking-[0.08em] mb-1 ${
+                          mustFix ? 'text-rose-700' : 'text-amber-700'}`}>
+                          {s.code === 'NOT_A_PURCHASE'
+                            ? 'The VAT has to come off'
+                            : s.canConfirm === false ? 'Needs changing in FreeAgent' : 'Please confirm or correct'}
                         </p>
                       )}
                       <div className="flex items-baseline justify-between gap-4">
@@ -260,7 +285,8 @@ export default function VatQueriesClient({
                         {/* The figure the question is about, where the eye lands first. */}
                         {stake > 0 && (
                           <span className="shrink-0 text-right">
-                            <span className="block text-base font-semibold text-text tabular-nums leading-none">
+                            <span className={`block text-base font-semibold tabular-nums leading-none ${
+                              mustFix ? 'text-rose-700' : 'text-text'}`}>
                               {gbp(stake)}
                             </span>
                             <span className="block text-[11px] uppercase tracking-wide text-text-light mt-1">
@@ -313,9 +339,9 @@ export default function VatQueriesClient({
                                 {l.amountText}
                               </span>
                             </div>
-                            <div className="mt-0.5 flex items-baseline justify-between gap-3 text-[11px] text-gray-400">
+                            <div className="mt-0.5 flex items-baseline justify-between gap-3 text-[12px] text-text-light">
                               <span className="min-w-0 break-words">
-                                {l.txnDate}{l.note ? ` · ${l.note}` : ''}
+                                <span className="text-gray-400">{l.txnDate}</span>{l.note ? ` · ${l.note}` : ''}
                               </span>
                               {l.vatText && (
                                 <span className="tabular-nums shrink-0">
@@ -338,14 +364,16 @@ export default function VatQueriesClient({
                                   identify a payment. */}
                               <td className="py-1 pr-4" title={l.payeeRaw || l.payee}>
                                 {l.payee}
+                                {/* THE REASON IS THE POINT — readable, not a grey footnote. */}
                                 {l.note && (
-                                  <span className="block text-[11px] text-gray-400">{l.note}</span>
+                                  <span className="block text-[12.5px] leading-snug text-text-light mt-0.5">{l.note}</span>
                                 )}
                               </td>
-                              <td className="py-1 pr-4 whitespace-nowrap text-right tabular-nums font-medium text-text">
+                              <td className="py-1.5 pr-4 whitespace-nowrap text-right tabular-nums font-medium text-text align-top">
                                 {l.amountText}
                               </td>
-                              <td className="py-1 whitespace-nowrap text-gray-400 tabular-nums">
+                              <td className={`py-1.5 whitespace-nowrap tabular-nums align-top ${
+                                mustFix ? 'font-semibold text-rose-700' : 'text-gray-500'}`}>
                                 {l.vatText ? `${s.vatLabel || 'VAT'} ${l.vatText}` : ''}
                               </td>
                             </tr>
@@ -388,7 +416,9 @@ export default function VatQueriesClient({
                       }`}
                     >
                       <Wrench size={15} />{' '}
-                      {s.canConfirm === false
+                      {s.code === 'NOT_A_PURCHASE'
+                        ? "I've taken the VAT off in FreeAgent"
+                        : s.canConfirm === false
                         ? "I've dealt with these in FreeAgent"
                         : "I've fixed this in FreeAgent"}
                     </button>
@@ -428,6 +458,8 @@ export default function VatQueriesClient({
                     placeholder={
                       r?.status === 'question'
                         ? 'What would you like us to explain?'
+                        : s.code === 'TXN_CAPITAL_2K'
+                        ? 'What is each one? e.g. "a used motorbike — the invoice shows no VAT"'
                         : "Anything you'd like to add (optional)…"
                     }
                     rows={2}
@@ -470,7 +502,7 @@ export default function VatQueriesClient({
                                   {l.note && <span className="block text-[11px] text-gray-400">{l.note}</span>}
                                 </td>
                                 <td className="py-1 whitespace-nowrap text-right tabular-nums font-medium text-text">
-                                  {l.amountText}
+                                  {l.amountText ?? (l.vatText ? `VAT ${l.vatText}` : '')}
                                 </td>
                               </tr>
                             ))}
