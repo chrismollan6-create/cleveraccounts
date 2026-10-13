@@ -313,6 +313,20 @@ export default function VatQueriesClient({
                         <>
                           {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
                           {s.instruction && <p className="text-sm text-text leading-relaxed mt-1.5">{s.instruction}</p>}
+                          {/* What to do, said once per kind — not repeated under every line. */}
+                          {s.advice && s.advice.length > 0 && (
+                            <div className="mt-2.5">
+                              <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-text-light mb-1">What to do</p>
+                              <ul className="space-y-1">
+                                {s.advice.map((a, k) => (
+                                  <li key={k} className="flex gap-2 text-sm text-text leading-snug">
+                                    <span className="mt-[7px] w-1.5 h-1.5 shrink-0 rounded-full bg-amber-400" />
+                                    <span>{a}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -487,9 +501,19 @@ export default function VatQueriesClient({
               </p>
               <div className="space-y-4">
                 {forInfo.map((s) => (
-                  <section key={s.code} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/60">
-                    <h3 className="font-semibold text-text">{s.title}</h3>
-                    {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-1">{s.meaning}</p>}
+                  // COLLAPSED BY DEFAULT. Twenty-six "VAT on fuel → Motor Expenses" rows after the
+                  // questions made the page end in housekeeping. A one-line summary, opened on
+                  // request. (Chris, 13 Oct 2026.)
+                  <details key={s.code} className="group p-5 rounded-2xl border border-gray-100 bg-gray-50/60">
+                    <summary className="cursor-pointer list-none flex items-baseline justify-between gap-4">
+                      <span>
+                        <span className="font-semibold text-text">{s.title}</span>
+                        <span className="text-sm text-text-light"> · {s.txnCount} {s.txnCount === 1 ? 'item' : 'items'}</span>
+                      </span>
+                      <span className="text-sm text-primary shrink-0 group-open:hidden">Show</span>
+                      <span className="text-sm text-primary shrink-0 hidden group-open:inline">Hide</span>
+                    </summary>
+                    {s.meaning && <p className="text-sm text-text-light leading-relaxed mt-2">{s.meaning}</p>}
                     {s.lines.length > 0 && (
                       <div className="mt-3 overflow-x-auto">
                         <table className="w-full text-[13px]">
@@ -515,7 +539,7 @@ export default function VatQueriesClient({
                         )}
                       </div>
                     )}
-                  </section>
+                  </details>
                 ))}
               </div>
             </section>
@@ -525,9 +549,11 @@ export default function VatQueriesClient({
             <p className="mt-6 text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">{error}</p>
           )}
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* ALWAYS IN REACH. On a long page the count and the send button were only at the very
+              end; the bar now stays on screen while they work down the points. (Chris, 13 Oct 2026.) */}
+          <div className="sticky bottom-0 z-10 mt-8 -mx-4 px-4 py-3 bg-white/95 backdrop-blur border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-sm text-text-light">
-              {answered} of {needed.length} answered
+              <span className="font-semibold text-text tabular-nums">{answered}</span> of {needed.length} answered
             </span>
             <div className="flex flex-col items-end">
               <button

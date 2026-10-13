@@ -29,6 +29,8 @@ export interface QuerySection {
   tier?: 'mustFix' | 'check' | 'info';
   /** Total VAT across all the section's lines, not just the ones listed. */
   vatTotal?: number;
+  /** What to do, once per kind of point — the lines carry only their reason. */
+  advice?: string[];
   lines: QueryLine[];
 }
 
