@@ -101,10 +101,16 @@ async function fetchApproval(
 
 export default async function VatApprovalPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }) {
   const { token } = await params;
+  // STAFF PREVIEW IS READ-ONLY. The send page's "Preview" opened this real page, so a reviewer
+  // pressing Approve was recorded as the client approving — locking their books and queuing the
+  // filing. ?preview=1 runs the buttons in walkthrough mode: nothing reaches Salesforce.
+  const preview = (await searchParams)?.preview === '1';
   const brand = await getBrand();
 
   if (!token || token.length < 10) notFound();
@@ -162,9 +168,19 @@ export default async function VatApprovalPage({
         brandEmail={brand.email}
         brandPhone={brand.phone}
         initialOutcome="queried"
+        demo={preview}
       />
     );
   }
 
-  return <VatApprovalClient token={token} dto={dto} brandEmail={brand.email} brandPhone={brand.phone} />;
+  return (
+    <>
+      {preview && (
+        <div className="bg-amber-100 text-amber-900 text-sm text-center px-4 py-2">
+          Staff preview — this is what the client sees. Nothing you press here is recorded.
+        </div>
+      )}
+      <VatApprovalClient token={token} dto={dto} brandEmail={brand.email} brandPhone={brand.phone} demo={preview} />
+    </>
+  );
 }
