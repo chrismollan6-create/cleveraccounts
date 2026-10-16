@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
 import StateCard from '@/components/vat/StateCard';
+import VatAccessGate from '@/components/vat/VatAccessGate';
+import { isVatGate, vatSessionFromCookies, vatSessionHeaders, type VatGate } from '@/lib/vat-access';
 import type { VatBox, VatCheck, HousekeepingNote, VatMonth } from './summaryTypes';
 import VatApprovalClient from './VatApprovalClient';
 
@@ -83,10 +85,11 @@ export async function generateMetadata() {
 
 async function fetchApproval(
   token: string,
-): Promise<{ status: number; data: VatApprovalDto | { error: string } }> {
+  session: string | null,
+): Promise<{ status: number; data: VatApprovalDto | VatGate | { error: string } }> {
   const sfToken = await getSalesforceToken();
   const res = await fetch(sfApex(`/VATApproval?t=${encodeURIComponent(token)}`), {
-    headers: { Authorization: `Bearer ${sfToken}` },
+    headers: { Authorization: `Bearer ${sfToken}`, ...vatSessionHeaders(session) },
     cache: 'no-store',
   });
   // A Salesforce gateway timeout / 502 returns an HTML body, so res.json() would throw and drop the
@@ -105,18 +108,38 @@ export default async function VatApprovalPage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ preview?: string }>;
+  searchParams: Promise<{ preview?: string; s?: string }>;
 }) {
   const { token } = await params;
+  const query = (await searchParams) ?? {};
   // STAFF PREVIEW IS READ-ONLY. The send page's "Preview" opened this real page, so a reviewer
   // pressing Approve was recorded as the client approving — locking their books and queuing the
   // filing. ?preview=1 runs the buttons in walkthrough mode: nothing reaches Salesforce.
-  const preview = (await searchParams)?.preview === '1';
+  const preview = query.preview === '1';
   const brand = await getBrand();
 
   if (!token || token.length < 10) notFound();
 
-  const { status, data } = await fetchApproval(token);
+  // Staff preview carries a one-hour, view-only pass in the link; everyone else needs the cookie
+  // from an emailed code. Salesforce refuses the figures without one (VATClientAccessService).
+  const session = preview && query.s ? query.s : await vatSessionFromCookies(token);
+  const { status, data } = await fetchApproval(token, session);
+
+  if (status === 401 && isVatGate(data)) {
+    return <VatAccessGate token={token} options={data.options} error={data.error} email={brand.email} phone={brand.phone} />;
+  }
+
+  if (status === 410) {
+    return (
+      <StateCard
+        variant="warning"
+        title="This link has expired"
+        body="For your security, links to your VAT return stop working after 60 days. Please get in touch and we'll send you a fresh one."
+        email={brand.email}
+        phone={brand.phone}
+      />
+    );
+  }
 
   if (status === 404) {
     return (
@@ -135,7 +158,7 @@ export default async function VatApprovalPage({
       <StateCard
         variant="error"
         title="Couldn't load your VAT return"
-        body={'error' in data ? data.error : 'An unexpected error occurred. Please try refreshing, or get in touch if this keeps happening.'}
+        body={'error' in data && data.error ? data.error : 'An unexpected error occurred. Please try refreshing, or get in touch if this keeps happening.'}
         email={brand.email}
         phone={brand.phone}
       />

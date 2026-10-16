@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
+import { vatSessionFromRequest, vatSessionHeaders } from '@/lib/vat-access';
 
 /**
  * POST /api/vat-approval/query?t=TOKEN
@@ -26,6 +27,8 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${sfToken}`,
+        // The session from the emailed code — Salesforce refuses the action without it.
+        ...vatSessionHeaders(vatSessionFromRequest(request, token)),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ notes }),

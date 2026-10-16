@@ -2,6 +2,8 @@ import { CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { getSalesforceToken, sfApex } from '@/lib/salesforce';
 import { getBrand } from '@/lib/brand';
 import VatQueriesClient from './VatQueriesClient';
+import VatAccessGate from '@/components/vat/VatAccessGate';
+import { isVatGate, vatSessionFromCookies, vatSessionHeaders, type VatGate } from '@/lib/vat-access';
 
 export interface QueryLine {
   txnDate?: string;
@@ -57,10 +59,11 @@ export async function generateMetadata() {
 
 async function fetchQueries(
   token: string,
-): Promise<{ status: number; data: VatQueriesDto | { error: string } }> {
+  session: string | null,
+): Promise<{ status: number; data: VatQueriesDto | VatGate | { error: string } }> {
   const sfToken = await getSalesforceToken();
   const res = await fetch(sfApex(`/VATQueries?t=${encodeURIComponent(token)}`), {
-    headers: { Authorization: `Bearer ${sfToken}` },
+    headers: { Authorization: `Bearer ${sfToken}`, ...vatSessionHeaders(session) },
     cache: 'no-store',
   });
   try {
@@ -115,10 +118,14 @@ function StateCard({
 
 export default async function VatQueriesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>;
+  searchParams: Promise<{ preview?: string; s?: string }>;
 }) {
   const { token } = await params;
+  const query = (await searchParams) ?? {};
+  const preview = query.preview === '1';
   const brand = await getBrand();
 
   if (!token || token.length < 10) {
@@ -133,7 +140,26 @@ export default async function VatQueriesPage({
     );
   }
 
-  const { status, data } = await fetchQueries(token);
+  // Staff preview carries a one-hour, view-only pass in the link; everyone else needs the cookie
+  // from an emailed code. Salesforce refuses the pack without one (VATClientAccessService).
+  const session = preview && query.s ? query.s : await vatSessionFromCookies(token);
+  const { status, data } = await fetchQueries(token, session);
+
+  if (status === 401 && isVatGate(data)) {
+    return <VatAccessGate token={token} options={data.options} error={data.error} email={brand.email} phone={brand.phone} />;
+  }
+
+  if (status === 410) {
+    return (
+      <StateCard
+        variant="warning"
+        title="This link has expired"
+        body="For your security, links to your VAT return stop working after 60 days. Please get in touch and we'll send you a fresh one."
+        email={brand.email}
+        phone={brand.phone}
+      />
+    );
+  }
 
   if (status === 404) {
     return (
@@ -152,7 +178,7 @@ export default async function VatQueriesPage({
       <StateCard
         variant="error"
         title="Couldn't load your VAT return"
-        body={'error' in data ? data.error : 'An unexpected error occurred. Please try refreshing, or get in touch if this keeps happening.'}
+        body={'error' in data && data.error ? data.error : 'An unexpected error occurred. Please try refreshing, or get in touch if this keeps happening.'}
         email={brand.email}
         phone={brand.phone}
       />
@@ -187,6 +213,12 @@ export default async function VatQueriesPage({
   }
 
   return (
+    <>
+    {preview && (
+      <div className="bg-amber-100 text-amber-900 text-sm text-center px-4 py-2">
+        Staff preview — this is what the client sees. Nothing you press here is recorded.
+      </div>
+    )}
     <VatQueriesClient
       token={token}
       clientName={dto.clientName}
@@ -196,5 +228,6 @@ export default async function VatQueriesPage({
       brandEmail={brand.email}
       brandPhone={brand.phone}
     />
+    </>
   );
 }
