@@ -11,6 +11,7 @@ export interface VatApprovalDto {
   periodEnd?: string;        // yyyy-MM-dd
   scheme?: string;           // e.g. "Standard Rated Scheme"
   basis?: string;            // "Invoice" | "Cash" | ...
+  flatRate?: boolean;        // by scheme or the return's own arithmetic — never shown as a label
   netVatDue?: number | null; // Box 5
   outcome?: string;          // "Pass" | "Refer" | "Fail"
   assuranceSummary?: string;

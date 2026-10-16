@@ -58,6 +58,26 @@ export default function VatSummaryView({
   // error that costs us the benefit of the doubt on every figure above it.
   const meta = dto.basis ? `${dto.basis} basis` : '';
 
+  // THE MONTH TABLE IS THE P&L, NOT THE RETURN. Sales are what was invoiced, before VAT. On the
+  // Flat Rate Scheme or the cash basis the return is built differently, so the table's totals
+  // cannot match the boxes — Vanessa Turner Design's £23,722 of sales against a £43,320 Box 6. On
+  // those returns the columns that contradict the return go (the 20% VAT invoiced is not what a
+  // Flat Rate client pays; purchases are not on a Flat Rate return) and one line says why the
+  // total differs. (Chris, 16 Oct 2026.)
+  const onFlatRate = dto.flatRate === true;
+  const onCash = (dto.basis ?? '').toLowerCase().startsWith('cash');
+  const differsFromReturn = onFlatRate || onCash;
+  const monthCols: { head: string; key: 'sales' | 'salesVat' | 'purchases' }[] = [
+    { head: differsFromReturn ? 'Sales before VAT' : 'Sales', key: 'sales' },
+    ...(differsFromReturn ? [] : [{ head: 'VAT on sales', key: 'salesVat' as const }]),
+    ...(onFlatRate ? [] : [{ head: 'Purchases', key: 'purchases' as const }]),
+  ];
+  const whyDiffers = onFlatRate && onCash
+    ? 'Your return is on the Flat Rate Scheme and cash basis, so it uses the money you received including VAT — that’s why this total differs from the return.'
+    : onFlatRate
+      ? 'Your return is on the Flat Rate Scheme, so it uses your sales including VAT — that’s why this total differs from the return.'
+      : 'Your return is on the cash basis, so it uses the money you received in the quarter rather than what you invoiced — that’s why this total differs from the return.';
+
   return (
     <div className="space-y-8">
       {/* Headline — net VAT. The one number they came to see, given room to breathe on a soft
@@ -149,7 +169,7 @@ export default function VatSummaryView({
       {/* Month by month — a quarter total can hide an income gap; months cannot. */}
       {showDetail && months.length > 0 && (
         <section>
-          <SectionLabel>Month by month</SectionLabel>
+          <SectionLabel>{differsFromReturn ? 'Your invoiced sales by month' : 'Month by month'}</SectionLabel>
           <p className="mt-2.5 text-[13px] leading-relaxed text-text-light">
             {noSalesMonths.length > 0 ? (
               <>
@@ -162,6 +182,9 @@ export default function VatSummaryView({
               <>How the quarter breaks down, so you can sense-check the income we&apos;re reporting.</>
             )}
           </p>
+          {differsFromReturn && (
+            <p className="mt-1.5 text-[13px] leading-relaxed text-text-light">{whyDiffers}</p>
+          )}
           <Card>
             <table className="w-full text-sm">
               <thead>
@@ -169,7 +192,7 @@ export default function VatSummaryView({
                   <th className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] text-text-light">
                     Month
                   </th>
-                  {['Sales', 'VAT on sales', 'Purchases'].map((h) => (
+                  {monthCols.map(({ head: h }) => (
                     <th
                       key={h}
                       className="px-4 py-2.5 text-right text-[10px] font-bold uppercase tracking-[0.1em] text-text-light whitespace-nowrap"
@@ -190,17 +213,16 @@ export default function VatSummaryView({
                     >
                       {m.noSales ? 'No sales invoiced' : fmtMoney(m.sales)}
                     </td>
-                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
-                      {fmtMoney(m.salesVat)}
-                    </td>
-                    <td className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
-                      {fmtMoney(m.purchases)}
-                    </td>
+                    {monthCols.slice(1).map(({ key }) => (
+                      <td key={key} className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-text-light">
+                        {fmtMoney(m[key])}
+                      </td>
+                    ))}
                   </tr>
                 ))}
                 <tr className="border-t-2 border-primary/10 bg-primary-50/60">
                   <td className="px-4 py-2.5 font-bold text-text">Total</td>
-                  {[totals.sales, totals.salesVat, totals.purchases].map((v, i) => (
+                  {monthCols.map(({ key }) => totals[key]).map((v, i) => (
                     <td
                       key={i}
                       className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums font-bold text-text"
