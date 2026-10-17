@@ -25,9 +25,6 @@ import {
   CalendarDays,
   Percent,
   Landmark,
-  PoundSterling,
-  Wallet,
-  Receipt,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
@@ -50,6 +47,13 @@ import type {
   PortalFinancials,
 } from "@/lib/portal/types";
 import { getActionItemsForCurrentUser } from "@/lib/portal/actionItems";
+import {
+  cumulativeThisPeriod,
+  forecastPeriodEnd,
+  latestMonthMovement,
+  periodProgress,
+  type CumulativePoint,
+} from "@/lib/portal/financialsDerived";
 
 export const dynamic = "force-dynamic";
 
@@ -319,7 +323,7 @@ function DashboardBody({
       <NextStepHero status={status} firstNameShort={firstNameShort} />
 
       {/* MONEY — the recurring "reason to log in": where the business stands */}
-      <MoneyBand financials={financials} />
+      <MoneySection financials={financials} />
 
       {/* JOURNEY — the onboarding centrepiece. Drops away entirely once
           complete; a finished journey is not news every day for three years. */}
@@ -347,136 +351,219 @@ function DashboardBody({
 
 // ─── MONEY BAND (financials headline) ───────────────────────────────────────
 /**
- * The dashboard's money moment — leads with the numbers a business owner
- * actually logs in for: net profit, cash, tax to set aside, books health. The
- * full P&L is one click deeper on /portal/financials (same pattern as
- * deadlines → deadlines page). Renders nothing until FreeAgent data syncs.
+ * MONEY — the lead figure, the one chart, and a uniform KPI strip.
+ *
+ * Rebuilt Oct 2026 against published dashboard conventions. Three rules it is
+ * now held to, each of which the previous version broke:
+ *
+ *   · ONE visual for the section. A captioned cumulative chart next to the
+ *     lead figure. The KPI cards carry no sparklines, because cash has no
+ *     monthly series behind it and a strip where one card has a chart and the
+ *     next has a sentence has no rhythm.
+ *   · EVERY card has the identical shape — label, figure, one line of
+ *     context — so the row reads as a set rather than as four leftovers.
+ *   · NOTHING is shown that can't be derived honestly. There is no
+ *     year-on-year comparison here, because the trend window is 12 months and
+ *     a prior year isn't in it. See financialsDerived.ts.
+ *
+ * Renders nothing at all until FreeAgent data syncs.
  */
-function MoneyBand({ financials: fin }: { financials: PortalFinancials | null }) {
+function MoneySection({ financials: fin }: { financials: PortalFinancials | null }) {
   if (!fin || typeof fin.netProfit !== "number") return null;
 
   const isLoss = fin.netProfit < 0;
-  const needsExplaining = Boolean(
-    fin.unexplainedCount && fin.unexplainedCount > 0
-  );
-  const tiles: {
-    label: string;
-    value: string;
-    icon: typeof PoundSterling;
-    tint: string;
-    /** Set when the tile is a thing to DO rather than a figure to read. */
-    href?: string;
-  }[] = [
+  const series = cumulativeThisPeriod(fin);
+  const forecast = forecastPeriodEnd(fin);
+  const progress = periodProgress(fin);
+  const lastMonth = latestMonthMovement(fin);
+  const stale = isStale(fin.asOf);
+
+  const cards: { label: string; value: string; note: string; tag?: string; href?: string }[] = [
     {
-      label: isLoss ? "Net loss" : "Net profit",
-      value: gbp(Math.abs(fin.netProfit)),
-      icon: isLoss ? Activity : TrendingUp,
-      tint: isLoss ? "bg-amber-50 text-amber-600" : "bg-primary/10 text-primary",
-    },
-    {
-      label: fin.cashInBank != null && fin.cashInBank < 0 ? "Overdrawn" : "Cash in the bank",
+      label: fin.cashInBank != null && fin.cashInBank < 0 ? "Overdrawn" : "Cash at bank",
       value: fin.cashInBank != null ? gbp(fin.cashInBank) : "—",
-      icon: Wallet,
-      tint:
-        fin.cashInBank != null && fin.cashInBank < 0
-          ? "bg-amber-50 text-amber-600"
-          : "bg-emerald-50 text-emerald-600",
+      note: fin.cashAsAt ? `As at ${formatDate(fin.cashAsAt)}` : "Not yet synced",
     },
     {
-      label: `Set aside for tax (~${fin.taxRatePct}%)`,
+      label: "Set aside for tax",
       value: gbp(fin.estTaxSetAside),
-      icon: Landmark,
-      tint: "bg-orange-50 text-orange-600",
+      note: `Indicative, at ${fin.taxRatePct}%`,
     },
-    // Not a figure — a job. Orange + a link when it needs the client, so it
-    // reads as "do this" rather than sitting silently in a row of numbers.
     {
-      label: needsExplaining ? "Bookkeeping · needs you" : "Bookkeeping",
-      value:
-        fin.unexplainedCount == null
-          ? "—"
-          : fin.unexplainedCount === 0
-            ? "All tidy"
-            : `${fin.unexplainedCount} to explain`,
-      icon: Receipt,
-      tint: needsExplaining
-        ? "bg-orange-50 text-orange-600"
-        : "bg-emerald-50 text-emerald-600",
-      href: needsExplaining ? "/portal/financials" : undefined,
+      label: "Invoiced",
+      value: gbp(fin.revenue),
+      note: progress
+        ? `Across ${progress.elapsed} month${progress.elapsed === 1 ? "" : "s"}`
+        : "This period",
     },
   ];
 
+  // Only when the run rate can honestly support it — see forecastPeriodEnd.
+  if (forecast) {
+    cards.push({
+      label: "On track to finish at",
+      value: gbp(forecast.value),
+      note: `At the last ${forecast.basisMonths} months' rate`,
+      tag: "Forecast",
+    });
+  }
+
+  if (fin.unexplainedCount && fin.unexplainedCount > 0) {
+    cards.push({
+      label: "Bookkeeping",
+      value: `${fin.unexplainedCount} to explain`,
+      note: "Waiting on you",
+      href: "/portal/financials",
+    });
+  }
+
   return (
-    <section className="mt-5 overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-md">
-      <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-6 py-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <PoundSterling size={15} />
-          </span>
-          <div>
-            <h2 className="text-sm font-semibold text-text">
-              Where your business stands
-            </h2>
-            {fin.asOf && (
-              <p className="text-[11px] text-text-light">
-                Figures as of {formatDate(fin.asOf)}
-                {/* Say it plainly when the figures are months behind. A stale
-                    number presented as current is the fastest way to lose a
-                    client's trust in everything else on the page. */}
-                {isStale(fin.asOf) && (
-                  <span className="text-amber-700">
-                    {" "}
-                    · we&apos;re waiting on newer bookkeeping
-                  </span>
-                )}
-              </p>
+    <section className="mt-5">
+      {/* LEAD — the one figure, and the one chart, with no card around them.
+          Whitespace and type weight do the grouping. */}
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p className="text-[13px] font-medium text-text-light">
+            {isLoss ? "Net loss" : "Net profit"}
+            {fin.periodEnd ? ` · year to ${formatDate(fin.periodEnd)}` : ""}
+          </p>
+          <div className="mt-1 text-[40px] font-bold leading-none tracking-[-0.04em] text-text tabular-nums">
+            {gbp(Math.abs(fin.netProfit))}
+          </div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-text-light">
+            {lastMonth && (
+              <>
+                <span className="tabular-nums">
+                  {lastMonth.netProfit >= 0 ? "+" : "−"}
+                  {gbp(Math.abs(lastMonth.netProfit))} in {lastMonth.label}
+                </span>
+                <span className="text-neutral-300">·</span>
+              </>
+            )}
+            {progress && (
+              <span className="tabular-nums">
+                {progress.elapsed} of {progress.total} months
+              </span>
+            )}
+            {stale && (
+              <>
+                <span className="text-neutral-300">·</span>
+                <span className="text-amber-700">waiting on newer bookkeeping</span>
+              </>
             )}
           </div>
         </div>
-        <Link
-          href="/portal/financials"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-        >
-          Full P&amp;L <ArrowRight size={13} />
-        </Link>
+
+        {series.length > 1 && (
+          <CumulativeChart points={series} isLoss={isLoss} />
+        )}
       </div>
-      <div className="grid grid-cols-2 divide-neutral-100 sm:grid-cols-4 sm:divide-x">
-        {tiles.map((t, i) => {
-          const Icon = t.icon;
-          const cls = `p-5 ${i < 2 ? "border-b sm:border-b-0" : ""} ${
-            i % 2 === 1 ? "border-l sm:border-l-0" : ""
-          } border-neutral-100`;
+
+      {/* KPI STRIP — identical shape in every card. */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((c) => {
           const inner = (
             <>
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-lg ${t.tint}`}
-              >
-                <Icon size={15} />
-              </span>
-              <div className="mt-2.5 flex items-center gap-1 text-xl font-bold tracking-tight text-text">
-                {t.value}
-                {t.href && (
-                  <ArrowRight
-                    size={15}
-                    className="text-orange-500 transition group-hover:translate-x-0.5"
-                  />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[12.5px] font-medium text-text-light">{c.label}</span>
+                {c.tag && (
+                  <span className="rounded bg-primary/10 px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-primary">
+                    {c.tag}
+                  </span>
                 )}
               </div>
-              <div className="mt-0.5 text-[11px] text-text-light">{t.label}</div>
+              <div className="mt-1.5 text-[30px] font-semibold leading-tight tracking-[-0.035em] text-text tabular-nums">
+                {c.value}
+              </div>
+              <div className="mt-2 flex h-[18px] items-center gap-1 text-[13px] text-text-light">
+                {c.note}
+                {c.href && <ArrowRight size={13} className="text-primary" />}
+              </div>
             </>
           );
-          return t.href ? (
-            <Link key={i} href={t.href} className={`group block ${cls} hover:bg-orange-50/40`}>
+          const cls =
+            "rounded-xl border border-neutral-200 bg-white p-4 " +
+            (c.tag ? "ring-1 ring-primary/40 " : "");
+          return c.href ? (
+            <Link key={c.label} href={c.href} className={`${cls} transition hover:border-neutral-400`}>
               {inner}
             </Link>
           ) : (
-            <div key={i} className={cls}>
+            <div key={c.label} className={cls}>
               {inner}
             </div>
           );
         })}
       </div>
+
+      <div className="mt-3">
+        <Link
+          href="/portal/financials"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+        >
+          Full profit &amp; loss <ArrowRight size={13} />
+        </Link>
+      </div>
     </section>
+  );
+}
+
+/**
+ * The section's single visual: profit accumulating across the accounting
+ * period. Captioned with its end value and an axis, because an uncaptioned
+ * line next to a number is decoration rather than information.
+ */
+function CumulativeChart({
+  points,
+  isLoss,
+}: {
+  points: CumulativePoint[];
+  isLoss: boolean;
+}) {
+  const W = 268;
+  const H = 56;
+  const vals = points.map((p) => p.cumulative);
+  const max = Math.max(...vals, 1);
+  const min = Math.min(...vals, 0);
+  const span = max - min || 1;
+  const step = points.length > 1 ? W / (points.length - 1) : W;
+  const path = points
+    .map((p, i) => `${(i * step).toFixed(1)},${(H - ((p.cumulative - min) / span) * H).toFixed(1)}`)
+    .join(" ");
+  const lastX = (points.length - 1) * step;
+  const lastY = H - ((vals[vals.length - 1] - min) / span) * H;
+
+  return (
+    <div className="w-[268px] shrink-0">
+      <div className="mb-1.5 flex items-baseline justify-between gap-3 text-[11px] text-text-light">
+        <span>Cumulative {isLoss ? "position" : "profit"}</span>
+        <b className="text-[12px] font-semibold text-text tabular-nums">
+          {gbp(vals[vals.length - 1])}
+        </b>
+      </div>
+      <svg
+        width={W}
+        height={H}
+        viewBox={`0 0 ${W} ${H}`}
+        fill="none"
+        role="img"
+        aria-label={`Cumulative ${isLoss ? "position" : "profit"} by month, ${points[0].label} to ${points[points.length - 1].label}`}
+      >
+        <polyline
+          points={path}
+          stroke="currentColor"
+          className="text-primary"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx={lastX} cy={lastY} r="2.8" className="fill-primary" />
+      </svg>
+      <div className="mt-1 flex justify-between text-[10px] text-text-light">
+        <span>{points[0].label}</span>
+        <span>{points[points.length - 1].label}</span>
+      </div>
+    </div>
   );
 }
 
