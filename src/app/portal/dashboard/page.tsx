@@ -1,30 +1,17 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
-  Calendar,
   Check,
-  ShieldCheck,
-  Clock,
   Building2,
   Sparkles,
-  Video,
-  Activity,
-  Upload,
   HandHeart,
   Coffee,
   Laptop,
   TrendingUp,
   PartyPopper,
   MessageSquare,
-  CheckCircle2,
-  AlertCircle,
-  PenLine,
   CalendarClock,
   FileText,
-  CalendarDays,
-  Percent,
-  Landmark,
 } from "lucide-react";
 import { getBrand } from "@/lib/brand";
 import { getCurrentPortalUser } from "@/lib/portal/auth";
@@ -46,6 +33,7 @@ import type {
   PortalDeadline,
   PortalFinancials,
 } from "@/lib/portal/types";
+import AccountantAvatar from "@/components/portal/AccountantAvatar";
 import { getActionItemsForCurrentUser } from "@/lib/portal/actionItems";
 import {
   cumulativeThisPeriod,
@@ -251,7 +239,6 @@ export default async function DashboardPage() {
     <Shell>
       <DashboardBody
         status={status}
-        firstName={firstName}
         actionItems={actionItems}
         deadlines={deadlines}
         financials={financials}
@@ -284,72 +271,338 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function DashboardBody({
   status,
-  firstName,
   actionItems,
   deadlines,
   financials,
   firmName,
 }: {
   status: PortalOnboardingStatus;
-  firstName: string | null;
   actionItems: PortalActionItem[];
   deadlines: PortalDeadline[];
   financials: PortalFinancials | null;
   firmName: string;
 }) {
-  const a = status.accountant;
-  const accountantName = a.name ?? "your accountant";
-  const firstNameShort = accountantName.split(" ")[0];
-
   return (
     <>
-      {/* HEADER — greeting + business. No trust badge: announcing "encrypted"
-          reads as reassurance-seeking, and real assurance belongs in Settings
-          (active sessions, MFA), not a pill. */}
-      <div className="mb-6">
-        <h1 className="text-[26px] font-bold tracking-tight text-text">
-          {greetingForNow()}, {firstName ?? "there"}
-        </h1>
-        {status.accountName && (
-          <p className="mt-0.5 text-sm text-text-light">
-            {status.accountName} · {firmName}
-          </p>
-        )}
-      </div>
-
-      {/* HERO — only while there IS a next step. Once onboarding is done this
-          renders nothing, so a settled client opens on their numbers rather
-          than on a permanent "you're all set up" banner. */}
-      <NextStepHero status={status} firstNameShort={firstNameShort} />
-
-      {/* MONEY — the recurring "reason to log in": where the business stands */}
+      {/* MONEY leads. Not a greeting, not a booking banner — the figures are
+          what a client opens the portal for, and everything that needs them is
+          a row in the table below rather than a slab above it. */}
       <MoneySection financials={financials} />
 
-      {/* JOURNEY — the onboarding centrepiece. Drops away entirely once
-          complete; a finished journey is not news every day for three years. */}
-      {!status.isComplete && <JourneyBand status={status} />}
-
-      {/* CONTENT — what needs you + what's coming up, with recent activity beside */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-5">
-          <NeedsYouPanel items={actionItems} secondary={!status.isComplete} />
-          <DeadlinesCard deadlines={deadlines} />
-        </div>
-        <div className="space-y-5">
-          <ActivityFeed status={status} />
+      {/* ONE table: everything with a status and a due date, whether it's
+          waiting on the client or on us. Replaces the old split of a "Needs
+          you" card plus a separate "Coming up" card plus an activity feed —
+          three panels answering one question. */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_296px]">
+        <NeedsAttentionTable
+          items={actionItems}
+          deadlines={deadlines}
+          status={status}
+        />
+        <div className="flex flex-col gap-6">
+          <AccountantRailCard status={status} />
+          <ComingUpRail deadlines={deadlines} />
         </div>
       </div>
 
-      {/* EXPLORE — quick links */}
-      <ExploreBand />
+      {/* Onboarding detail sits BELOW the working surface. It matters for the
+          first few weeks and never again; it shouldn't own the top of the
+          screen for the years afterwards. */}
+      {!status.isComplete && <JourneyBand status={status} />}
 
-      {/* BUSINESS — full-width footer band, anchors the bottom edge */}
+      <ExploreBand />
       <BusinessBand status={status} firmName={firmName} />
     </>
   );
 }
 
-// ─── MONEY BAND (financials headline) ───────────────────────────────────────
+// ─── NEEDS YOUR ATTENTION (single table) ─────────────────────────────────────
+
+interface AttentionRow {
+  id: string;
+  title: string;
+  detail: string | null;
+  href: string;
+  /** Short status chip. */
+  status: string;
+  /** True when the client has to do something — tints the row. */
+  needsClient: boolean;
+  dueLabel: string;
+  action: string;
+  primary?: boolean;
+}
+
+function dueLabelFor(iso: string | null, daysUntil: number | null): string {
+  if (!iso) return "—";
+  if (daysUntil != null && daysUntil < 0) return formatDate(iso);
+  return formatDate(iso);
+}
+
+/**
+ * Every open obligation in one fixed-layout table — 48px rows, status in the
+ * middle, due date, one action per row. Rows waiting on the client are tinted
+ * and counted in the header, so urgency is carried in place instead of being
+ * duplicated into a banner above the table.
+ *
+ * The onboarding next step (book the welcome call) is folded in as the first
+ * row rather than rendered as a full-width hero, so there is exactly one list
+ * of things to do on this page.
+ */
+function NeedsAttentionTable({
+  items,
+  deadlines,
+  status,
+}: {
+  items: PortalActionItem[];
+  deadlines: PortalDeadline[];
+  status: PortalOnboardingStatus;
+}) {
+  const rows: AttentionRow[] = [];
+
+  // 1. The onboarding step, when there is one and it's on the client.
+  if (!status.isComplete && status.nextActionLabel && status.blockedOn === "client") {
+    rows.push({
+      id: "onboarding",
+      title: status.nextActionLabel,
+      detail: `With ${status.accountant.name ?? "your accountant"}`,
+      href: status.accountant.calendlyUrl ? "/portal/appointments" : "/portal/messages",
+      status: "Book a time",
+      needsClient: true,
+      dueLabel: "—",
+      action: "Choose a time",
+      primary: true,
+    });
+  }
+
+  // 2. Everything blocked on the client.
+  for (const i of items) {
+    rows.push({
+      id: i.id,
+      title: i.title,
+      detail: i.detail,
+      href: i.href,
+      status: i.urgency === "overdue" ? "Overdue" : "Waiting on you",
+      needsClient: true,
+      dueLabel: dueLabelFor(i.dueDate, null),
+      action: i.type === "approval" ? "Review" : "Open",
+      primary: rows.length === 0,
+    });
+  }
+
+  // 3. Deadlines we're handling — so the client can see the whole picture
+  //    rather than only their own homework. Skip ones already listed above.
+  const seen = new Set(rows.map((r) => r.title.toLowerCase()));
+  for (const d of deadlines) {
+    if (d.status === "submitted" || d.status === "filed") continue;
+    if (seen.has(d.title.toLowerCase())) continue;
+    if (d.blockedOn === "client") continue; // already covered by actionItems
+    rows.push({
+      id: d.id,
+      title: d.title,
+      detail: d.periodLabel,
+      href: "/portal/deadlines",
+      status: "With us",
+      needsClient: false,
+      dueLabel: dueLabelFor(d.dueDate, d.daysUntil),
+      action: "View",
+    });
+  }
+
+  if (rows.length === 0) {
+    return (
+      <section className="rounded-xl border border-neutral-200 bg-white">
+        <div className="flex h-[46px] items-center border-b border-neutral-100 px-5">
+          <h2 className="text-[13.5px] font-semibold text-text">Needs your attention</h2>
+        </div>
+        <div className="px-5 py-10 text-center">
+          <p className="text-sm font-semibold text-text">Nothing needs you</p>
+          <p className="mt-1 text-[13px] text-text-light">
+            Everything on your account is with us. We&apos;ll let you know the
+            moment that changes.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  const waiting = rows.filter((r) => r.needsClient).length;
+
+  return (
+    <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+      <div className="flex h-[46px] items-center gap-2.5 border-b border-neutral-100 px-5">
+        <h2 className="text-[13.5px] font-semibold text-text">Needs your attention</h2>
+        {waiting > 0 && (
+          <span className="text-xs text-text-light">
+            {waiting} waiting on you
+          </span>
+        )}
+        <span className="flex-1" />
+        <Link
+          href="/portal/deadlines"
+          className="text-xs font-semibold text-primary hover:underline"
+        >
+          View all
+        </Link>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed border-collapse">
+          <colgroup>
+            <col />
+            <col className="w-[136px]" />
+            <col className="w-[116px]" />
+            <col className="w-[104px]" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th className="h-[34px] px-5 text-left text-[11px] font-semibold uppercase tracking-[0.07em] text-text-light">
+                Item
+              </th>
+              <th className="h-[34px] px-3 text-center text-[11px] font-semibold uppercase tracking-[0.07em] text-text-light">
+                Status
+              </th>
+              <th className="h-[34px] px-3 text-left text-[11px] font-semibold uppercase tracking-[0.07em] text-text-light">
+                Due
+              </th>
+              <th className="h-[34px] px-5" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr
+                key={r.id}
+                className={`border-t border-neutral-100 ${
+                  r.needsClient ? "bg-orange-50/40" : "hover:bg-neutral-50"
+                }`}
+              >
+                <td className="h-12 overflow-hidden px-5">
+                  <span className="block truncate text-[13.5px] font-semibold leading-tight text-text">
+                    {r.title}
+                  </span>
+                  {r.detail && (
+                    <span className="block truncate text-[11.5px] leading-tight text-text-light">
+                      {r.detail}
+                    </span>
+                  )}
+                </td>
+                <td className="h-12 px-3 text-center">
+                  <span
+                    className={`inline-flex items-center rounded-md px-2 py-[3px] text-[11.5px] font-semibold ${
+                      r.needsClient
+                        ? "bg-orange-100/70 text-orange-800 ring-1 ring-inset ring-orange-200"
+                        : "bg-neutral-100 text-text-light"
+                    }`}
+                  >
+                    {r.status}
+                  </span>
+                </td>
+                <td className="h-12 whitespace-nowrap px-3 text-[13px] text-text">
+                  {r.dueLabel}
+                </td>
+                <td className="h-12 px-5 text-right">
+                  <Link
+                    href={r.href}
+                    className={`inline-flex h-[26px] items-center rounded-lg px-2.5 text-xs font-semibold transition ${
+                      r.primary
+                        ? "bg-primary text-white hover:bg-primary-dark"
+                        : "border border-neutral-200 text-text hover:border-neutral-400"
+                    }`}
+                  >
+                    {r.action}
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+// ─── RAIL ────────────────────────────────────────────────────────────────────
+
+function AccountantRailCard({ status }: { status: PortalOnboardingStatus }) {
+  const a = status.accountant;
+  if (!a?.name) return null;
+  return (
+    <section className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="flex items-center gap-3">
+        <AccountantAvatar
+          name={a.name}
+          hasPhoto={Boolean(a.photoUrl)}
+          sizeClass="h-9 w-9"
+          textClass="text-xs"
+        />
+        <div className="min-w-0">
+          <div className="truncate text-[13px] font-semibold text-text">{a.name}</div>
+          <div className="truncate text-[11.5px] text-text-light">
+            Your accountant · replies in ~2h
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Link
+          href="/portal/appointments"
+          className="flex h-[30px] flex-1 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-white transition hover:bg-primary-dark"
+        >
+          Book a call
+        </Link>
+        <Link
+          href="/portal/messages"
+          className="flex h-[30px] flex-1 items-center justify-center rounded-lg border border-neutral-200 text-xs font-semibold text-text transition hover:border-neutral-400"
+        >
+          Message
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/** The next few dates, as a date-block list. Read-only context, not a to-do. */
+function ComingUpRail({ deadlines }: { deadlines: PortalDeadline[] }) {
+  const upcoming = deadlines
+    .filter((d) => d.dueDate && d.status !== "submitted" && d.status !== "filed")
+    .filter((d) => (d.daysUntil ?? 0) >= 0)
+    .sort((x, y) => (x.daysUntil ?? 0) - (y.daysUntil ?? 0))
+    .slice(0, 4);
+  if (upcoming.length === 0) return null;
+
+  return (
+    <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+      <div className="flex h-[46px] items-center border-b border-neutral-100 px-5">
+        <h2 className="text-[13.5px] font-semibold text-text">Coming up</h2>
+      </div>
+      <ul className="py-1.5">
+        {upcoming.map((d) => {
+          const dt = d.dueDate ? new Date(d.dueDate) : null;
+          return (
+            <li key={d.id} className="flex items-center gap-3 px-5 py-2.5">
+              <span className="w-[34px] flex-none text-center">
+                <span className="block text-[15px] font-bold leading-tight text-text tabular-nums">
+                  {dt ? String(dt.getDate()).padStart(2, "0") : "—"}
+                </span>
+                <span className="block text-[10.5px] uppercase tracking-wide text-text-light">
+                  {dt ? dt.toLocaleDateString("en-GB", { month: "short" }) : ""}
+                </span>
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[13px] font-semibold text-text">
+                  {d.title}
+                </span>
+                <span className="block truncate text-[11.5px] text-text-light">
+                  {d.periodLabel ? `${d.periodLabel} · ` : ""}
+                  {d.blockedOn === "client" ? "needs you" : "with us"}
+                </span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 /**
  * MONEY — the lead figure, the one chart, and a uniform KPI strip.
  *
@@ -567,91 +820,7 @@ function CumulativeChart({
   );
 }
 
-// ─── DEADLINES (upcoming) ────────────────────────────────────────────────────
-const DEADLINE_ICON: Record<string, typeof CalendarClock> = {
-  accounts: FileText,
-  confirmation_statement: Landmark,
-  vat: Percent,
-  self_assessment: FileText,
-  corporation_tax: Landmark,
-  payroll: CalendarDays,
-};
 
-function DeadlinesCard({ deadlines }: { deadlines: PortalDeadline[] }) {
-  if (!deadlines || deadlines.length === 0) return null;
-  // Soonest first; drop already-submitted; cap to 4.
-  const upcoming = deadlines
-    .filter((d) => d.status !== "submitted" && d.dueDate)
-    .sort((x, y) => new Date(x.dueDate!).getTime() - new Date(y.dueDate!).getTime())
-    .slice(0, 4);
-  if (upcoming.length === 0) return null;
-
-  return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
-      <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-3.5">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <CalendarClock size={14} />
-          </span>
-          <h2 className="text-sm font-semibold text-text">Upcoming deadlines</h2>
-        </div>
-        <Link
-          href="/portal/deadlines"
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          View all
-        </Link>
-      </div>
-      <ul className="divide-y divide-neutral-100">
-        {upcoming.map((d) => {
-          const Icon = DEADLINE_ICON[d.kind] ?? CalendarClock;
-          const overdue = d.status === "overdue";
-          const soon = d.status === "due_soon";
-          return (
-            <li key={d.id} className="flex items-center gap-3 px-5 py-3">
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Icon size={16} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-text">{d.title}</div>
-                {d.periodLabel && (
-                  <div className="truncate text-xs text-text-light">
-                    {d.periodLabel}
-                  </div>
-                )}
-              </div>
-              <div className="flex-shrink-0 text-right">
-                <div
-                  className={`text-xs font-semibold ${
-                    overdue
-                      ? "text-red-600"
-                      : soon
-                        ? "text-orange-600"
-                        : "text-text"
-                  }`}
-                >
-                  {d.dueDate ? formatDate(d.dueDate) : "—"}
-                </div>
-                {overdue ? (
-                  <div className="text-[11px] font-medium text-red-600">
-                    Overdue
-                  </div>
-                ) : (
-                  typeof d.daysUntil === "number" &&
-                  d.daysUntil >= 0 && (
-                    <div className="text-[11px] text-text-light">
-                      in {d.daysUntil} day{d.daysUntil === 1 ? "" : "s"}
-                    </div>
-                  )
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
 
 // ─── EXPLORE (quick links) ───────────────────────────────────────────────────
 const EXPLORE: {
@@ -732,271 +901,12 @@ function ExploreBand() {
   );
 }
 
-// ─── NEEDS YOU (aggregated action hub) ──────────────────────────────────────
-const ACTION_ICON: Record<string, typeof PenLine> = {
-  approval: PenLine,
-  document: Upload,
-  deadline: CalendarClock,
-  task: ShieldCheck,
-};
 
-// Colour-coded by type so the list has rhythm: approve=orange, verify=teal,
-// upload=blue, deadline=amber.
-const ACTION_TINT: Record<string, string> = {
-  approval: "bg-orange-50 text-orange-600",
-  task: "bg-primary/10 text-primary",
-  document: "bg-blue-50 text-blue-600",
-  deadline: "bg-amber-50 text-amber-600",
-};
 
-function NeedsYouPanel({
-  items,
-  secondary = false,
-}: {
-  items: PortalActionItem[];
-  secondary?: boolean;
-}) {
-  if (!items || items.length === 0) return null;
-  const overdue = items.filter((i) => i.urgency === "overdue").length;
-
-  return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
-      <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-5 py-3.5">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-text">
-            {secondary ? "Also needs you" : "Needs you"}
-          </h2>
-          <span
-            className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-bold ${
-              secondary ? "bg-neutral-200 text-text" : "bg-orange-500 text-white"
-            }`}
-          >
-            {items.length}
-          </span>
-        </div>
-        {overdue > 0 && (
-          <span className="rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-700">
-            {overdue} overdue
-          </span>
-        )}
-      </div>
-      <ul className="divide-y divide-neutral-100">
-        {items.map((i) => {
-          const Icon = ACTION_ICON[i.type] ?? AlertCircle;
-          const tint = ACTION_TINT[i.type] ?? "bg-neutral-100 text-text-light";
-          return (
-            <li key={i.id}>
-              <Link
-                href={i.href}
-                className="group flex items-center gap-3 px-5 py-3 transition hover:bg-neutral-50"
-              >
-                <span
-                  className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${tint}`}
-                >
-                  <Icon size={16} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-text">{i.title}</div>
-                  {i.detail && (
-                    <div className="truncate text-xs text-text-light">
-                      {i.detail}
-                    </div>
-                  )}
-                </div>
-                {i.dueDate && (
-                  <span
-                    className={`hidden flex-shrink-0 text-xs font-medium sm:inline ${
-                      i.urgency === "overdue"
-                        ? "text-red-600"
-                        : i.urgency === "soon"
-                          ? "text-orange-600"
-                          : "text-text-light"
-                    }`}
-                  >
-                    {i.urgency === "overdue"
-                      ? "Overdue"
-                      : `Due ${formatDate(i.dueDate)}`}
-                  </span>
-                )}
-                <ArrowRight
-                  size={15}
-                  className="flex-shrink-0 text-neutral-300 transition group-hover:translate-x-0.5 group-hover:text-neutral-600"
-                />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
 
 // ─── HERO NEXT-STEP ───────────────────────────────────────────────────────
-function NextStepHero({
-  status,
-  firstNameShort,
-}: {
-  status: PortalOnboardingStatus;
-  firstNameShort: string;
-}) {
-  const a = status.accountant;
-  const meta = STAGE_META[status.currentStage];
-
-  // Onboarding done → no hero at all. The hero exists to carry the ONE next
-  // step; with no next step it was a full-width congratulation that a
-  // three-year client still saw every morning, pushing their actual figures
-  // below the fold. Silence is the right state here.
-  if (status.isComplete) return null;
-
-  return (
-    <section className="relative overflow-hidden rounded-3xl border border-orange-100/80 shadow-lg">
-      {/* warm brand gradient wash + soft glows — this is the page's one big moment */}
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50/40 to-primary/[0.07]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-orange-300/30 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
-      />
-
-      {/* Single column: the accountant lives in the persistent sidebar chip,
-          so repeating their photo here made three of them on one screen —
-          the exact triple-repeat this layout was written to remove. */}
-      <div className="relative p-6 sm:p-8">
-        {/* Content */}
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-orange-700 ring-1 ring-orange-200/70 backdrop-blur">
-            <Video size={13} /> Up next
-          </div>
-
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-text sm:text-[34px]">
-            {status.nextActionLabel}
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-light">
-            {meta?.gist ??
-              "A hands-on session covering everything you need at this stage."}
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-text-light">
-            <span className="inline-flex items-center gap-1.5">
-              <Clock size={13} className="text-orange-500" /> {meta?.duration ?? "30 min"}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Video size={13} className="text-orange-500" /> Video call
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar size={13} className="text-orange-500" /> with {a.name ?? "your accountant"}
-            </span>
-          </div>
-
-          {/* CTA — one tap to book */}
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            {a.calendlyUrl ? (
-              <Link
-                href="/portal/appointments"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-600 hover:shadow-orange-500/40"
-              >
-                Choose a time <ArrowRight size={17} />
-              </Link>
-            ) : (
-              <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500/40 px-6 py-3 text-base font-semibold text-white">
-                Booking link coming
-              </span>
-            )}
-            <Link
-              href="/portal/messages"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-text-light transition hover:text-text"
-            >
-              Or message {firstNameShort} <ArrowUpRight size={13} />
-            </Link>
-          </div>
-
-          {/* Warm, honest closer */}
-          <p className="mt-5 flex items-start gap-2 text-xs text-text-light">
-            <Check
-              size={13}
-              strokeWidth={3}
-              className="mt-0.5 flex-shrink-0 text-emerald-500"
-            />
-            <span>
-              <span className="font-medium text-text">After this call</span>{" "}
-              {outcomeForStage(status.currentStage)}
-            </span>
-          </p>
-        </div>
-
-      </div>
-    </section>
-  );
-}
 
 // ─── ACTIVITY FEED ────────────────────────────────────────────────────────
-function ActivityFeed({ status }: { status: PortalOnboardingStatus }) {
-  const rows: {
-    iso: string;
-    what: string;
-    who: string;
-    icon: typeof CheckCircle2;
-    color: string;
-  }[] = [];
-  for (const st of status.stages) {
-    if (st.state === "complete" && st.completedDate) {
-      rows.push({
-        iso: st.completedDate,
-        what: `${st.title} completed`,
-        who: status.accountant.name ?? "Your accountant",
-        icon: CheckCircle2,
-        color: "text-emerald-500",
-      });
-    }
-  }
-  if (status.joinedDate) {
-    rows.push({
-      iso: status.joinedDate,
-      what: "Account created",
-      who: "You signed up",
-      icon: AlertCircle,
-      color: "text-neutral-400",
-    });
-  }
-  // Sort on the real date (newest first), not the formatted label — string
-  // compare on "10 Apr 2026" vs "9 Apr 2026" would order them wrongly.
-  rows.sort((x, y) => new Date(y.iso).getTime() - new Date(x.iso).getTime());
-  if (rows.length === 0) return null;
-
-  return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-md">
-      <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-3.5">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-          <Activity size={14} />
-        </span>
-        <span className="text-sm font-semibold text-text">Recent activity</span>
-      </div>
-      <ul className="divide-y divide-neutral-100">
-        {rows.slice(0, 6).map((row, i) => (
-          <li key={i} className="flex items-start gap-3 px-5 py-3.5">
-            <row.icon
-              size={14}
-              className={`mt-0.5 flex-shrink-0 ${row.color}`}
-            />
-            <div className="min-w-0 flex-1">
-              <div className="text-sm text-text">{row.what}</div>
-              <div className="text-xs text-text-light">{row.who}</div>
-            </div>
-            <div className="flex-shrink-0 text-xs text-text-light">
-              {formatDate(row.iso)}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 // ─── JOURNEY (onboarding centrepiece) ───────────────────────────────────────
 function JourneyBand({ status }: { status: PortalOnboardingStatus }) {
@@ -1159,30 +1069,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────
 
-function greetingForNow() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
 
-function outcomeForStage(stage: PortalStageKey | string): string {
-  switch (stage) {
-    case "welcome":
-      return "we'll have introduced ourselves and you'll know what comes next.";
-    case "main":
-      return "we'll have your year mapped — VAT, salary, dates — so nothing surprises you.";
-    case "portal":
-      return "you'll be running expenses, invoices and salary on your own — no spreadsheets, no late-night admin.";
-    case "checkin30":
-    case "checkin60":
-      return "we'll have caught any teething issues early and you'll be fully comfortable.";
-    case "catchup":
-      return "you'll know exactly where your business stands and what to focus on next quarter.";
-    default:
-      return "you'll be a step closer to a fully-set-up business.";
-  }
-}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", {

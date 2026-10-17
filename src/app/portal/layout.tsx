@@ -116,6 +116,7 @@ export default async function PortalLayout({
   let accountant: import("@/lib/portal/types").PortalAccountantInfo | null = null;
   let nextAction: { title: string; sub: string; href: string } | null = null;
   let progress: { pct: number; segments: string[] } | null = null;
+  let accountName: string | null = null;
   // Staff view-as banner — independent of Clerk auth (staff have no session).
   const impersonation = await getImpersonationBanner().catch(() => null);
 
@@ -166,6 +167,7 @@ export default async function PortalLayout({
           "/portal/approvals": pendingApprovals.ok ? pendingApprovals.data : 0,
         };
         accountant = status.accountant ?? null;
+        accountName = status.accountName ?? null;
         // Compact onboarding progress strip for the sidebar.
         const completedStages = status.stages.filter(
           (s) => s.state === "complete"
@@ -240,6 +242,7 @@ export default async function PortalLayout({
                 nextAction={nextAction}
                 progress={progress}
                 companies={companies}
+                accountName={accountName}
                 impersonation={impersonation}
                 isNativeApp={isNativeApp}
               >

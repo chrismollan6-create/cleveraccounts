@@ -64,6 +64,8 @@ interface Props {
   progress?: { pct: number; segments: string[] } | null;
   /** Companies this login can access — drives the switcher (shown when >1). */
   companies?: PortalCompany[];
+  /** Client's business name — the breadcrumb in the desktop title bar. */
+  accountName?: string | null;
   /** When set, a staff view-as session is active — shows the read-only banner. */
   impersonation?: { clientName: string; staffName: string | null } | null;
   /** True when rendered inside the Capacitor app → native bottom-tab shell. */
@@ -78,6 +80,19 @@ const TAB_HREFS = [
   "/portal/messages",
   "/portal/documents",
 ];
+
+/**
+ * The current page's name, for the desktop title bar. Looked up from the nav
+ * itself so a renamed nav item can never disagree with the title above the
+ * page — they are the same string.
+ */
+function titleForHref(href: string): string {
+  for (const item of [...PRIMARY_NAV, ...SECONDARY_NAV]) {
+    if (item.href === href) return item.label;
+    for (const c of item.children ?? []) if (c.href === href) return c.label;
+  }
+  return "Portal";
+}
 
 /** Flatten a grouped nav tree to a plain list (tab bar / mobile drawer). */
 function flatten(items: NavItem[]): NavItem[] {
@@ -207,6 +222,7 @@ export default function PortalShell({
   nextAction,
   progress,
   companies,
+  accountName,
   impersonation,
   isNativeApp,
   children,
@@ -499,7 +515,27 @@ export default function PortalShell({
         </aside>
 
         {/* Main content area */}
-        <main className="flex-1 lg:pl-64 min-w-0">{children}</main>
+        <div className="flex-1 lg:pl-64 min-w-0">
+          {/* Desktop title bar. The web portal had no header region at all,
+              which is a large part of why it read as a web page rather than an
+              application. Deliberately holds only what works today — the
+              search / period / export controls belong here and land when they
+              are real, not before. */}
+          <header className="hidden h-[52px] items-center gap-3 border-b border-gray-100 bg-white/80 px-6 backdrop-blur lg:flex">
+            {accountName && (
+              <>
+                <span className="truncate text-[12.5px] text-text-light">
+                  {accountName}
+                </span>
+                <span className="text-gray-300">/</span>
+              </>
+            )}
+            <h1 className="text-[14.5px] font-semibold tracking-tight text-text">
+              {titleForHref(activeHref)}
+            </h1>
+          </header>
+          <main className="min-w-0">{children}</main>
+        </div>
       </div>
     </div>
   );
