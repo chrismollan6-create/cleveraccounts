@@ -49,33 +49,38 @@ import type {
   PortalDeadline,
   PortalFinancials,
 } from "@/lib/portal/types";
-import AccountantAvatar from "@/components/portal/AccountantAvatar";
 import { getActionItemsForCurrentUser } from "@/lib/portal/actionItems";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Dashboard — "Aurora" layout, ported live June 2026 (from preview D1).
+ * Dashboard — "Aurora" layout, ported live June 2026 (from preview D1),
+ * re-disciplined October 2026 after the layout drifted off its own rules.
  *
- * Design principles carried over from the D1 mock:
- *   · Say each thing ONCE — single progress indicator, no repeated stage chips.
- *   · Booking is the hero action — one clear orange CTA, not buried.
- *   · Brand dual-colour system — teal (#1A7A9B) for structure / "done",
- *     orange (#F97316→#EA580C) for the next action / CTAs.
- *   · Gentle nudge tone instead of an alarming "N days overdue" banner.
- *   · Real accountant photo when available (falls back to initials).
- *   · Quiet "Encrypted · synced live" trust line for confidence.
+ * The rules, restated because they were stated once and then broken:
  *
- * The accountant lives in the persistent sidebar chip (PortalShell), so there
- * is deliberately NO right-rail accountant card here — avoids the triple-repeat
- * we had in the old bento layout.
+ *   · SAY EACH THING ONCE. The accountant lives in the persistent sidebar
+ *     chip and NOWHERE else on this page — a hero accountant card put three
+ *     of them on one screen. Onboarding progress is stated by JourneyBand
+ *     here and the sidebar suppresses its own copy on this route.
+ *   · ORANGE MEANS "THIS NEEDS YOU". It is the next-action CTA and the
+ *     current stage marker, and nothing else. Counts, badges and structure
+ *     use teal (#1A7A9B) or neutral. An accent that marks everything marks
+ *     nothing.
+ *   · DESIGN THE SETTLED STATE FIRST. Most clients are years past
+ *     onboarding, so anything onboarding-shaped — the hero, the journey
+ *     band — must disappear entirely when complete rather than turn into a
+ *     permanent congratulation.
+ *   · No trust badges. Assurance is a sessions list in Settings, not a pill.
  *
- *   ┌─────────────────────────────┬─────────────────────┐
- *   │ Hero next-step (book)       │ Progress (once)      │
- *   │ Tasks                       │ Your stages          │
- *   │ Recent activity             │ Documents coming up  │
- *   │                             │ Business meta        │
- *   └─────────────────────────────┴─────────────────────┘
+ *   ┌──────────────────────────────────────────────┐
+ *   │ Greeting                                      │
+ *   │ Hero next-step  ← only while one exists       │
+ *   │ Money band      ← the reason to log in        │
+ *   │ Journey         ← only during onboarding      │
+ *   │ Needs you / Deadlines   │ Recent activity     │
+ *   │ Explore · Business                            │
+ *   └──────────────────────────────────────────────┘
  */
 
 const STAGE_META: Record<
@@ -294,36 +299,31 @@ function DashboardBody({
 
   return (
     <>
-      {/* HEADER — greeting + business on the left, quiet trust line on the right */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-[26px] font-bold tracking-tight text-text">
-            {greetingForNow()}, {firstName ?? "there"}
-          </h1>
-          {status.accountName && (
-            <p className="mt-0.5 text-sm text-text-light">
-              {status.accountName} · {firmName}
-            </p>
-          )}
-        </div>
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-200/70 bg-emerald-50/60 px-2.5 py-1 text-xs font-medium text-emerald-700">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          </span>
-          <ShieldCheck size={12} className="text-emerald-600" />
-          Encrypted · synced live
-        </span>
+      {/* HEADER — greeting + business. No trust badge: announcing "encrypted"
+          reads as reassurance-seeking, and real assurance belongs in Settings
+          (active sessions, MFA), not a pill. */}
+      <div className="mb-6">
+        <h1 className="text-[26px] font-bold tracking-tight text-text">
+          {greetingForNow()}, {firstName ?? "there"}
+        </h1>
+        {status.accountName && (
+          <p className="mt-0.5 text-sm text-text-light">
+            {status.accountName} · {firmName}
+          </p>
+        )}
       </div>
 
-      {/* HERO — the moment: book the next call, with your accountant */}
+      {/* HERO — only while there IS a next step. Once onboarding is done this
+          renders nothing, so a settled client opens on their numbers rather
+          than on a permanent "you're all set up" banner. */}
       <NextStepHero status={status} firstNameShort={firstNameShort} />
 
       {/* MONEY — the recurring "reason to log in": where the business stands */}
       <MoneyBand financials={financials} />
 
-      {/* JOURNEY — the onboarding centrepiece */}
-      <JourneyBand status={status} />
+      {/* JOURNEY — the onboarding centrepiece. Drops away entirely once
+          complete; a finished journey is not news every day for three years. */}
+      {!status.isComplete && <JourneyBand status={status} />}
 
       {/* CONTENT — what needs you + what's coming up, with recent activity beside */}
       <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_360px]">
@@ -356,11 +356,16 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
   if (!fin || typeof fin.netProfit !== "number") return null;
 
   const isLoss = fin.netProfit < 0;
+  const needsExplaining = Boolean(
+    fin.unexplainedCount && fin.unexplainedCount > 0
+  );
   const tiles: {
     label: string;
     value: string;
     icon: typeof PoundSterling;
     tint: string;
+    /** Set when the tile is a thing to DO rather than a figure to read. */
+    href?: string;
   }[] = [
     {
       label: isLoss ? "Net loss" : "Net profit",
@@ -383,8 +388,10 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
       icon: Landmark,
       tint: "bg-orange-50 text-orange-600",
     },
+    // Not a figure — a job. Orange + a link when it needs the client, so it
+    // reads as "do this" rather than sitting silently in a row of numbers.
     {
-      label: "Bookkeeping",
+      label: needsExplaining ? "Bookkeeping · needs you" : "Bookkeeping",
       value:
         fin.unexplainedCount == null
           ? "—"
@@ -392,10 +399,10 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
             ? "All tidy"
             : `${fin.unexplainedCount} to explain`,
       icon: Receipt,
-      tint:
-        fin.unexplainedCount && fin.unexplainedCount > 0
-          ? "bg-amber-50 text-amber-600"
-          : "bg-emerald-50 text-emerald-600",
+      tint: needsExplaining
+        ? "bg-orange-50 text-orange-600"
+        : "bg-emerald-50 text-emerald-600",
+      href: needsExplaining ? "/portal/financials" : undefined,
     },
   ];
 
@@ -413,6 +420,15 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
             {fin.asOf && (
               <p className="text-[11px] text-text-light">
                 Figures as of {formatDate(fin.asOf)}
+                {/* Say it plainly when the figures are months behind. A stale
+                    number presented as current is the fastest way to lose a
+                    client's trust in everything else on the page. */}
+                {isStale(fin.asOf) && (
+                  <span className="text-amber-700">
+                    {" "}
+                    · we&apos;re waiting on newer bookkeeping
+                  </span>
+                )}
               </p>
             )}
           </div>
@@ -427,22 +443,35 @@ function MoneyBand({ financials: fin }: { financials: PortalFinancials | null })
       <div className="grid grid-cols-2 divide-neutral-100 sm:grid-cols-4 sm:divide-x">
         {tiles.map((t, i) => {
           const Icon = t.icon;
-          return (
-            <div
-              key={i}
-              className={`p-5 ${i < 2 ? "border-b sm:border-b-0" : ""} ${
-                i % 2 === 1 ? "border-l sm:border-l-0" : ""
-              } border-neutral-100`}
-            >
+          const cls = `p-5 ${i < 2 ? "border-b sm:border-b-0" : ""} ${
+            i % 2 === 1 ? "border-l sm:border-l-0" : ""
+          } border-neutral-100`;
+          const inner = (
+            <>
               <span
                 className={`flex h-8 w-8 items-center justify-center rounded-lg ${t.tint}`}
               >
                 <Icon size={15} />
               </span>
-              <div className="mt-2.5 text-xl font-bold tracking-tight text-text">
+              <div className="mt-2.5 flex items-center gap-1 text-xl font-bold tracking-tight text-text">
                 {t.value}
+                {t.href && (
+                  <ArrowRight
+                    size={15}
+                    className="text-orange-500 transition group-hover:translate-x-0.5"
+                  />
+                )}
               </div>
               <div className="mt-0.5 text-[11px] text-text-light">{t.label}</div>
+            </>
+          );
+          return t.href ? (
+            <Link key={i} href={t.href} className={`group block ${cls} hover:bg-orange-50/40`}>
+              {inner}
+            </Link>
+          ) : (
+            <div key={i} className={cls}>
+              {inner}
             </div>
           );
         })}
@@ -726,32 +755,11 @@ function NextStepHero({
   const a = status.accountant;
   const meta = STAGE_META[status.currentStage];
 
-  if (status.isComplete) {
-    return (
-      <section className="relative overflow-hidden rounded-3xl border border-emerald-200/70 shadow-lg">
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-primary/[0.06]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl"
-        />
-        <div className="relative p-6 sm:p-8">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200/70 backdrop-blur">
-            <PartyPopper size={13} /> Onboarding complete
-          </div>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-text sm:text-[34px]">
-            You&apos;re all set up. 🎉
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-light">
-            All six onboarding stages are done. Your accountant relationship is
-            in routine mode — message anytime, book a call when you need one.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  // Onboarding done → no hero at all. The hero exists to carry the ONE next
+  // step; with no next step it was a full-width congratulation that a
+  // three-year client still saw every morning, pushing their actual figures
+  // below the fold. Silence is the right state here.
+  if (status.isComplete) return null;
 
   return (
     <section className="relative overflow-hidden rounded-3xl border border-orange-100/80 shadow-lg">
@@ -769,7 +777,10 @@ function NextStepHero({
         className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-primary/15 blur-3xl"
       />
 
-      <div className="relative grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_248px] lg:items-center">
+      {/* Single column: the accountant lives in the persistent sidebar chip,
+          so repeating their photo here made three of them on one screen —
+          the exact triple-repeat this layout was written to remove. */}
+      <div className="relative p-6 sm:p-8">
         {/* Content */}
         <div>
           <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-orange-700 ring-1 ring-orange-200/70 backdrop-blur">
@@ -832,27 +843,6 @@ function NextStepHero({
           </p>
         </div>
 
-        {/* The human you're booking with */}
-        <div className="flex items-center gap-4 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur lg:flex-col lg:gap-2.5 lg:text-center">
-          <div className="relative">
-            <AccountantAvatar
-              name={a.name}
-              hasPhoto={Boolean(a.photoUrl)}
-              sizeClass="h-16 w-16 lg:h-24 lg:w-24"
-              textClass="text-xl"
-            />
-            <span className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-2 ring-white" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-wider text-text-light">
-              Your accountant
-            </div>
-            <div className="truncate text-sm font-semibold text-text">
-              {a.name ?? "—"}
-            </div>
-            <div className="text-xs text-text-light">Replies in ~2 hours</div>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -1113,6 +1103,20 @@ function formatDate(iso: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+/**
+ * Financial figures older than ~6 weeks. The trial-balance sync runs monthly,
+ * so a 45-day threshold flags "a sync was missed / the books aren't current"
+ * without crying stale at a normal month-end gap.
+ */
+const STALE_FINANCIALS_DAYS = 45;
+
+function isStale(iso: string | null): boolean {
+  if (!iso) return false;
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return false;
+  return (Date.now() - t) / 86_400_000 > STALE_FINANCIALS_DAYS;
 }
 
 function gbp(n: number): string {

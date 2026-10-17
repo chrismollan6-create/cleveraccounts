@@ -143,7 +143,12 @@ function Group({
           </span>
         )}
       </div>
-      <div className="space-y-2.5">{children}</div>
+      {/* One panel, hairline dividers — a list to scan. Previously each row
+          was its own bordered + shadowed card, which made eight notifications
+          read as eight objects rather than one inbox. */}
+      <div className="divide-y divide-neutral-100 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        {children}
+      </div>
     </section>
   );
 }

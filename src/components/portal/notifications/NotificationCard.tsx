@@ -19,13 +19,17 @@ import {
 import type { PortalNotification } from "@/lib/portal/types";
 
 /**
- * A single notification card. Client component so the body can expand for long
- * messages. Each card surfaces ONE contextual, type-driven action (Reply,
- * Upload, View…) rather than making the whole row a blanket link — so an
- * informational notification just informs, and an actionable one has an obvious
- * button. The action target respects a specific stored href, falling back to the
- * type's home surface; purely informational rows (general with no real
- * destination) get no button.
+ * A single notification ROW. Rows, not cards: the parent renders them inside
+ * one bordered panel with hairline dividers, so eight notifications read as a
+ * list you scan rather than eight stacked objects you parse. Each row still
+ * surfaces ONE contextual, type-driven action (Reply, Upload, View…) rather
+ * than being a blanket link — an informational notification just informs. The
+ * action target respects a specific stored href, falling back to the type's
+ * home surface; purely informational rows get no button.
+ *
+ * State encoding is deliberately one-marker-per-axis:
+ *   unread          → row tint + bold title (+ sr-only text)
+ *   action required → orange left rule + "Action needed" chip
  */
 
 const TYPE_META: Record<
@@ -113,20 +117,16 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
           onOpen();
         }
       }}
-      className={`group relative flex cursor-pointer gap-3.5 overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
-        n.actionRequired
-          ? "border-orange-200 bg-orange-50/50"
-          : showUnread
-            ? "border-emerald-200 bg-white shadow-md shadow-emerald-500/10"
-            : "border-neutral-200 bg-white"
+      className={`group relative flex cursor-pointer gap-3.5 px-4 py-3.5 transition hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 ${
+        showUnread ? "bg-primary/[0.035]" : "bg-white"
       }`}
     >
-      {(n.actionRequired || showUnread) && (
-        <span
-          className={`absolute inset-y-0 left-0 w-1 ${
-            n.actionRequired ? "bg-orange-500" : "bg-emerald-500"
-          }`}
-        />
+      {/* ONE marker per axis. Unread is carried by the row tint + bold title
+          (it used to also have a green edge, a dot AND a "New" chip — three
+          encodings of one bit). The orange rule is a different axis: it means
+          this one needs the client to act. */}
+      {n.actionRequired && (
+        <span className="absolute inset-y-0 left-0 w-[3px] bg-orange-500" />
       )}
 
       <span
@@ -143,13 +143,11 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
                 showUnread ? "font-bold" : "font-semibold"
               }`}
             >
+              {/* The tint + weight carry "unread" visually; this carries it
+                  for a screen reader, which can't see either. */}
+              {showUnread && <span className="sr-only">Unread. </span>}
               {n.title}
             </p>
-            {showUnread && !n.actionRequired && (
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
-                New
-              </span>
-            )}
             {n.actionRequired && (
               <span className="inline-flex items-center rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
                 Action needed
@@ -160,9 +158,6 @@ export default function NotificationCard({ n }: { n: PortalNotification }) {
             <span className="whitespace-nowrap text-xs text-text-light">
               {formatRelative(n.createdAt)}
             </span>
-            {showUnread && (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" aria-label="Unread" />
-            )}
             {expandable && (
               <ChevronDown
                 size={15}

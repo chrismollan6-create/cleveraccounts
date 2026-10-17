@@ -134,7 +134,7 @@ export default function MobileNav({
             {/* Nav */}
             <nav className="flex-1 overflow-y-auto px-3 pt-4 pb-2">
               <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-light/70 mb-2">
-                Your account
+                Menu
               </p>
               <ul className="space-y-0.5">
                 {primary.map((item) => (
@@ -149,7 +149,7 @@ export default function MobileNav({
               </ul>
 
               <p className="mt-6 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-light/70 mb-2">
-                Support
+                Account
               </p>
               <ul className="space-y-0.5">
                 {secondary.map((item) => (

@@ -34,6 +34,12 @@ interface NavItem {
   disabled?: boolean;
   badge?: string;
   notificationCount?: number;
+  /**
+   * Sub-destinations that belong to this group. They keep their own routes
+   * (nothing moved), they just stop competing for a top-level slot. Rendered
+   * indented under the parent while the group is the active one.
+   */
+  children?: NavItem[];
 }
 
 interface NextAction {
@@ -73,6 +79,23 @@ const TAB_HREFS = [
   "/portal/documents",
 ];
 
+/** Flatten a grouped nav tree to a plain list (tab bar / mobile drawer). */
+function flatten(items: NavItem[]): NavItem[] {
+  return items.flatMap((i) => [i, ...(i.children ?? [])]);
+}
+
+/**
+ * A group's badge when collapsed is the sum of everything inside it —
+ * otherwise collapsing "Deadlines 1 · Approvals 2" under "Needs you" would
+ * silently hide three things that need the client.
+ */
+function rollUpCount(item: NavItem): number {
+  return (
+    (item.notificationCount ?? 0) +
+    (item.children ?? []).reduce((n, c) => n + (c.notificationCount ?? 0), 0)
+  );
+}
+
 function toTab(item: NavItem, size: number): TabItem {
   const Icon = item.icon;
   return {
@@ -83,21 +106,48 @@ function toTab(item: NavItem, size: number): TabItem {
   };
 }
 
+/**
+ * Five primary destinations, matching the app's five tabs so web and native
+ * stop diverging. Nine flat items (two of them permanently disabled) asked the
+ * client to hold the whole product in their head; these five are the questions
+ * a client actually arrives with:
+ *
+ *   Home       — what's going on
+ *   Needs you  — what I have to do        (notifications · deadlines · approvals)
+ *   Money      — how the business is doing
+ *   Documents  — paperwork, both ways
+ *   Messages   — talk to my accountant    (+ book a call)
+ *
+ * Every route is unchanged — this is a regrouping, not a migration.
+ */
 const PRIMARY_NAV: NavItem[] = [
-  { label: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
-  { label: "Financials", href: "/portal/financials", icon: PoundSterling },
-  { label: "Notifications", href: "/portal/notifications", icon: Bell },
-  { label: "Deadlines", href: "/portal/deadlines", icon: CalendarClock },
-  { label: "Approvals", href: "/portal/approvals", icon: FileCheck },
-  { label: "Messages", href: "/portal/messages", icon: MessageCircle },
-  { label: "Your details", href: "/portal/details", icon: Building2 },
+  { label: "Home", href: "/portal/dashboard", icon: LayoutDashboard },
+  {
+    label: "Needs you",
+    href: "/portal/notifications",
+    icon: Bell,
+    children: [
+      { label: "Deadlines", href: "/portal/deadlines", icon: CalendarClock },
+      { label: "Approvals", href: "/portal/approvals", icon: FileCheck },
+    ],
+  },
+  { label: "Money", href: "/portal/financials", icon: PoundSterling },
   { label: "Documents", href: "/portal/documents", icon: FileText },
-  { label: "Appointments", href: "/portal/appointments", icon: CalendarDays },
+  {
+    label: "Messages",
+    href: "/portal/messages",
+    icon: MessageCircle,
+    children: [
+      { label: "Book a call", href: "/portal/appointments", icon: CalendarDays },
+    ],
+  },
 ];
 
+/** The account group — who I am, how this behaves, where to get help. */
 const SECONDARY_NAV: NavItem[] = [
-  { label: "Help", href: "/portal/help", icon: HelpCircle, disabled: true },
-  { label: "Settings", href: "/portal/settings", icon: Settings, disabled: true },
+  { label: "Your details", href: "/portal/details", icon: Building2 },
+  { label: "Settings", href: "/portal/settings", icon: Settings },
+  { label: "Help", href: "/portal/help", icon: HelpCircle },
 ];
 
 function applyNotifications(
@@ -105,13 +155,14 @@ function applyNotifications(
   notifications?: Partial<Record<string, number>>,
 ): NavItem[] {
   if (!notifications) return items;
-  return items.map((item) => {
+  const apply = (item: NavItem): NavItem => {
     const count = notifications[item.href];
-    if (count && count > 0 && !item.disabled) {
-      return { ...item, notificationCount: count };
-    }
-    return item;
-  });
+    const next: NavItem = { ...item };
+    if (count && count > 0 && !item.disabled) next.notificationCount = count;
+    if (item.children) next.children = item.children.map(apply);
+    return next;
+  };
+  return items.map(apply);
 }
 
 function toMobile(items: NavItem[]): MobileNavItem[] {
@@ -129,17 +180,19 @@ function toMobile(items: NavItem[]): MobileNavItem[] {
 }
 
 /**
- * Portal application shell — redesigned (May 2026).
+ * Portal application shell — redesigned May 2026, re-disciplined Oct 2026.
  *
- * Four sidebar changes from the previous version:
- *   1. Accountant chip at top (replaces "Encrypted & secure portal" pill).
- *      Shows initials avatar, online dot, reply-time line, Book/Message
- *      icons. Always visible on every page.
+ * The sidebar:
+ *   1. Accountant chip at top — the ONE place the accountant appears.
+ *      Pages must not repeat it; that is how we ended up with three of them
+ *      on the dashboard.
  *   2. Active-nav refinement — brand-coloured left border + brand text,
  *      no filled background. Linear-style.
- *   3. Notification badges remain (Messages = "2" amber pill etc.).
- *   4. "What's next" reminder card at the very bottom — persistent nudge
- *      so the next action is always one click away.
+ *   3. Notification counts are teal, not orange. Orange in this product
+ *      means "this needs you to act"; a count is information.
+ *   4. Progress strip + "what's next" card are rail wayfinding for pages
+ *      that DON'T state them — both are suppressed on the dashboard, which
+ *      carries the full-size versions.
  *
  * Photo: still initials, because Salesforce User.FullPhotoUrl needs an
  * auth'd Connected App fetch. TODO: build /api/portal/accountant-photo
@@ -158,23 +211,34 @@ export default function PortalShell({
   isNativeApp,
   children,
 }: Props) {
-  // Pilot mode hides surfaces whose SF→cache sync isn't built yet.
-  const primary = applyNotifications(
-    PRIMARY_NAV.filter((i) => !isSurfaceHidden(i.href)),
-    notifications
-  );
-  const secondary = applyNotifications(
-    SECONDARY_NAV.filter((i) => !isSurfaceHidden(i.href)),
-    notifications
-  );
+  // The dashboard states the onboarding progress and the next action in full,
+  // so the rail's compact copies of both are suppressed there — otherwise one
+  // screen carries two progress meters and says "book your welcome call"
+  // twice. On every other page the rail copies ARE the wayfinding, so they stay.
+  const onDashboard = activeHref === "/portal/dashboard";
+
+  // Pilot mode hides surfaces whose SF→cache sync isn't built yet — including
+  // sub-items, so a hidden Approvals doesn't leave a dead child under "Needs you".
+  const prune = (items: NavItem[]): NavItem[] =>
+    items
+      .filter((i) => !isSurfaceHidden(i.href))
+      .map((i) =>
+        i.children ? { ...i, children: prune(i.children) } : i
+      );
+
+  const primary = applyNotifications(prune(PRIMARY_NAV), notifications);
+  const secondary = applyNotifications(prune(SECONDARY_NAV), notifications);
 
   // ── Native app shell: slim header + bottom tab bar (no sidebar) ──────────
   if (isNativeApp) {
-    const byHref = new Map(primary.map((i) => [i.href, i]));
+    // Tabs come from the grouped parents; everything else — sub-items and the
+    // account group — lives behind "More", so the tab bar stays at five.
+    const flat = flatten(primary);
+    const byHref = new Map(flat.map((i) => [i.href, i]));
     const tabItems = TAB_HREFS.map((href) => byHref.get(href))
       .filter((i): i is NavItem => Boolean(i))
-      .map((i) => toTab(i, 22));
-    const moreItems = primary
+      .map((i) => toTab({ ...i, notificationCount: rollUpCount(i) }, 22));
+    const moreItems = [...flat, ...flatten(secondary)]
       .filter((i) => !TAB_HREFS.includes(i.href))
       .map((i) => toTab(i, 20));
 
@@ -222,8 +286,8 @@ export default function PortalShell({
           <div className="flex items-center gap-2">
             <MobileNav
               brand={brand}
-              primary={toMobile(primary)}
-              secondary={toMobile(secondary)}
+              primary={toMobile(flatten(primary))}
+              secondary={toMobile(flatten(secondary))}
               activeHref={activeHref}
               switcherSlot={companies && <AccountSwitcher companies={companies} />}
               footerSlot={
@@ -325,21 +389,19 @@ export default function PortalShell({
             </div>
           )}
 
-          {/* Primary nav */}
+          {/* Primary nav — five groups. Sub-items reveal only for the group
+              you're in, so the rail shows five lines at rest instead of nine. */}
           <nav className="px-3 pt-4 pb-2">
-            <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-light/70 mb-2">
-              Your account
-            </p>
             <ul className="space-y-0.5">
               {primary.map((item) => (
                 <li key={item.href}>
-                  <NavLink item={item} active={activeHref === item.href} />
+                  <NavGroup item={item} activeHref={activeHref} />
                 </li>
               ))}
             </ul>
 
             <p className="mt-6 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-light/70 mb-2">
-              Support
+              Account
             </p>
             <ul className="space-y-0.5">
               {secondary.map((item) => (
@@ -350,9 +412,9 @@ export default function PortalShell({
             </ul>
           </nav>
 
-          {/* Compact onboarding progress — fills the rail, persistent across
-              pages. Teal = done, orange = current (brand dual-colour system). */}
-          {progress && (
+          {/* Compact onboarding progress — persistent wayfinding on every page
+              EXCEPT the dashboard, which carries the full journey band. */}
+          {progress && !onDashboard && (
             <div className="px-4 pb-1 pt-1">
               <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
                 <div className="flex items-center justify-between">
@@ -384,8 +446,9 @@ export default function PortalShell({
           {/* Push the reminder + user chip to the bottom of the rail */}
           <div className="flex-1" />
 
-          {/* 4. WHAT'S NEXT REMINDER */}
-          {nextAction && (
+          {/* 4. WHAT'S NEXT REMINDER — suppressed on the dashboard, where the
+              hero already is this exact call-to-action at full size. */}
+          {nextAction && !onDashboard && (
             <div className="px-3 pb-3">
               <a
                 href={nextAction.href}
@@ -442,7 +505,50 @@ export default function PortalShell({
   );
 }
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+/**
+ * A top-level nav group: the parent link, plus its sub-items revealed only
+ * while you're inside the group. Collapsed, the parent carries the rolled-up
+ * count so nothing hides; expanded, each child carries its own.
+ */
+function NavGroup({ item, activeHref }: { item: NavItem; activeHref: string }) {
+  const children = item.children ?? [];
+  const childActive = children.some((c) => c.href === activeHref);
+  const open = activeHref === item.href || childActive;
+  const rolled = rollUpCount(item);
+
+  return (
+    <>
+      <NavLink
+        item={{
+          ...item,
+          // Expanded, the children show their own counts — repeating the total
+          // on the parent would double-count the same items on one screen.
+          notificationCount: open ? item.notificationCount : rolled || undefined,
+        }}
+        active={activeHref === item.href}
+      />
+      {open && children.length > 0 && (
+        <ul className="mt-0.5 space-y-0.5 border-l border-gray-100 pl-3 ml-5">
+          {children.map((c) => (
+            <li key={c.href}>
+              <NavLink item={c} active={activeHref === c.href} compact />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
+function NavLink({
+  item,
+  active,
+  compact = false,
+}: {
+  item: NavItem;
+  active: boolean;
+  compact?: boolean;
+}) {
   const Icon = item.icon;
   if (item.disabled) {
     return (
@@ -465,21 +571,31 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`group relative flex items-center gap-3 px-3 py-2 rounded-md text-sm transition ${
+      className={`group relative flex items-center gap-3 rounded-md transition ${
+        compact ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2 text-sm"
+      } ${
         active
           ? "font-semibold text-primary"
-          : "font-medium text-text hover:bg-gray-50"
+          : compact
+            ? "font-medium text-text-light hover:bg-gray-50 hover:text-text"
+            : "font-medium text-text hover:bg-gray-50"
       }`}
     >
-      {/* 2. Active state: brand-coloured left border, no fill */}
-      {active && (
+      {/* 2. Active state: brand-coloured left border, no fill. Sub-items sit
+          inside their own rule, so they don't need a second one. */}
+      {active && !compact && (
         <span className="absolute left-0 top-2 h-5 w-0.5 rounded-r-full bg-primary" />
       )}
-      <Icon size={17} className={`shrink-0 ${active ? "text-primary" : ""}`} />
+      <Icon
+        size={compact ? 15 : 17}
+        className={`shrink-0 ${active ? "text-primary" : ""}`}
+      />
       <span className="flex-1">{item.label}</span>
-      {/* 3. Notification badge */}
+      {/* 3. Notification count — teal, not orange. Orange is reserved for the
+          one thing that needs the client to act; an unread count is
+          information, not an instruction. */}
       {hasNotifications && (
-        <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white">
+        <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/10 px-1 text-[10px] font-bold text-primary">
           {item.notificationCount! > 99 ? "99+" : item.notificationCount}
         </span>
       )}

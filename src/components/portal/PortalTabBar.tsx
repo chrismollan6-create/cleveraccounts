@@ -59,7 +59,7 @@ function TabInner({ item, settledActive }: { item: TabItem; settledActive: boole
           />
         )}
         {count > 0 && (
-          <span className="absolute -right-2 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white ring-2 ring-white">
+          <span className="absolute -right-2 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white ring-2 ring-white">
             {count > 9 ? "9+" : count}
           </span>
         )}
@@ -134,7 +134,7 @@ export default function PortalTabBar({
                     </span>
                     <span className="flex-1">{m.label}</span>
                     {(m.notificationCount ?? 0) > 0 && (
-                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white">
+                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
                         {m.notificationCount! > 99 ? "99+" : m.notificationCount}
                       </span>
                     )}
